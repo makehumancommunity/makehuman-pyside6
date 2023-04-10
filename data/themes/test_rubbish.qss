@@ -1,0 +1,16 @@
+/*
+ * some test rubbish colors for the mentally derailed :P
+ */
+
+QWidget
+{
+    color: #ffffff;
+    background-color: #ff0000;
+}
+
+QMenuBar {
+   background-color: #006000;
+   font: italic 12px;
+}
+
+

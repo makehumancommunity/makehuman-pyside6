@@ -1,0 +1,15 @@
+/*
+ * standard MakeHuman II CSS file
+ */
+
+QWidget {
+    color: #ffffff;
+    background-color: #323232;
+}
+
+
+QMenuBar {
+   background-color: #505050;
+   font: bold 12px;
+}
+
