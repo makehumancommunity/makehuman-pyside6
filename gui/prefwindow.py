@@ -1,7 +1,6 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QListWidget, QPushButton, QAbstractItemView, QRadioButton, QGroupBox, QCheckBox, QLineEdit, QGridLayout
 
-
 class MHPrefWindow(QWidget):
     """
     preferences window
@@ -21,6 +20,7 @@ class MHPrefWindow(QWidget):
         # folder boxes
         #
         folders = QGroupBox("Folders")
+        folders.setObjectName("subwindow")
         fo_layout = QGridLayout()
         fo_layout.addWidget(QLabel("MakeHuman user home"), 0, 0, 1, 2)
         self.ql_path_home = QLineEdit(env.path_home)
@@ -41,6 +41,7 @@ class MHPrefWindow(QWidget):
         # themes
         #
         themes = QGroupBox("Themes")
+        themes.setObjectName("subwindow")
         th_layout = QVBoxLayout()
         self.themelist = env.getDataFileList("qss", "themes")
         self.listwidget = QListWidget()
@@ -54,6 +55,23 @@ class MHPrefWindow(QWidget):
         themes.setLayout(th_layout)
         layout.addWidget(themes)
 
+        # prefered mesh
+        #
+        meshes = QGroupBox("Base mesh")
+        meshes.setObjectName("subwindow")
+        me_layout = QVBoxLayout()
+        baselist = env.getDataDirList("base.obj", "base")
+        self.basewidget = QListWidget()
+        self.basewidget.addItems(baselist.keys())
+        self.basewidget.setSelectionMode(QAbstractItemView.SingleSelection)
+        if env.basemesh is not None:
+            items = self.basewidget.findItems(env.basemesh,Qt.MatchExactly)
+            if len(items) > 0:
+                self.basewidget.setCurrentItem(items[0])
+        me_layout.addWidget(self.basewidget)
+        meshes.setLayout(me_layout)
+        layout.addWidget(meshes)
+
         # units
         #
         self.u_metric =   QRadioButton("Metric")
@@ -63,6 +81,7 @@ class MHPrefWindow(QWidget):
         else:
             self.u_metric.setChecked(True)
         units = QGroupBox("Units")
+        units.setObjectName("subwindow")
         me_layout = QVBoxLayout()
         me_layout.addWidget(self.u_metric)
         me_layout.addWidget(self.u_imperial)
@@ -72,6 +91,7 @@ class MHPrefWindow(QWidget):
         # session
         #
         sess = QGroupBox("Session")
+        sess.setObjectName("subwindow")
         se_layout = QVBoxLayout()
 
         self.cb_keep = QCheckBox("remember window size")
@@ -119,6 +139,15 @@ class MHPrefWindow(QWidget):
             theme = "makehuman.qss"
         env.config["theme"] = theme
 
+        sel = self.basewidget.selectedItems()
+        if len(sel) > 0:
+            basemesh = sel[0].text()
+        else:
+            basemesh = None
+        env.config["basemesh"] = basemesh
+
+        env.config["units"] = self.u_metric.text().lower() if self.u_metric.isChecked() else self.u_imperial.text().lower()
+        env.config["remember_session"] = self.cb_keep.isChecked()
         env.config["units"] = self.u_metric.text().lower() if self.u_metric.isChecked() else self.u_imperial.text().lower()
         env.config["remember_session"] = self.cb_keep.isChecked()
         env.config["graphicalgui_attached"] = self.cb_attach.isChecked()

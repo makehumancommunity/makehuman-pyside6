@@ -31,6 +31,7 @@ class MHLogWindow(QWidget):
         hlayout = QHBoxLayout()
 
         fdisp = QGroupBox("Files")
+        fdisp.setObjectName("subwindow")
         me_layout = QVBoxLayout()
         me_layout.addWidget(self.f_stdout)
         me_layout.addWidget(self.f_stderr)

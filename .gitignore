@@ -21,7 +21,7 @@ __pycache__/
 
 # data files for MakeHuman  Project #
 #####################################
-*.obj
+#*.obj
 *.png
 *.thumb
 *.mhclo

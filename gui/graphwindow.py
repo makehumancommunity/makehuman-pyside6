@@ -4,20 +4,26 @@ from PySide6.QtGui import QVector3D, QColor
 from PySide6.Qt3DCore import Qt3DCore
 from PySide6.Qt3DExtras import Qt3DExtras
 from PySide6.Qt3DRender import Qt3DRender
-
+from core.fileops import baseClass
 
 class window3d(Qt3DExtras.Qt3DWindow):
     """
     3D Window, a dummy at the moment displaying a sphere
     """
-    def __init__(self):
+    def __init__(self, env):
+        self.env = env
         super().__init__()
 
         cam = self.camera()
         cam.lens().setPerspectiveProjection(45, 16 / 9, 0.1, 1000)
-        cam.setPosition(QVector3D(0, 0, 40))
+        cam.setPosition(QVector3D(0, 0, 25))
         cam.setViewCenter(QVector3D(0, 0, 0))
 
+        rootentity = self.createScene()
+        self.rootEntity = rootentity
+        self.setRootEntity(rootentity)
+
+    def updateScene(self):
         rootentity = self.createScene()
         self.rootEntity = rootentity
         self.setRootEntity(rootentity)
@@ -27,17 +33,23 @@ class window3d(Qt3DExtras.Qt3DWindow):
         rootentity = Qt3DCore.QEntity()
 
         pmaterial1 = Qt3DExtras.QPhongMaterial(rootentity)
-        pmaterial1.setDiffuse(QColor(255,0,0))
+        pmaterial1.setDiffuse(QColor(190,159,141))
         pmaterial1.setAmbient(QColor(128,128,128))
 
+        if self.env.basemesh is not None:
+            base = baseClass(self.env)
+            hmesh = base.loadDefault(rootentity, self.env.basemesh)
+            hmesh.setMeshName("body")
 
-        sphereMesh = Qt3DExtras.QSphereMesh(rootentity)
-        sphereMesh.setRadius(5)
+        else:
+            hmesh = Qt3DExtras.QSphereMesh(rootentity)
+            hmesh.setRadius(5)
+        hmesh.dumpObjectTree()
 
         trans = Qt3DCore.QTransform(rootentity)
         trans.setTranslation(QVector3D(0.0, 0.0, 0.0))
         baseentity = Qt3DCore.QEntity(rootentity)
-        baseentity.addComponent(sphereMesh)
+        baseentity.addComponent(hmesh)
         baseentity.addComponent(pmaterial1)
         baseentity.addComponent(trans)
 
@@ -60,7 +72,7 @@ class MHGraphicWindow(QWidget):
     creates layout for 3d window
     """
     def createLayout(self):
-        self.view = window3d()          # must be saved in self!
+        self.view = window3d(self.environment)          # must be saved in self!
         widget = QWidget()
         container = widget.createWindowContainer(self.view)
         screenSize = self.view.screen().size()

@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QPushButton
+from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFrame, QGroupBox, QListWidget, QAbstractItemView, QSizePolicy
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize, Qt
 from gui.prefwindow import  MHPrefWindow
@@ -48,8 +48,39 @@ class MHMainWindow(QMainWindow):
         """
         create central widget, shown by default or by using connect/disconnect button from graphics window
         """
+        env = self.glob
         central_widget = QWidget()
         hLayout = QHBoxLayout()
+        vLayout = QVBoxLayout()
+
+        groupBox = QGroupBox("Basic Operations")
+
+        bgroupBox = QGroupBox("base mesh")
+        bgroupBox.setObjectName("subwindow")
+
+        bvLayout = QVBoxLayout()
+
+        baselist = env.getDataDirList("base.obj", "base")
+        self.basewidget = QListWidget()
+        self.basewidget.setFixedSize(240, 200)
+        self.basewidget.addItems(baselist.keys())
+        self.basewidget.setSelectionMode(QAbstractItemView.SingleSelection)
+        if env.basemesh is not None:
+            items = self.basewidget.findItems(env.basemesh,Qt.MatchExactly)
+            if len(items) > 0:
+                self.basewidget.setCurrentItem(items[0])
+
+        bvLayout.addWidget(self.basewidget)
+
+        buttons = QPushButton("Select")
+        buttons.clicked.connect(self.selectmesh_call)
+        bvLayout.addWidget(buttons)
+        bgroupBox.setLayout(bvLayout)
+        vLayout.addWidget(bgroupBox)
+        vLayout.addStretch()
+
+        groupBox.setLayout(vLayout)
+        hLayout.addWidget(groupBox)
 
         # create window for internal or external use
         #
@@ -59,16 +90,18 @@ class MHMainWindow(QMainWindow):
         # in case of being attached, add external window in layout
         #
         if self.glob.g_attach is True:
-            graph_widget = QWidget()
-            graph_widget.setAttribute(Qt.WA_StyledBackground, True)
-            graph_widget.setStyleSheet('background-color: grey;')
-            graph_widget.setLayout(gLayout)
-            hLayout.addWidget(graph_widget)
+            groupBoxG = QGroupBox("Viewport")
+            groupBoxG.setLayout(gLayout)
+            hLayout.addWidget(groupBoxG)
 
         # just another button
         #
-        button1 = QPushButton("Test")
-        hLayout.addWidget(button1)
+        vLayoutr = QVBoxLayout()
+        groupBox2 = QGroupBox("Toolpanel")
+        button1 = QPushButton("Another Test Button")
+        vLayoutr.addWidget(button1)
+        groupBox2.setLayout(vLayoutr)
+        hLayout.addWidget(groupBox2)
 
         #
         central_widget.setLayout(hLayout)
@@ -107,6 +140,13 @@ class MHMainWindow(QMainWindow):
         if self.info_window is None:
             self.info_window = MHInfoWindow(self, self.app)
         self.info_window.show()
+
+    def selectmesh_call(self):
+        sel = self.basewidget.selectedItems()
+        if len(sel) > 0:
+            base = sel[0].text()
+            self.glob.basemesh = base
+            self.graph.view.updateScene()
 
 
 

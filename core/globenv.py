@@ -27,6 +27,7 @@ class programInfo():
             "status": "only development"
         }
 
+        self.basemesh = None
         self.verbose = verbose
         self.frozen  = frozen
         self.path_sys = path_sys
@@ -139,6 +140,7 @@ class programInfo():
         # default entries (will be used when not in user or system config)
         #
         defaultconf = {
+            "basemesh": None,
             "graphicalgui_attached": False,
             "noSampleBuffers": False,
             "noShaders": False,
@@ -286,6 +288,7 @@ class programInfo():
         # set further parameters from configuration
         #
         self.g_attach = self.config["graphicalgui_attached"]
+        self.basemesh = self.config["basemesh"]
 
         # read last session on demand
         #
@@ -324,11 +327,11 @@ class programInfo():
             self.path_stdout= None
             self.path_stderr= None
 
-    def getFileList(self, dirname, ext):
+    def getFileList(self, dirname, pattern):
         """
         get a file list with an extension
         """
-        pattern = os.path.join(glob.escape(dirname), "*." + ext)
+        pattern = os.path.join(glob.escape(dirname), pattern)
         return(glob.glob(pattern))
 
     def getDataFileList(self, ext, *subdirs):
@@ -339,10 +342,30 @@ class programInfo():
         for path in [self.path_sysdata, self.path_userdata]:
             test = os.path.join(path, *[sdir for sdir in subdirs])
             if os.path.isdir(test):
-                files = self.getFileList(test, ext)
+                files = self.getFileList(test, "*." + ext)
                 for filename in files:
                     directory, fname = os.path.split(filename)
                     filebase[fname] = filename
+        return(filebase)
+
+    def getDataDirList(self, search, *subdirs):
+        """
+        get filelist from system datapath or userdata + subdirectories
+        """
+        filebase = {}
+        for path in [self.path_sysdata, self.path_userdata]:
+            test = os.path.join(path, *[sdir for sdir in subdirs])
+            files = self.getFileList(test, "*")
+            for dirname in files:
+                if os.path.isdir(dirname):
+                    if search is not None:
+                         filename = os.path.join(dirname, search)
+                         if os.path.isfile(filename):
+                            directory, fname = os.path.split(dirname)
+                            filebase[fname] = filename
+                    else:
+                        directory, fname = os.path.split(dirname)
+                        filebase[fname] = filename
         return(filebase)
 
     def existDataFile(self, *names):
