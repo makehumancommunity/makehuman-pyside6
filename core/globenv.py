@@ -1,9 +1,13 @@
 
 import sys
 import os
+import re
 import locale
+import platform
 import json
 import glob
+from gui.application import QTVersion
+from opengl.main import GLVersion
 
 class programInfo():
     """
@@ -28,6 +32,8 @@ class programInfo():
         }
 
         self.basemesh = None
+        self.last_error = None
+
         self.verbose = verbose
         self.frozen  = frozen
         self.path_sys = path_sys
@@ -36,20 +42,56 @@ class programInfo():
         if p.startswith('win'):
             self.ostype = "Windows"
             self.osindex= 0
+            self.platform_version = " ".join(platform.win32_ver())
         elif p.startswith('darwin'):
             self.ostype = "MacOS"
             self.osindex= 2
+            self.platform_version = platform.mac_ver()[0]
         else:
             self.ostype = "Linux"
             self.osindex= 1
+            try:
+                self.platform_version = ' '.join(platform.linux_distribution())
+            except AttributeError:
+                try:
+                    import distro
+                    self.platform_version = ' '.join(distro.linux_distribution())
+                    print (join(distro.linux_distribution()))
+                except ImportError:
+                    self.platform_version = "Unknown"
 
-        self.last_error = None
-        self.encoding = locale.getpreferredencoding()
+        self.sys_platform = p
+        #
+        # a lot of information for later use
+        #
+        self.default_encoding    = sys.getdefaultencoding()
+        self.filesystem_encoding = sys.getfilesystemencoding()
+        self.stdout_encoding     = sys.stdout.encoding
+        self.preferred_encoding  = locale.getpreferredencoding()
+        self.sys_path = os.path.pathsep.join( [self.pathToUnicode(p) for p in sys.path] )
+        self.bin_path = self.pathToUnicode(os.environ['PATH'])
+        self.sys_version = re.sub(r"[\r\n]"," ", sys.version)
 
+        self.sys_executable = sys.executable
+        self.platform_machine = platform.machine()
+        self.platform_processor = platform.processor()
+        self.platform_release = platform.uname()[2]
+
+        from numpy import __version__ as numpvers
+        self.numpy_version = [int(x) for x in numpvers.split('.')]
+        if self.numpy_version[0] <= 1 and self.numpy_version[1] < 6:
+            print ("MakeHuman requires at least numpy version 1.6")
+            exit (20)
+
+        self.QT_Info = QTVersion(self)
+        self.GL_Info = GLVersion(self)
+
+    def addGLVersion(self):
+        self.GL_Info = GLVersion(self)
 
     def __str__(self):
         """
-        print debug information
+        print debug information, should contain all information
         """
         return  json.dumps(self.__dict__, indent=4, sort_keys=True)
 
@@ -67,15 +109,15 @@ class programInfo():
             except UnicodeDecodeError:
                 pass
             try:
-                return str(path, sys.getfilesystemencoding())
+                return str(path, self.filesystem_encoding)
             except UnicodeDecodeError:
                 pass
             try:
-                return str(path, sys.getdefaultencoding())
+                return str(path, self.default_encoding)
             except UnicodeDecodeError:
                 pass
             try:
-                return str(path, self.encoding)
+                return str(path, self.preferred_encoding)
             except UnicodeDecodeError:
                 return path
         else:
@@ -320,9 +362,9 @@ class programInfo():
         """
         if self.config["redirect_messages"]:
             self.path_stdout = os.path.join(self.path_error, "makehuman-out.txt")
-            sys.stdout = open(self.path_stdout, "w", encoding=self.encoding, errors="replace")
+            sys.stdout = open(self.path_stdout, "w", encoding=self.preferred_encoding, errors="replace")
             self.path_stderr = os.path.join(self.path_error, "makehuman-err.txt")
-            sys.stderr = open(self.path_stderr, "w", encoding=self.encoding, errors="replace")
+            sys.stderr = open(self.path_stderr, "w", encoding=self.preferred_encoding, errors="replace")
         else:
             self.path_stdout= None
             self.path_stderr= None

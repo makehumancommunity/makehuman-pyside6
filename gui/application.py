@@ -1,9 +1,24 @@
 from PySide6.QtWidgets import QApplication
-from PySide6.QtGui import QScreen
+from PySide6.QtGui import QScreen, QImageReader
+from PySide6.QtCore import qVersion, QCoreApplication
+import os
+
+def QTVersion(pinfo):
+    qversion = {}
+    qversion["version"] = [ int(x) for x in qVersion().split(".")]
+    formats = [ s.data().decode(encoding='utf-8').lower() for s in QImageReader.supportedImageFormats() ]
+    qversion["jpg_support"] = "jpg" in formats
+    qversion["svg_support"] = "svg" in formats and qversion["version"][0] >= 4 and qversion["version"][1] >= 2
+    qversion["plugin_path"] = os.path.pathsep.join( [pinfo.pathToUnicode(p) for p in QCoreApplication.libraryPaths()])
+    qversion["plugin_path_env"] = pinfo.pathToUnicode(os.environ['QT_PLUGIN_PATH'] if 'QT_PLUGIN_PATH' in os.environ else "")
+    #
+    # qt.conf is no longer tested (reason: other versions like qt6.conf etc. can be used
+    #
+    return (qversion)
 
 class MHApplication(QApplication):
     """
-    classe to maintain QT parameters
+    class to maintain QT parameters
     """
     def __init__(self, env, argv):
         self.env = env
