@@ -1,0 +1,27 @@
+{
+	"Breast Firmness": {
+		"icon": "breastfirmness.png"
+	},
+	"Breast Vertical Position": {
+		"icon": "breast-trans-down-up.png"
+	},
+	"Breast Size": {
+		"icon": "breastsize.png"
+	},
+	"Breast Pointiness": {
+		"icon": "breast-point-decr-incr.png"
+	},
+	"Nipple Size": {
+		"icon": "nipple-size-decr-incr.png"
+	},
+	"Nipple Pointiness": {
+		"icon": "nipple-point-decr-incr.png"
+	},
+	"Breast Distance": {
+		"icon": "breast-dist-decr-incr.png"
+	},
+	"Breast Volume": {
+		"icon": "breast-volume-vert-down-up.png"
+	}
+}
+

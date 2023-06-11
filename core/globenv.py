@@ -9,6 +9,10 @@ import glob
 from gui.application import QTVersion
 from opengl.main import GLVersion
 
+class globalObjects():
+    def __init__(self):
+        self.Targets = None
+
 class programInfo():
     """
     this class should contain 'global parameters'
@@ -31,7 +35,7 @@ class programInfo():
             "status": "only development"
         }
 
-        self.basemesh = None
+        self.basename = None
         self.last_error = None
 
         self.verbose = verbose
@@ -84,10 +88,7 @@ class programInfo():
             exit (20)
 
         self.QT_Info = QTVersion(self)
-        self.GL_Info = GLVersion(self)
-
-    def addGLVersion(self):
-        self.GL_Info = GLVersion(self)
+        self.GL_Info = GLVersion(False) # not yet initialized
 
     def __str__(self):
         """
@@ -182,7 +183,7 @@ class programInfo():
         # default entries (will be used when not in user or system config)
         #
         defaultconf = {
-            "basemesh": None,
+            "basename": None,
             "graphicalgui_attached": False,
             "noSampleBuffers": False,
             "noShaders": False,
@@ -330,7 +331,7 @@ class programInfo():
         # set further parameters from configuration
         #
         self.g_attach = self.config["graphicalgui_attached"]
-        self.basemesh = self.config["basemesh"]
+        self.basename = self.config["basename"]
 
         # read last session on demand
         #

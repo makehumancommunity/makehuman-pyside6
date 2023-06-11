@@ -5,14 +5,18 @@ from gui.prefwindow import  MHPrefWindow
 from gui.logwindow import  MHLogWindow
 from gui.infowindow import  MHInfoWindow
 from gui.graphwindow import  MHGraphicWindow
+from gui.slider import ScaleComboArray
+from core.fileops import baseClass
+
 import os
 
 class MHMainWindow(QMainWindow):
     """
     Main Window class
     """
-    def __init__(self, glob, app):
+    def __init__(self, env, glob, app):
         self.app = app
+        self.env = env
         self.glob = glob
         self.pref_window = None
         self.info_window = None
@@ -21,13 +25,13 @@ class MHMainWindow(QMainWindow):
         self.in_close = False
         super().__init__()
 
-        s = glob.session["mainwinsize"]
-        title = glob.release_info["name"]
+        s = env.session["mainwinsize"]
+        title = env.release_info["name"]
         self.setWindowTitle(title)
         self.resize (s["w"], s["h"])
 
         menu_bar = self.menuBar()
-        about_menu = menu_bar.addMenu(QIcon(os.path.join(glob.path_sysicon, "makehuman.svg")), "&About")
+        about_menu = menu_bar.addMenu(QIcon(os.path.join(env.path_sysicon, "makehuman.svg")), "&About")
         about_act = about_menu.addAction("Info")
         about_act.triggered.connect(self.info_call)
 
@@ -48,7 +52,7 @@ class MHMainWindow(QMainWindow):
         """
         create central widget, shown by default or by using connect/disconnect button from graphics window
         """
-        env = self.glob
+        env = self.env
         central_widget = QWidget()
         hLayout = QHBoxLayout()
         vLayout = QVBoxLayout()
@@ -65,8 +69,8 @@ class MHMainWindow(QMainWindow):
         self.basewidget.setFixedSize(240, 200)
         self.basewidget.addItems(baselist.keys())
         self.basewidget.setSelectionMode(QAbstractItemView.SingleSelection)
-        if env.basemesh is not None:
-            items = self.basewidget.findItems(env.basemesh,Qt.MatchExactly)
+        if env.basename is not None:
+            items = self.basewidget.findItems(env.basename,Qt.MatchExactly)
             if len(items) > 0:
                 self.basewidget.setCurrentItem(items[0])
 
@@ -84,28 +88,45 @@ class MHMainWindow(QMainWindow):
 
         # create window for internal or external use
         #
-        self.graph = MHGraphicWindow(self, self.glob)
+        self.graph = MHGraphicWindow(self, self.env)
         gLayout = self.graph.createLayout()
 
         # in case of being attached, add external window in layout
         #
-        if self.glob.g_attach is True:
+        if self.env.g_attach is True:
             groupBoxG = QGroupBox("Viewport")
             groupBoxG.setLayout(gLayout)
             hLayout.addWidget(groupBoxG)
 
-        # just another button
+        # ToolBox
         #
-        vLayoutr = QVBoxLayout()
-        groupBox2 = QGroupBox("Toolpanel")
-        button1 = QPushButton("Another Test Button")
-        vLayoutr.addWidget(button1)
-        groupBox2.setLayout(vLayoutr)
-        hLayout.addWidget(groupBox2)
+        groupTool = QGroupBox("Toolpanel")
+        self.ToolBox = QVBoxLayout()
+
+        self.drawToolPannel()
+        groupTool.setLayout(self.ToolBox)
+        hLayout.addWidget(groupTool)
 
         #
         central_widget.setLayout(hLayout)
         self.setCentralWidget(central_widget)
+
+    def drawToolPannel(self):
+        if self.glob.Targets is not None:
+            widget = QWidget()
+            scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets)
+            widget.setLayout(scalerArray.layout)
+            self.ToolBox.addWidget(widget)
+
+    def emptyLayout(self, layout):
+        if layout is not None:
+            while layout.count():
+                item = layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.deleteLater()
+                else:
+                    self.clearLayout(item.layout())
 
     def show(self):
         """
@@ -145,8 +166,17 @@ class MHMainWindow(QMainWindow):
         sel = self.basewidget.selectedItems()
         if len(sel) > 0:
             base = sel[0].text()
-            self.glob.basemesh = base
-            self.graph.view.updateScene()
+            #
+            # do nothing if not changes
+            #
+            if base == self.env.basename:
+                return
+            base = baseClass(self.env, self.glob, base)
+            base.prepareClass()
+            self.graph.view.paintGL()
+            self.emptyLayout(self.ToolBox)
+            self.drawToolPannel()
+            self.ToolBox.update()
 
 
 
@@ -156,10 +186,10 @@ class MHMainWindow(QMainWindow):
         """
         if self.in_close is False:
             self.in_close = True                # avoid double call by closeAllWindows
-            s = self.glob.session["mainwinsize"]
+            s = self.env.session["mainwinsize"]
             s["w"] = self.width()
             s["h"] = self.height()
-            self.glob.saveSession()
-            self.glob.cleanup()
+            self.env.saveSession()
+            self.env.cleanup()
             self.app.closeAllWindows()
             self.app.quit()

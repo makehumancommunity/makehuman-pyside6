@@ -1,0 +1,10 @@
+{
+	"Flatten Cat": {
+		"icon": "flatcat.png",
+		"tip": "Select to create low-rider version"
+	},
+	"Narrow Cat": {
+		"icon": "narrowcat.png",
+		"tip": "Select to make cat aerodynamic"
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"Smaller Cube": {
+		"icon": "smallercube.png",
+		"tip": "Select to resize cube"
+	},
+	"Bigger Cube": {
+		"icon": "biggercube.png"
+	}
+}

@@ -8,7 +8,7 @@ class MHPrefWindow(QWidget):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
-        env = parent.glob
+        env = parent.env
 
         self.setWindowTitle("Preferences")
         self.resize (500, 600)
@@ -64,8 +64,8 @@ class MHPrefWindow(QWidget):
         self.basewidget = QListWidget()
         self.basewidget.addItems(baselist.keys())
         self.basewidget.setSelectionMode(QAbstractItemView.SingleSelection)
-        if env.basemesh is not None:
-            items = self.basewidget.findItems(env.basemesh,Qt.MatchExactly)
+        if env.basename is not None:
+            items = self.basewidget.findItems(env.basename,Qt.MatchExactly)
             if len(items) > 0:
                 self.basewidget.setCurrentItem(items[0])
         me_layout.addWidget(self.basewidget)
@@ -129,7 +129,7 @@ class MHPrefWindow(QWidget):
         """
         does all the work to save configuration
         """
-        env =  self.parent.glob
+        env =  self.parent.env
 
         sel = self.listwidget.selectedItems()
         if len(sel) > 0:
@@ -141,10 +141,10 @@ class MHPrefWindow(QWidget):
 
         sel = self.basewidget.selectedItems()
         if len(sel) > 0:
-            basemesh = sel[0].text()
+            basename = sel[0].text()
         else:
-            basemesh = None
-        env.config["basemesh"] = basemesh
+            basename = None
+        env.config["basename"] = basename
 
         env.config["units"] = self.u_metric.text().lower() if self.u_metric.isChecked() else self.u_imperial.text().lower()
         env.config["remember_session"] = self.cb_keep.isChecked()

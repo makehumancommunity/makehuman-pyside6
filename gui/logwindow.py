@@ -12,7 +12,7 @@ class MHLogWindow(QWidget):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
-        self.env = parent.glob
+        self.env = parent.env
         self.f_displayed = self.env.path_stdout
         self.f_match = re.compile("^\[(\d+)\]\s+")
         self.setWindowTitle("Messages")

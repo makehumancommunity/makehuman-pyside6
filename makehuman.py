@@ -1,15 +1,16 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3 # -*- coding: utf-8 -*-
 
 import argparse, textwrap
 import os
 import sys
+from time import sleep
 
 from PySide6.QtWidgets import QApplication
 
-from core.globenv import programInfo as G
+from core.globenv import programInfo, globalObjects
 from gui.mainwindow import  MHMainWindow
 from gui.application import  MHApplication
+from core.fileops import baseClass
 
 def main():
     """
@@ -39,19 +40,32 @@ def main():
     else:
         syspath = os.path.dirname(os.path.realpath(__file__))
 
-    glob = G(frozen, syspath, args.verbose)
-    if not glob.environment():
-        print (glob.last_error)
+    # get programInfo as environment (only for strings to be printed in JSON)
+    # and globalObjects for non-printable objects
+
+    env = programInfo(frozen, syspath, args.verbose)
+    if not env.environment():
+        print (env.last_error)
         exit (20)
 
-    if args.verbose & 2:
-        print (glob)
+    glob = globalObjects()
 
-    theme = glob.existDataFile("themes", glob.config["theme"])
-    app = MHApplication(glob, sys.argv)
+    if args.verbose & 2:
+        print (env)
+
+    theme = env.existDataFile("themes", env.config["theme"])
+
+    app = MHApplication(env, sys.argv)
+
     if app.setStyles(theme) is False:
-        glob.logLine(1, glob.last_error)
-    mainwin = MHMainWindow(glob, app)
+        env.logLine(1, env.last_error)
+
+    if env.basename is not None:
+        print (env.basename)
+        base = baseClass(env, glob, env.basename)
+        base.prepareClass()
+
+    mainwin = MHMainWindow(env, glob, app)
     mainwin.show()
     app.exec()
     

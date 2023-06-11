@@ -10,7 +10,7 @@ class MHInfoWindow(QWidget):
     def __init__(self, parent, app):
         super().__init__()
         self.parent = parent
-        env = parent.glob
+        env = parent.env
         rel = env.release_info
         version = ".".join(str(l) for l in env.release_info["version"])
         text = " ".join([rel["name"], version, "     Authors:", rel["author"]])

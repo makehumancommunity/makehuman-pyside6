@@ -1,28 +1,30 @@
 import os
-from PySide6.QtCore import QUrl
-
-from PySide6.Qt3DCore import Qt3DCore
-from PySide6.Qt3DRender import Qt3DRender
-
+from core.target import Targets
 
 class waveObj():
-    def __init__(self, rootentity):
+    def __init__(self):
         self.name = None
-        self.rootentity = rootentity
 
     def load(self, name):
-        obj = QUrl.fromLocalFile(name)
-        baseMesh = Qt3DRender.QMesh(self.rootentity)
-        baseMesh.setSource(obj)
+        print ("Would load base mesh")
         return (baseMesh)
 
 class baseClass():
-    def __init__(self, env):
+    """
+    get the environment for a base
+    """
+    def __init__(self, env, glob, name):
         self.env = env
-        self.name = None
+        self.glob = glob
+        print ("called for " + name)
+        self.env.basename = name
 
-    def loadDefault(self, rootentity, baseclass):
-        name = os.path.join(self.env.path_sysdata, "base", baseclass, "base.obj")
-        obj = waveObj(rootentity)
+
+    def loadBaseMesh(self):
+        name = os.path.join(self.env.path_sysdata, "base", self.env.basename, "base.obj")
+        obj = waveObj()
         return(obj.load(name))
 
+    def prepareClass(self):
+        target = Targets(self.env, self.glob)
+        target.loadTargets()
