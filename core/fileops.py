@@ -1,13 +1,7 @@
 import os
 from core.target import Targets
+from obj3d.fops_wavefront import importWaveFront
 
-class waveObj():
-    def __init__(self):
-        self.name = None
-
-    def load(self, name):
-        print ("Would load base mesh")
-        return (baseMesh)
 
 class baseClass():
     """
@@ -20,11 +14,10 @@ class baseClass():
         self.env.basename = name
 
 
-    def loadBaseMesh(self):
-        name = os.path.join(self.env.path_sysdata, "base", self.env.basename, "base.obj")
-        obj = waveObj()
-        return(obj.load(name))
-
     def prepareClass(self):
+        name = os.path.join(self.env.path_sysdata, "base", self.env.basename, "base.obj")
+        (res, err) = importWaveFront(name)
+        if res is False:
+            print (err)
         target = Targets(self.env, self.glob)
         target.loadTargets()

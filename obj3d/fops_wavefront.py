@@ -1,0 +1,92 @@
+"""
+file operations, wavefront OBJ
+"""
+
+def importWaveFront(path):
+    """
+    f  = face
+    g  = groups are used to add faces to
+    o  = object (name), only one is used
+    v  = positions (3d)
+    vt = positions (texture)
+    usemtl = material (skipped)
+    """
+
+    print ("load " + path)
+    try:
+        f = open(path, 'r', encoding="utf-8")
+    except IOError:
+        return (False, "Cannot open file " + path)
+    else:
+
+        verts  = []
+        uvs    = []
+        groups = {}
+        objname = None
+        g = groups["mh_default"] = {"v": [], "uv": [] }
+
+        for line in f:
+            words = line.split()
+
+            if len(words) == 0:
+                continue
+
+            command = words[0]
+
+            # v and vt simply fill buffers
+            #
+            if command == 'v':
+                verts.append((float(words[1]), float(words[2]), float(words[3])))
+
+            elif command == 'vt':
+                uvs.append((float(words[1]), float(words[2])))
+
+            # f, faces, this data is stored groupwise, index counts from 1
+            # a/b ... first one is vertex-index, second one UV
+            #
+            elif command == 'f':
+                vInd  = []
+                uvInd = []
+
+                for elem in words[1:]:
+                    columns = elem.split('/')
+                    vInd.append(int(columns[0]) - 1)
+
+                    if len(columns) > 1 and columns[1] != '':
+                        uvInd.append(int(columns[1]) - 1)
+
+                g["v"].append(vInd)
+                g["uv"].append(uvInd)
+
+            elif command == 'g':
+                gname = words[1]
+                if gname not in groups:
+                    g = groups[gname] = {"v": [], "uv": [] }
+
+            elif command == 'o':
+                objname = words[1]
+
+            else:
+                # print ("Ignore: " + line)
+                pass
+        f.close()
+
+    # delete empty groups
+    # must be done in two steps not to destroy iteration, first step can delete empty uvs
+    #
+    delete = []
+    for g in groups:
+        if len(groups[g]["v"]) == 0:
+            delete.append(g)
+        if len(groups[g]["uv"]) == 0:
+            del groups[g]["uv"]
+
+    for d in delete:
+        del groups[d]
+
+    # sanity test for finding vertices costs too much time
+    #
+    # TODO for tri mesh generate 4 vertex in vInd ? (at this place?)
+    # TODO has uv should be simply found by len of uvs
+
+    return (True, None)
