@@ -2,7 +2,7 @@
 file operations, wavefront OBJ
 """
 
-def importWaveFront(path):
+def importWaveFront(path, obj):
     """
     f  = face
     g  = groups are used to add faces to
@@ -23,12 +23,17 @@ def importWaveFront(path):
         uvs    = []
         groups = {}
         objname = None
+        prim = 0        # verts per face (either 3 or 4)
+        ln = 0          # line number
+
         g = groups["mh_default"] = {"v": [], "uv": [] }
 
         for line in f:
+            ln += 1
             words = line.split()
 
-            if len(words) == 0:
+            lwords = len(words) -1
+            if lwords <= 0:
                 continue
 
             command = words[0]
@@ -48,6 +53,14 @@ def importWaveFront(path):
                 vInd  = []
                 uvInd = []
 
+                if lwords != 3 and lwords != 4:
+                    f.close()
+                    return (False, "File " + path + " line: " + str(ln) + " => Vertex per face must be either 3 or 4")
+                if prim != 0 and prim != lwords:
+                    f.close()
+                    return (False, "File " + path + " line: " + str(ln) + " => Vertex per face must not mix")
+
+                prim = lwords
                 for elem in words[1:]:
                     columns = elem.split('/')
                     vInd.append(int(columns[0]) - 1)
@@ -88,5 +101,8 @@ def importWaveFront(path):
     #
     # TODO for tri mesh generate 4 vertex in vInd ? (at this place?)
     # TODO has uv should be simply found by len of uvs
+    obj.setName(objname)
+    obj.createGLVertPos(verts)
+    obj.createGLFaces(verts, prim)
 
     return (True, None)
