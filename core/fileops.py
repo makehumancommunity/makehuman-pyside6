@@ -24,6 +24,7 @@ class baseClass():
             del self.object3d
             self.object3d = None
             print (err)
+        self.glob.baseClass = self.object3d
         print(self.object3d)
         target = Targets(self.env, self.glob)
         target.loadTargets()

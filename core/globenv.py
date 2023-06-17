@@ -12,6 +12,7 @@ from opengl.main import GLVersion
 class globalObjects():
     def __init__(self):
         self.Targets = None
+        self.baseClass = None
 
 class programInfo():
     """

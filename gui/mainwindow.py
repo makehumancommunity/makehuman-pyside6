@@ -88,7 +88,7 @@ class MHMainWindow(QMainWindow):
 
         # create window for internal or external use
         #
-        self.graph = MHGraphicWindow(self, self.env)
+        self.graph = MHGraphicWindow(self, self.env, self.glob)
         gLayout = self.graph.createLayout()
 
         # in case of being attached, add external window in layout
@@ -173,10 +173,11 @@ class MHMainWindow(QMainWindow):
                 return
             base = baseClass(self.env, self.glob, base)
             base.prepareClass()
-            self.graph.view.paintGL()
+            self.graph.view.newMesh()
             self.emptyLayout(self.ToolBox)
             self.drawToolPannel()
             self.ToolBox.update()
+            self.graph.update()
 
 
 

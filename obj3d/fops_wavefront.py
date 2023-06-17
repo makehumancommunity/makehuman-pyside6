@@ -22,11 +22,16 @@ def importWaveFront(path, obj):
         verts  = []
         uvs    = []
         groups = {}
+        groupnames = [] # to keep the group order
         objname = None
         prim = 0        # verts per face (either 3 or 4)
         ln = 0          # line number
+        fcnt = 0        # face-counter
+        ucnt = 0        # UV-face counter
 
+        groupnames.append("mh_default")
         g = groups["mh_default"] = {"v": [], "uv": [] }
+
 
         for line in f:
             ln += 1
@@ -69,12 +74,17 @@ def importWaveFront(path, obj):
                         uvInd.append(int(columns[1]) - 1)
 
                 g["v"].append(vInd)
-                g["uv"].append(uvInd)
+                fcnt += 1
+
+                if len(uvInd) > 0:
+                    g["uv"].append(uvInd)
+                    ucnt += 1
 
             elif command == 'g':
                 gname = words[1]
                 if gname not in groups:
                     g = groups[gname] = {"v": [], "uv": [] }
+                    groupnames.append(gname)
 
             elif command == 'o':
                 objname = words[1]
@@ -91,6 +101,7 @@ def importWaveFront(path, obj):
     for g in groups:
         if len(groups[g]["v"]) == 0:
             delete.append(g)
+            groupnames.remove(g)
         if len(groups[g]["uv"]) == 0:
             del groups[g]["uv"]
 
@@ -100,9 +111,10 @@ def importWaveFront(path, obj):
     # sanity test for finding vertices costs too much time
     #
     # TODO for tri mesh generate 4 vertex in vInd ? (at this place?)
-    # TODO has uv should be simply found by len of uvs
+    #
     obj.setName(objname)
-    obj.createGLVertPos(verts)
-    obj.createGLFaces(verts, prim)
+    obj.setGroupNames(groupnames)
+    obj.createGLVertPos(verts)          # TODO consider to recombine createGLVertPos and createGLFaces
+    obj.createGLFaces(fcnt, ucnt, prim, groups)
 
     return (True, None)

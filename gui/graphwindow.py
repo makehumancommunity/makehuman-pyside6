@@ -10,10 +10,11 @@ class MHGraphicWindow(QWidget):
     init creates widget itself, then createLayout is called
     """
 
-    def __init__(self, parent, environment):
+    def __init__(self, parent, env, glob):
         self.parent = parent
-        self.environment = environment
-        self.attached = environment.g_attach
+        self.env = env
+        self.glob = glob
+        self.attached = env.g_attach
         print ("Attach " + str(self.attached))
         super().__init__()
 
@@ -21,7 +22,7 @@ class MHGraphicWindow(QWidget):
     creates layout for 3d window
     """
     def createLayout(self):
-        self.view = GraphWindow(self.environment)          # must be saved in self!
+        self.view = GraphWindow(self.env, self.glob)          # must be saved in self!
         glayout = QHBoxLayout()
         glayout.addWidget(self.view)
 
@@ -44,7 +45,7 @@ class MHGraphicWindow(QWidget):
     """
     def connect_button(self):
         print ("connect pressed")
-        self.environment.g_attach = True
+        self.env.g_attach = True
         self.parent.createCentralWidget()
         self.close()
         self.destroy()
@@ -54,7 +55,7 @@ class MHGraphicWindow(QWidget):
     """
     def disconnect_button(self):
         print ("disconnect pressed")
-        self.environment.g_attach = False
+        self.env.g_attach = False
         self.parent.createCentralWidget()
         self.parent.show()
         self.destroy()
@@ -65,5 +66,4 @@ class MHGraphicWindow(QWidget):
     def show(self):
         if self.attached is False:
             super().show()
-
 
