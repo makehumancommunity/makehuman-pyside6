@@ -33,11 +33,17 @@ class GraphWindow(QOpenGLWidget):
         print (env)
 
     def createObject(self):
+        baseClass = self.glob.baseClass
         self.buffers = OpenGlBuffers()
-        #self.buffers.VertexBuffer(baseClass.coord, baseClass.n_verts)
-        self.buffers.VertexBuffer(self.object.verts, self.object.amount_of_vertices)
-        self.buffers.NormalBuffer(self.object.normals)
-        self.buffers.TexCoordBuffer(self.object.tex_coords)
+        self.buffers.VertexBuffer(baseClass.gl_coord, baseClass.n_glverts)      # seems to be okay
+        #print (baseClass.gl_coord)
+        #print (baseClass.n_glverts)
+        #print (self.object.normals)
+        #print (baseClass.gl_norm)
+        self.buffers.NormalBuffer(baseClass.gl_norm)
+        #self.buffers.NormalBuffer(self.object.normals)                          # seems to be correct
+        #self.buffers.TexCoordBuffer(self.object.tex_coords)
+        self.buffers.TexCoordBuffer(baseClass.gl_fuvs)                          # is wrong
         self.obj = Object3D(self.buffers, self.mh_shaders, self.texture, pos=QVector3D(0, 0, 0))
 
     def initializeGL(self):
@@ -65,7 +71,7 @@ class GraphWindow(QOpenGLWidget):
         self.proj_matrix = QMatrix4x4()
         self.view_matrix = QMatrix4x4()
         self.view_matrix.lookAt(
-            QVector3D(2, 3, 5),
+            QVector3D(2, 5, 20),
             QVector3D(0, 0, 0),
             QVector3D(0, 1, 0))
 

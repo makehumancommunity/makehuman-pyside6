@@ -114,7 +114,7 @@ def importWaveFront(path, obj):
     #
     obj.setName(objname)
     obj.setGroupNames(groupnames)
-    obj.createGLVertPos(verts)          # TODO consider to recombine createGLVertPos and createGLFaces
+    obj.createGLVertPos(verts, uvs)          # TODO consider to recombine createGLVertPos and createGLFaces
     obj.createGLFaces(fcnt, ucnt, prim, groups)
 
     return (True, None)
