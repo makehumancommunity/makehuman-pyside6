@@ -4,7 +4,6 @@ from PySide6.QtGui import QMatrix4x4, QVector3D
 
 import OpenGL
 from OpenGL import GL as gl
-from core.mesh import dummyMesh
 from opengl.shaders import ShaderRepository
 from opengl.buffers import OpenGlBuffers, Object3D
 
@@ -35,15 +34,9 @@ class GraphWindow(QOpenGLWidget):
     def createObject(self):
         baseClass = self.glob.baseClass
         self.buffers = OpenGlBuffers()
-        self.buffers.VertexBuffer(baseClass.gl_coord, baseClass.n_glverts)      # seems to be okay
-        #print (baseClass.gl_coord)
-        #print (baseClass.n_glverts)
-        #print (self.object.normals)
-        #print (baseClass.gl_norm)
+        self.buffers.VertexBuffer(baseClass.gl_coord, baseClass.n_glverts)
         self.buffers.NormalBuffer(baseClass.gl_norm)
-        #self.buffers.NormalBuffer(self.object.normals)                          # seems to be correct
-        #self.buffers.TexCoordBuffer(self.object.tex_coords)
-        self.buffers.TexCoordBuffer(baseClass.gl_fuvs)                          # is wrong
+        self.buffers.TexCoordBuffer(baseClass.gl_uvcoord)
         self.obj = Object3D(self.buffers, self.mh_shaders, self.texture, pos=QVector3D(0, 0, 0))
 
     def initializeGL(self):
@@ -59,9 +52,6 @@ class GraphWindow(QOpenGLWidget):
         self.mh_shaders.loadVertShader("testshader")
         self.mh_shaders.attribVertShader()
         self.mh_shaders.getVertLocations()
-
-        self.object = dummyMesh()
-        self.object.load()
 
         self.texture = self.mh_shaders.loadTexture("cube")
 

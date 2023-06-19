@@ -19,6 +19,7 @@ class object3d:
         self.group = []     # will contain pointer to group per face
 
         self.gl_coord = []    # will contain flattened gl-Buffer
+        self.gl_uvcoord = []  # will contain flattened gluv-Buffer
         self.gl_norm  = []    # will contain flattended normal buffer
         self.gl_fuvs   = None # will contain UV buffer for OpenGL
         self.gl_fvert  = []   # will contain vertices per face, [verts, 3] array of uint32 for openGL > 2
@@ -55,19 +56,31 @@ class object3d:
             self.gl_fuvs   = self.fuvs
             self.n_glfaces = self.n_faces
             self.n_glfuvs  = self.n_fuvs
-            return
 
-        self.n_glfaces = self.n_faces * 2
-        self.gl_fvert = np.empty((self.n_glfaces, 3), dtype=np.uint32)
-        cnt = 0
-        for elem in self.fvert:
-            self.gl_fvert[cnt] = elem[:3]
-            cnt += 1
-            self.gl_fvert[cnt] = [elem[0], elem[2], elem[3]]
-            cnt += 1
+        else:
+            self.n_glfaces = self.n_faces * 2
+            self.gl_fvert = np.empty((self.n_glfaces, 3), dtype=np.uint32)
+            cnt = 0
+            for elem in self.fvert:
+                self.gl_fvert[cnt] = elem[:3]
+                cnt += 1
+                self.gl_fvert[cnt] = [elem[0], elem[2], elem[3]]
+                cnt += 1
+
+            if self.n_fuvs > 0:
+                self.n_glfuvs = self.n_fuvs * 2
+                self.gl_fuvs = np.empty((self.n_glfuvs, 3), dtype=np.uint32)
+                cnt = 0
+                for elem in self.fuvs:
+                    self.gl_fuvs[cnt] = elem[:3]
+                    cnt += 1
+                    self.gl_fuvs[cnt] = [elem[0], elem[2], elem[3]]
+                    cnt += 1
 
 
         # TODO: this array would be rather ineffective I guess
+        #
+        # now put elements in a row
 
         self.n_glverts = self.n_glfaces * 3
         self.gl_coord = np.zeros(self.n_glverts * 3, dtype=np.float32)
@@ -81,14 +94,14 @@ class object3d:
                 cnt += 3
 
         if self.n_fuvs > 0:
-            self.n_glfuvs = self.n_glverts
-            self.gl_fuvs = np.zeros(self.n_glverts * 2, dtype=np.float32)
+            self.n_uvcoords  = self.n_glfaces * 3
+            self.gl_uvcoord = np.zeros(self.n_uvcoords * 2, dtype=np.float32)
             cnt = 0
-            for face in self.gl_fvert:
+            for face in self.gl_fuvs:
                 for vert in face:
                     v = self.uvs[vert]
-                    self.gl_fuvs[cnt] = v[0]
-                    self.gl_fuvs[cnt+1] = v[1]
+                    self.gl_uvcoord[cnt] = v[0]
+                    self.gl_uvcoord[cnt+1] = 1 - v[1]
                     cnt += 2
 
 
