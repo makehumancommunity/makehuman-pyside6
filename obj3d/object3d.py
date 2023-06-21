@@ -88,9 +88,7 @@ class object3d:
         for face in self.gl_fvert:
             for vert in face:
                 v = self.coord[vert]
-                self.gl_coord[cnt] = v[0]
-                self.gl_coord[cnt+1] = v[1]
-                self.gl_coord[cnt+2] = v[2]
+                self.gl_coord[cnt:cnt+3] = v[0:3]
                 cnt += 3
 
         if self.n_fuvs > 0:
@@ -106,8 +104,8 @@ class object3d:
 
 
     def calcFaceNormals(self):
-        #  counter-clockwise
-        #  TODO: rather inefficient
+        # 
+        # calculates a normal vector for each vertex (range 3)
         #
         self.n_glnorm = self.n_glfaces * 3
         self.gl_norm = np.zeros(self.n_glnorm * 3, dtype=np.float32)
@@ -117,9 +115,7 @@ class object3d:
             v = self.coord[elem]
             norm = np.cross(v[0] - v[1], v[1] - v[2])
             for i in range(3):
-                self.gl_norm[cnt] = norm[0]
-                self.gl_norm[cnt+1] = norm[1]
-                self.gl_norm[cnt+2] = norm[2]
+                self.gl_norm[cnt:cnt+3] = norm[0:3]
                 cnt += 3
 
     def createGLFaces(self, nfaces, ufaces, prim, groups):
