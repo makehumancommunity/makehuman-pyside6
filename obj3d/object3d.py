@@ -1,4 +1,5 @@
 import numpy as np 
+
 class object3d:
     def __init__(self):
  
@@ -102,6 +103,11 @@ class object3d:
                     self.gl_uvcoord[cnt+1] = 1 - v[1]
                     cnt += 2
 
+        del self.uvs           # save memory
+        del self.fvert
+        if self.prim != 3:
+            del self.gl_fuvs
+
 
     def calcFaceNormals(self):
         # 
@@ -146,10 +152,10 @@ class object3d:
                 self.fuvs[x:n,] = groups[elem]["uv"]
                 x = n
 
+        self.calculateMaxAttachedFaces()
         self.triangulateFaces()
         self.calcFaceNormals()
 
-        self.calculateMaxAttachedFaces()
 
     def calculateMaxAttachedFaces(self):
         """

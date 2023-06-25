@@ -1,7 +1,9 @@
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
 from PySide6.QtCore import QSize
-from PySide6.QtGui import QMatrix4x4, QVector3D
+from PySide6.QtGui import QMatrix4x4, QVector3D, QOpenGLContext
 
+# try to keep only constants here
+#
 import OpenGL
 from OpenGL import GL as gl
 from opengl.shaders import ShaderRepository
@@ -28,7 +30,7 @@ class GraphWindow(QOpenGLWidget):
         self.glob = glob
         super().__init__()
         self.setMinimumSize(QSize(600, 600))
-        self.vert_buffers = None
+        self.buffers = None
         print (env)
 
     def createObject(self):
@@ -37,15 +39,16 @@ class GraphWindow(QOpenGLWidget):
         self.buffers.VertexBuffer(baseClass.gl_coord, baseClass.n_glverts)
         self.buffers.NormalBuffer(baseClass.gl_norm)
         self.buffers.TexCoordBuffer(baseClass.gl_uvcoord)
-        self.obj = Object3D(self.buffers, self.mh_shaders, self.texture, pos=QVector3D(0, 0, 0))
+        self.obj = Object3D(self.context(), self.buffers, self.mh_shaders, self.texture, pos=QVector3D(0, 0, 0))
 
     def initializeGL(self):
 
         self.env.GL_Info = GLVersion(True)
         baseClass = self.glob.baseClass
+        glfunc = self.context().functions()
 
-        gl.glClearColor(0.2, 0.2, 0.2, 1)
-        gl.glEnable(gl.GL_DEPTH_TEST)
+        glfunc.glClearColor(0.2, 0.2, 0.2, 1)
+        glfunc.glEnable(gl.GL_DEPTH_TEST)
 
         self.mh_shaders = ShaderRepository(self.env)
         self.mh_shaders.loadFragShader("testshader")
@@ -70,7 +73,9 @@ class GraphWindow(QOpenGLWidget):
 
 
     def paintGL(self):
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+        glfunc = self.context().functions()
+
+        glfunc.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
         self.proj_view_matrix = self.proj_matrix * self.view_matrix
         baseClass = self.glob.baseClass
         if baseClass is not None:
@@ -78,13 +83,18 @@ class GraphWindow(QOpenGLWidget):
 
     def newMesh(self):
         baseClass = self.glob.baseClass
+        if self.buffers is not None:
+            self.buffers.Delete()
+            del self.obj
+
         if baseClass is not None:
             self.createObject()
             self.paintGL()
             self.update()
 
     def resizeGL(self, w, h):
-        gl.glViewport(0, 0, w, h)
+        glfunc = self.context().functions()
+        glfunc.glViewport(0, 0, w, h)
         self.proj_matrix.setToIdentity()
         self.proj_matrix.perspective(50, float(w) / float(h), 0.1, 100)
 

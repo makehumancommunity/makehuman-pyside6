@@ -2,7 +2,7 @@ import os
 from core.target import Targets
 from obj3d.fops_wavefront import importWaveFront
 from obj3d.object3d import object3d
-
+from core.debug import memInfo
 
 class baseClass():
     """
@@ -13,6 +13,7 @@ class baseClass():
         self.glob = glob
         self.object3d = None
         print ("called for " + name)
+        memInfo()
         self.env.basename = name
 
 
@@ -28,3 +29,6 @@ class baseClass():
         print(self.object3d)
         target = Targets(self.env, self.glob)
         target.loadTargets()
+        memInfo()
+
+
