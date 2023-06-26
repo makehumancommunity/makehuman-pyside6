@@ -17,29 +17,26 @@ class OpenGlBuffers():
         self.amount_of_vertices = 0
 
     def VertexBuffer(self, pos, amount):
-        binpos = np.array(pos, dtype=np.float32)
         vbuffer = QOpenGLBuffer(QOpenGLBuffer.VertexBuffer)
         vbuffer.create()
         vbuffer.bind()
         vbuffer.setUsagePattern(QOpenGLBuffer.DynamicDraw)
-        vbuffer.allocate(binpos, len(pos) * 4)
+        vbuffer.allocate(pos, len(pos) * 4)
         self.vert_pos_buffer = vbuffer
         self.amount_of_vertices = amount
 
     def NormalBuffer(self, pos):
-        binpos = np.array(pos, dtype=np.float32)
         vbuffer = QOpenGLBuffer()
         vbuffer.create()
         vbuffer.bind()
-        vbuffer.allocate(binpos, len(pos) * 4)
+        vbuffer.allocate(pos, len(pos) * 4)
         self.normal_buffer = vbuffer
 
     def TexCoordBuffer(self, pos):
-        binpos = np.array(pos, dtype=np.float32)
         vbuffer = QOpenGLBuffer()
         vbuffer.create()
         vbuffer.bind()
-        vbuffer.allocate(binpos, len(pos) * 4)
+        vbuffer.allocate(pos, len(pos) * 4)
         self.tex_coord_buffer = vbuffer
 
     def Delete(self):
