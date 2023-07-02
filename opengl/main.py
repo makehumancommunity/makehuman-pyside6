@@ -36,7 +36,7 @@ class GraphWindow(QOpenGLWidget):
     def createObject(self):
         baseClass = self.glob.baseClass
         self.buffers = OpenGlBuffers()
-        self.buffers.VertexBuffer(baseClass.gl_coord, baseClass.n_glverts)
+        self.buffers.VertexBuffer(baseClass.gl_coord, baseClass.gl_icoord, baseClass.n_glverts)
         self.buffers.NormalBuffer(baseClass.gl_norm)
         self.buffers.TexCoordBuffer(baseClass.gl_uvcoord)
         self.obj = Object3D(self.context(), self.buffers, self.mh_shaders, self.texture, pos=QVector3D(0, 0, 0))

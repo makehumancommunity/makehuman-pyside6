@@ -2,6 +2,8 @@
 file operations, wavefront OBJ
 """
 
+import numpy as np
+
 def importWaveFront(path, obj):
     """
     f  = face
@@ -43,13 +45,13 @@ def importWaveFront(path, obj):
 
             command = words[0]
 
-            # v and vt simply fill buffers
+            # v and vt simply fill buffers (for UV-Map change coordinates)
             #
             if command == 'v':
                 verts.append((float(words[1]), float(words[2]), float(words[3])))
 
             elif command == 'vt':
-                uvs.append((float(words[1]), float(words[2])))
+                uvs.append((float(words[1]), 1 - float(words[2])))
 
             # f, faces, this data is stored groupwise, index counts from 1
             # a/b ... first one is vertex-index, second one UV
@@ -68,7 +70,8 @@ def importWaveFront(path, obj):
                 prim = lwords
                 for elem in words[1:]:
                     columns = elem.split('/')
-                    vInd.append(int(columns[0]) - 1)
+                    vindex = int(columns[0]) - 1
+                    vInd.append(vindex)
 
                     if len(columns) > 1 and columns[1] != '':
                         uvInd.append(int(columns[1]) - 1)
@@ -108,13 +111,73 @@ def importWaveFront(path, obj):
     for d in delete:
         del groups[d]
 
+    # let the UV coordinates use the same index as the faces, because
+    # glDrawElements means one index for UV-Buffer, Normals and coordinates
+    # 
+    # classically there are more UVS because of seams, so we need to duplicated coordinates
+    # we use a -1 filled vertex_uv-Buffer to be filled with correct indices
+    #
+    # they should be in overflow-buffer
+    # after that we got new uvs, a few more coordinates, and partly a changed index
+    # the information about UV is changed to pure bool indicating the availability
+    # 
+    overflowbuf = {}
+
+    n_origverts = n_verts = len(verts) # number of vertices, start with the number we have, will increased in case we need new ones
+    n_uvs = len(uvs)
+    vertex_uv = np.full(n_verts, -1, dtype=np.uint32)
+
+    uv_values = np.zeros (shape=(n_uvs+n_verts, 2), dtype=np.float32)  # n_uvs+n_verts should be sufficient for the longest possible buffer
+
+    for g in groups:
+        if len(groups[g]["uv"]) > 0:
+            gi = groups[g]["v"]
+            guv = groups[g]["uv"]
+
+            for num, face in enumerate(gi):
+                uvface = guv[num]
+                for inum, vert in enumerate(face):
+                    uvert = uvface[inum]
+
+                    # if vertex_uv[vert] still is unused, set it to the value which is added, no changed
+                    #
+                    if vertex_uv[vert] == 0xffffffff:
+                        vertex_uv[vert] = uvert
+                        uv_values[vert] = uvs[uvert]
+
+                    # in case it is used but different, check if we have the combination already in overflow-buffer
+                    #
+                    elif vertex_uv[vert] != uvert:
+
+                        name = str(vert) + "_" + str(uvert)     # mathematically old makehuman uses sth like vert << 32 | uvert, would also work here
+
+                        if name in overflowbuf:
+                            # print (name + " allready in overflowbuf")
+                            gi[num][inum] = overflowbuf[name]   # we can use it from buffer
+                        else:
+                            # print ("new one needed:" + name)
+                            overflowbuf[name] = n_verts         # we creat a new entry
+                            verts.append(verts[vert])           # append identical coords to the end
+                            uv_values[n_verts] = uvs[uvert]     # place uv-values there
+                            gi[num][inum] = n_verts             # change the index to new appended element
+                            n_verts += 1                        # and increment number of elements
+
+            groups[g]["uv"] = True      # the information is now replaced by the bool we need
+        else:
+            groups[g]["uv"] = False
+
+    #print (overflowbuf)
+    uv_values.resize((n_verts, 2), refcheck=False)          # shorten buffer back to what we really needed.
+
+    del vertex_uv                                           # the helper is no longer necessary
+
     # sanity test for finding vertices costs too much time
     #
     # TODO for tri mesh generate 4 vertex in vInd ? (at this place?)
     #
     obj.setName(objname)
     obj.setGroupNames(groupnames)
-    obj.createGLVertPos(verts, uvs)          # TODO consider to recombine createGLVertPos and createGLFaces
+    obj.createGLVertPos(verts, uv_values, n_origverts)          # TODO consider to recombine createGLVertPos and createGLFaces
     obj.createGLFaces(fcnt, ucnt, prim, groups)
 
     del verts

@@ -12,17 +12,20 @@ from OpenGL import GL as gl
 class OpenGlBuffers():
     def __init__(self):
         self.vert_pos_buffer = None
+        self.indices = None
         self.normal_buffer = None
         self.tex_coord_buffer = None
         self.amount_of_vertices = 0
 
-    def VertexBuffer(self, pos, amount):
+    def VertexBuffer(self, pos, icoord, amount):
         vbuffer = QOpenGLBuffer(QOpenGLBuffer.VertexBuffer)
         vbuffer.create()
         vbuffer.bind()
         vbuffer.setUsagePattern(QOpenGLBuffer.DynamicDraw)
         vbuffer.allocate(pos, len(pos) * 4)
         self.vert_pos_buffer = vbuffer
+
+        self.indices = icoord
         self.amount_of_vertices = amount
 
     def NormalBuffer(self, pos):
@@ -59,6 +62,7 @@ class Object3D:
         self.normal_matrix = QMatrix4x4()
 
         self.vert_pos_buffer = vert_buffers.vert_pos_buffer
+        self.indices = vert_buffers.indices
         self.normal_buffer = vert_buffers.normal_buffer
         self.tex_coord_buffer = vert_buffers.tex_coord_buffer
         self.amount_of_vertices = vert_buffers.amount_of_vertices
@@ -78,9 +82,11 @@ class Object3D:
         shaderprog.bind()
         functions = self.context.functions()
 
+        # VAO
+        #
         self.vert_pos_buffer.bind()
-        shaderprog.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3)
-        shaderprog.enableAttributeArray(0)
+        shaderprog.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3)     # OpenGL glVertexAttribPointer
+        shaderprog.enableAttributeArray(0)                      # OpenGL glEnableVertexAttribArray
 
         self.normal_buffer.bind()
         shaderprog.setAttributeBuffer(1, gl.GL_FLOAT, 0, 3)
@@ -89,7 +95,6 @@ class Object3D:
         self.tex_coord_buffer.bind()
         shaderprog.setAttributeBuffer(2, gl.GL_FLOAT, 0, 2)
         shaderprog.enableAttributeArray(2)
-
 
         self.model_matrix.setToIdentity()
         self.model_matrix.translate(self.position)
@@ -106,6 +111,6 @@ class Object3D:
 
         self.texture.bind()
 
-        functions.glDrawArrays(gl.GL_TRIANGLES, 0, self.amount_of_vertices)
+        functions.glDrawElements(gl.GL_TRIANGLES, self.amount_of_vertices, gl.GL_UNSIGNED_INT, self.indices)
 
 

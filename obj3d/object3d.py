@@ -8,6 +8,7 @@ class object3d:
 
         self.prim    = 0    # will contain number of vertices per face (primitive), either 3 or 4
         self.maxAttachedFaces  = 0 # will contain "maxpole"
+        self.n_origverts = 0 # number of vertices after loading
         self.n_verts = 0    # number of vertices
         self.n_faces = 0    # number of faces
         self.n_fuvs  = 0    # number of uv-faces
@@ -22,18 +23,16 @@ class object3d:
         self.gl_coord = []    # will contain flattened gl-Buffer
         self.gl_uvcoord = []  # will contain flattened gluv-Buffer
         self.gl_norm  = []    # will contain flattended normal buffer
-        self.gl_fuvs   = None # will contain UV buffer for OpenGL
         self.gl_fvert  = []   # will contain vertices per face, [verts, 3] array of uint32 for openGL > 2
         self.n_glfaces = 0    # number of faces for open gl
-        self.n_glfuvs  = 0    # number of uv-faces for open gl
         self.n_glverts = 0    # number of vertices for open gl
         self.n_glnorm  = 0    # number of normals for open gl
 
     def __str__(self):
         return (self.name + ": Object3d with " + str(self.n_groups) + " group(s)\n" + 
-                str(self.n_verts) + " vertices, " + str(self.n_faces) + " faces (" +
+                str(self.n_origverts) + " vertices, " + str(self.n_faces) + " faces (" +
                 str(self.prim) + " vertices per face), " + str(self.n_fuvs) + " uv-faces\nOpenGL triangles: " +
-                str(self.n_glfaces) + "\nMaximum attached faces for one vertex: " + str(self.maxAttachedFaces))
+                str(self.n_glfaces) + "\nOpenGL DrawElements: " + str(self.n_verts) + "\nMaximum attached faces for one vertex: " + str(self.maxAttachedFaces))
 
     def setName(self, name):
         if name is None:
@@ -45,7 +44,8 @@ class object3d:
         self.grpNames = names
         self.n_groups = len(self.grpNames)
 
-    def createGLVertPos(self, pos, uvs):
+    def createGLVertPos(self, pos, uvs, orig):
+        self.n_origverts = orig
         self.n_verts = len(pos)
         self.coord = np.asarray(pos, dtype=np.float32)      # positions converted to array of floats
         self.n_uvs = len(uvs)
@@ -54,9 +54,7 @@ class object3d:
     def triangulateFaces(self):
         if self.prim == 3:
             self.gl_fvert  = self.fvert
-            self.gl_fuvs   = self.fuvs
             self.n_glfaces = self.n_faces
-            self.n_glfuvs  = self.n_fuvs
 
         else:
             self.n_glfaces = self.n_faces * 2
@@ -68,61 +66,44 @@ class object3d:
                 self.gl_fvert[cnt] = [elem[0], elem[2], elem[3]]
                 cnt += 1
 
-            if self.n_fuvs > 0:
-                self.n_glfuvs = self.n_fuvs * 2
-                self.gl_fuvs = np.empty((self.n_glfuvs, 3), dtype=np.uint32)
-                cnt = 0
-                for elem in self.fuvs:
-                    self.gl_fuvs[cnt] = elem[:3]
-                    cnt += 1
-                    self.gl_fuvs[cnt] = [elem[0], elem[2], elem[3]]
-                    cnt += 1
 
-
-        # TODO: this array would be rather ineffective I guess
-        #
         # now put elements in a row
 
         self.n_glverts = self.n_glfaces * 3
-        self.gl_coord = np.zeros(self.n_glverts * 3, dtype=np.float32)
+        self.gl_icoord = np.zeros(self.n_glverts, dtype=np.uint32)
         cnt = 0
         for face in self.gl_fvert:
             for vert in face:
-                v = self.coord[vert]
-                self.gl_coord[cnt:cnt+3] = v[0:3]
-                cnt += 3
+                self.gl_icoord[cnt] = vert
+                cnt += 1
+        self.gl_coord = self.coord.flatten()
 
         if self.n_fuvs > 0:
-            self.n_uvcoords  = self.n_glfaces * 3
-            self.gl_uvcoord = np.zeros(self.n_uvcoords * 2, dtype=np.float32)
-            cnt = 0
-            for face in self.gl_fuvs:
-                for vert in face:
-                    v = self.uvs[vert]
-                    self.gl_uvcoord[cnt] = v[0]
-                    self.gl_uvcoord[cnt+1] = 1 - v[1]
-                    cnt += 2
+            self.gl_uvcoord = self.uvs.flatten()
 
         del self.uvs           # save memory
         del self.fvert
-        if self.prim != 3:
-            del self.gl_fuvs
 
 
     def calcFaceNormals(self):
         # 
-        # calculates a normal vector for each vertex (range 3)
+        # this is WRONG atm ... I know. It is a hack to have sth in gl_norm :)
+        # real method: calculate face-normals, then calculate vertex normals
         #
-        self.n_glnorm = self.n_glfaces * 3
-        self.gl_norm = np.zeros(self.n_glnorm * 3, dtype=np.float32)
+        self.n_fanorm = self.n_glfaces * 3
+        self.fa_norm = np.zeros(self.n_fanorm * 3, dtype=np.float32)
+        self.gi_norm = np.zeros((self.n_verts, 3), dtype=np.float32)
 
         cnt = 0
         for elem in self.gl_fvert:
             v = self.coord[elem]
             norm = np.cross(v[0] - v[1], v[1] - v[2])
             for i in range(3):
-                self.gl_norm[cnt:cnt+3] = norm[0:3]
+                self.fa_norm[cnt:cnt+3] = norm[0:3]
                 cnt += 3
+            self.gi_norm[elem] = norm
+
+        self.gl_norm = self.gi_norm.flatten()
 
     def createGLFaces(self, nfaces, ufaces, prim, groups):
         self.prim = prim
@@ -148,8 +129,8 @@ class object3d:
         if self.fuvs is not None:
             n = x = 0
             for num, elem in enumerate (self.grpNames):
-                n = x + len(groups[elem]["uv"])
-                self.fuvs[x:n,] = groups[elem]["uv"]
+                n = x + len(groups[elem]["v"])
+                self.fuvs[x:n,] = groups[elem]["v"]
                 x = n
 
         self.calculateMaxAttachedFaces()
