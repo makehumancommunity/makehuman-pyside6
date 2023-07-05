@@ -20,6 +20,8 @@ class object3d:
         self.fuvs  = None   # will contain UV buffer or will stay none (TODO: is that needed?)
         self.group = []     # will contain pointer to group per face
 
+        self.overflow = None # will contain a table for double used vertices
+
         self.gl_coord = []    # will contain flattened gl-Buffer
         self.gl_uvcoord = []  # will contain flattened gluv-Buffer
         self.gl_norm  = []    # will contain flattended normal buffer
@@ -44,12 +46,13 @@ class object3d:
         self.grpNames = names
         self.n_groups = len(self.grpNames)
 
-    def createGLVertPos(self, pos, uvs, orig):
+    def createGLVertPos(self, pos, uvs, overflow, orig):
         self.n_origverts = orig
         self.n_verts = len(pos)
         self.coord = np.asarray(pos, dtype=np.float32)      # positions converted to array of floats
         self.n_uvs = len(uvs)
         self.uvs = np.asarray(uvs, dtype=np.float32)        # positions converted to array of floats
+        self.overflow = overflow
 
     def triangulateFaces(self):
         if self.prim == 3:
@@ -85,24 +88,46 @@ class object3d:
         del self.fvert
 
 
-    def calcFaceNormals(self):
-        # 
-        # this is WRONG atm ... I know. It is a hack to have sth in gl_norm :)
-        # real method: calculate face-normals, then calculate vertex normals
-        #
-        self.n_fanorm = self.n_glfaces * 3
-        self.fa_norm = np.zeros(self.n_fanorm * 3, dtype=np.float32)
+    def calcNormals(self):
+        """
+        calculates face-normals and then vertex normals
+        """
         self.gi_norm = np.zeros((self.n_verts, 3), dtype=np.float32)
 
-        cnt = 0
+        # set the face normals for each vertex to zero, set the counter to zero
+        #
+        fa_norm = np.zeros((self.n_verts, 3), dtype=np.float32)
+        fa_cnt  = np.zeros(self.n_verts, dtype=np.uint32)
+
+        # calculate face normal and summarize them with other (for each 3 verts per triangle)
+        #
         for elem in self.gl_fvert:
             v = self.coord[elem]
             norm = np.cross(v[0] - v[1], v[1] - v[2])
-            for i in range(3):
-                self.fa_norm[cnt:cnt+3] = norm[0:3]
-                cnt += 3
-            self.gi_norm[elem] = norm
 
+            for i in range(2):
+                fa_norm[elem[i]] += norm
+                fa_cnt[elem[i]] += 1
+
+        # because part of the faces belong to the overflow buffer add them as well
+        #
+        for (source, dest) in self.overflow:
+            fa_norm[source] += fa_norm[dest]
+            fa_cnt[source]  += fa_cnt[dest]
+
+        # now divide by the number of edges and normalize length with np.linalg.norm
+        #
+        for i in range(0, self.n_origverts):
+            norm = fa_norm[i] / fa_cnt[i]
+            self.gi_norm[i] = norm / np.linalg.norm(norm)
+
+        # simply copy for the doubles in the end using overflow
+        #
+        for (source, dest) in self.overflow:
+            self.gi_norm[dest] =  self.gi_norm[source]
+        #
+        # flatten vector
+        #
         self.gl_norm = self.gi_norm.flatten()
 
     def createGLFaces(self, nfaces, ufaces, prim, groups):
@@ -135,7 +160,7 @@ class object3d:
 
         self.calculateMaxAttachedFaces()
         self.triangulateFaces()
-        self.calcFaceNormals()
+        self.calcNormals()
 
 
     def calculateMaxAttachedFaces(self):

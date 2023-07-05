@@ -166,7 +166,17 @@ def importWaveFront(path, obj):
         else:
             groups[g]["uv"] = False
 
-    #print (overflowbuf)
+    overflowtable = np.empty((len(overflowbuf), 2), dtype=np.uint32)
+
+    i = 0
+    for key, value in overflowbuf.items():
+        (a,b) = key.split("_")
+        overflowtable[i] = (a, value)
+        i+=1
+    overflowtable.view('uint32,uint32').sort(order=['f0'], axis=0) # sort by first column in place
+
+    # print (overflowtable)
+
     uv_values.resize((n_verts, 2), refcheck=False)          # shorten buffer back to what we really needed.
 
     del vertex_uv                                           # the helper is no longer necessary
@@ -177,7 +187,7 @@ def importWaveFront(path, obj):
     #
     obj.setName(objname)
     obj.setGroupNames(groupnames)
-    obj.createGLVertPos(verts, uv_values, n_origverts)          # TODO consider to recombine createGLVertPos and createGLFaces
+    obj.createGLVertPos(verts, uv_values, overflowtable, n_origverts)          # TODO consider to recombine createGLVertPos and createGLFaces
     obj.createGLFaces(fcnt, ucnt, prim, groups)
 
     del verts
