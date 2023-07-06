@@ -26,7 +26,7 @@ def importWaveFront(path, obj):
         groups = {}
         groupnames = [] # to keep the group order
         objname = None
-        prim = 0        # verts per face (either 3 or 4)
+        prim = 0        # number of needed triangles
         ln = 0          # line number
         fcnt = 0        # face-counter
         ucnt = 0        # UV-face counter
@@ -60,14 +60,8 @@ def importWaveFront(path, obj):
                 vInd  = []
                 uvInd = []
 
-                if lwords != 3 and lwords != 4:
-                    f.close()
-                    return (False, "File " + path + " line: " + str(ln) + " => Vertex per face must be either 3 or 4")
-                if prim != 0 and prim != lwords:
-                    f.close()
-                    return (False, "File " + path + " line: " + str(ln) + " => Vertex per face must not mix")
+                prim += (lwords-2)  # count number of primitives
 
-                prim = lwords
                 for elem in words[1:]:
                     columns = elem.split('/')
                     vindex = int(columns[0]) - 1
