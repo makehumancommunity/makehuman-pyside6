@@ -1,7 +1,7 @@
 import numpy as np 
 
 class object3d:
-    def __init__(self):
+    def __init__(self, baseinfo ):
  
         self.name = None    # will contain object name derived from loaded file
         self.grpNames = []  # order list of groupnames
@@ -27,6 +27,7 @@ class object3d:
         self.gl_fvert  = []   # will contain vertices per face, [verts, 3] array of uint32 for openGL > 2
         self.n_glverts = 0    # number of vertices for open gl
         self.n_glnorm  = 0    # number of normals for open gl
+        self.visible = baseinfo["visible groups"]
 
     def __str__(self):
         return (self.name + ": Object3d with " + str(self.n_groups) + " group(s)\n" + 
@@ -111,6 +112,8 @@ class object3d:
 
         cnt = 0
         for num, elem in enumerate (self.grpNames):
+            if elem not in self.visible:
+                continue
             faces = groups[elem]["v"]
             for face in faces:
                 l = len(face)
@@ -124,7 +127,10 @@ class object3d:
                         cnt += 1
                         i += 1
 
-        self.n_glverts = self.prim * 3
+        # resize to visible groups only TODO not sure if it should stay like this
+        #
+        self.gl_fvert.resize((cnt, 3), refcheck=False)
+        self.n_glverts = cnt * 3
         self.gl_icoord = np.zeros(self.n_glverts, dtype=np.uint32)
         cnt = 0
         for face in self.gl_fvert:

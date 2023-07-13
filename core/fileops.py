@@ -1,4 +1,5 @@
 import os
+import json
 from core.target import Targets
 from obj3d.fops_wavefront import importWaveFront
 from obj3d.object3d import object3d
@@ -12,14 +13,25 @@ class baseClass():
         self.env = env
         self.glob = glob
         self.object3d = None
+        self.baseInfo = None
         print ("called for " + name)
         memInfo()
         self.env.basename = name
 
 
     def prepareClass(self):
-        name = os.path.join(self.env.path_sysdata, "base", self.env.basename, "base.obj")
-        self.object3d = object3d()
+        basepath = os.path.join(self.env.path_sysdata, "base", self.env.basename)
+        filename = os.path.join(basepath, "base.json")
+        self.baseInfo = None
+        #
+        # TODO error handling
+        #
+        with open(filename, 'r') as f:
+            self.baseInfo = json.load(f)
+        
+        name = os.path.join(basepath, "base.obj")
+
+        self.object3d = object3d(self.baseInfo)
         (res, err) = importWaveFront(name, self.object3d)
         if res is False:
             del self.object3d
