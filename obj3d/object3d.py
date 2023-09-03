@@ -1,8 +1,9 @@
 import numpy as np 
 
 class object3d:
-    def __init__(self, baseinfo ):
+    def __init__(self, env, baseinfo ):
  
+        self.env  = env     # needed for globals
         self.name = None    # will contain object name derived from loaded file
         self.grpNames = []  # order list of groupnames
 
@@ -33,7 +34,8 @@ class object3d:
         return (self.name + ": Object3d with " + str(self.n_groups) + " group(s)\n" + 
                 str(self.n_origverts) + " vertices, " + str(self.n_faces) + " faces (" +
                 str(self.n_fuvs) + " uv-faces)\nOpenGL triangles: " +
-                str(self.prim) + "\nOpenGL DrawElements: " + str(self.n_verts) + "\nMaximum attached faces for one vertex: " + str(self.maxAttachedFaces))
+                str(self.prim) + "\nOpenGL DrawElements: " + str(self.n_verts)) 
+                #+ "\nMaximum attached faces for one vertex: " + str(self.maxAttachedFaces))
 
     def setName(self, name):
         if name is None:
@@ -158,3 +160,5 @@ class object3d:
 
         self.maxAttachedFaces  = np.max(attachedFaces)
     """
+    def __del__(self):
+        self.env.logLine (4, " -- delete object3d: " + str(self.name))

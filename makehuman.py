@@ -26,11 +26,14 @@ def main():
     parser.add_argument('-V', '--version', action='store_true',  help="Show version and License")
     parser.add_argument("--noshaders", action="store_true", help="disable shaders")
     parser.add_argument("--multisampling", action="store_true", help="enable multisampling (used for anti-aliasing and alpha-to-coverage transparency rendering)")
+    parser.add_argument("-l", action="store_true", help="force to write to log file")
     parser.add_argument("-v", "--verbose",  type=int, default = 1, help= textwrap.dedent('''\
             bitwise verbose option (add values)
             1 low log level (standard)
             2 mid log level
-            4 enable numpy runtime error messages'''))
+            4 memory management
+            8 file access
+            16 enable numpy runtime error messages'''))
 
     args = parser.parse_args()
 
@@ -43,7 +46,7 @@ def main():
     # get programInfo as environment (only for strings to be printed in JSON)
     # and globalObjects for non-printable objects
 
-    env = programInfo(frozen, syspath, args.verbose)
+    env = programInfo(frozen, syspath, args.verbose, args.l)
     if not env.environment():
         print (env.last_error)
         exit (20)

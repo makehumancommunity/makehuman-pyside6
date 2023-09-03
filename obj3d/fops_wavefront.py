@@ -14,7 +14,6 @@ def importWaveFront(path, obj):
     usemtl = material (skipped)
     """
 
-    print ("load " + path)
     try:
         f = open(path, 'r', encoding="utf-8")
     except IOError:

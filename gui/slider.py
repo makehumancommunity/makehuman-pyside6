@@ -140,6 +140,7 @@ class ScaleCombo(QWidget):
         value = self.dSpinBox.value()
         self.slider.setValue(value)
         self.elem.value = value
+        self.elem.callback()
 
     def resetButtonPressed(self):
         """

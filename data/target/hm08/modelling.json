@@ -21,7 +21,9 @@
 		"icon": "breast-dist-decr-incr.png"
 	},
 	"Breast Volume": {
-		"icon": "breast-volume-vert-down-up.png"
+		"icon": "breast-volume-vert-down-up.png",
+		"down": "breast/breast-volume-vert-down.target",
+		"up": "breast/breast-volume-vert-up.target"
 	}
 }
 

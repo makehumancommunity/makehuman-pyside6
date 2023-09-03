@@ -22,7 +22,7 @@ class programInfo():
     * converter functions
     * JSON reader/writer + integrity test
     """
-    def __init__(self, frozen: bool, path_sys: str, verbose: int):
+    def __init__(self, frozen: bool, path_sys: str, verbose: int, uselog: bool):
         """
         init: set all global parameters
         evaluates system path, platform in ostype and osindex.
@@ -40,9 +40,10 @@ class programInfo():
         self.last_error = None
 
         self.verbose = verbose
+        self.uselog  = uselog
         self.frozen  = frozen
         self.path_sys = path_sys
-
+        
         p =sys.platform
         if p.startswith('win'):
             self.ostype = "Windows"
@@ -321,7 +322,7 @@ class programInfo():
         if self.generateFolders() is False:
             return(False)
 
-        self.reDirect()     # redirect error messages
+        self.reDirect(self.uselog)     # redirect error messages
 
         # in case of first start or missing parameter write configuration
         #
@@ -358,11 +359,11 @@ class programInfo():
                     self.logLine(2, folder + " created")
         return (True)
 
-    def reDirect(self):
+    def reDirect(self, log):
         """
         redirection of stderr and stdout to files path_stdout and path_stderr
         """
-        if self.config["redirect_messages"]:
+        if self.config["redirect_messages"] or log is True:
             self.path_stdout = os.path.join(self.path_error, "makehuman-out.txt")
             sys.stdout = open(self.path_stdout, "w", encoding=self.preferred_encoding, errors="replace")
             self.path_stderr = os.path.join(self.path_error, "makehuman-err.txt")
