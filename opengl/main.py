@@ -32,6 +32,7 @@ class GraphWindow(QOpenGLWidget):
         self.setMinimumSize(QSize(600, 600))
         self.buffers = None
         print (env)
+        self.glob.graphwindow = self
 
     def createObject(self):
         baseClass = self.glob.baseClass
@@ -80,6 +81,12 @@ class GraphWindow(QOpenGLWidget):
         baseClass = self.glob.baseClass
         if baseClass is not None:
             self.obj.draw(self.mh_shaders, self.proj_view_matrix)
+
+    def Tweak(self):
+        if self.buffers is not None:
+            self.buffers.Tweak()
+            self.paintGL()
+            self.update()
 
     def newMesh(self):
         baseClass = self.glob.baseClass

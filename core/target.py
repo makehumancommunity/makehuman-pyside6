@@ -4,10 +4,12 @@ import json
 import numpy as np
 
 class Modelling:
-    def __init__(self, name, icon, tip):
+    def __init__(self, name, obj, refreshwindow, icon, tip):
         self.name = name
         self.icon = icon
         self.tip  = tip
+        self.obj  = obj
+        self.refresh = refreshwindow
         self.selected = False
         self.value = 0.0
         self.up   = None    # target "up"
@@ -24,7 +26,10 @@ class Modelling:
 
     def callback(self):
         factor = self.value / 100
-        print (self.name + " value changed to " + str(factor))
+        print("change " + self.name)
+        if self.up is not None and self.down is not None:
+            self.obj.updateByTarget(factor, self.down, self.up)
+            self.refresh.Tweak()
 
     #def __del__(self):
     #    print (" -- __del__ Modelling: " + self.name)
@@ -83,6 +88,8 @@ class Targets:
         self.modelling_targets = []
         glob.Targets = self
         self.collection = None
+        self.object3d = glob.baseClass
+        self.graphwindow = glob.graphwindow
 
     def __str__(self):
         return ("Target-Collection: " + str(self.collection))
@@ -101,7 +108,7 @@ class Targets:
         for name in targetjson:
             t = targetjson[name]
             tip = t["tip"] if "tip" in t else "Select to modify"
-            m = Modelling(name, os.path.join(iconpath, t["icon"]), tip)
+            m = Modelling(name, self.object3d, self.graphwindow, os.path.join(iconpath, t["icon"]), tip)
             if "down" in t:
                 mt = Morphtarget(self.env, t["down"])
                 mt.loadTextFile(targetpath)

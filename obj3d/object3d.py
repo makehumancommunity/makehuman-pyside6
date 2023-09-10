@@ -22,7 +22,8 @@ class object3d:
 
         self.overflow = None # will contain a table for double used vertices
 
-        self.gl_coord = []    # will contain flattened gl-Buffer
+        self.gl_coord = []    # will contain flattened gl-Buffer (these are coordinates to be changed)
+        self.gl_coord_o = []  # will contain a copy of unchanged positions
         self.gl_uvcoord = []  # will contain flattened gluv-Buffer
         self.gl_norm  = []    # will contain flattended normal buffer
         self.gl_fvert  = []   # will contain vertices per face, [verts, 3] array of uint32 for openGL > 2
@@ -140,6 +141,7 @@ class object3d:
                 self.gl_icoord[cnt] = vert
                 cnt += 1
         self.gl_coord = self.coord.flatten()
+        self.gl_coord_o = self.gl_coord.copy()  # create a copy for original values
 
         if self.n_fuvs > 0:
             self.gl_uvcoord = self.uvs.flatten()
@@ -149,6 +151,24 @@ class object3d:
 
         #self.calculateMaxAttachedFaces()
         self.calcNormals()
+
+    def updateByTarget(self, factor, targetlower, targetupper):
+        if factor == 0.0:
+            self.gl_coord = self.gl_coord_o.copy()
+            return
+        if factor < 0.0:
+            verts = targetlower.verts
+            data  = targetlower.data
+            factor = -factor
+        elif factor > 0.0:
+            verts = targetupper.verts
+            data  = targetupper.data
+
+        for i in range(0, len(verts)):
+            x = verts[i] * 3
+            self.gl_coord[x]   = self.gl_coord_o[x]   + factor * data[i][0]
+            self.gl_coord[x+1] = self.gl_coord_o[x+1] + factor * data[i][1]
+            self.gl_coord[x+2] = self.gl_coord_o[x+2] + factor * data[i][2]
 
 
     """

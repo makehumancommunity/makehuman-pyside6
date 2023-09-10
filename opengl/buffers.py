@@ -16,6 +16,7 @@ class OpenGlBuffers():
         self.normal_buffer = None
         self.tex_coord_buffer = None
         self.amount_of_vertices = 0
+        self.keeppos = None
 
     def VertexBuffer(self, pos, icoord, amount):
         vbuffer = QOpenGLBuffer(QOpenGLBuffer.VertexBuffer)
@@ -23,6 +24,7 @@ class OpenGlBuffers():
         vbuffer.bind()
         vbuffer.setUsagePattern(QOpenGLBuffer.DynamicDraw)
         vbuffer.allocate(pos, len(pos) * 4)
+        self.keeppos = pos
         self.vert_pos_buffer = vbuffer
 
         self.indices = icoord
@@ -41,6 +43,10 @@ class OpenGlBuffers():
         vbuffer.bind()
         vbuffer.allocate(pos, len(pos) * 4)
         self.tex_coord_buffer = vbuffer
+
+    def Tweak(self):
+        self.vert_pos_buffer.bind()
+        self.vert_pos_buffer.write(0,self.keeppos, len(self.keeppos) * 4)
 
     def Delete(self):
         if self.vert_pos_buffer is not None:
