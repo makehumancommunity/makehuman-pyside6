@@ -14,6 +14,8 @@ class Modelling:
         self.value = 0.0
         self.up   = None    # target "up"
         self.down = None    # target "down"
+        self.displayname = name
+        self.group = None
 
     def __str__(self):
         return (self.name + ": " + str(self.up) + "/" + str(self.down))
@@ -23,6 +25,15 @@ class Modelling:
 
     def down_target(self, fname):
         self.down = fname
+
+    def set_refresh(self,refreshwindow):
+        self.refresh = refreshwindow
+
+    def set_displayname(self, name):
+        self.displayname = name
+
+    def set_group(self, name):
+        self.group = name
 
     def callback(self):
         factor = self.value / 100
@@ -117,7 +128,18 @@ class Targets:
                 mt = Morphtarget(self.env, t["up"])
                 mt.loadTextFile(targetpath)
                 m.up_target(mt)
+            if "name" in t:
+                m.set_displayname(t["name"])
+            if "group" in t:
+                m.set_group(t["group"])
             self.modelling_targets.append(m)
+
+    def refreshTargets(self, window):
+        """
+        refreshes Callbacks
+        """
+        for target in self.modelling_targets:
+            target.set_refresh(window)
 
     def destroyTargets(self):
         self.env.logLine (2, "destroy Targets:" + str(self.collection))

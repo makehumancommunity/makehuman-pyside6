@@ -153,8 +153,12 @@ class object3d:
         self.calcNormals()
 
     def updateByTarget(self, factor, targetlower, targetupper):
+        #
+        # be aware to modify the target in place!
+        # do not break the array
+        #
         if factor == 0.0:
-            self.gl_coord = self.gl_coord_o.copy()
+            self.gl_coord[:] = self.gl_coord_o[:]
             return
         if factor < 0.0:
             verts = targetlower.verts

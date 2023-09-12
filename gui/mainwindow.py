@@ -114,7 +114,7 @@ class MHMainWindow(QMainWindow):
     def drawToolPannel(self):
         if self.glob.Targets is not None:
             widget = QWidget()
-            scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets)
+            scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets, filterparam="gender|breast")
             widget.setLayout(scalerArray.layout)
             self.ToolBox.addWidget(widget)
 

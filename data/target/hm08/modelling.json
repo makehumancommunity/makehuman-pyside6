@@ -1,29 +1,44 @@
 {
 	"Breast Firmness": {
+		"group": "gender|breast",
 		"icon": "breastfirmness.png"
 	},
 	"Breast Vertical Position": {
+		"name": "Vertical Position",
+		"group": "gender|breast",
 		"icon": "breast-trans-down-up.png"
 	},
 	"Breast Size": {
+		"group": "gender|breast",
 		"icon": "breastsize.png"
 	},
 	"Breast Pointiness": {
+		"group": "gender|breast",
 		"icon": "breast-point-decr-incr.png"
 	},
-	"Nipple Size": {
-		"icon": "nipple-size-decr-incr.png"
-	},
-	"Nipple Pointiness": {
-		"icon": "nipple-point-decr-incr.png"
-	},
-	"Breast Distance": {
+	"Breast Horizontal Distance": {
+		"name": "Horizontal Distance",
+		"group": "gender|breast",
 		"icon": "breast-dist-decr-incr.png"
 	},
 	"Breast Volume": {
+		"group": "gender|breast",
 		"icon": "breast-volume-vert-down-up.png",
 		"down": "breast/breast-volume-vert-down.target",
 		"up": "breast/breast-volume-vert-up.target"
+	},
+	"Nipple Size": {
+		"group": "gender|breast",
+		"icon": "nipple-size-decr-incr.png"
+	},
+	"Nipple Pointiness": {
+		"group": "gender|breast",
+		"icon": "nipple-point-decr-incr.png"
+	},
+	"Head Age": {
+		"name": "Age",
+		"group": "face|head shape",
+		"icon": "head-age-decr-incr.png"
 	}
 }
 

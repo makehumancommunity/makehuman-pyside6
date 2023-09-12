@@ -33,6 +33,8 @@ class GraphWindow(QOpenGLWidget):
         self.buffers = None
         print (env)
         self.glob.graphwindow = self
+        if glob.Targets is not None:
+            glob.Targets.refreshTargets(self)
 
     def createObject(self):
         baseClass = self.glob.baseClass

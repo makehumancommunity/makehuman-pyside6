@@ -66,13 +66,13 @@ class ScaleCombo(QWidget):
 
         self.ilayout=QHBoxLayout()
 
-        self.image = ScalePictureButton(elem.name, elem.icon, elem.tip)
+        self.image = ScalePictureButton(elem.displayname, elem.icon, elem.tip)
         self.image.setChecked(self.expanded)
         self.image.pressed.connect(self.selectButtonPressed)
         self.ilayout.addWidget(self.image)
 
         self.rightCol = QVBoxLayout()
-        self.rightCol.addWidget(QLabel(elem.name))
+        self.rightCol.addWidget(QLabel(elem.displayname))
         if self.expanded:
             self.rightCol.addLayout(self.spinLayout)
         else:
@@ -213,15 +213,16 @@ class ScaleComboArray(QWidget):
     """
     a slider array of all the elements in modelling
     """
-    def __init__(self, mainwidget, modelling, parent=None):
+    def __init__(self, mainwidget, modelling, filterparam=None,  parent=None):
         super(ScaleComboArray, self).__init__(parent=parent)
         self.layout=QVBoxLayout(self)
         self.scaleComboArray = []
         self.resetIcon = mainwidget.style().standardIcon(QStyle.SP_DialogResetButton)
         for elem in modelling:
-            scalecombo = ScaleCombo(elem,  -100, 100, 25, parent=self, update=self.comboArrayUpdate)
-            self.scaleComboArray.append(scalecombo)
-            self.layout.addWidget(scalecombo)
+            if filterparam is None or elem.group == filterparam:
+                scalecombo = ScaleCombo(elem,  -100, 100, 25, parent=self, update=self.comboArrayUpdate)
+                self.scaleComboArray.append(scalecombo)
+                self.layout.addWidget(scalecombo)
         self.layout.addStretch()
 
     def comboArrayUpdate(self, elem):
