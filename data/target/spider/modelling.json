@@ -1,0 +1,14 @@
+{
+	"Leg length": {
+		"tip": "will create really long legs to scare you"
+	},
+	"Body size": {
+		"tip": "resize between tiny and huge"
+	},
+	"Head size": {
+		"tip": "Big heads will make that thing front-heavy"
+	},
+	"Eye size": {
+		"tip": "Big eyes enable night vision mode"
+	}
+}

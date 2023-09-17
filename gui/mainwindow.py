@@ -6,8 +6,8 @@ from gui.logwindow import  MHLogWindow
 from gui.infowindow import  MHInfoWindow
 from gui.graphwindow import  MHGraphicWindow
 from gui.slider import ScaleComboArray
+from gui.qtreeselect import MHTreeView
 from core.fileops import baseClass
-
 import os
 
 class MHMainWindow(QMainWindow):
@@ -55,9 +55,46 @@ class MHMainWindow(QMainWindow):
         env = self.env
         central_widget = QWidget()
         hLayout = QHBoxLayout()
-        vLayout = QVBoxLayout()
 
-        groupBox = QGroupBox("Basic Operations")
+        # left side, BasePanel
+        #
+        groupBase = QGroupBox("Basic Operations")
+        self.BaseBox = QVBoxLayout()
+
+        self.drawBasePanel()
+        groupBase.setLayout(self.BaseBox)
+        hLayout.addWidget(groupBase)
+
+        # create window for internal or external use
+        #
+        self.graph = MHGraphicWindow(self, self.env, self.glob)
+        gLayout = self.graph.createLayout()
+
+        # in case of being attached, add external window in layout
+        #
+        if self.env.g_attach is True:
+            groupBoxG = QGroupBox("Viewport")
+            groupBoxG.setLayout(gLayout)
+            hLayout.addWidget(groupBoxG)
+
+        # right side, ToolBox
+        #
+        groupTool = QGroupBox("Toolpanel")
+        self.ToolBox = QVBoxLayout()
+
+        self.drawToolPanel()
+        groupTool.setLayout(self.ToolBox)
+        hLayout.addWidget(groupTool)
+
+        #
+        central_widget.setLayout(hLayout)
+        self.setCentralWidget(central_widget)
+
+    def drawBasePanel(self):
+        """
+        draw left panel
+        """
+        env = self.env
 
         bgroupBox = QGroupBox("base mesh")
         bgroupBox.setObjectName("subwindow")
@@ -80,41 +117,26 @@ class MHMainWindow(QMainWindow):
         buttons.clicked.connect(self.selectmesh_call)
         bvLayout.addWidget(buttons)
         bgroupBox.setLayout(bvLayout)
-        vLayout.addWidget(bgroupBox)
-        vLayout.addStretch()
+        self.BaseBox.addWidget(bgroupBox)
 
-        groupBox.setLayout(vLayout)
-        hLayout.addWidget(groupBox)
+        if env.basename is not None:
+            targetpath = os.path.join(env.path_sysdata, "target", env.basename)
+            filename = os.path.join(targetpath, "target_cat.json")
 
-        # create window for internal or external use
-        #
-        self.graph = MHGraphicWindow(self, self.env, self.glob)
-        gLayout = self.graph.createLayout()
+            targetjson = env.readJSON(filename)
+            if targetjson is not None:
+                qtree = MHTreeView(targetjson, "Modelling", "left shoulder")
+                self.BaseBox.addWidget(qtree)
+            else:
+                env.logLine(1, env.last_error )
 
-        # in case of being attached, add external window in layout
-        #
-        if self.env.g_attach is True:
-            groupBoxG = QGroupBox("Viewport")
-            groupBoxG.setLayout(gLayout)
-            hLayout.addWidget(groupBoxG)
+        self.BaseBox.addStretch()
 
-        # ToolBox
-        #
-        groupTool = QGroupBox("Toolpanel")
-        self.ToolBox = QVBoxLayout()
-
-        self.drawToolPannel()
-        groupTool.setLayout(self.ToolBox)
-        hLayout.addWidget(groupTool)
-
-        #
-        central_widget.setLayout(hLayout)
-        self.setCentralWidget(central_widget)
-
-    def drawToolPannel(self):
+    def drawToolPanel(self):
         if self.glob.Targets is not None:
             widget = QWidget()
-            scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets, filterparam="gender|breast")
+            scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets)
+            #scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets, filterparam="gender|breast")
             widget.setLayout(scalerArray.layout)
             self.ToolBox.addWidget(widget)
 
@@ -125,8 +147,8 @@ class MHMainWindow(QMainWindow):
                 widget = item.widget()
                 if widget is not None:
                     widget.deleteLater()
-                else:
-                    self.clearLayout(item.layout())
+                #else:
+                #    self.clearLayout(item.layout())
 
     def show(self):
         """
@@ -175,8 +197,13 @@ class MHMainWindow(QMainWindow):
             base.prepareClass()
             self.graph.view.newMesh()
             self.emptyLayout(self.ToolBox)
-            self.drawToolPannel()
+            self.drawToolPanel()
             self.ToolBox.update()
+
+            self.emptyLayout(self.BaseBox)
+            self.drawBasePanel()
+            self.BaseBox.update()
+
             self.graph.update()
 
 

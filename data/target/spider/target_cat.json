@@ -1,0 +1,23 @@
+{
+	"Main": {"group": "main", "items": [
+		{"title": "Macro", "cat": "macro" }
+		]
+	},
+	"Face": {"group": "face", "items": [
+		{"title": "Head size",  "cat": "head size" },
+		{"title": "Right eye",  "cat": "right eye" },
+		{"title": "Left eye",  "cat": "left eye" }
+		]
+	},
+	"Torso": {"group": "torso", "items": [
+		{"title": "Shape", "cat": "shape" },
+		{"title": "Size", "cat": "size" }
+		]
+	},
+	"Legs": {"group": "legs", "items": [
+		{"title": "Leg size",  "cat": "leg size" },
+		{"title": "Right leg",   "cat": "right leg" },
+		{"title": "Left leg",   "cat": "left leg" }
+		]
+	}
+}

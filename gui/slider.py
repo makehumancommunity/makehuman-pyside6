@@ -1,6 +1,5 @@
 import os
 import sys
-import json
 from PySide6.QtCore import Qt, QRect, QPoint
 from PySide6.QtGui import QPainter, QPixmap, QPen
 

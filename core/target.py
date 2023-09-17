@@ -1,6 +1,5 @@
 import os
 import sys
-import json
 import numpy as np
 
 class Modelling:
@@ -107,6 +106,7 @@ class Targets:
 
     def loadTargets(self):
         targetpath = os.path.join(self.env.path_sysdata, "target", self.env.basename)
+        default_icon = os.path.join(self.env.path_sysdata, "icons", "empty_target.png")
         iconpath = os.path.join(targetpath, "icons")
         filename = os.path.join(targetpath, "modelling.json")
         self.collection = self.env.basename
@@ -119,7 +119,8 @@ class Targets:
         for name in targetjson:
             t = targetjson[name]
             tip = t["tip"] if "tip" in t else "Select to modify"
-            m = Modelling(name, self.object3d, self.graphwindow, os.path.join(iconpath, t["icon"]), tip)
+            icon = os.path.join(iconpath, t["icon"]) if "icon" in t else default_icon
+            m = Modelling(name, self.object3d, self.graphwindow, icon, tip)
             if "down" in t:
                 mt = Morphtarget(self.env, t["down"])
                 mt.loadTextFile(targetpath)

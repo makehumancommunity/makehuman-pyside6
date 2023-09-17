@@ -1,0 +1,64 @@
+{
+	"Main": {"group": "main", "items": [
+		{"title": "Macro", "cat": "macro" }
+		]
+	},
+	"Body Shapes": {"group": "shapes", "items": [
+		{"title": "Female body shapes", "cat": "female shapes" },
+		{"title": "Male body shapes", "cat": "male shapes" },
+		{"title": "Female hormonal componemts", "cat": "female hormonal" },
+		{"title": "Male hormonal componemts", "cat": "emale hormonal" }
+		]
+	},
+	"Face": {"group": "face", "items": [
+		{"title": "Head shape", "cat": "head shape" },
+		{"title": "Head size",  "cat": "head size" },
+		{"title": "Forehead",  "cat": "forehead" },
+		{"title": "Eyebrows",  "cat": "eyebrows"},
+		{"title": "Neck",  "cat": "neck" },
+		{"title": "Right eye",  "cat": "right eye" },
+		{"title": "Left eye",  "cat": "left eye" },
+		{"title": "Nose size",  "cat": "nose size" },
+		{"title": "Nose size details",  "cat": "nose details" },
+		{"title": "Nose features",  "cat": "nose features" },
+		{"title": "Mouth size",  "cat": "mouth size" },
+		{"title": "Mouth size details",  "cat": "mouth details" },
+		{"title": "Mouth features",  "cat": "mouth features" },
+		{"title": "Right ear",  "cat": "right ear" },
+		{"title": "Left ear",  "cat": "left ear" },
+		{"title": "Chin/jaw",  "cat": "chin" },
+		{"title": "Right cheek",  "cat": "right cheek" },
+		{"title": "Left cheek",  "cat": "left cheek" }
+		]
+	},
+	"Torso": {"group": "torso", "items": [
+		{"title": "Shape", "cat": "shape" },
+		{"title": "Hip", "cat": "hip" },
+		{"title": "Stomach", "cat": "stomach" },
+		{"title": "Buttocks",  "cat": "buttocks" },
+		{"title": "Pelvis",  "cat": "pelvis" }
+		]
+	},
+	"Gender": {"group": "gender", "items": [
+		{"title": "Breast", "cat": "breast" },
+		{"title": "Genitals", "cat": "genitals" }
+		]
+	},
+	"Arms": {"group": "arms", "items": [
+		{"title": "Right shoulder",  "cat": "right shoulder", "param2": 2 },
+		{"title": "Left shoulder",  "cat": "left shoulder", "param2": 2 },
+		{"title": "Right arm",  "cat": "right arm", "param2": 2 },
+		{"title": "Left arm",  "cat": "left arm", "param2": 2 },
+		{"title": "Right hand",  "cat": "right hand", "param2": 2 },
+		{"title": "Left hand",  "cat": "left hand", "param2": 2 }
+		]
+	},
+	"Legs": {"group": "legs", "items": [
+		{"title": "Leg size",  "cat": "leg size" },
+		{"title": "Right leg",   "cat": "right leg" },
+		{"title": "Left leg",   "cat": "left leg" },
+		{"title": "Right foot",   "cat": "right foot" },
+		{"title": "Left foot",   "cat": "left foot" }
+		]
+	}
+}
