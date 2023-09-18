@@ -5,8 +5,7 @@
 	},
 	"Face": {"group": "face", "items": [
 		{"title": "Head size",  "cat": "head size" },
-		{"title": "Right eye",  "cat": "right eye" },
-		{"title": "Left eye",  "cat": "left eye" }
+		{"title": "Eyes",  "cat": "eyes" }
 		]
 	},
 	"Torso": {"group": "torso", "items": [
@@ -16,8 +15,8 @@
 	},
 	"Legs": {"group": "legs", "items": [
 		{"title": "Leg size",  "cat": "leg size" },
-		{"title": "Right leg",   "cat": "right leg" },
-		{"title": "Left leg",   "cat": "left leg" }
+		{"title": "Front legs",   "cat": "front legs" },
+		{"title": "Hind legs",   "cat": "hind legs" }
 		]
 	}
 }

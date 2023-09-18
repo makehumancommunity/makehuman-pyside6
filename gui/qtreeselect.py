@@ -2,10 +2,10 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QTreeView, QAbstractIte
 from PySide6.QtGui import QStandardItemModel, QStandardItem, QColor, QFont
 
 class JsonItem(QStandardItem):
-    def __init__(self, txt="", cat = "default", color=QColor(0,0,0)):
+    def __init__(self, txt="", cat = None, color=QColor(0,0,0)):
         super().__init__()
         self.setEditable(False)
-        if cat == "default":
+        if cat is None:
             myFont=QFont()
             myFont.setBold(True)
             self.setFont(myFont)
@@ -16,12 +16,14 @@ class QTreeMain(QTreeView):
     """
     Main selection of a tree with only one sub-category
     """
-    def __init__(self, data, autocollapse=True):
+    def __init__(self, data, callback_redraw, autocollapse=True):
         super().__init__()
 
         self.autocollapse = True
         self.setHeaderHidden(True)
         self.lastparentindex = None
+        self.lastcategory = None
+        self.callback_redraw = callback_redraw
         self.setSelectionMode(QAbstractItemView.SingleSelection)
         treeModel = QStandardItemModel()
 
@@ -30,10 +32,11 @@ class QTreeMain(QTreeView):
         for elem in data:
             layer1 = JsonItem(elem)
             self.rootNode.appendRow(layer1)
+            group =  data[elem]["group"] if "group" in data[elem] else "default"
             if "items" in data[elem]:
                 l = data[elem]["items"]
                 for sublayer in l:
-                    layer1.appendRow(JsonItem(sublayer["title"], sublayer["cat"]))
+                    layer1.appendRow(JsonItem(sublayer["title"], group + "|" + sublayer["cat"]))
 
         self.setModel(treeModel)
         self.collapseAll()
@@ -88,11 +91,12 @@ class QTreeMain(QTreeView):
                     self.collapse(oldpindex)
 
                 self.lastparentindex = pindex
-            # for now print the category
-            print (item.cat)
+            if item.cat is not None and self.lastcategory != item.cat:
+                self.callback_redraw(item.cat)
+                self.lastcategory = item.cat
         
 class MHTreeView(QWidget):
-    def __init__(self, data, name="Selection", pre = None, autocollapse=True):
+    def __init__(self, data, name="Selection", callback_redraw = None, pre=None, autocollapse=True):
         super().__init__()
         layoutout = QVBoxLayout()
         gbox = QGroupBox(name)
@@ -101,7 +105,7 @@ class MHTreeView(QWidget):
         layout = QVBoxLayout()
         self.b1 = QCheckBox("Collapse non selected branches")
         self.b1.stateChanged.connect(self.btnstate)
-        self.mt = QTreeMain(data, autocollapse)
+        self.mt = QTreeMain(data, callback_redraw, autocollapse)
         self.b1.setChecked(autocollapse)
         layout.addWidget(self.b1)
         layout.addWidget(self.mt)

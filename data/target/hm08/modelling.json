@@ -1,4 +1,85 @@
 {
+	"Gender": {
+		"group": "main|macro"
+	},
+	"Age": {
+		"group": "main|macro"
+	},
+	"Muscle": {
+		"group": "main|macro"
+	},
+	"Weight": {
+		"group": "main|macro"
+	},
+	"Height": {
+		"group": "main|macro"
+	},
+	"Proportions": {
+		"group": "main|macro"
+	},
+	"Female Apple": {
+		"group": "shapes|female shapes"
+	},
+	"Female Diamond": {
+		"group": "shapes|female shapes"
+	},
+	"Female Full Hourglass": {
+		"group": "shapes|female shapes"
+	},
+	"Female Neat Hourglass": {
+		"group": "shapes|female shapes"
+	},
+	"Female Inverted Triangle": {
+		"group": "shapes|female shapes"
+	},
+	"Female Lean Column": {
+		"group": "shapes|female shapes"
+	},
+	"Female Rectangle": {
+		"group": "shapes|female shapes"
+	},
+	"Female Triangle": {
+		"group": "shapes|female shapes"
+	},
+	"Female Adrenal": {
+		"group": "shapes|female hormonal"
+	},
+	"Female Liver": {
+		"group": "shapes|female hormonal"
+	},
+	"Female Ovary": {
+		"group": "shapes|female hormonal"
+	},
+	"Female Thyroid": {
+		"group": "shapes|female hormonal"
+	},
+	"Male Rectangle": {
+		"group": "shapes|male shapes"
+	},
+	"Male Lean Column": {
+		"group": "shapes|male shapes"
+	},
+	"Male Triangle": {
+		"group": "shapes|male shapes"
+	},
+	"Male Inverted Triangle": {
+		"group": "shapes|male shapes"
+	},
+	"Male Trapezoid": {
+		"group": "shapes|male shapes"
+	},
+	"Male Adrenal": {
+		"group": "shapes|male hormonal"
+	},
+	"Male Liver": {
+		"group": "shapes|male hormonal"
+	},
+	"Male Gonadal": {
+		"group": "shapes|male hormonal"
+	},
+	"Male Thyroid": {
+		"group": "shapes|male hormonal"
+	},
 	"Breast Firmness": {
 		"group": "gender|breast",
 		"icon": "breastfirmness.png"
@@ -35,10 +116,57 @@
 		"group": "gender|breast",
 		"icon": "nipple-point-decr-incr.png"
 	},
+	"Penis Length": {
+		"group": "gender|genitals"
+	},
+	"Penis Circumference": {
+		"group": "gender|genitals"
+	},
+	"Testicles Size": {
+		"group": "gender|genitals"
+	},
 	"Head Age": {
 		"name": "Age",
 		"group": "face|head shape",
 		"icon": "head-age-decr-incr.png"
+	},
+	"Head Fat": {
+		"group": "face|head shape"
+	},
+	"Head Angle": {
+		"group": "face|head shape"
+	},
+	"Head Oval": {
+		"name": "Oval Shape",
+		"group": "face|head shape"
+	},
+	"Head Round": {
+		"name": "Round Shape",
+		"group": "face|head shape"
+	},
+	"Head Rectangular": {
+		"name": "Rectangular Shape",
+		"group": "face|head shape"
+	},
+	"Head Square": {
+		"name": "Square Shape",
+		"group": "face|head shape"
+	},
+	"Head Triangular": {
+		"name": "Triangular Shape",
+		"group": "face|head shape"
+	},
+	"Head Inverted Triangular": {
+		"name": "Inverted Triangular Shape",
+		"group": "face|head shape"
+	},
+	"Head Diamond": {
+		"name": "Diamond Shape",
+		"group": "face|head shape"
+	},
+	"Head Parietal Side": {
+		"name": "Scale Depth of parietal side",
+		"group": "face|head shape"
 	}
 }
 

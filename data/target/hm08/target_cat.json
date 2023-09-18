@@ -6,8 +6,8 @@
 	"Body Shapes": {"group": "shapes", "items": [
 		{"title": "Female body shapes", "cat": "female shapes" },
 		{"title": "Male body shapes", "cat": "male shapes" },
-		{"title": "Female hormonal componemts", "cat": "female hormonal" },
-		{"title": "Male hormonal componemts", "cat": "emale hormonal" }
+		{"title": "Female hormonal components", "cat": "female hormonal" },
+		{"title": "Male hormonal components", "cat": "male hormonal" }
 		]
 	},
 	"Face": {"group": "face", "items": [

@@ -3,7 +3,7 @@ import sys
 from PySide6.QtCore import Qt, QRect, QPoint
 from PySide6.QtGui import QPainter, QPixmap, QPen
 
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QSlider, QStyle, QStyleOptionSlider, QLabel, QPushButton, QSizePolicy, QDoubleSpinBox, QProgressBar
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QSlider, QStyle, QStyleOptionSlider, QLabel, QPushButton, QSizePolicy, QDoubleSpinBox, QProgressBar, QFrame
 
 
 
@@ -217,11 +217,19 @@ class ScaleComboArray(QWidget):
         self.layout=QVBoxLayout(self)
         self.scaleComboArray = []
         self.resetIcon = mainwidget.style().standardIcon(QStyle.SP_DialogResetButton)
+        cnt = 0
         for elem in modelling:
             if filterparam is None or elem.group == filterparam:
                 scalecombo = ScaleCombo(elem,  -100, 100, 25, parent=self, update=self.comboArrayUpdate)
                 self.scaleComboArray.append(scalecombo)
                 self.layout.addWidget(scalecombo)
+                cnt +=1 
+        if cnt == 0:
+            text = QLabel(self)
+            text.setFrameStyle(QFrame.Panel | QFrame.Sunken)
+            text.setText("Still no targets realized\nselect another category")
+            text.setAlignment(Qt.AlignCenter)
+            self.layout.addWidget(text)
         self.layout.addStretch()
 
     def comboArrayUpdate(self, elem):

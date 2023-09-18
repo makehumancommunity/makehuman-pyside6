@@ -1,9 +1,11 @@
 {
 	"Smaller Cube": {
+		"group": "main|macro",
 		"icon": "smallercube.png",
 		"tip": "Select to resize cube"
 	},
 	"Bigger Cube": {
+		"group": "main|macro",
 		"icon": "biggercube.png"
 	}
 }

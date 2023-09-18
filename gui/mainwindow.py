@@ -23,6 +23,7 @@ class MHMainWindow(QMainWindow):
         self.log_window = None
         self.graph = None
         self.in_close = False
+        self.targetfilter = "main|macro"  # TODO that is certainly not correct here ;)
         super().__init__()
 
         s = env.session["mainwinsize"]
@@ -82,7 +83,7 @@ class MHMainWindow(QMainWindow):
         groupTool = QGroupBox("Toolpanel")
         self.ToolBox = QVBoxLayout()
 
-        self.drawToolPanel()
+        self.drawToolPanel(self.targetfilter)
         groupTool.setLayout(self.ToolBox)
         hLayout.addWidget(groupTool)
 
@@ -125,18 +126,20 @@ class MHMainWindow(QMainWindow):
 
             targetjson = env.readJSON(filename)
             if targetjson is not None:
-                qtree = MHTreeView(targetjson, "Modelling", "left shoulder")
+                qtree = MHTreeView(targetjson, "Modelling", self.redrawNewCategory, None)
                 self.BaseBox.addWidget(qtree)
             else:
                 env.logLine(1, env.last_error )
 
         self.BaseBox.addStretch()
 
-    def drawToolPanel(self):
+    def drawToolPanel(self, filterparam):
+        #
+        # will work according to mode later
+        #
         if self.glob.Targets is not None:
             widget = QWidget()
-            scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets)
-            #scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets, filterparam="gender|breast")
+            scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets, filterparam)
             widget.setLayout(scalerArray.layout)
             self.ToolBox.addWidget(widget)
 
@@ -197,7 +200,7 @@ class MHMainWindow(QMainWindow):
             base.prepareClass()
             self.graph.view.newMesh()
             self.emptyLayout(self.ToolBox)
-            self.drawToolPanel()
+            self.drawToolPanel(self.targetfilter)
             self.ToolBox.update()
 
             self.emptyLayout(self.BaseBox)
@@ -205,6 +208,13 @@ class MHMainWindow(QMainWindow):
             self.BaseBox.update()
 
             self.graph.update()
+
+    def redrawNewCategory(self, category):
+        print (category)
+        self.emptyLayout(self.ToolBox)
+        self.targetfilter = category
+        self.drawToolPanel(category)
+        self.ToolBox.update()
 
 
 
