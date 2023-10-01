@@ -84,7 +84,7 @@
 		"group": "gender|breast",
 		"icon": "breastfirmness.png"
 	},
-	"Breast Vertical Position": {
+	"Breast PosVer": {
 		"name": "Vertical Position",
 		"group": "gender|breast",
 		"icon": "breast-trans-down-up.png"
@@ -97,7 +97,7 @@
 		"group": "gender|breast",
 		"icon": "breast-point-decr-incr.png"
 	},
-	"Breast Horizontal Distance": {
+	"Breast DistHor": {
 		"name": "Horizontal Distance",
 		"group": "gender|breast",
 		"icon": "breast-dist-decr-incr.png"
@@ -167,6 +167,873 @@
 	"Head Parietal Side": {
 		"name": "Scale Depth of parietal side",
 		"group": "face|head shape"
+	},
+	"Head ScaleHor": {
+		"name": "Scale Horizontally",
+		"group": "face|head size"
+	},
+	"Head ScaleVer": {
+		"name": "Scale Vertically",
+		"group": "face|head size"
+	},
+	"Head ScaleDep": {
+		"name": "Scale Depth",
+		"group": "face|head size"
+	},
+	"Head MoveHor": {
+		"name": "Move Horizontally",
+		"group": "face|head size"
+	},
+	"Head MoveVer": {
+		"name": "Move Vertically",
+		"group": "face|head size"
+	},
+	"Head MoveDep": {
+		"name": "Move Depth",
+		"group": "face|head size"
+	},
+	"Forehead Bulge": {
+		"group": "face|forehead"
+	},
+	"Forehead ScaleVer": {
+		"name": "Scale Vertically",
+		"group": "face|forehead"
+	},
+	"Cranic Shape": {
+		"group": "face|forehead"
+	},
+	"Temple Bulge": {
+		"group": "face|forehead"
+	},
+	"Eyebrows Bulge": {
+		"group": "face|eyebrows"
+	},
+	"Eyebrows Angle": {
+		"group": "face|eyebrows"
+	},
+	"Eyebrows MoveVer": {
+		"name": "Move Vertically",
+		"group": "face|eyebrows"
+	},
+	"Neck ScaleHor": {
+		"name": "Scale Horizontally",
+		"group": "face|neck"
+	},
+	"Neck ScaleVer": {
+		"name": "Scale Vertically",
+		"group": "face|neck"
+	},
+	"Neck ScaleDep": {
+		"name": "Scale Depth",
+		"group": "face|neck"
+	},
+	"Neck MoveHor": {
+		"name": "Move Horizontally",
+		"group": "face|neck"
+	},
+	"Neck MoveVer": {
+		"name": "Move Vertically",
+		"group": "face|neck"
+	},
+	"Neck MoveDep": {
+		"name": "Move Depth",
+		"group": "face|neck"
+	},
+	"Neck Scale Nape": {
+		"name": "Scale Depth of Nape",
+		"group": "face|neck"
+	},
+	"R-Eye Bag Volume": {
+		"name": "Eye Bag Volume",
+		"group": "face|right eye"
+	},
+	"R-Eye Bag Distorsion": {
+		"name": "Eye Bag Distorsion",
+		"group": "face|right eye"
+	},
+	"R-Eye Bag Height": {
+		"name": "Eye Bag Height",
+		"group": "face|right eye"
+	},
+	"R-Eye Fold Angle": {
+		"name": "Eyefold Angle",
+		"group": "face|right eye"
+	},
+	"R-Eye Fold Volume": {
+		"name": "Eyefold Volume",
+		"group": "face|right eye"
+	},
+	"R-Eye Fold Pos": {
+		"name": "Eyefold Position",
+		"group": "face|right eye"
+	},
+	"R-Eye Epicanthus": {
+		"name": "Eye Epicathus",
+		"group": "face|right eye"
+	},
+	"R-Eye Scale": {
+		"name": "Scale Eye",
+		"group": "face|right eye"
+	},
+	"R-Eye ScaleVer1": {
+		"name": "Eye Scale Inner Height",
+		"group": "face|right eye"
+	},
+	"R-Eye ScaleVer2": {
+		"name": "Eye Scale Central Height",
+		"group": "face|right eye"
+	},
+	"R-Eye ScaleVer3": {
+		"name": "Eye Scale Outer Height",
+		"group": "face|right eye"
+	},
+	"R-Eye MoveHor": {
+		"name": "Move Eye Horizontally",
+		"group": "face|right eye"
+	},
+	"R-Eye OutCorn MoveHor": {
+		"name": "Move Outer Corner Horizontally",
+		"group": "face|right eye"
+	},
+	"R-Eye OutCorn MoveVer": {
+		"name": "Move Outer Corner Vertically",
+		"group": "face|right eye"
+	},
+	"R-Eye InCorn MoveHor": {
+		"name": "Move Inner Corner Horizontally",
+		"group": "face|right eye"
+	},
+	"R-Eye InCorn MoveVer": {
+		"name": "Move Inner Corner Vertically",
+		"group": "face|right eye"
+	},
+	"R-Eye MoveVer": {
+		"name": "Move Eye Vertically",
+		"group": "face|right eye"
+	},
+	"L-Eye Bag Volume": {
+		"name": "Eye Bag Volume",
+		"group": "face|left eye"
+	},
+	"L-Eye Bag Distorsion": {
+		"name": "Eye Bag Distorsion",
+		"group": "face|left eye"
+	},
+	"L-Eye Bag Height": {
+		"name": "Eye Bag Height",
+		"group": "face|left eye"
+	},
+	"L-Eye Fold Angle": {
+		"name": "Eyefold Angle",
+		"group": "face|left eye"
+	},
+	"L-Eye Fold Volume": {
+		"name": "Eyefold Volume",
+		"group": "face|left eye"
+	},
+	"L-Eye Fold Pos": {
+		"name": "Eyefold Position",
+		"group": "face|left eye"
+	},
+	"L-Eye Epicanthus": {
+		"name": "Eye Epicathus",
+		"group": "face|left eye"
+	},
+	"L-Eye Scale": {
+		"name": "Scale Eye",
+		"group": "face|left eye"
+	},
+	"L-Eye ScaleVer1": {
+		"name": "Eye Scale Inner Height",
+		"group": "face|left eye"
+	},
+	"L-Eye ScaleVer2": {
+		"name": "Eye Scale Central Height",
+		"group": "face|left eye"
+	},
+	"L-Eye ScaleVer3": {
+		"name": "Eye Scale Outer Height",
+		"group": "face|left eye"
+	},
+	"L-Eye MoveHor": {
+		"name": "Move Eye Horizontally",
+		"group": "face|left eye"
+	},
+	"L-Eye OutCorn MoveHor": {
+		"name": "Move Outer Corner Horizontally",
+		"group": "face|left eye"
+	},
+	"L-Eye OutCorn MoveVer": {
+		"name": "Move Outer Corner Vertically",
+		"group": "face|left eye"
+	},
+	"L-Eye InCorn MoveHor": {
+		"name": "Move Inner Corner Horizontally",
+		"group": "face|left eye"
+	},
+	"L-Eye InCorn MoveVer": {
+		"name": "Move Inner Corner Vertically",
+		"group": "face|left eye"
+	},
+	"L-Eye MoveVer": {
+		"name": "Move Eye Vertically",
+		"group": "face|left eye"
+	},
+	"Nose MoveHor": {
+		"name": "Move Horizontally",
+		"group": "face|nose size"
+	},
+	"Nose MoveVer": {
+		"name": "Move Vertically",
+		"group": "face|nose size"
+	},
+	"Nose MoveDep": {
+		"name": "Move Depth",
+		"group": "face|nose size"
+	},
+	"Nose ScaleHor": {
+		"name": "Scale Horizontally",
+		"group": "face|nose size"
+	},
+	"Nose ScaleVer": {
+		"name": "Scale Vertically",
+		"group": "face|nose size"
+	},
+	"Nose ScaleDep": {
+		"name": "Scale Depth",
+		"group": "face|nose size"
+	},
+	"Nose Tip ScaleHor": {
+		"name": "Scale Tip Width",
+		"group": "face|nose details"
+	},
+	"Nose Tip MoveVer": {
+		"name": "Move Tip Vertically",
+		"group": "face|nose details"
+	},
+	"Nose Base MoveVer": {
+		"name": "Move Base Vertically",
+		"group": "face|nose details"
+	},
+	"Nose ScaleHor1": {
+		"name": "Scale Upper Width",
+		"group": "face|nose details"
+	},
+	"Nose ScaleHor2": {
+		"name": "Scale Central Width",
+		"group": "face|nose details"
+	},
+	"Nose ScaleHor3": {
+		"name": "Scale Lower Width",
+		"group": "face|nose details"
+	},
+	"Nose Compress": {
+		"name": "Compression",
+		"group": "face|nose features"
+	},
+	"Nose Volume": {
+		"name": "Volume",
+		"group": "face|nose features"
+	},
+	"Nose Curve": {
+		"name": "Curve",
+		"group": "face|nose features"
+	},
+	"Nose Greek": {
+		"name": "Greek",
+		"group": "face|nose features"
+	},
+	"Nose Hump": {
+		"name": "Hump",
+		"group": "face|nose features"
+	},
+	"Nose Septum Angle": {
+		"name": "Septum Angle",
+		"group": "face|nose features"
+	},
+	"Nose NostrilAngle": {
+		"name": "Nostrils Angle",
+		"group": "face|nose features"
+	},
+	"Nose Scale NostrilHor": {
+		"name": "Scale Nostrils Width",
+		"group": "face|nose features"
+	},
+	"Nose Scale NostrilFlare": {
+		"name": "Scale Nostrils Flaring",
+		"group": "face|nose features"
+	},
+	"Mouth ScaleHor": {
+		"name": "Scale Horizontally",
+		"group": "face|mouth size"
+	},
+	"Mouth ScaleVer": {
+		"name": "Scale Vertically",
+		"group": "face|mouth size"
+	},
+	"Mouth ScaleDep": {
+		"name": "Scale Depth",
+		"group": "face|mouth size"
+	},
+	"Mouth MoveHor": {
+		"name": "Move Horizontally",
+		"group": "face|mouth size"
+	},
+	"Mouth MoveVer": {
+		"name": "Move Vertically",
+		"group": "face|mouth size"
+	},
+	"Mouth MoveDep": {
+		"name": "Move Depth",
+		"group": "face|mouth size"
+	},
+	"Mouth LLip ScaleHor": {
+		"name": "Scale Lowerlip Horizontally",
+		"group": "face|mouth details"
+	},
+	"Mouth LLip ScaleVer": {
+		"name": "Scale Lowerlip Vertically",
+		"group": "face|mouth details"
+	},
+	"Mouth ULip ScaleHor": {
+		"name": "Scale Upperlip Horizontally",
+		"group": "face|mouth details"
+	},
+	"Mouth ULip ScaleVer": {
+		"name": "Scale Upperlip Vertically",
+		"group": "face|mouth details"
+	},
+	"Mouth Dimples": {
+		"name": "Dimples",
+		"group": "face|mouth features"
+	},
+	"Mouth Laugh": {
+		"name": "Laugh-lines",
+		"group": "face|mouth features"
+	},
+	"Mouth Corner MoveVer": {
+		"name": "Move Corners Vertically",
+		"group": "face|mouth features"
+	},
+	"Mouth LLip VScale": {
+		"name": "Scale Lowerlip Volume",
+		"group": "face|mouth features"
+	},
+	"Mouth LLip PScale": {
+		"name": "Scale Philtrum Volume",
+		"group": "face|mouth features"
+	},
+	"Mouth LLip Shape": {
+		"name": "Lowerlip Curved Shape",
+		"group": "face|mouth features"
+	},
+	"Mouth LLip MScale": {
+		"name": "Scale middle Lowerlip",
+		"group": "face|mouth features"
+	},
+	"Mouth ULip VScale": {
+		"name": "Scale Upperlip Volume",
+		"group": "face|mouth features"
+	},
+	"Mouth ULip Shape": {
+		"name": "Upperlip Curved Shape",
+		"group": "face|mouth features"
+	},
+	"Mouth ULip MScale": {
+		"name": "Scale middle Upperlip",
+		"group": "face|mouth features"
+	},
+	"Mouth ULip CupidHor": {
+		"name": "Cupid's Bow Width",
+		"group": "face|mouth features"
+	},
+	"Mouth ULip CupidShape": {
+		"name": "Cupid's Bow Shape",
+		"group": "face|mouth features"
+	},
+	"R-EAR Scale": {
+		"name": "Scale Ear",
+		"group": "face|right ear"
+	},
+	"R-EAR ScaleHor": {
+		"name": "Scale Width",
+		"group": "face|right ear"
+	},
+	"R-EAR ScaleVer": {
+		"name": "Scale Height",
+		"group": "face|right ear"
+	},
+	"R-EAR MoveVer": {
+		"name": "Move Vertically",
+		"group": "face|right ear"
+	},
+	"R-EAR MoveDep": {
+		"name": "Move Depth",
+		"group": "face|right ear"
+	},
+	"R-EAR Lobe Scale": {
+		"name": "Scale Lobe",
+		"group": "face|right ear"
+	},
+	"R-EAR Rot": {
+		"name": "Rotate Ear",
+		"group": "face|right ear"
+	},
+	"R-EAR Shape1": {
+		"name": "Shape (pointed-triangle)",
+		"group": "face|right ear"
+	},
+	"R-EAR Shape2": {
+		"name": "Shape (squared-round)",
+		"group": "face|right ear"
+	},
+	"R-EAR Shape3": {
+		"name": "Ear Wing-shaped",
+		"group": "face|right ear"
+	},
+	"R-EAR Shape4": {
+		"name": "Ear Flapped",
+		"group": "face|right ear"
+	},
+	"L-EAR Scale": {
+		"name": "Scale Ear",
+		"group": "face|left ear"
+	},
+	"L-EAR ScaleHor": {
+		"name": "Scale Width",
+		"group": "face|left ear"
+	},
+	"L-EAR ScaleVer": {
+		"name": "Scale Height",
+		"group": "face|left ear"
+	},
+	"L-EAR MoveVer": {
+		"name": "Move Vertically",
+		"group": "face|left ear"
+	},
+	"L-EAR MoveDep": {
+		"name": "Move Depth",
+		"group": "face|left ear"
+	},
+	"L-EAR Lobe Scale": {
+		"name": "Scale Lobe",
+		"group": "face|left ear"
+	},
+	"L-EAR Rot": {
+		"name": "Rotate Ear",
+		"group": "face|left ear"
+	},
+	"L-EAR Shape1": {
+		"name": "Shape (pointed-triangle)",
+		"group": "face|left ear"
+	},
+	"L-EAR Shape2": {
+		"name": "Shape (squared-round)",
+		"group": "face|left ear"
+	},
+	"L-EAR Shape3": {
+		"name": "Ear Wing-shaped",
+		"group": "face|left ear"
+	},
+	"L-EAR Shape4": {
+		"name": "Ear Flapped",
+		"group": "face|left ear"
+	},
+	"Chin ScaleHor": {
+		"name": "Scale Chin Width",
+		"group": "face|chin"
+	},
+	"Chin ScaleVer": {
+		"name": "Scale Chin Height",
+		"group": "face|chin"
+	},
+	"Chin ScaleDep": {
+		"name": "Scale Chin Prominence",
+		"group": "face|chin"
+	},
+	"Chin Angular": {
+		"name": "Scale Chin Angular",
+		"group": "face|chin"
+	},
+	"Chin ToneSide": {
+		"name": "Tone of Side Chin",
+		"group": "face|chin"
+	},
+	"Chin Prognathism": {
+		"name": "Scale Chin Prognathism",
+		"group": "face|chin"
+	},
+	"Chin Cleft": {
+		"name": "Cleft Chin",
+		"group": "face|chin"
+	},
+	"Chin Double": {
+		"name": "Double Chin",
+		"group": "face|chin"
+	},
+	"R-Cheek MoveVer": {
+		"name": "Move Vertically",
+		"group": "face|right cheek"
+	},
+	"R-Cheek OuterVol": {
+		"name": "Outer Volume",
+		"group": "face|right cheek"
+	},
+	"R-Cheek InnerVol": {
+		"name": "Inner Volume",
+		"group": "face|right cheek"
+	},
+	"R-Cheek Prominence": {
+		"name": "Scale Prominence",
+		"group": "face|right cheek"
+	},
+	"L-Cheek MoveVer": {
+		"name": "Move Vertically",
+		"group": "face|left cheek"
+	},
+	"L-Cheek OuterVol": {
+		"name": "Outer Volume",
+		"group": "face|left cheek"
+	},
+	"L-Cheek InnerVol": {
+		"name": "Inner Volume",
+		"group": "face|left cheek"
+	},
+	"L-Cheek Prominence": {
+		"name": "Scale Prominence",
+		"group": "face|left cheek"
+	},
+	"Torso ScaleHor": {
+		"name": "Scale Horizontally",
+		"group": "torso|shape"
+	},
+	"Torso ScaleVer": {
+		"name": "Scale Vertically",
+		"group": "torso|shape"
+	},
+	"Torso ScaleDep": {
+		"name": "Scale Depth",
+		"group": "torso|shape"
+	},
+	"Torso MoveHor": {
+		"name": "Move Horizontally",
+		"group": "torso|shape"
+	},
+	"Torso MoveVer": {
+		"name": "Move Vertically",
+		"group": "torso|shape"
+	},
+	"Torso MoveDep": {
+		"name": "Move Depth",
+		"group": "torso|shape"
+	},
+	"Torso Coneshape": {
+		"name": "Scale Cone-Shape",
+		"group": "torso|shape"
+	},
+	"Torso Dorsi": {
+		"name": "Dorsi Muscle",
+		"group": "torso|shape"
+	},
+	"Torso Pectoral": {
+		"name": "Pectoral Muscle",
+		"group": "torso|shape"
+	},
+	"Hip ScaleHor": {
+		"name": "Scale Horizontally",
+		"group": "torso|hip"
+	},
+	"Hip ScaleVer": {
+		"name": "Scale Vertically",
+		"group": "torso|hip"
+	},
+	"Hip ScaleDep": {
+		"name": "Scale Depth",
+		"group": "torso|hip"
+	},
+	"Hip MoveHor": {
+		"name": "Move Horizontally",
+		"group": "torso|hip"
+	},
+	"Hip MoveVer": {
+		"name": "Move Vertically",
+		"group": "torso|hip"
+	},
+	"Hip MoveDep": {
+		"name": "Move Depth",
+		"group": "torso|hip"
+	},
+	"Hip WaistPos": {
+		"name": "Waist Vertical Position",
+		"group": "torso|hip"
+	},
+	"Stomach Tone": {
+		"name": "Muscular Tone",
+		"group": "torso|stomach"
+	},
+	"Stomach Pregnant": {
+		"name": "Pregnancy Shape",
+		"group": "torso|stomach"
+	},
+	"Stomach NavelPos": {
+		"name": "Navel Position",
+		"group": "torso|stomach"
+	},
+	"Stomach NavelBump": {
+		"name": "Navel Bump",
+		"group": "torso|stomach"
+	},
+	"Buttocks Volume": {
+		"name": "Volume",
+		"group": "torso|buttocks"
+	},
+	"Pelvis Muscular": {
+		"name": "Mucscular Tone",
+		"group": "torso|pelvis"
+	},
+	"Pelvis Genital": {
+		"name": "Genital Volume",
+		"group": "torso|pelvis"
+	},
+	"R-Shoulder Muscle": {
+		"name": "Muscle Mass",
+		"group": "arms|right shoulder"
+	},
+	"L-Shoulder Muscle": {
+		"name": "Muscle Mass",
+		"group": "arms|left shoulder"
+	},
+	"R-UArm THor": {
+		"name": "Upperarm Length",
+		"group": "arms|right arm"
+	},
+	"R-UArm TVer": {
+		"name": "Upperarm Height",
+		"group": "arms|right arm"
+	},
+	"R-UArm TDep": {
+		"name": "Upperarm Width",
+		"group": "arms|right arm"
+	},
+	"R-UArm Fat": {
+		"name": "Upperarm Skinny-Fat",
+		"group": "arms|right arm"
+	},
+	"R-UArm Muscles": {
+		"name": "Upperarm Muscles",
+		"group": "arms|right arm"
+	},
+	"R-LArm THor": {
+		"name": "Lowerarm Length",
+		"group": "arms|right arm"
+	},
+	"R-LArm TVer": {
+		"name": "Lowerarm Height",
+		"group": "arms|right arm"
+	},
+	"R-LArm TDep": {
+		"name": "Lowerarm Width",
+		"group": "arms|right arm"
+	},
+	"R-LArm Fat": {
+		"name": "Lowerarm Skinny-Fat",
+		"group": "arms|right arm"
+	},
+	"R-LArm Muscles": {
+		"name": "Lowerarm Muscles",
+		"group": "arms|right arm"
+	},
+	"L-UArm THor": {
+		"name": "Upperarm Length",
+		"group": "arms|left arm"
+	},
+	"L-UArm TVer": {
+		"name": "Upperarm Height",
+		"group": "arms|left arm"
+	},
+	"L-UArm TDep": {
+		"name": "Upperarm Width",
+		"group": "arms|left arm"
+	},
+	"L-UArm Fat": {
+		"name": "Upperarm Skinny-Fat",
+		"group": "arms|left arm"
+	},
+	"L-UArm Muscles": {
+		"name": "Upperarm Muscles",
+		"group": "arms|left arm"
+	},
+	"L-LArm THor": {
+		"name": "Lowerarm Length",
+		"group": "arms|left arm"
+	},
+	"L-LArm TVer": {
+		"name": "Lowerarm Height",
+		"group": "arms|left arm"
+	},
+	"L-LArm TDep": {
+		"name": "Lowerarm Width",
+		"group": "arms|left arm"
+	},
+	"L-LArm Fat": {
+		"name": "Lowerarm Skinny-Fat",
+		"group": "arms|left arm"
+	},
+	"L-LArm Muscles": {
+		"name": "Lowerarm Muscles",
+		"group": "arms|left arm"
+	},
+	"R-Hand Scale": {
+		"name": "Scale",
+		"group": "arms|right hand"
+	},
+	"R-Hand Pos": {
+		"name": "Position",
+		"group": "arms|right hand"
+	},
+	"R-Hand FingerLen": {
+		"name": "Fingers length",
+		"group": "arms|right hand"
+	},
+	"R-Hand FingerDia": {
+		"name": "Fingers Diameter",
+		"group": "arms|right hand"
+	},
+	"R-Hand FingerDist": {
+		"name": "Fingers Distance",
+		"group": "arms|right hand"
+	},
+	"L-Hand Scale": {
+		"name": "Scale",
+		"group": "arms|left hand"
+	},
+	"L-Hand Pos": {
+		"name": "Position",
+		"group": "arms|left hand"
+	},
+	"L-Hand FingerLen": {
+		"name": "Fingers length",
+		"group": "arms|left hand"
+	},
+	"L-Hand FingerDia": {
+		"name": "Fingers Diameter",
+		"group": "arms|left hand"
+	},
+	"L-Hand FingerDist": {
+		"name": "Fingers Distance",
+		"group": "arms|left hand"
+	},
+	"Legs UpperLen": {
+		"name": "Upperlegs Height",
+		"group": "legs|leg size"
+	},
+	"Legs LowerLen": {
+		"name": "Lowerlegs Height",
+		"group": "legs|leg size"
+	},
+	"R-Leg Knee MoveHor": {
+		"name": "Move Knee Horizontally",
+		"group": "legs|right leg"
+	},
+	"R-Leg Knee MoveVer": {
+		"name": "Move Knee Vertically",
+		"group": "legs|right leg"
+	},
+	"R-ULeg ScaleHor": {
+		"name": "Upperleg Scale Horizontally",
+		"group": "legs|right leg"
+	},
+	"R-ULeg ScaleDep": {
+		"name": "Upperleg Scale Depth",
+		"group": "legs|right leg"
+	},
+	"R-ULeg Fat": {
+		"name": "Upperleg Skinny-Fat",
+		"group": "legs|right leg"
+	},
+	"R-ULeg Muscle": {
+		"name": "Upperleg Muscle",
+		"group": "legs|right leg"
+	},
+	"R-LLeg ScaleHor": {
+		"name": "Lowerleg Scale Horizontally",
+		"group": "legs|right leg"
+	},
+	"R-LLeg ScaleDep": {
+		"name": "Lowerleg Scale Depth",
+		"group": "legs|right leg"
+	},
+	"R-LLeg Fat": {
+		"name": "Lowerleg Skinny-Fat",
+		"group": "legs|right leg"
+	},
+	"R-LLeg Muscle": {
+		"name": "Lowerleg Muscle",
+		"group": "legs|right leg"
+	},
+	"L-Leg Knee MoveHor": {
+		"name": "Move Knee Horizontally",
+		"group": "legs|left leg"
+	},
+	"L-Leg Knee MoveVer": {
+		"name": "Move Knee Vertically",
+		"group": "legs|left leg"
+	},
+	"U-LLeg ScaleHor": {
+		"name": "Upperleg Scale Horizontally",
+		"group": "legs|left leg"
+	},
+	"U-LLeg ScaleDep": {
+		"name": "Upperleg Scale Depth",
+		"group": "legs|left leg"
+	},
+	"U-LLeg Fat": {
+		"name": "Upperleg Skinny-Fat",
+		"group": "legs|left leg"
+	},
+	"U-LLeg Muscle": {
+		"name": "Upperleg Muscle",
+		"group": "legs|left leg"
+	},
+	"L-LLeg ScaleHor": {
+		"name": "Lowerleg Scale Horizontally",
+		"group": "legs|left leg"
+	},
+	"L-LLeg ScaleDep": {
+		"name": "Lowerleg Scale Depth",
+		"group": "legs|left leg"
+	},
+	"L-LLeg Fat": {
+		"name": "Lowerleg Skinny-Fat",
+		"group": "legs|left leg"
+	},
+	"L-LLeg Muscle": {
+		"name": "Lowerleg Muscle",
+		"group": "legs|left leg"
+	},
+	"R-Foot Scale": {
+		"name": "Scale",
+		"group": "legs|right foot"
+	},
+	"R-Foot MoveHor": {
+		"name": "Move Horizontally",
+		"group": "legs|right foot"
+	},
+	"R-Foot MoveDep": {
+		"name": "Move Depth",
+		"group": "legs|right foot"
+	},
+	"L-Foot Scale": {
+		"name": "Scale",
+		"group": "legs|left foot"
+	},
+	"L-Foot MoveHor": {
+		"name": "Move Horizontally",
+		"group": "legs|left foot"
+	},
+	"L-Foot MoveDep": {
+		"name": "Move Depth",
+		"group": "legs|left foot"
 	}
 }
 

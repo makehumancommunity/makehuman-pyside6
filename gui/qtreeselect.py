@@ -11,6 +11,7 @@ class JsonItem(QStandardItem):
             self.setFont(myFont)
         self.setText(txt)
         self.cat = cat
+        self.text = txt
 
 class QTreeMain(QTreeView):
     """
@@ -92,7 +93,7 @@ class QTreeMain(QTreeView):
 
                 self.lastparentindex = pindex
             if item.cat is not None and self.lastcategory != item.cat:
-                self.callback_redraw(item.cat)
+                self.callback_redraw(item.cat, newp.text + ", " + item.text)
                 self.lastcategory = item.cat
         
 class MHTreeView(QWidget):

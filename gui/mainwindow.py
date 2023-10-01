@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFrame, QGroupBox, QListWidget, QAbstractItemView, QSizePolicy
+from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFrame, QGroupBox, QListWidget, QAbstractItemView, QSizePolicy, QScrollArea
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize, Qt
 from gui.prefwindow import  MHPrefWindow
@@ -21,6 +21,7 @@ class MHMainWindow(QMainWindow):
         self.pref_window = None
         self.info_window = None
         self.log_window = None
+        self.rightColumn = None
         self.graph = None
         self.in_close = False
         self.targetfilter = "main|macro"  # TODO that is certainly not correct here ;)
@@ -80,12 +81,13 @@ class MHMainWindow(QMainWindow):
 
         # right side, ToolBox
         #
-        groupTool = QGroupBox("Toolpanel")
+        self.rightColumn = QGroupBox("Toolpanel")
         self.ToolBox = QVBoxLayout()
 
         self.drawToolPanel(self.targetfilter)
-        groupTool.setLayout(self.ToolBox)
-        hLayout.addWidget(groupTool)
+        self.rightColumn.setMinimumWidth(500)
+        self.rightColumn.setLayout(self.ToolBox)
+        hLayout.addWidget(self.rightColumn)
 
         #
         central_widget.setLayout(hLayout)
@@ -133,7 +135,7 @@ class MHMainWindow(QMainWindow):
 
         self.BaseBox.addStretch()
 
-    def drawToolPanel(self, filterparam):
+    def drawToolPanel(self, filterparam, text="Toolpanel"):
         #
         # will work according to mode later
         #
@@ -141,7 +143,12 @@ class MHMainWindow(QMainWindow):
             widget = QWidget()
             scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets, filterparam)
             widget.setLayout(scalerArray.layout)
-            self.ToolBox.addWidget(widget)
+            scrollArea = QScrollArea()
+            scrollArea.setWidget(widget)
+            scrollArea.setWidgetResizable(True)
+
+            self.ToolBox.addWidget(scrollArea)
+            self.rightColumn.setTitle("Modify character, category: " + text)
 
     def emptyLayout(self, layout):
         if layout is not None:
@@ -209,11 +216,11 @@ class MHMainWindow(QMainWindow):
 
             self.graph.update()
 
-    def redrawNewCategory(self, category):
+    def redrawNewCategory(self, category, text):
         print (category)
         self.emptyLayout(self.ToolBox)
         self.targetfilter = category
-        self.drawToolPanel(category)
+        self.drawToolPanel(category, text)
         self.ToolBox.update()
 
 
