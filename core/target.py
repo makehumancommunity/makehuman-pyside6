@@ -11,19 +11,19 @@ class Modelling:
         self.refresh = refreshwindow
         self.selected = False
         self.value = 0.0
-        self.up   = None    # target "up"
-        self.down = None    # target "down"
+        self.incr = None    # target "incr"
+        self.decr = None    # target "decr"
         self.displayname = name
         self.group = None
 
     def __str__(self):
-        return (self.name + ": " + str(self.up) + "/" + str(self.down))
+        return (self.name + ": " + str(self.incr) + "/" + str(self.decr))
 
-    def up_target(self, fname):
-        self.up = fname
+    def incr_target(self, fname):
+        self.incr = fname
 
-    def down_target(self, fname):
-        self.down = fname
+    def decr_target(self, fname):
+        self.decr = fname
 
     def set_refresh(self,refreshwindow):
         self.refresh = refreshwindow
@@ -37,8 +37,8 @@ class Modelling:
     def callback(self):
         factor = self.value / 100
         print("change " + self.name)
-        if self.up is not None and self.down is not None:
-            self.obj.updateByTarget(factor, self.down, self.up)
+        if self.incr is not None and self.decr is not None:
+            self.obj.updateByTarget(factor, self.decr, self.incr)
             self.refresh.Tweak()
 
     #def __del__(self):
@@ -121,14 +121,14 @@ class Targets:
             tip = t["tip"] if "tip" in t else "Select to modify"
             icon = os.path.join(iconpath, t["icon"]) if "icon" in t else default_icon
             m = Modelling(name, self.object3d, self.graphwindow, icon, tip)
-            if "down" in t:
-                mt = Morphtarget(self.env, t["down"])
+            if "decr" in t:
+                mt = Morphtarget(self.env, t["decr"])
                 mt.loadTextFile(targetpath)
-                m.down_target(mt)
-            if "up" in t:
-                mt = Morphtarget(self.env, t["up"])
+                m.decr_target(mt)
+            if "incr" in t:
+                mt = Morphtarget(self.env, t["incr"])
                 mt.loadTextFile(targetpath)
-                m.up_target(mt)
+                m.incr_target(mt)
             if "name" in t:
                 m.set_displayname(t["name"])
             if "group" in t:
@@ -146,10 +146,10 @@ class Targets:
         self.env.logLine (2, "destroy Targets:" + str(self.collection))
 
         for m in self.modelling_targets:
-            if m.up:
-                m.up.releaseNumpy()
-            if m.down:
-                m.down.releaseNumpy()
+            if m.incr:
+                m.incr.releaseNumpy()
+            if m.decr:
+                m.decr.releaseNumpy()
 
         self.modelling_targets = []
 

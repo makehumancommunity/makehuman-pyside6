@@ -105,8 +105,8 @@
 	"Breast Volume": {
 		"group": "gender|breast",
 		"icon": "breast-volume-vert-down-up.png",
-		"down": "breast/breast-volume-vert-down.target",
-		"up": "breast/breast-volume-vert-up.target"
+		"decr": "breast/breast-volume-vert-down.target",
+		"incr": "breast/breast-volume-vert-up.target"
 	},
 	"Nipple Size": {
 		"group": "gender|breast",
@@ -885,43 +885,73 @@
 	},
 	"R-Hand Scale": {
 		"name": "Scale",
-		"group": "arms|right hand"
+		"group": "arms|right hand",
+		"icon": "r-hand-scale-decr-incr.png",
+		"decr": "armslegs/r-hand-scale-decr.target",
+		"incr": "armslegs/r-hand-scale-incr.target"
 	},
 	"R-Hand Pos": {
 		"name": "Position",
-		"group": "arms|right hand"
+		"group": "arms|right hand",
+		"icon": "r-hand-trans-in-out.png",
+		"decr": "armslegs/r-hand-trans-in.target",
+		"incr": "armslegs/r-hand-trans-out.target"
 	},
 	"R-Hand FingerLen": {
 		"name": "Fingers length",
-		"group": "arms|right hand"
+		"group": "arms|right hand",
+		"icon": "r-hand-fingers-length-decr-incr.png",
+		"decr": "armslegs/r-hand-fingers-length-decr.target",
+		"incr": "armslegs/r-hand-fingers-length-incr.target"
 	},
 	"R-Hand FingerDia": {
 		"name": "Fingers Diameter",
-		"group": "arms|right hand"
+		"group": "arms|right hand",
+		"icon": "r-hand-fingers-diameter-decr-incr.png",
+		"decr": "armslegs/r-hand-fingers-diameter-decr.target",
+		"incr": "armslegs/r-hand-fingers-diameter-incr.target"
 	},
 	"R-Hand FingerDist": {
 		"name": "Fingers Distance",
-		"group": "arms|right hand"
+		"group": "arms|right hand",
+		"icon": "r-hand-fingers-distance-decr-incr.png",
+		"decr": "armslegs/r-hand-fingers-distance-decr.target",
+		"incr": "armslegs/r-hand-fingers-distance-incr.target"
 	},
 	"L-Hand Scale": {
 		"name": "Scale",
-		"group": "arms|left hand"
+		"group": "arms|left hand",
+		"icon": "l-hand-scale-decr-incr.png",
+		"decr": "armslegs/l-hand-scale-decr.target",
+		"incr": "armslegs/l-hand-scale-incr.target"
 	},
 	"L-Hand Pos": {
 		"name": "Position",
-		"group": "arms|left hand"
+		"group": "arms|left hand",
+		"icon": "l-hand-trans-in-out.png",
+		"decr": "armslegs/l-hand-trans-in.target",
+		"incr": "armslegs/l-hand-trans-out.target"
 	},
 	"L-Hand FingerLen": {
 		"name": "Fingers length",
-		"group": "arms|left hand"
+		"group": "arms|left hand",
+		"icon": "l-hand-fingers-length-decr-incr.png",
+		"decr": "armslegs/l-hand-fingers-length-decr.target",
+		"incr": "armslegs/l-hand-fingers-length-incr.target"
 	},
 	"L-Hand FingerDia": {
 		"name": "Fingers Diameter",
-		"group": "arms|left hand"
+		"group": "arms|left hand",
+		"icon": "l-hand-fingers-diameter-decr-incr.png",
+		"decr": "armslegs/l-hand-fingers-diameter-decr.target",
+		"incr": "armslegs/l-hand-fingers-diameter-incr.target"
 	},
 	"L-Hand FingerDist": {
 		"name": "Fingers Distance",
-		"group": "arms|left hand"
+		"group": "arms|left hand",
+		"icon": "l-hand-fingers-distance-decr-incr.png",
+		"decr": "armslegs/l-hand-fingers-distance-decr.target",
+		"incr": "armslegs/l-hand-fingers-distance-incr.target"
 	},
 	"Legs UpperLen": {
 		"name": "Upperlegs Height",

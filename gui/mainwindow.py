@@ -64,6 +64,7 @@ class MHMainWindow(QMainWindow):
         self.BaseBox = QVBoxLayout()
 
         self.drawBasePanel()
+        groupBase.setMaximumWidth(400)
         groupBase.setLayout(self.BaseBox)
         hLayout.addWidget(groupBase)
 
@@ -86,6 +87,7 @@ class MHMainWindow(QMainWindow):
 
         self.drawToolPanel(self.targetfilter)
         self.rightColumn.setMinimumWidth(500)
+        self.rightColumn.setMaximumWidth(500)
         self.rightColumn.setLayout(self.ToolBox)
         hLayout.addWidget(self.rightColumn)
 

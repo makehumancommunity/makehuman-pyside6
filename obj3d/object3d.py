@@ -56,6 +56,16 @@ class object3d:
         self.uvs = np.asarray(uvs, dtype=np.float32)        # positions converted to array of floats
         self.overflow = overflow
 
+
+    def overflowCorrection(self):
+        """
+        when the main part of the mesh is directly corrected, handle the overflow
+        """
+        for (source, dest) in self.overflow:
+            s = source * 3
+            d = dest * 3
+            self.gl_coord[d:d+2]   = self.gl_coord[s:s+2]
+
     def calcNormals(self):
         """
         calculates face-normals and then vertex normals
@@ -158,6 +168,8 @@ class object3d:
         # do not break the array
         #
         if factor == 0.0:
+            # TODO this is wrong!
+            # figure out if original mesh is used for calculation or resulting mesh (without this target itself)
             self.gl_coord[:] = self.gl_coord_o[:]
             return
         if factor < 0.0:
@@ -174,6 +186,9 @@ class object3d:
             self.gl_coord[x+1] = self.gl_coord_o[x+1] + factor * data[i][1]
             self.gl_coord[x+2] = self.gl_coord_o[x+2] + factor * data[i][2]
 
+        # do not forget the overflow vertices
+        #
+        self.overflowCorrection()
 
     """
     def calculateMaxAttachedFaces(self):

@@ -29,10 +29,12 @@ class MHGraphicWindow(QWidget):
         if self.attached is True:
             self.disconnectbutton = QPushButton("Disconnect")
             self.disconnectbutton.clicked.connect(self.disconnect_button)
+            self.disconnectbutton.setMaximumWidth(200)
             glayout.addWidget(self.disconnectbutton)
         else:
             self.connectbutton = QPushButton("Connect")
             self.connectbutton.clicked.connect(self.connect_button)
+            self.connectbutton.setMaximumWidth(200)
             glayout.addWidget(self.connectbutton)
             self.setLayout(glayout)
             self.setWindowTitle("3D View")
