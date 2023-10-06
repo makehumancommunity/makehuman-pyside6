@@ -152,9 +152,11 @@ class ScaleCombo(QWidget):
     def selectButtonPressed(self):
         """
         call parent function to disable other buttons
+        call initialize callback
         """
         self.parentUpdate(self)
         self.image.setChecked(not self.expanded)
+        self.elem.initialize()
 
     def comboUpdate(self, expand):
         """

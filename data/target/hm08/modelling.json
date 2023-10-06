@@ -705,7 +705,10 @@
 	},
 	"Torso ScaleHor": {
 		"name": "Scale Horizontally",
-		"group": "torso|shape"
+		"group": "torso|shape",
+		"icon": "torso-scale-horiz-decr-incr.png",
+		"decr": "torso/torso-scale-horiz-decr.target",
+		"incr": "torso/torso-scale-horiz-incr.target"
 	},
 	"Torso ScaleVer": {
 		"name": "Scale Vertically",

@@ -20,10 +20,11 @@ class object3d:
         self.fuvs  = None   # will contain UV buffer or will stay none (TODO: is that needed?)
         self.group = []     # will contain pointer to group per face
 
-        self.overflow = None # will contain a table for double used vertices
+        self.overflow = None # will contain a table for double used vertices [source, dest]
 
         self.gl_coord = []    # will contain flattened gl-Buffer (these are coordinates to be changed)
         self.gl_coord_o = []  # will contain a copy of unchanged positions
+        self.gl_coord_w = []  # will contain a copy of unchanged positions (working mode with targets)
         self.gl_uvcoord = []  # will contain flattened gluv-Buffer
         self.gl_norm  = []    # will contain flattended normal buffer
         self.gl_fvert  = []   # will contain vertices per face, [verts, 3] array of uint32 for openGL > 2
@@ -57,14 +58,14 @@ class object3d:
         self.overflow = overflow
 
 
-    def overflowCorrection(self):
+    def overflowCorrection(self, arr):
         """
         when the main part of the mesh is directly corrected, handle the overflow
         """
         for (source, dest) in self.overflow:
             s = source * 3
             d = dest * 3
-            self.gl_coord[d:d+2]   = self.gl_coord[s:s+2]
+            arr[d:d+2]   = arr[s:s+2]
 
     def calcNormals(self):
         """
@@ -82,6 +83,12 @@ class object3d:
         for elem in self.gl_fvert:
             v = self.coord[elem]
             norm = np.cross(v[0] - v[1], v[1] - v[2])
+
+            # done on flattened array it works like this
+            #x = elem * 3
+            #a = [ self.gl_coord[x][0] - self.gl_coord[x][1], self.gl_coord[x+1][0] - self.gl_coord[x+1][1], self.gl_coord[x+2][0] - self.gl_coord[x+2][1] ]
+            #b = [ self.gl_coord[x][1] - self.gl_coord[x][2], self.gl_coord[x+1][1] - self.gl_coord[x+1][2], self.gl_coord[x+2][1] - self.gl_coord[x+2][2] ]
+            #norm = np.cross(a, b)
 
             for i in range(2):
                 fa_norm[elem[i]] += norm
@@ -152,6 +159,7 @@ class object3d:
                 cnt += 1
         self.gl_coord = self.coord.flatten()
         self.gl_coord_o = self.gl_coord.copy()  # create a copy for original values
+        self.gl_coord_w = self.gl_coord.copy()  # create another one for working
 
         if self.n_fuvs > 0:
             self.gl_uvcoord = self.uvs.flatten()
@@ -162,16 +170,38 @@ class object3d:
         #self.calculateMaxAttachedFaces()
         self.calcNormals()
 
-    def updateByTarget(self, factor, targetlower, targetupper):
-        #
-        # be aware to modify the target in place!
-        # do not break the array
-        #
+    def getInitialCopyForSlider(self, factor, targetlower, targetupper):
+        """
+        called when starting work with one slider, a copy without the value
+        of this slider is created.
+        """
         if factor == 0.0:
-            # TODO this is wrong!
-            # figure out if original mesh is used for calculation or resulting mesh (without this target itself)
-            self.gl_coord[:] = self.gl_coord_o[:]
+            self.gl_coord_w[:] = self.gl_coord[:]
+        else:
+            if factor < 0.0:
+                verts = targetlower.verts
+                data  = targetlower.data
+                factor = -factor
+            elif factor > 0.0:
+                verts = targetupper.verts
+                data  = targetupper.data
+            for i in range(0, len(verts)):
+                x = verts[i] * 3
+                self.gl_coord_w[x]   = self.gl_coord[x]   - factor * data[i][0]
+                self.gl_coord_w[x+1] = self.gl_coord[x+1] - factor * data[i][1]
+                self.gl_coord_w[x+2] = self.gl_coord[x+2] - factor * data[i][2]
+
+        self.overflowCorrection(self.gl_coord_w)
+        # self.calcNormals()
+
+    def updateByTarget(self, factor, targetlower, targetupper):
+        """
+        updates the mesh when slider is moved
+        """
+        if factor == 0.0:
+            self.gl_coord[:] = self.gl_coord_w[:]
             return
+
         if factor < 0.0:
             verts = targetlower.verts
             data  = targetlower.data
@@ -182,13 +212,13 @@ class object3d:
 
         for i in range(0, len(verts)):
             x = verts[i] * 3
-            self.gl_coord[x]   = self.gl_coord_o[x]   + factor * data[i][0]
-            self.gl_coord[x+1] = self.gl_coord_o[x+1] + factor * data[i][1]
-            self.gl_coord[x+2] = self.gl_coord_o[x+2] + factor * data[i][2]
+            self.gl_coord[x]   = self.gl_coord_w[x]   + factor * data[i][0]
+            self.gl_coord[x+1] = self.gl_coord_w[x+1] + factor * data[i][1]
+            self.gl_coord[x+2] = self.gl_coord_w[x+2] + factor * data[i][2]
 
         # do not forget the overflow vertices
         #
-        self.overflowCorrection()
+        self.overflowCorrection(self.gl_coord)
 
     """
     def calculateMaxAttachedFaces(self):
