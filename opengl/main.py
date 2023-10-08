@@ -44,9 +44,18 @@ class GraphWindow(QOpenGLWidget):
         self.buffers.TexCoordBuffer(baseClass.gl_uvcoord)
         self.obj = Object3D(self.context(), self.buffers, self.mh_shaders, self.texture, pos=QVector3D(0, 0, 0))
 
+
+    def resetCamera(self):
+        self.cameraPers = True
+        self.cameraDist = 20
+        self.cameraHeight = 5
+        self.cameraPos =  QVector3D(0, self.cameraHeight, self.cameraDist)
+        self.cameraDir =  QVector3D(0, 1, 0)
+
     def initializeGL(self):
 
         self.env.GL_Info = GLVersion(True)
+        self.resetCamera()
         baseClass = self.glob.baseClass
         glfunc = self.context().functions()
 
@@ -66,14 +75,38 @@ class GraphWindow(QOpenGLWidget):
         self.proj_view_matrix = QMatrix4x4()
         self.proj_matrix = QMatrix4x4()
         self.view_matrix = QMatrix4x4()
-        self.view_matrix.lookAt(
-            QVector3D(2, 5, 20),
-            QVector3D(0, 0, 0),
-            QVector3D(0, 1, 0))
+        self.lookAt()
 
         if baseClass is not None:
             self.createObject()
 
+    def lookAt(self):
+        """
+        new position of camera
+        """
+        self.view_matrix.setToIdentity()
+        self.view_matrix.lookAt( self.cameraPos, QVector3D(0, 0, 0), self.cameraDir)
+
+    def customView(self, direction):
+        """
+        the 6 views
+        """
+        self.cameraPos =  direction * self.cameraDist
+        if direction.y()== 0:
+            self.cameraPos.setY(self.cameraHeight)
+            self.cameraDir =  QVector3D(0, 1, 0)
+        else:
+            self.cameraDir =  QVector3D(0, 0, 1)
+        #print (self.cameraPos)
+        self.lookAt()
+        self.paintGL()
+        self.update()
+
+    def togglePerspective(self, mode):
+        self.cameraPers = mode
+        self.resizeGL(self.width(), self.height())
+        self.paintGL()
+        self.update()
 
     def paintGL(self):
         glfunc = self.context().functions()
@@ -105,5 +138,10 @@ class GraphWindow(QOpenGLWidget):
         glfunc = self.context().functions()
         glfunc.glViewport(0, 0, w, h)
         self.proj_matrix.setToIdentity()
-        self.proj_matrix.perspective(50, float(w) / float(h), 0.1, 100)
+        if self.cameraPers:
+            self.proj_matrix.perspective(50, float(w) / float(h), 0.1, 100)
+        else:
+            w_o = float(w) / 100
+            h_o = float(h) / 100
+            self.proj_matrix.ortho(-w_o, w_o, -h_o, h_o, 0.1, 100)
 

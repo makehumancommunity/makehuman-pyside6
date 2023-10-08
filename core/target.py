@@ -112,7 +112,7 @@ class Targets:
 
     def loadTargets(self):
         targetpath = os.path.join(self.env.path_sysdata, "target", self.env.basename)
-        default_icon = os.path.join(self.env.path_sysdata, "icons", "empty_target.png")
+        default_icon = os.path.join(self.env.path_sysicon, "empty_target.png")
         iconpath = os.path.join(targetpath, "icons")
         filename = os.path.join(targetpath, "modelling.json")
         self.collection = self.env.basename
