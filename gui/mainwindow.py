@@ -4,11 +4,12 @@ from PySide6.QtCore import QSize, Qt
 from gui.prefwindow import  MHPrefWindow
 from gui.logwindow import  MHLogWindow
 from gui.infowindow import  MHInfoWindow
-from gui.graphwindow import  MHGraphicWindow
+from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.slider import ScaleComboArray
 from gui.qtreeselect import MHTreeView
 from core.fileops import baseClass
 import os
+
 
 class MHMainWindow(QMainWindow):
     """
@@ -72,6 +73,11 @@ class MHMainWindow(QMainWindow):
         #
         self.graph = MHGraphicWindow(self, self.env, self.glob)
         gLayout = self.graph.createLayout()
+        #
+        # keyboard
+        #
+        self.eventFilter = NavigationEvent(self.graph)
+        self.installEventFilter(self.eventFilter)
 
         # in case of being attached, add external window in layout
         #

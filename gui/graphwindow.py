@@ -1,9 +1,36 @@
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QSize, Qt, QObject, QEvent
 from PySide6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy
 from PySide6.QtGui import QVector3D, QColor, QIcon
 from core.fileops import baseClass
 from opengl.main import GraphWindow
 import os
+
+class NavigationEvent(QObject):
+    def __init__(self, callback):
+        self.win = callback
+        super().__init__()
+
+    def eventFilter(self, widget, event):
+        if event.type() == QEvent.ShortcutOverride:
+            key = event.key()
+            if key == 55:
+                self.win.bottom_button()
+            elif key == 56:
+                self.win.back_button()
+            elif key == 57:
+                self.win.top_button()
+            elif key == 50:
+                self.win.front_button()
+            elif key == 52:
+                self.win.left_button()
+            elif key == 54:
+                self.win.right_button()
+            print (key)
+            #text = event.text()
+            #print (text)
+            #if event.modifiers():
+            #    text = event.keyCombination().key().name.decode(encoding="utf-8")
+        return False
 
 class MHGraphicWindow(QWidget):
     """
@@ -18,6 +45,12 @@ class MHGraphicWindow(QWidget):
         self.attached = env.g_attach
         print ("Attach " + str(self.attached))
         super().__init__()
+        #
+        # keyboard actions
+        #
+        self.eventFilter = NavigationEvent(self)
+        self.installEventFilter(self.eventFilter)
+
 
     def navButtons(self, vlayout):
         elems = [ 
@@ -41,7 +74,7 @@ class MHGraphicWindow(QWidget):
         # perspective button is a toggle
         #
         icon = os.path.join(self.env.path_sysicon, "persp.svg")
-        self.pers_button = QPushButton("Perpective")
+        self.pers_button = QPushButton("Perspective")
         self.pers_button.setCheckable(True)
         self.pers_button.setChecked(True)
         self.pers_button.setStyleSheet("background-color : orange")
