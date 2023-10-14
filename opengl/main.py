@@ -7,7 +7,8 @@ from PySide6.QtGui import QMatrix4x4, QVector3D, QOpenGLContext
 import OpenGL
 from OpenGL import GL as gl
 from opengl.shaders import ShaderRepository
-from opengl.buffers import OpenGlBuffers, Object3D
+from opengl.buffers import OpenGlBuffers, RenderedObject
+from opengl.camera import Camera
 
 def GLVersion(initialized):
     glversion = {}
@@ -31,6 +32,7 @@ class GraphWindow(QOpenGLWidget):
         super().__init__()
         self.setMinimumSize(QSize(600, 600))
         self.buffers = None
+        self.camera  = None
         print (env)
         self.glob.graphwindow = self
         if glob.Targets is not None:
@@ -42,20 +44,13 @@ class GraphWindow(QOpenGLWidget):
         self.buffers.VertexBuffer(baseClass.gl_coord, baseClass.gl_icoord, baseClass.n_glverts)
         self.buffers.NormalBuffer(baseClass.gl_norm)
         self.buffers.TexCoordBuffer(baseClass.gl_uvcoord)
-        self.obj = Object3D(self.context(), self.buffers, self.mh_shaders, self.texture, pos=QVector3D(0, 0, 0))
-
-
-    def resetCamera(self):
-        self.cameraPers = True
-        self.cameraDist = 20
-        self.cameraHeight = 5
-        self.cameraPos =  QVector3D(0, self.cameraHeight, self.cameraDist)
-        self.cameraDir =  QVector3D(0, 1, 0)
+        self.obj = RenderedObject(self.context(), self.buffers, self.mh_shaders, self.texture, pos=QVector3D(0, 0, 0))
 
     def initializeGL(self):
 
         self.env.GL_Info = GLVersion(True)
-        self.resetCamera()
+        self.camera = Camera()
+        self.camera.resizeViewPort(self.width(), self.height())
         baseClass = self.glob.baseClass
         glfunc = self.context().functions()
 
@@ -70,41 +65,30 @@ class GraphWindow(QOpenGLWidget):
 
         self.texture = self.mh_shaders.loadTexture("cube")
 
-
-        # view
-        self.proj_view_matrix = QMatrix4x4()
-        self.proj_matrix = QMatrix4x4()
-        self.view_matrix = QMatrix4x4()
-        self.lookAt()
-
         if baseClass is not None:
             self.createObject()
-
-    def lookAt(self):
-        """
-        new position of camera
-        """
-        self.view_matrix.setToIdentity()
-        self.view_matrix.lookAt( self.cameraPos, QVector3D(0, 0, 0), self.cameraDir)
+            self.camera.setCenter(self.obj.getCenter())
 
     def customView(self, direction):
-        """
-        the 6 views
-        """
-        self.cameraPos =  direction * self.cameraDist
-        if direction.y()== 0:
-            self.cameraPos.setY(self.cameraHeight)
-            self.cameraDir =  QVector3D(0, 1, 0)
-        else:
-            self.cameraDir =  QVector3D(0, 0, 1)
-        #print (self.cameraPos)
-        self.lookAt()
+        self.camera.customView(direction)
+        self.paintGL()
+        self.update()
+
+    def modifyDistance(self, distance):
+        self.camera.modifyDistance(distance)
         self.paintGL()
         self.update()
 
     def togglePerspective(self, mode):
-        self.cameraPers = mode
-        self.resizeGL(self.width(), self.height())
+        self.camera.togglePerspective(mode)
+        self.paintGL()
+        self.update()
+
+    def arcBallCamStart(self, x, y):
+        self.camera.setLastMousePosition(x, y)
+
+    def arcBallCamera(self, x, y):
+        self.camera.arcBallRotation(x, y)
         self.paintGL()
         self.update()
 
@@ -112,10 +96,10 @@ class GraphWindow(QOpenGLWidget):
         glfunc = self.context().functions()
 
         glfunc.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-        self.proj_view_matrix = self.proj_matrix * self.view_matrix
+        proj_view_matrix = self.camera.getProjViewMatrix()
         baseClass = self.glob.baseClass
         if baseClass is not None:
-            self.obj.draw(self.mh_shaders, self.proj_view_matrix)
+            self.obj.draw(self.mh_shaders, proj_view_matrix)
 
     def Tweak(self):
         if self.buffers is not None:
@@ -131,17 +115,13 @@ class GraphWindow(QOpenGLWidget):
 
         if baseClass is not None:
             self.createObject()
+            self.camera.setCenter(baseClass.getCenter())
             self.paintGL()
             self.update()
 
     def resizeGL(self, w, h):
         glfunc = self.context().functions()
         glfunc.glViewport(0, 0, w, h)
-        self.proj_matrix.setToIdentity()
-        if self.cameraPers:
-            self.proj_matrix.perspective(50, float(w) / float(h), 0.1, 100)
-        else:
-            w_o = float(w) / 100
-            h_o = float(h) / 100
-            self.proj_matrix.ortho(-w_o, w_o, -h_o, h_o, 0.1, 100)
+        self.camera.resizeViewPort(w, h)
+        self.camera.calculateProjMatrix()
 

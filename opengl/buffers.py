@@ -59,7 +59,7 @@ class OpenGlBuffers():
             self.tex_coord_buffer.destroy()
         self.amount_of_vertices = 0
 
-class Object3D:
+class RenderedObject:
     def __init__(self, context, vert_buffers, locations, texture, pos):
         self.context = context
         self.position = QVector3D(0, 0, 0)

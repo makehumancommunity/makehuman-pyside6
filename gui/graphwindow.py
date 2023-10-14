@@ -25,11 +25,21 @@ class NavigationEvent(QObject):
                 self.win.left_button()
             elif key == 54:
                 self.win.right_button()
+            elif key == 16777235:
+                self.win.cursorPos(-1)
+            elif key == 16777237:
+                self.win.cursorPos(1)
+
             print (key)
             #text = event.text()
             #print (text)
             #if event.modifiers():
             #    text = event.keyCombination().key().name.decode(encoding="utf-8")
+
+        elif event.type() == QEvent.MouseMove:
+            self.win.screenPos(event.globalPosition())
+        elif event.type() == QEvent.MouseButtonPress:
+            self.win.setPos(event.globalPosition())
         return False
 
 class MHGraphicWindow(QWidget):
@@ -154,6 +164,36 @@ class MHGraphicWindow(QWidget):
 
     def bottom_button(self):
         self.view.customView(QVector3D(0, -1, 0))
+
+    def cursorPos(self, direction):
+        self.view.modifyDistance(direction)
+
+    def mouseInView(self, pos):
+        window= self.view.mapToGlobal(self.view.pos())
+        mx = int(pos.x())
+        my = int(pos.y())
+        wx = window.x()
+        wy = window.y()
+        hx = wx + self.view.width()
+        hy = wy + self.view.height()
+        if mx >= wx and my >=wy and mx < hx and my < hy:
+            return (True, mx-wx, my-wy)
+        else:
+            return (False, 0, 0)
+
+    def screenPos(self, pos):
+        """
+        calculate if mouse is over the area we want to work with (widget underMouse() does not work at all)
+        """
+        (b, x, y) = self.mouseInView(pos)
+        if b:
+            self.view.arcBallCamera(float(x), float(y))
+
+    def setPos(self, pos):
+        (b, x, y) = self.mouseInView(pos)
+        if b:
+            self.view.arcBallCamStart(float(x), float(y))
+
 
     def toggle_perspective(self):
         if self.pers_button.isChecked():

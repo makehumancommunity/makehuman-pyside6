@@ -182,6 +182,7 @@ def importWaveFront(path, obj):
     obj.setGroupNames(groupnames)
     obj.createGLVertPos(verts, uv_values, overflowtable, n_origverts)          # TODO consider to recombine createGLVertPos and createGLFaces
     obj.createGLFaces(fcnt, ucnt, prim, groups)
+    obj.recalculateDimension()
 
     del verts
     del uvs

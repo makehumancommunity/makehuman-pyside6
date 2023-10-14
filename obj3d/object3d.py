@@ -1,4 +1,5 @@
 import numpy as np 
+# from timeit import default_timer as timer
 
 class object3d:
     def __init__(self, env, baseinfo ):
@@ -128,7 +129,7 @@ class object3d:
 
         self.gl_fvert = np.zeros((self.prim, 3), dtype=np.uint32)
         # fill faces and group buffer
-        # ( array of numbers per face determining the group-nummber )
+        # ( array of numbers per face determining the group-number )
 
         cnt = 0
         for num, elem in enumerate (self.grpNames):
@@ -219,6 +220,22 @@ class object3d:
         # do not forget the overflow vertices
         #
         self.overflowCorrection(self.gl_coord)
+
+    def recalculateDimension(self):
+
+        a = self.gl_coord.reshape((int(len(self.gl_coord)/3),3))
+        self.minimum_axis = np.min(a, axis=0)
+        self.maximum_axis = np.max(a, axis=0)
+
+        print ("Dimension left: " + str(self.minimum_axis[0]))
+        print ("Dimension right: " + str(self.maximum_axis[0]))
+        print ("Dimension back: " + str(self.minimum_axis[2]))
+        print ("Dimension front: " + str(self.maximum_axis[2]))
+        print ("Dimension bottom: " + str(self.minimum_axis[1]))
+        print ("Dimension top: " + str(self.maximum_axis[1]))
+
+    def getCenter(self):
+        return ((self.maximum_axis+self.minimum_axis) / 2)
 
     """
     def calculateMaxAttachedFaces(self):
