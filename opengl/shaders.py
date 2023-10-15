@@ -13,12 +13,12 @@ class ShaderRepository(QOpenGLShaderProgram):
 
     def loadFragShader(self, filename):
         path = os.path.join (self.env.path_sysdata, "shaders", filename + ".frag")
-        print (path)
+        self.env.logLine(3, "Load: " + path)
         self.addShaderFromSourceFile(QOpenGLShader.Fragment, path)
 
     def loadVertShader(self, filename):
         path = os.path.join (self.env.path_sysdata, "shaders", filename + ".vert")
-        print (path)
+        self.env.logLine(3, "Load: " + path)
         self.addShaderFromSourceFile(QOpenGLShader.Vertex,path)
 
     def attribVertShader(self):
@@ -33,12 +33,3 @@ class ShaderRepository(QOpenGLShaderProgram):
         self.model_matrix_location = self.uniformLocation("uModelMatrix")
         self.normal_matrix_location =  self.uniformLocation("uNormalMatrix")
 
-    def loadTexture(self, filename):
-        # TODO: this is just a dummy, so path etc are just wrong
-        path = os.path.join (self.env.path_sysdata, "shaders", filename + ".png")
-        texture = QOpenGLTexture(QOpenGLTexture.Target2D)
-        texture.create()
-        texture.setData(QImage(path))
-        texture.setMinMagFilters(QOpenGLTexture.Linear, QOpenGLTexture.Linear)
-        texture.setWrapMode(QOpenGLTexture.ClampToEdge)
-        return (texture)

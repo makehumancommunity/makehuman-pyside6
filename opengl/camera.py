@@ -80,8 +80,12 @@ class Camera():
 
 
     def modifyDistance(self, distance):
-        self.cameraDist += distance
-        self.cameraPos.setZ(self.cameraDist)
+        """
+        move one unit on vector (zoom by vector length)
+        """
+        v = self.cameraPos - self.lookAt
+        l = v.length() * distance
+        self.cameraPos += ( v / l)
         self.updateViewMatrix()
 
     def togglePerspective(self, mode):

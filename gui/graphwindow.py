@@ -26,9 +26,9 @@ class NavigationEvent(QObject):
             elif key == 54:
                 self.win.right_button()
             elif key == 16777235:
-                self.win.cursorPos(-1)
+                self.win.zoom(-1)
             elif key == 16777237:
-                self.win.cursorPos(1)
+                self.win.zoom(1)
 
             print (key)
             #text = event.text()
@@ -40,6 +40,11 @@ class NavigationEvent(QObject):
             self.win.screenPos(event.globalPosition())
         elif event.type() == QEvent.MouseButtonPress:
             self.win.setPos(event.globalPosition())
+        elif event.type() == QEvent.Wheel:
+            y = event.angleDelta().y()
+            direction = 1 if y > 0 else -1
+            self.win.zoom(direction)
+
         return False
 
 class MHGraphicWindow(QWidget):
@@ -165,7 +170,7 @@ class MHGraphicWindow(QWidget):
     def bottom_button(self):
         self.view.customView(QVector3D(0, -1, 0))
 
-    def cursorPos(self, direction):
+    def zoom(self, direction):
         self.view.modifyDistance(direction)
 
     def mouseInView(self, pos):

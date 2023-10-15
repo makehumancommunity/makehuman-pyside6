@@ -4,9 +4,11 @@ from PySide6.QtGui import QMatrix4x4, QVector3D, QOpenGLContext
 
 # try to keep only constants here
 #
+import os
 import OpenGL
 from OpenGL import GL as gl
 from opengl.shaders import ShaderRepository
+from opengl.material import Material
 from opengl.buffers import OpenGlBuffers, RenderedObject
 from opengl.camera import Camera
 
@@ -44,6 +46,12 @@ class GraphWindow(QOpenGLWidget):
         self.buffers.VertexBuffer(baseClass.gl_coord, baseClass.gl_icoord, baseClass.n_glverts)
         self.buffers.NormalBuffer(baseClass.gl_norm)
         self.buffers.TexCoordBuffer(baseClass.gl_uvcoord)
+
+        # TODO: material not yet correct, will be connect to object later and of course not with predefined path name
+        #
+        self.material = Material(self.env)
+        self.texture = self.material.loadTexture(os.path.join (self.env.path_sysdata, "skins", self.env.basename, "textures", "default.png"))
+
         self.obj = RenderedObject(self.context(), self.buffers, self.mh_shaders, self.texture, pos=QVector3D(0, 0, 0))
 
     def initializeGL(self):
@@ -63,7 +71,6 @@ class GraphWindow(QOpenGLWidget):
         self.mh_shaders.attribVertShader()
         self.mh_shaders.getVertLocations()
 
-        self.texture = self.mh_shaders.loadTexture("cube")
 
         if baseClass is not None:
             self.createObject()
