@@ -66,7 +66,7 @@ class object3d:
         for (source, dest) in self.overflow:
             s = source * 3
             d = dest * 3
-            arr[d:d+2]   = arr[s:s+2]
+            arr[d:d+3]   = arr[s:s+3]
 
     def calcNormals(self):
         """

@@ -2,10 +2,15 @@
 	"Smaller Cube": {
 		"group": "main|macro",
 		"icon": "smallercube.png",
-		"tip": "Select to resize cube"
+		"tip": "Select to resize cube",
+		"decr": "cube-decr.target",
+                "incr": "cube-incr.target"
+
 	},
 	"Bigger Cube": {
 		"group": "main|macro",
-		"icon": "biggercube.png"
+		"icon": "biggercube.png",
+		"decr": "cube-decr.target",
+                "incr": "cube-incr.target"
 	}
 }
