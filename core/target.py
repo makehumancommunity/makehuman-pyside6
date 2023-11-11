@@ -104,7 +104,7 @@ class Targets:
         self.modelling_targets = []
         glob.Targets = self
         self.collection = None
-        self.object3d = glob.baseClass
+        self.baseMesh = glob.baseClass.baseMesh
         self.graphwindow = glob.graphwindow
 
     def __str__(self):
@@ -126,7 +126,7 @@ class Targets:
             t = targetjson[name]
             tip = t["tip"] if "tip" in t else "Select to modify"
             icon = os.path.join(iconpath, t["icon"]) if "icon" in t else default_icon
-            m = Modelling(name, self.object3d, self.graphwindow, icon, tip)
+            m = Modelling(name, self.baseMesh, self.graphwindow, icon, tip)
             if "decr" in t:
                 mt = Morphtarget(self.env, t["decr"])
                 mt.loadTextFile(targetpath)

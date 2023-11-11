@@ -12,8 +12,9 @@ class baseClass():
     def __init__(self, env, glob, name):
         self.env = env
         self.glob = glob
-        self.object3d = None
+        self.baseMesh = None
         self.baseInfo = None
+        self.attached_objs = []
         env.logLine(2, "New baseClass: " + name)
         memInfo()
         self.env.basename = name
@@ -34,24 +35,40 @@ class baseClass():
         
         name = os.path.join(basepath, "base.obj")
 
-        self.object3d = object3d(self.env, self.baseInfo)
+        self.baseMesh = object3d(self.env, self.baseInfo)
         self.env.logLine(3, "Load: " + name)
-        (res, err) = importWaveFront(name, self.object3d)
+        (res, err) = importWaveFront(name, self.baseMesh)
         if res is False:
-            del self.object3d
-            self.object3d = None
+            del self.baseMesh
+            self.baseMesh = None
             print (err)
 
         if self.glob.Targets is not None:
             self.glob.Targets.destroyTargets()
 
         if self.glob.baseClass is not None:
-            print ("class before: " + str(self.glob.baseClass))
+            print ("class before: " + str(self.glob.baseClass.baseMesh))
             del self.glob.baseClass
-        self.glob.baseClass = self.object3d
-        print(self.object3d)
+        self.glob.baseClass = self
         target = Targets(self.env, self.glob)
         target.loadTargets()
+        #
+        # TODO: first test with second mesh only for hm08, eyes, will not be hardcoded later
+        #
+        if self.env.basename == "hm08":
+            eyespath = os.path.join(self.env.path_sysdata, "eyes", self.env.basename)
+            name = os.path.join(eyespath, "low-poly.obj")
+            self.env.logLine(3, "Load: " + name)
+            obj = object3d(self.env, None)
+            (res, err) = importWaveFront(name, obj)
+            if res is False:
+                print (err)
+            else:
+                self.attached_objs.append(obj)
+                print ("Attached:")
+                print (self.attached_objs)
+        else:
+            self.attached_objs = []
         memInfo()
 
     def __del__(self):

@@ -31,7 +31,10 @@ class object3d:
         self.gl_fvert  = []   # will contain vertices per face, [verts, 3] array of uint32 for openGL > 2
         self.n_glverts = 0    # number of vertices for open gl
         self.n_glnorm  = 0    # number of normals for open gl
-        self.visible = baseinfo["visible groups"]
+        if baseinfo is not None:
+            self.visible = baseinfo["visible groups"]
+        else:
+            self.visible = None
 
     def __str__(self):
         return (self.name + ": Object3d with " + str(self.n_groups) + " group(s)\n" + 
@@ -133,7 +136,7 @@ class object3d:
 
         cnt = 0
         for num, elem in enumerate (self.grpNames):
-            if elem not in self.visible:
+            if self.visible is not None and elem not in self.visible:
                 continue
             faces = groups[elem]["v"]
             for face in faces:

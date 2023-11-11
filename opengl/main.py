@@ -33,26 +33,32 @@ class GraphWindow(QOpenGLWidget):
         self.glob = glob
         super().__init__()
         self.setMinimumSize(QSize(600, 600))
-        self.buffers = None
+        self.buffers = []
+        self.objects = []
         self.camera  = None
         print (env)
         self.glob.graphwindow = self
         if glob.Targets is not None:
             glob.Targets.refreshTargets(self)
 
-    def createObject(self):
-        baseClass = self.glob.baseClass
-        self.buffers = OpenGlBuffers()
-        self.buffers.VertexBuffer(baseClass.gl_coord, baseClass.gl_icoord, baseClass.n_glverts)
-        self.buffers.NormalBuffer(baseClass.gl_norm)
-        self.buffers.TexCoordBuffer(baseClass.gl_uvcoord)
+    def createObject(self, obj, texture=None):
+        glbuffer = OpenGlBuffers()
+        glbuffer.VertexBuffer(obj.gl_coord, obj.gl_icoord, obj.n_glverts)
+        glbuffer.NormalBuffer(obj.gl_norm)
+        glbuffer.TexCoordBuffer(obj.gl_uvcoord)
+        self.buffers.append(glbuffer)
 
         # TODO: material not yet correct, will be connect to object later and of course not with predefined path name
+        # for test purpose
         #
         self.material = Material(self.env)
-        self.texture = self.material.loadTexture(os.path.join (self.env.path_sysdata, "skins", self.env.basename, "textures", "default.png"))
+        if texture is None:
+            self.texture = self.material.loadTexture(os.path.join (self.env.path_sysdata, "skins", self.env.basename, "textures", "default.png"))
+        else:
+            self.texture = self.material.loadTexture(os.path.join (self.env.path_sysdata, "eyes", self.env.basename, "textures", texture))
 
-        self.obj = RenderedObject(self.context(), self.buffers, self.mh_shaders, self.texture, pos=QVector3D(0, 0, 0))
+        obj = RenderedObject(self.context(), glbuffer, self.mh_shaders, self.texture, pos=QVector3D(0, 0, 0))
+        self.objects.append(obj)
 
     def initializeGL(self):
 
@@ -71,10 +77,10 @@ class GraphWindow(QOpenGLWidget):
         self.mh_shaders.attribVertShader()
         self.mh_shaders.getVertLocations()
 
-
         if baseClass is not None:
-            self.createObject()
-            self.camera.setCenter(self.obj.getCenter())
+            obj = baseClass.baseMesh
+            self.createObject(obj)
+            self.camera.setCenter(obj.getCenter())
 
     def customView(self, direction):
         self.camera.customView(direction)
@@ -106,23 +112,27 @@ class GraphWindow(QOpenGLWidget):
         proj_view_matrix = self.camera.getProjViewMatrix()
         baseClass = self.glob.baseClass
         if baseClass is not None:
-            self.obj.draw(self.mh_shaders, proj_view_matrix)
+            for obj in self.objects:
+                obj.draw(self.mh_shaders, proj_view_matrix)
 
     def Tweak(self):
-        if self.buffers is not None:
-            self.buffers.Tweak()
-            self.paintGL()
-            self.update()
+        for glbuffer in self.buffers:
+            glbuffer.Tweak()
+        self.paintGL()
+        self.update()
 
     def newMesh(self):
         baseClass = self.glob.baseClass
-        if self.buffers is not None:
-            self.buffers.Delete()
-            del self.obj
+        for glbuffer in self.buffers:
+            glbuffer.Delete()
+        self.objects = []
 
         if baseClass is not None:
-            self.createObject()
-            self.camera.setCenter(baseClass.getCenter())
+            self.createObject(baseClass.baseMesh)
+            for elem in baseClass.attached_objs:
+                print ("   " + str(elem))
+                self.createObject(elem, "brown_eye.png")
+            self.camera.setCenter(baseClass.baseMesh.getCenter())
             self.paintGL()
             self.update()
 
