@@ -170,7 +170,10 @@
 	},
 	"Head ScaleHor": {
 		"name": "Scale Horizontally",
-		"group": "face|head size"
+		"group": "face|head size",
+		"icon": "head-scale-horiz-decr-incr.png",
+		"decr": "head/head-scale-horiz-decr.target",
+		"incr": "head/head-scale-horiz-incr.target"
 	},
 	"Head ScaleVer": {
 		"name": "Scale Vertically",

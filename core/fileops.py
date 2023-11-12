@@ -1,6 +1,7 @@
 import os
 import json
 from core.target import Targets
+from core.attached_asset import attachedAsset
 from obj3d.fops_wavefront import importWaveFront
 from obj3d.object3d import object3d
 from core.debug import memInfo
@@ -53,20 +54,28 @@ class baseClass():
         target = Targets(self.env, self.glob)
         target.loadTargets()
         #
-        # TODO: first test with second mesh only for hm08, eyes, will not be hardcoded later
+        # TODO: still meshes, will be objects later (mhclo or mhpxy)
         #
-        if self.env.basename == "hm08":
-            eyespath = os.path.join(self.env.path_sysdata, "eyes", self.env.basename)
-            name = os.path.join(eyespath, "low-poly.obj")
-            self.env.logLine(3, "Load: " + name)
-            obj = object3d(self.env, None)
-            (res, err) = importWaveFront(name, obj)
-            if res is False:
-                print (err)
-            else:
-                self.attached_objs.append(obj)
-                print ("Attached:")
-                print (self.attached_objs)
+        if "meshes" in self.baseInfo:
+            attach = attachedAsset(self.env, self.glob)
+
+            m = self.baseInfo["meshes"]
+            for elem in m:
+                attach = attachedAsset(self.env, self.glob)
+                name = os.path.join(self.env.path_sysdata, elem["cat"], self.env.basename, elem["name"])
+                (res, text) = attach.textLoad(name)
+                if res is True:
+                    name = os.path.join(self.env.path_sysdata, elem["cat"], self.env.basename, attach.obj_file)
+                    self.env.logLine(3, "Load: " + name)
+                
+                    obj = object3d(self.env, None)
+                    (res, err) = importWaveFront(name, obj)
+                    if res is False:
+                        print (err)
+                    else:
+                        self.attached_objs.append(obj)
+                else:
+                    print(text)
         else:
             self.attached_objs = []
         memInfo()

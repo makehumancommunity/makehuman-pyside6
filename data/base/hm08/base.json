@@ -1,3 +1,6 @@
 {
-	"visible groups": [ "body"]
+	"visible groups": [ "body"],
+	"meshes": [
+		{"cat": "eyes", "name": "low-poly.mhclo" }
+	]
 }
