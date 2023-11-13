@@ -1,4 +1,23 @@
 import os
+import numpy as np
+
+class referenceVerts:
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        return("N:"+ str(self._verts) + " W:" + str(self._weights) + " O:" + str(self._offset))
+
+    def identicalValue(self, words, vnum, vertWeights):
+        v0 = int(words[0])
+        self._verts = (v0,0,1)
+        self._weights = (1.0,0.0,0.0)
+        self._offset = np.zeros(3, float)
+        if v0 in vertWeights:
+            vertWeights[v0].append((vnum, 1))
+        else:
+            vertWeights[v0] = [(vnum,1)]
+        return self
 
 
 class attachedAsset:
@@ -8,6 +27,13 @@ class attachedAsset:
         self.tags = []
         self.version = 110
         self.z_depth = 50
+        self.vertWeights = {}       # will contain the parent weight
+
+                                    # numpy arrays
+        self.ref_vIdxs = None       # (Vidx1,Vidx2,Vidx3) list with references to human vertex indices, indexed by reference vert
+        self.weights = None         # (w1,w2,w3) list, with weights per human vertex (mapped by ref_vIdxs), indexed by reference vert
+        self.offsets = None         # (x,y,z) list of vertex offsets, indexed by reference vert
+
 
     def __str__(self):
         text = ""
@@ -24,10 +50,20 @@ class attachedAsset:
         structure is a key/value system + rows of verts in the end
         """
         self.env.logLine(3, "Load: " + filename)
+
+
         try:
             fp = open(filename, "r", encoding="utf-8", errors='ignore')
         except IOError as err:
             return (False, str(err))
+
+        #
+        # status = 0, read normal
+        #          1, read vertices
+        #
+        status = 0
+        refVerts = [] # local reference for vertices
+        vnum   = 0    # will contain the vertex number (counting from 0 to x)
 
         for line in fp:
             words = line.split()
@@ -41,13 +77,23 @@ class attachedAsset:
             key = key[:-1] if key.endswith(":") else key
 
             if key == "verts":
+                status = 1
                 continue
             if key == "weights":
                 continue
             elif key == "delete_verts":
                 continue
 
-            if len(words) < 2:
+            if status == 1:
+                refVert = referenceVerts()
+                refVerts.append(refVert)
+                if len(words) == 1:
+                    value = refVert.identicalValue(words, vnum, self.vertWeights)
+                #else:
+                    #refVert.fromTriple(words, vnum, proxy.vertWeights)
+                vnum += 1
+
+            if len(words) < 2 or status > 0:
                 continue
 
             if key in ["name", "uuid", "description", "author", "license", "homepage"]:
@@ -71,7 +117,16 @@ class attachedAsset:
 
         fp.close()
         print (self)
+        #for elem in refVerts:
+        #    print (elem)
 
         if self.obj_file is None:
             return(False, "Obj-File is missing")
+
+        # finally create the numpy arrays here
+        #
+        self.weights = np.asarray([v._weights for v in refVerts], dtype=np.float32)
+        self.ref_vIdxs = np.asarray([v._verts for v in refVerts], dtype=np.uint32)
+        self.offsets = np.asarray([v._offset for v in refVerts], dtype=np.float32)
+
         return (True, "Okay")
