@@ -1,7 +1,7 @@
 from PySide6.QtCore import QSize, Qt, QObject, QEvent
 from PySide6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy
 from PySide6.QtGui import QVector3D, QColor, QIcon
-from core.fileops import baseClass
+from core.baseobj import baseClass
 from opengl.main import GraphWindow
 import os
 

@@ -27,6 +27,7 @@ class attachedAsset:
         self.tags = []
         self.version = 110
         self.z_depth = 50
+        self.obj = None             # will contain the object3d class
         self.vertWeights = {}       # will contain the parent weight
 
                                     # numpy arrays

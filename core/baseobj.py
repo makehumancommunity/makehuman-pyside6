@@ -15,7 +15,7 @@ class baseClass():
         self.glob = glob
         self.baseMesh = None
         self.baseInfo = None
-        self.attached_objs = []
+        self.attachedAssets = []
         env.logLine(2, "New baseClass: " + name)
         memInfo()
         self.env.basename = name
@@ -54,7 +54,7 @@ class baseClass():
         target = Targets(self.env, self.glob)
         target.loadTargets()
         #
-        # TODO: still meshes, will be objects later (mhclo or mhpxy)
+        # attach the assets to the basemesh
         #
         if "meshes" in self.baseInfo:
             attach = attachedAsset(self.env, self.glob)
@@ -73,12 +73,30 @@ class baseClass():
                     if res is False:
                         print (err)
                     else:
-                        self.attached_objs.append(obj)
+                        attach.obj = obj
+                        self.attachedAssets.append(attach)
                 else:
                     print(text)
         else:
-            self.attached_objs = []
+            self.attachedAssets = []
         memInfo()
+
+    def getInitialCopyForSlider(self, factor, decr, incr):
+        """
+        get initial atm is only need for base, because the rest is done identically
+        """
+        self.baseMesh.getInitialCopyForSlider(factor, decr, incr)
+
+    def updateByTarget(self, factor, decr, incr):
+        """
+        update all meshes by target
+        """
+        self.baseMesh.updateByTarget(factor, decr, incr)
+        for asset in self.attachedAssets:
+            #
+            # TODO: could be that the method will be to attached_asset
+            #
+            asset.obj.approxByTarget(asset, self.baseMesh)
 
     def __del__(self):
         self.env.logLine (4, " -- __del__ baseClass " + self.name)

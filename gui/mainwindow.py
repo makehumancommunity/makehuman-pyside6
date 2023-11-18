@@ -4,10 +4,11 @@ from PySide6.QtCore import QSize, Qt
 from gui.prefwindow import  MHPrefWindow
 from gui.logwindow import  MHLogWindow
 from gui.infowindow import  MHInfoWindow
+from gui.memwindow import  MHMemWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.slider import ScaleComboArray
 from gui.qtreeselect import MHTreeView
-from core.fileops import baseClass
+from core.baseobj import baseClass
 import os
 
 
@@ -20,6 +21,7 @@ class MHMainWindow(QMainWindow):
         self.env = env
         self.glob = glob
         self.pref_window = None
+        self.mem_window = None
         self.info_window = None
         self.log_window = None
         self.rightColumn = None
@@ -39,6 +41,8 @@ class MHMainWindow(QMainWindow):
         about_act.triggered.connect(self.info_call)
 
         file_menu = menu_bar.addMenu("&File")
+        mem_act = file_menu.addAction("MemInfo")
+        mem_act.triggered.connect(self.memory_call)
         quit_act = file_menu.addAction("Quit")
         quit_act.triggered.connect(self.quit_call)
 
@@ -193,6 +197,14 @@ class MHMainWindow(QMainWindow):
         if self.log_window is None:
             self.log_window = MHLogWindow(self)
         self.log_window.show()
+
+    def memory_call(self):
+        """
+        show memory window
+        """
+        if self.mem_window is None:
+            self.mem_window = MHMemWindow(self)
+        self.mem_window.show()
 
     def info_call(self):
         """

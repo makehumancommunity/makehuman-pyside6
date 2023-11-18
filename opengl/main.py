@@ -129,9 +129,9 @@ class GraphWindow(QOpenGLWidget):
 
         if baseClass is not None:
             self.createObject(baseClass.baseMesh)
-            for elem in baseClass.attached_objs:
+            for elem in baseClass.attachedAssets:
                 print ("   " + str(elem))
-                self.createObject(elem, "brown_eye.png")
+                self.createObject(elem.obj, "brown_eye.png")
             self.camera.setCenter(baseClass.baseMesh.getCenter())
             self.paintGL()
             self.update()

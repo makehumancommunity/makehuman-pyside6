@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QApplication
 from core.globenv import programInfo, globalObjects
 from gui.mainwindow import  MHMainWindow
 from gui.application import  MHApplication
-from core.fileops import baseClass
+from core.baseobj import baseClass
 
 def main():
     """

@@ -13,6 +13,7 @@ class globalObjects():
     def __init__(self):
         self.Targets = None
         self.baseClass = None
+        self.textures = []
 
 class programInfo():
     """

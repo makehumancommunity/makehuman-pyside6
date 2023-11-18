@@ -224,6 +224,25 @@ class object3d:
         #
         self.overflowCorrection(self.gl_coord)
 
+
+    def approxByTarget(self, asset, base):
+        """
+        updates the mesh when slider is moved, approximation
+        """
+
+        # TODO: only handles simple case
+        i = 0
+        for vnum in asset.ref_vIdxs:
+            x =  vnum[0] * 3
+            self.gl_coord[i] = base.gl_coord[x]
+            self.gl_coord[i+1] = base.gl_coord[x+1]
+            self.gl_coord[i+2] = base.gl_coord[x+2]
+            i += 3
+
+        # do not forget the overflow vertices
+        #
+        self.overflowCorrection(self.gl_coord)
+
     def recalculateDimension(self):
 
         a = self.gl_coord.reshape((int(len(self.gl_coord)/3),3))

@@ -19,6 +19,13 @@ class Modelling:
     def __str__(self):
         return (self.name + ": " + str(self.incr) + "/" + str(self.decr))
 
+    def memInfo(self):
+        li = len(self.incr.verts) if self.incr else 0
+        ld = len(self.decr.verts) if self.decr else 0
+        t = [self.name, str(self.incr), li, str(self.decr), ld, self.value]
+        return (t)
+
+
     def incr_target(self, fname):
         self.incr = fname
 
@@ -104,7 +111,7 @@ class Targets:
         self.modelling_targets = []
         glob.Targets = self
         self.collection = None
-        self.baseMesh = glob.baseClass.baseMesh
+        self.baseClass = glob.baseClass
         self.graphwindow = glob.graphwindow
 
     def __str__(self):
@@ -126,7 +133,7 @@ class Targets:
             t = targetjson[name]
             tip = t["tip"] if "tip" in t else "Select to modify"
             icon = os.path.join(iconpath, t["icon"]) if "icon" in t else default_icon
-            m = Modelling(name, self.baseMesh, self.graphwindow, icon, tip)
+            m = Modelling(name, self.baseClass, self.graphwindow, icon, tip)
             if "decr" in t:
                 mt = Morphtarget(self.env, t["decr"])
                 mt.loadTextFile(targetpath)
