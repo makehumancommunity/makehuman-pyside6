@@ -177,11 +177,17 @@
 	},
 	"Head ScaleVer": {
 		"name": "Scale Vertically",
-		"group": "face|head size"
+		"group": "face|head size",
+		"icon": "head-scale-vert-decr-incr.png",
+		"decr": "head/head-scale-vert-decr.target",
+		"incr": "head/head-scale-vert-incr.target"
 	},
 	"Head ScaleDep": {
 		"name": "Scale Depth",
-		"group": "face|head size"
+		"group": "face|head size",
+		"icon": "head-scale-depth-decr-incr.png",
+		"decr": "head/head-scale-depth-decr.target",
+		"incr": "head/head-scale-depth-incr.target"
 	},
 	"Head MoveHor": {
 		"name": "Move Horizontally",

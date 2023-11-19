@@ -17,6 +17,8 @@ class Camera():
         self.last_mousey = 0
         self.deltaAngleX = 0                    # movement left to right = 2*PI = 360 deg
         self.deltaAngleY = 0                    # movement top to bottom = PI = 180 deg
+        self.deltaMoveX = 0                     # movement left to right for panning
+        self.deltaMoveY = 0                     # movement top to bottom for panning
         self.view_matrix = QMatrix4x4()
         self.proj_matrix = QMatrix4x4()
         self.proj_view_matrix = QMatrix4x4()    # needed outside to draw
@@ -76,6 +78,7 @@ class Camera():
             self.cameraDir =  QVector3D(0, 1, 0)
         else:
             self.cameraDir =  QVector3D(0, 0, 1)
+        self.lookAt =  QVector3D(0, 0, 0)
         self.updateViewMatrix()
 
 
@@ -130,11 +133,23 @@ class Camera():
         self.cameraPos = position
         self.updateViewMatrix()
 
+    def panning(self, x, y):
+        #
+        # first try atm lookat is changed
+        #
+        diffx = (self.last_mousex - x) * self.deltaMoveX
+        diffy = (self.last_mousey - y) * self.deltaMoveY
+        self.lookAt.setX(self.lookAt.x() + diffx)
+        self.lookAt.setY(self.lookAt.y() - diffy)
+        self.updateViewMatrix()
+
     def resizeViewPort(self, w, h):
         self.view_width = w
         self.view_height = h
         self.deltaAngleX = 2 * M_PI / w # movement left to right = 2*PI = 360 deg
         self.deltaAngleY = M_PI / h     # movement top to bottom = PI = 180 deg
+        self.deltaMoveX = 1 / w         # same for panning
+        self.deltaMoveY = 1 / h         # same for panning
 
     def calculateProjMatrix(self):
         w = float(self.view_width)

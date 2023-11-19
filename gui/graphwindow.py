@@ -37,7 +37,10 @@ class NavigationEvent(QObject):
             #    text = event.keyCombination().key().name.decode(encoding="utf-8")
 
         elif event.type() == QEvent.MouseMove:
-            self.win.screenPos(event.globalPosition())
+            if event.buttons() == Qt.MouseButton.LeftButton:
+                self.win.screenPosArc(event.globalPosition())
+            elif event.buttons() == Qt.MouseButton.RightButton:
+                self.win.screenPosPan(event.globalPosition())
         elif event.type() == QEvent.MouseButtonPress:
             self.win.setPos(event.globalPosition())
         elif event.type() == QEvent.Wheel:
@@ -186,13 +189,23 @@ class MHGraphicWindow(QWidget):
         else:
             return (False, 0, 0)
 
-    def screenPos(self, pos):
+    def screenPosArc(self, pos):
         """
         calculate if mouse is over the area we want to work with (widget underMouse() does not work at all)
         """
         (b, x, y) = self.mouseInView(pos)
         if b:
             self.view.arcBallCamera(float(x), float(y))
+
+    def screenPosPan(self, pos):
+        """
+        calculate if mouse is over the area we want to work with (widget underMouse() does not work at all)
+        """
+        (b, x, y) = self.mouseInView(pos)
+        if b:
+            print ("panning")
+            self.view.panning(float(x), float(y))
+
 
     def setPos(self, pos):
         (b, x, y) = self.mouseInView(pos)

@@ -105,6 +105,11 @@ class GraphWindow(QOpenGLWidget):
         self.paintGL()
         self.update()
 
+    def panning(self, x, y):
+        self.camera.panning(x,y)
+        self.paintGL()
+        self.update()
+
     def paintGL(self):
         glfunc = self.context().functions()
 
