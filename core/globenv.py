@@ -15,6 +15,12 @@ class globalObjects():
         self.baseClass = None
         self.textures = []
 
+    def freeTextures(self):
+        self.textures = []
+
+    def addTexture(self, path):
+        self.textures.append(path)
+
 class programInfo():
     """
     this class should contain 'global parameters'

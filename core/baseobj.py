@@ -49,6 +49,7 @@ class baseClass():
 
         if self.glob.baseClass is not None:
             print ("class before: " + str(self.glob.baseClass.baseMesh))
+            self.glob.freeTextures()
             del self.glob.baseClass
         self.glob.baseClass = self
         target = Targets(self.env, self.glob)

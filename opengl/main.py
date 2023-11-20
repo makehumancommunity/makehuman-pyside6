@@ -51,7 +51,7 @@ class GraphWindow(QOpenGLWidget):
         # TODO: material not yet correct, will be connect to object later and of course not with predefined path name
         # for test purpose
         #
-        self.material = Material(self.env)
+        self.material = Material(self.env, self.glob)
         if texture is None:
             self.texture = self.material.loadTexture(os.path.join (self.env.path_sysdata, "skins", self.env.basename, "textures", "default.png"))
         else:

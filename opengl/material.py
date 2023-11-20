@@ -20,14 +20,16 @@ class MH_Image(QImage):
         
 
 class Material:
-    def __init__(self, env):
+    def __init__(self, env, glob):
         self.env = env
+        self.glob = glob
 
     def loadTexture(self, path):
         texture = QOpenGLTexture(QOpenGLTexture.Target2D)
         texture.create()
-        #texture.setData(QImage(path))
-        texture.setData(MH_Image(path, self.env))
+        texture.setData(QImage(path))
+        self.glob.addTexture(path)
+        #texture.setData(MH_Image(path, self.env))
         texture.setMinMagFilters(QOpenGLTexture.Linear, QOpenGLTexture.Linear)
         texture.setWrapMode(QOpenGLTexture.ClampToEdge)
         print (texture.target())
