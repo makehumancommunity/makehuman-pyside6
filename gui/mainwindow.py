@@ -36,7 +36,7 @@ class MHMainWindow(QMainWindow):
         self.resize (s["w"], s["h"])
 
         menu_bar = self.menuBar()
-        about_menu = menu_bar.addMenu(QIcon(os.path.join(env.path_sysicon, "makehuman.svg")), "&About")
+        about_menu = menu_bar.addMenu(QIcon(os.path.join(env.path_sysicon, "makehuman.png")), "&About")
         about_act = about_menu.addAction("Info")
         about_act.triggered.connect(self.info_call)
 

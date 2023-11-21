@@ -9,6 +9,22 @@ QWidget {
 
 QListWidget {
     margin-top: 6px;
+    color: white;
+    selection-background-color: #d7801a;
+}
+
+QListWidget::item:selected {
+    background: #d7801a;
+}
+
+QTreeView {
+    selection-color: white;
+    selection-background-color: #d7801a;
+    color: white;
+}
+
+QTreeView::item:selected {
+    background: #d7801a;
 }
 
 QLabel {
@@ -113,7 +129,7 @@ QCheckBox::indicator:unchecked {
 
 QRadioButton {
     background-color: #414141;
-    color: #d9d9d9;
+    color: white;
 }
 
 QRadioButton::indicator:checked {
@@ -191,5 +207,28 @@ QProgressBar
 QProgressBar::chunk
 {
     background-color: #d7801a;
+}
+
+QTableView
+{
+    background-color: #323232;
+    color: white;
+}
+
+QHeaderView {background-color: #5c5c5c; }
+
+QHeaderView::section {background-color: #5c5c5c; }
+
+QTabBar::tab {
+    background-color: #5c5c5c;
+    border: 2px solid #a3a3a3;
+    border-radius: 5px;
+    padding: 3px 2px;
+    margin-left: 2px;
+}
+
+
+QTabBar::tab:selected {
+    border-color: #d7801a;
 }
 

@@ -72,12 +72,12 @@ class MHGraphicWindow(QWidget):
 
     def navButtons(self, vlayout):
         elems = [ 
-            ["Front", "front.svg", self.front_button ],
-            ["Back",  "back.svg",  self.back_button ],
-            ["Left",  "left.svg",  self.left_button ],
-            ["Right", "right.svg", self.right_button ],
-            ["Top",   "top.svg",   self.top_button ],
-            ["Bottom","bottom.svg",self.bottom_button ]
+            ["Front", "front.png", self.front_button ],
+            ["Back",  "back.png",  self.back_button ],
+            ["Left",  "left.png",  self.left_button ],
+            ["Right", "right.png", self.right_button ],
+            ["Top",   "top.png",   self.top_button ],
+            ["Bottom","bottom.png",self.bottom_button ]
         ]
         for elem in elems:
             icon = os.path.join(self.env.path_sysicon, elem[1])
@@ -85,20 +85,20 @@ class MHGraphicWindow(QWidget):
             button.setStyleSheet("background-color : lightgrey")
             button.clicked.connect(elem[2])
             button.setIcon(QIcon(icon))
-            button.setIconSize(QSize(50,50))
+            button.setIconSize(QSize(24,24))
             button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
             vlayout.addWidget(button)
 
         # perspective button is a toggle
         #
-        icon = os.path.join(self.env.path_sysicon, "persp.svg")
+        icon = os.path.join(self.env.path_sysicon, "persp.png")
         self.pers_button = QPushButton("Perspective")
         self.pers_button.setCheckable(True)
         self.pers_button.setChecked(True)
         self.pers_button.setStyleSheet("background-color : orange")
         self.pers_button.clicked.connect(self.toggle_perspective)
         self.pers_button.setIcon(QIcon(icon))
-        self.pers_button.setIconSize(QSize(50,50))
+        self.pers_button.setIconSize(QSize(24,24))
         self.pers_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         vlayout.addWidget(self.pers_button)
 

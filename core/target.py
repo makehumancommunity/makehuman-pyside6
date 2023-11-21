@@ -167,4 +167,5 @@ class Targets:
         self.modelling_targets = []
 
     def __del__(self):
-        self.env.logLine (4, " -- __del__ Targets: " + self.collection)
+        if self.collection is not None:
+            self.env.logLine (4, " -- __del__ Targets: " + self.collection)

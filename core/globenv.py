@@ -11,6 +11,7 @@ from opengl.main import GLVersion
 
 class globalObjects():
     def __init__(self):
+        self.graphwindow = None
         self.Targets = None
         self.baseClass = None
         self.textures = []
@@ -366,7 +367,7 @@ class programInfo():
                     self.logLine(2, folder + " created")
         return (True)
 
-    def reDirect(self, log):
+    def reDirect(self, log=False):
         """
         redirection of stderr and stdout to files path_stdout and path_stderr
         """
