@@ -53,7 +53,7 @@ class MHLogWindow(QWidget):
         """
         inserts lines of logfile, just a crude hack
         """
-        col = ["#202020", "#600000", "#606000", "#402080",  "#002080" ]
+        col = ["#202020", "#600000", "#606000", "#402080",  "#002080", "#408020", "#008020", "#804080", "#004080" ]
         self.error_view.clear()
 
         # in case of no redirection
@@ -69,7 +69,7 @@ class MHLogWindow(QWidget):
                 m = self.f_match.match(line)
                 if m:
                     color = int(m.group(1))
-                    if color > 4:
+                    if color > 8:
                         color=0
                 l = QListWidgetItem(line.rstrip())
                 l.setBackground( QColor(col[color]) )

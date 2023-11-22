@@ -249,12 +249,9 @@ class object3d:
         self.minimum_axis = np.min(a, axis=0)
         self.maximum_axis = np.max(a, axis=0)
 
-        print ("Dimension left: " + str(self.minimum_axis[0]))
-        print ("Dimension right: " + str(self.maximum_axis[0]))
-        print ("Dimension back: " + str(self.minimum_axis[2]))
-        print ("Dimension front: " + str(self.maximum_axis[2]))
-        print ("Dimension bottom: " + str(self.minimum_axis[1]))
-        print ("Dimension top: " + str(self.maximum_axis[1]))
+        print ("Dimension left/right: " + str(self.minimum_axis[0]) + " / " + str(self.maximum_axis[0]))
+        print ("Dimension back/front: " + str(self.minimum_axis[2]) + " / " + str(self.maximum_axis[2]))
+        print ("Dimension bottom/top: " + str(self.minimum_axis[1]) + " / " + str(self.maximum_axis[1]))
 
     def getCenter(self):
         return ((self.maximum_axis+self.minimum_axis) / 2)

@@ -30,7 +30,7 @@ class NavigationEvent(QObject):
             elif key == 16777237:
                 self.win.zoom(1)
 
-            print (key)
+            #print (key)
             #text = event.text()
             #print (text)
             #if event.modifiers():
@@ -203,7 +203,6 @@ class MHGraphicWindow(QWidget):
         """
         (b, x, y) = self.mouseInView(pos)
         if b:
-            print ("panning")
             self.view.panning(float(x), float(y))
 
 

@@ -50,7 +50,7 @@ class attachedAsset:
         will usually load an mhclo-file
         structure is a key/value system + rows of verts in the end
         """
-        self.env.logLine(3, "Load: " + filename)
+        self.env.logLine(8, "Load: " + filename)
 
 
         try:

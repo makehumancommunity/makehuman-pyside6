@@ -13,12 +13,12 @@ class ShaderRepository(QOpenGLShaderProgram):
 
     def loadFragShader(self, filename):
         path = os.path.join (self.env.path_sysdata, "shaders", filename + ".frag")
-        self.env.logLine(3, "Load: " + path)
+        self.env.logLine(8, "Load: " + path)
         self.addShaderFromSourceFile(QOpenGLShader.Fragment, path)
 
     def loadVertShader(self, filename):
         path = os.path.join (self.env.path_sysdata, "shaders", filename + ".vert")
-        self.env.logLine(3, "Load: " + path)
+        self.env.logLine(8, "Load: " + path)
         self.addShaderFromSourceFile(QOpenGLShader.Vertex,path)
 
     def attribVertShader(self):

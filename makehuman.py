@@ -64,7 +64,6 @@ def main():
         env.logLine(1, env.last_error)
 
     if env.basename is not None:
-        print (env.basename)
         base = baseClass(env, glob, env.basename)
         base.prepareClass()
 

@@ -12,11 +12,11 @@ class MH_Image(QImage):
     def __init__(self,name,env):
          self.env = env
          self.name = name
-         self.env.logLine(3, "Load: " + name)
+         self.env.logLine(8, "Load: " + name)
          super().__init__(name)
 
     def __del__(self):
-        self.env.logLine(3, "Release: " + self.name)
+        self.env.logLine(4, "Release: " + self.name)
         
 
 class Material:
@@ -32,5 +32,5 @@ class Material:
         #texture.setData(MH_Image(path, self.env))
         texture.setMinMagFilters(QOpenGLTexture.Linear, QOpenGLTexture.Linear)
         texture.setWrapMode(QOpenGLTexture.ClampToEdge)
-        print (texture.target())
+        #print (texture.target())
         return (texture)

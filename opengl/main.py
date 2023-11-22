@@ -36,7 +36,7 @@ class GraphWindow(QOpenGLWidget):
         self.buffers = []
         self.objects = []
         self.camera  = None
-        print (env)
+        # print (env)
         self.glob.graphwindow = self
         if glob.Targets is not None:
             glob.Targets.refreshTargets(self)
@@ -78,9 +78,10 @@ class GraphWindow(QOpenGLWidget):
         self.mh_shaders.getVertLocations()
 
         if baseClass is not None:
-            obj = baseClass.baseMesh
-            self.createObject(obj)
-            self.camera.setCenter(obj.getCenter())
+            self.newMesh()
+            #obj = baseClass.baseMesh
+            #self.createObject(obj)
+            #self.camera.setCenter(obj.getCenter())
 
     def customView(self, direction):
         self.camera.customView(direction)
@@ -135,7 +136,7 @@ class GraphWindow(QOpenGLWidget):
         if baseClass is not None:
             self.createObject(baseClass.baseMesh)
             for elem in baseClass.attachedAssets:
-                print ("   " + str(elem))
+                # print ("   " + str(elem))
                 self.createObject(elem.obj, "brown_eye.png")
             self.camera.setCenter(baseClass.baseMesh.getCenter())
             self.paintGL()

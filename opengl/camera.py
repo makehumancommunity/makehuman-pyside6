@@ -47,7 +47,7 @@ class Camera():
         """
         new position of camera
         """
-        print (self.cameraPos)
+        # print (self.cameraPos)
         self.view_matrix.setToIdentity()
         self.view_matrix.lookAt( self.cameraPos, self.lookAt, self.cameraDir)
         self.proj_view_matrix = self.proj_matrix * self.view_matrix
@@ -61,11 +61,11 @@ class Camera():
         self.cameraDir =  QVector3D(0, 1, 0)
 
     def setCenter(self, center):
-        print ("Center: " + str(center))
+        # print ("Center: " + str(center))
         self.lookAt = QVector3D(center[0], center[1], center[2])
         self.cameraHeight = center[1]
         self.cameraPos =  QVector3D(0, self.cameraHeight, self.cameraDist)
-        print (self.lookAt)
+        # print (self.lookAt)
         self.updateViewMatrix()
 
     def customView(self, direction):
@@ -110,8 +110,8 @@ class Camera():
         """
         xAngle = (self.last_mousex - x) * self.deltaAngleX
         yAngle = (self.last_mousey - y) * self.deltaAngleY
-        print (xAngle)
-        print (yAngle)
+        #print (xAngle)
+        #print (yAngle)
 
         # avoid camera direction is identical to up vector
         #

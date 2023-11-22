@@ -144,6 +144,8 @@ class programInfo():
         JSON reader, will return JSON object or None
         in case of error, self.last_error will be set
         """
+        self.logLine(8, "Load '" + path + "'")
+
         try:
             f = open(path, 'r', encoding='utf-8')
         except:
@@ -165,6 +167,8 @@ class programInfo():
         JSON writer, will return False in case of error
         in case of error, self.last_error will be set
         """
+        self.logLine(8, "Write '" + path + "'")
+
         try:
             f = open(path, 'w', encoding='utf-8')
         except:
@@ -220,8 +224,18 @@ class programInfo():
 
         # configuration files
         #
-        self.path_userconf = os.path.join(path, 'makehuman2.conf')
-        self.path_usersess = os.path.join(path, 'makehuman2_session.conf') 
+        # create of subfolder
+        #
+        folder = os.path.join(path, 'makehuman2')
+        if not os.path.isdir(folder):
+            try:
+                os.mkdir(folder)
+            except:
+                self.last_error = "cannot create folder " + folder
+                return (False)
+
+        self.path_userconf = os.path.join(folder, 'makehuman2.conf')
+        self.path_usersess = os.path.join(folder, 'makehuman2_session.conf') 
 
         # read json files with additional information, home-path can be changed
         #

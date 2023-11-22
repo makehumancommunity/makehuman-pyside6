@@ -80,7 +80,7 @@ class Morphtarget:
         except:
             self.env.logLine(1, "Cannot load:" + filename)
         else:
-            self.env.logLine(3, "Load: " + filename)
+            self.env.logLine(8, "Load: " + filename)
             for line in fd:
                 line = line.strip()
                 if line.startswith('#'):
