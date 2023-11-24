@@ -94,7 +94,9 @@
 	"Breast PosVer": {
 		"name": "Vertical Position",
 		"group": "gender|breast",
-		"icon": "breast-trans-down-up.png"
+		"icon": "breast-trans-down-up.png",
+		"decr": "breast/breast-trans-down.target",
+		"incr": "breast/breast-trans-up.target"
 	},
 	"Breast Size": {
 		"group": "gender|breast",
@@ -102,12 +104,16 @@
 	},
 	"Breast Pointiness": {
 		"group": "gender|breast",
-		"icon": "breast-point-decr-incr.png"
+		"icon": "breast-point-decr-incr.png",
+		"decr": "breast/breast-point-decr.target",
+		"incr": "breast/breast-point-incr.target"
 	},
 	"Breast DistHor": {
 		"name": "Horizontal Distance",
 		"group": "gender|breast",
-		"icon": "breast-dist-decr-incr.png"
+		"icon": "breast-dist-decr-incr.png",
+		"decr": "breast/breast-dist-decr.target",
+		"incr": "breast/breast-dist-incr.target"
 	},
 	"Breast Volume": {
 		"group": "gender|breast",
@@ -117,11 +123,15 @@
 	},
 	"Nipple Size": {
 		"group": "gender|breast",
-		"icon": "nipple-size-decr-incr.png"
+		"icon": "nipple-size-decr-incr.png",
+		"decr": "breast/nipple-size-decr.target",
+		"incr": "breast/nipple-size-incr.target"
 	},
 	"Nipple Pointiness": {
 		"group": "gender|breast",
-		"icon": "nipple-point-decr-incr.png"
+		"icon": "nipple-point-decr-incr.png",
+		"decr": "breast/nipple-point-decr.target",
+		"incr": "breast/nipple-point-incr.target"
 	},
 	"Penis Length": {
 		"group": "gender|genitals"
@@ -135,7 +145,9 @@
 	"Head Age": {
 		"name": "Age",
 		"group": "face|head shape",
-		"icon": "head-age-decr-incr.png"
+		"icon": "head-age-decr-incr.png",
+		"decr": "head/head-age-decr.target",
+		"incr": "head/head-age-incr.target"
 	},
 	"Head Fat": {
 		"group": "face|head shape"
