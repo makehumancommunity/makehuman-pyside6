@@ -183,6 +183,9 @@ class object3d:
             self.gl_coord_w[:] = self.gl_coord[:]
         else:
             if factor < 0.0:
+                if targetlower is None:
+                    self.gl_coord_w[:] = self.gl_coord[:]
+                    return
                 verts = targetlower.verts
                 data  = targetlower.data
                 factor = -factor
@@ -207,6 +210,8 @@ class object3d:
             return
 
         if factor < 0.0:
+            if targetlower is None:
+                return
             verts = targetlower.verts
             data  = targetlower.data
             factor = -factor

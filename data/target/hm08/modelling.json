@@ -18,7 +18,9 @@
 		"group": "main|macro"
 	},
 	"Female Apple": {
-		"group": "shapes|female shapes"
+		"group": "shapes|female shapes",
+		"icon": "bodyshapes-elvs-fem-apple.png",
+		"incr": "bodyshapes/bodyshapes-elvs-fem-apple.target"
 	},
 	"Female Diamond": {
 		"group": "shapes|female shapes"
@@ -55,6 +57,11 @@
 	},
 	"Male Rectangle": {
 		"group": "shapes|male shapes"
+	},
+	"Male Apple": {
+		"group": "shapes|male shapes",
+		"icon": "bodyshapes-elvs-man-apple.png",
+		"incr": "bodyshapes/bodyshapes-elvs-man-apple.target"
 	},
 	"Male Lean Column": {
 		"group": "shapes|male shapes"

@@ -222,7 +222,11 @@ class ScaleComboArray(QWidget):
         cnt = 0
         for elem in modelling:
             if filterparam is None or elem.group == filterparam:
-                scalecombo = ScaleCombo(elem,  -100, 100, 25, parent=self, update=self.comboArrayUpdate)
+                if elem.decr is None:
+                    print (elem.name)
+                    scalecombo = ScaleCombo(elem,  0, 100, 10, parent=self, update=self.comboArrayUpdate)
+                else:
+                    scalecombo = ScaleCombo(elem,  -100, 100, 25, parent=self, update=self.comboArrayUpdate)
                 self.scaleComboArray.append(scalecombo)
                 self.layout.addWidget(scalecombo)
                 cnt +=1 

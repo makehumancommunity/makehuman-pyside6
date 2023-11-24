@@ -44,13 +44,13 @@ class Modelling:
     def initialize(self):
         factor = self.value / 100
         print("init  " + self.name)
-        if self.incr is not None and self.decr is not None:
+        if self.incr is not None or self.decr is not None:
             self.obj.getInitialCopyForSlider(factor, self.decr, self.incr)
 
     def callback(self):
         factor = self.value / 100
         print("change " + self.name)
-        if self.incr is not None and self.decr is not None:
+        if self.incr is not None or self.decr is not None:
             self.obj.updateByTarget(factor, self.decr, self.incr)
             self.refresh.Tweak()
 
