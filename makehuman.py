@@ -51,23 +51,23 @@ def main():
         print (env.last_error)
         exit (20)
 
-    glob = globalObjects()
+    glob = globalObjects(env)
 
     if args.verbose & 2:
         print (env)
 
     theme = env.existDataFile("themes", env.config["theme"])
 
-    app = MHApplication(env, sys.argv)
+    app = MHApplication(glob, sys.argv)
 
     if app.setStyles(theme) is False:
         env.logLine(1, env.last_error)
 
     if env.basename is not None:
-        base = baseClass(env, glob, env.basename)
+        base = baseClass(glob, env.basename)
         base.prepareClass()
 
-    mainwin = MHMainWindow(env, glob, app)
+    mainwin = MHMainWindow(glob, app)
     mainwin.show()
     app.exec()
     

@@ -10,9 +10,11 @@ from gui.application import QTVersion
 from opengl.main import GLVersion
 
 class globalObjects():
-    def __init__(self):
+    def __init__(self, env):
+        self.env = env
         self.graphwindow = None
         self.Targets = None
+        self.targetCategories = None
         self.baseClass = None
         self.textures = []
 

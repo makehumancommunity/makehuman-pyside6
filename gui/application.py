@@ -19,8 +19,8 @@ class MHApplication(QApplication):
     """
     class to maintain QT parameters
     """
-    def __init__(self, env, argv):
-        self.env = env
+    def __init__(self, glob, argv):
+        self.env = glob.env
         super().__init__(argv)
 
 

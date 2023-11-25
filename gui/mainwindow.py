@@ -9,6 +9,7 @@ from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.slider import ScaleComboArray
 from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
+from core.target import TargetCategories
 import os
 
 
@@ -16,9 +17,10 @@ class MHMainWindow(QMainWindow):
     """
     Main Window class
     """
-    def __init__(self, env, glob, app):
+    def __init__(self, glob, app):
         self.app = app
-        self.env = env
+        self.env = glob.env
+        env = glob.env
         self.glob = glob
         self.pref_window = None
         self.mem_window = None
@@ -135,10 +137,9 @@ class MHMainWindow(QMainWindow):
         self.BaseBox.addWidget(bgroupBox)
 
         if env.basename is not None:
-            targetpath = os.path.join(env.path_sysdata, "target", env.basename)
-            filename = os.path.join(targetpath, "target_cat.json")
+            tg = TargetCategories(self.glob)
+            targetjson = tg.readFiles()
 
-            targetjson = env.readJSON(filename)
             if targetjson is not None:
                 qtree = MHTreeView(targetjson, "Modelling", self.redrawNewCategory, None)
                 self.BaseBox.addWidget(qtree)
@@ -223,7 +224,7 @@ class MHMainWindow(QMainWindow):
             #
             if base == self.env.basename:
                 return
-            base = baseClass(self.env, self.glob, base)
+            base = baseClass(self.glob, base)
             base.prepareClass()
             self.graph.view.newMesh()
             self.emptyLayout(self.ToolBox)

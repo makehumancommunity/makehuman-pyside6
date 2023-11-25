@@ -9,13 +9,13 @@ class baseClass():
     """
     get the environment for a base
     """
-    def __init__(self, env, glob, name):
-        self.env = env
+    def __init__(self, glob, name):
+        self.env = glob.env
         self.glob = glob
         self.baseMesh = None
         self.baseInfo = None
         self.attachedAssets = []
-        env.logLine(2, "New baseClass: " + name)
+        self.env.logLine(2, "New baseClass: " + name)
         memInfo()
         self.env.basename = name
         self.name = name
@@ -49,7 +49,7 @@ class baseClass():
             self.glob.freeTextures()
             del self.glob.baseClass
         self.glob.baseClass = self
-        target = Targets(self.env, self.glob)
+        target = Targets(self.glob)
         target.loadTargets()
         #
         # attach the assets to the basemesh
