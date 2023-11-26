@@ -108,6 +108,7 @@ class Morphtarget:
 
 class Targets:
     def __init__(self, glob):
+        self.glob =glob
         self.env = glob.env
         self.modelling_targets = []
         glob.Targets = self
@@ -141,6 +142,9 @@ class Targets:
         targetpath_sys = os.path.join(self.env.path_sysdata, "target", self.env.basename)
         targetpath_user = os.path.join(self.env.path_userdata, "target", self.env.basename)
         self.collection = self.env.basename
+
+        tg = TargetCategories(self.glob)
+        tg.readFiles()
 
         targetjson = self.loadModellingJSON()
         if targetjson is None:
@@ -176,6 +180,26 @@ class Targets:
         for target in self.modelling_targets:
             target.set_refresh(window)
 
+    def setTargetByName(self, key, value):
+        """
+        must be improved
+        """
+        if "|" in key:
+            (name, d) = key.split("|")
+            if name.endswith("decr"):
+                name = name.replace("decr", "incr") + ".target"
+        else:
+            name = key + ".target"
+
+        for target in self.modelling_targets:
+            if target.incr is not None:
+                if name == str(target.incr):
+                    print (" >>> Found target: " + str(target.incr))
+                    target.value = float(value) * 100.0
+
+
+
+
     def destroyTargets(self):
         self.env.logLine (2, "destroy Targets:" + str(self.collection))
 
@@ -198,9 +222,9 @@ class TargetCategories:
     """
 
     def __init__(self, glob):
+        self.glob = glob
         self.env = glob.env
         self.basename = self.env.basename
-        glob.targetCategories = self
         self.mod_cat = 0
         self.mod_modelling = 0
         self.mod_latest = 0
@@ -214,8 +238,8 @@ class TargetCategories:
             fname = os.path.join(folder, subfolder, filename)
             filename = os.path.join(subfolder, filename)
         mod = int(os.stat(fname).st_mtime)
-        print("Modification time: " + filename + " " + str(mod))
         if mod > self.mod_latest:
+            self.env.logLine(8, "Newer modification time detected: " + filename + " " + str(mod))
             self.mod_latest = mod
         self.user_targets.append(filename)
 
@@ -270,6 +294,11 @@ class TargetCategories:
         dirs = os.listdir(folder)
         for ifile in dirs:
             if ifile.endswith(".png"):
+                fname = os.path.join(folder, ifile)
+                mod = int(os.stat(fname).st_mtime)
+                if mod > self.mod_latest:
+                    self.env.logLine(8, "Newer modification time detected: " + ifile + " " + str(mod))
+                    self.mod_latest = mod
                 self.icon_repos.append(ifile)
 
     def getAListOfTargets(self, folder):
@@ -375,10 +404,10 @@ class TargetCategories:
         else:
             self.env.logLine(8, "User target category and modelling file is not changed")
 
-        #
-        # else
-        #   create target json
         userjson = self.env.readJSON(catfilename)
         targetjson["User"] = userjson["User"]
-        return(targetjson)
+
+        # make it globally available
+        #
+        self.glob.targetCategories = targetjson
 

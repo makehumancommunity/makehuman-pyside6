@@ -14,7 +14,7 @@ class globalObjects():
         self.env = env
         self.graphwindow = None
         self.Targets = None
-        self.targetCategories = None
+        self.targetCategories = None        # will contain the category object
         self.baseClass = None
         self.textures = []
 

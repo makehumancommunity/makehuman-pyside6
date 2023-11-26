@@ -5,6 +5,11 @@ from obj3d.fops_wavefront import importWaveFront
 from obj3d.object3d import object3d
 from core.debug import memInfo
 
+class loadedMHM():
+    def __init__(self):
+        self.name = None
+        self.modifiers = []
+
 class baseClass():
     """
     get the environment for a base
@@ -20,6 +25,40 @@ class baseClass():
         self.env.basename = name
         self.name = name
 
+
+    def loadMHMFile(self, filename):
+        """
+        will usually load an mhm-file
+        """
+        self.env.logLine(8, "Load: " + filename)
+        try:
+            fp = open(filename, "r", encoding="utf-8", errors='ignore')
+        except IOError as err:
+            return (False, str(err))
+
+        loaded = loadedMHM()
+        for line in fp:
+            words = line.split()
+
+            # skip white space and comments
+            #
+            if len(words) == 0 or words[0].startswith('#'):
+                continue
+
+            key = words[0]
+            if key in ["version"]:
+                setattr (loadedMHM, key, words[1])
+            elif key == "name":
+                loaded.name = " ".join(words[1:])
+            elif key == "modifier":
+                loaded.modifiers.append(" ".join(words[1:]))
+
+
+        fp.close()
+        for elem in loaded.modifiers:
+            name, value = elem.split()
+            self.glob.Targets.setTargetByName(name, value)
+        return (True, "okay")
 
     def prepareClass(self):
         self.env.logLine(2, "Prepare class called with: " + self.env.basename)
@@ -55,11 +94,11 @@ class baseClass():
         # attach the assets to the basemesh
         #
         if "meshes" in self.baseInfo:
-            attach = attachedAsset(self.env, self.glob)
+            attach = attachedAsset(self.glob)
 
             m = self.baseInfo["meshes"]
             for elem in m:
-                attach = attachedAsset(self.env, self.glob)
+                attach = attachedAsset(self.glob)
                 name = os.path.join(self.env.path_sysdata, elem["cat"], self.env.basename, elem["name"])
                 (res, text) = attach.textLoad(name)
                 if res is True:

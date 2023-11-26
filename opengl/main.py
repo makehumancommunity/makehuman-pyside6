@@ -28,9 +28,9 @@ def GLVersion(initialized):
     return(glversion)
 
 class GraphWindow(QOpenGLWidget):
-    def __init__(self, env, glob):
-        self.env = env
+    def __init__(self, glob):
         self.glob = glob
+        self.env = glob.env
         super().__init__()
         self.setMinimumSize(QSize(600, 600))
         self.buffers = []
@@ -51,7 +51,7 @@ class GraphWindow(QOpenGLWidget):
         # TODO: material not yet correct, will be connect to object later and of course not with predefined path name
         # for test purpose
         #
-        self.material = Material(self.env, self.glob)
+        self.material = Material(self.glob)
         if texture is None:
             self.texture = self.material.loadTexture(os.path.join (self.env.path_sysdata, "skins", self.env.basename, "textures", "default.png"))
         else:

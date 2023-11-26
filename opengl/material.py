@@ -20,9 +20,9 @@ class MH_Image(QImage):
         
 
 class Material:
-    def __init__(self, env, glob):
-        self.env = env
+    def __init__(self, glob):
         self.glob = glob
+        self.env = glob.env
 
     def loadTexture(self, path):
         texture = QOpenGLTexture(QOpenGLTexture.Target2D)

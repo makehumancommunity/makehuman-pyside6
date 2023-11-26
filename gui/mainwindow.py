@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFrame, QGroupBox, QListWidget, QAbstractItemView, QSizePolicy, QScrollArea
+from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFrame, QGroupBox, QListWidget, QAbstractItemView, QSizePolicy, QScrollArea, QFileDialog
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize, Qt
 from gui.prefwindow import  MHPrefWindow
@@ -9,7 +9,6 @@ from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.slider import ScaleComboArray
 from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
-from core.target import TargetCategories
 import os
 
 
@@ -45,6 +44,13 @@ class MHMainWindow(QMainWindow):
         file_menu = menu_bar.addMenu("&File")
         mem_act = file_menu.addAction("MemInfo")
         mem_act.triggered.connect(self.memory_call)
+
+        load_act = file_menu.addAction("Load Model")
+        load_act.triggered.connect(self.loadmhm_call)
+
+        save_act = file_menu.addAction("Save Model")
+        save_act.triggered.connect(self.savemhm_call)
+
         quit_act = file_menu.addAction("Quit")
         quit_act.triggered.connect(self.quit_call)
 
@@ -55,6 +61,26 @@ class MHMainWindow(QMainWindow):
         log_act.triggered.connect(self.log_call)
 
         self.createCentralWidget()
+
+    def fileRequest(self, ftext, pattern, save=False):
+        """
+        Simplified file request
+        """
+        dialog = QFileDialog()
+        dialog.setNameFilter(pattern)
+        if save is False:
+            dialog.setWindowTitle("Load " + str(ftext) + " file")
+            dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
+            dialog.setAcceptMode(QFileDialog.AcceptOpen)
+        else:
+            dialog.setWindowTitle("Save " + str(ftext) + " file")
+            dialog.setFileMode(QFileDialog.FileMode.AnyFile)
+            dialog.setAcceptMode(QFileDialog.AcceptSave)
+        success = dialog.exec()
+        if success:
+            selectedFiles = dialog.selectedFiles()
+            return(selectedFiles[0])
+        return (None)
 
 
     def createCentralWidget(self):
@@ -77,7 +103,7 @@ class MHMainWindow(QMainWindow):
 
         # create window for internal or external use
         #
-        self.graph = MHGraphicWindow(self, self.env, self.glob)
+        self.graph = MHGraphicWindow(self, self.glob)
         gLayout = self.graph.createLayout()
         #
         # keyboard
@@ -137,11 +163,9 @@ class MHMainWindow(QMainWindow):
         self.BaseBox.addWidget(bgroupBox)
 
         if env.basename is not None:
-            tg = TargetCategories(self.glob)
-            targetjson = tg.readFiles()
 
-            if targetjson is not None:
-                qtree = MHTreeView(targetjson, "Modelling", self.redrawNewCategory, None)
+            if self.glob.targetCategories is not None:
+                qtree = MHTreeView(self.glob.targetCategories, "Modelling", self.redrawNewCategory, None)
                 self.BaseBox.addWidget(qtree)
             else:
                 env.logLine(1, env.last_error )
@@ -206,6 +230,17 @@ class MHMainWindow(QMainWindow):
         if self.mem_window is None:
             self.mem_window = MHMemWindow(self)
         self.mem_window.show()
+
+    def loadmhm_call(self):
+        if self.glob.baseClass is not None:
+            filename = self.fileRequest("Model", "Model files (*.mhm)")
+            if filename is not None:
+                self.glob.baseClass.loadMHMFile(filename)
+
+
+    def savemhm_call(self):
+        filename = self.fileRequest("Model", "Model files (*.mhm)", save=True)
+        print(filename)
 
     def info_call(self):
         """

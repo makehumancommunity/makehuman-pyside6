@@ -56,11 +56,11 @@ class MHGraphicWindow(QWidget):
     init creates widget itself, then createLayout is called
     """
 
-    def __init__(self, parent, env, glob):
+    def __init__(self, parent, glob):
         self.parent = parent
-        self.env = env
         self.glob = glob
-        self.attached = env.g_attach
+        self.env = glob.env
+        self.attached =self.env.g_attach
         print ("Attach " + str(self.attached))
         super().__init__()
         #
@@ -108,7 +108,7 @@ class MHGraphicWindow(QWidget):
     creates layout for 3d window
     """
     def createLayout(self):
-        self.view = GraphWindow(self.env, self.glob)          # must be saved in self!
+        self.view = GraphWindow(self.glob)          # must be saved in self!
         hlayout = QHBoxLayout()
         hlayout.addWidget(self.view)
 

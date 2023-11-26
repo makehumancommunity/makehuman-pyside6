@@ -21,9 +21,9 @@ class referenceVerts:
 
 
 class attachedAsset:
-    def __init__(self, env, glob):
-        self.env = env
+    def __init__(self, glob):
         self.glob = glob
+        self.env = glob.env
         self.tags = []
         self.version = 110
         self.z_depth = 50
