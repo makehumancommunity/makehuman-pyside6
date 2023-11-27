@@ -24,6 +24,18 @@ class globalObjects():
     def addTexture(self, path):
         self.textures.append(path)
 
+    def generateBaseSubDirs(self, basename):
+        for name in [ "models", "target" ]:
+            folder = os.path.join(self.env.path_userdata, name, basename)
+            if not os.path.isdir(folder):
+                try:
+                    os.mkdir(folder)
+                except:
+                    self.last_error = "cannot create folder " + folder
+                    return (False)
+
+        return (True)
+
 class programInfo():
     """
     this class should contain 'global parameters'
@@ -369,7 +381,7 @@ class programInfo():
         create folders, return false if problem, write results to logfile
         in case of error set last_error
         """
-        for folder in [self.path_home, self.path_error]:
+        for folder in [self.path_home, self.path_error, self.path_userdata]:
             if not os.path.isdir(folder):
                 if os.path.isfile(folder):
                     self.last_error = "File exists instead of folder " + folder
@@ -381,7 +393,22 @@ class programInfo():
                         self.last_error = "cannot create folder " + folder
                         return (False)
                     self.logLine(2, folder + " created")
+
+        userdata = self.path_userdata
+
+        # subfolder inside userdata
+        #
+        for name in [ "models", "target", "themes" ]:
+            folder = os.path.join(userdata, name)
+            if not os.path.isdir(folder):
+                try:
+                    os.mkdir(folder)
+                except:
+                    self.last_error = "cannot create folder " + folder
+                    return (False)
+
         return (True)
+
 
     def reDirect(self, log=False):
         """

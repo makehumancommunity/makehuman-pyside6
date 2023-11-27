@@ -16,6 +16,7 @@ class Modelling:
         self.decr = None    # target "decr"
         self.displayname = name
         self.group = None
+        self.pattern = "unknown"
 
     def __str__(self):
         return (self.name + ": " + str(self.incr) + "/" + str(self.decr))
@@ -23,7 +24,7 @@ class Modelling:
     def memInfo(self):
         li = len(self.incr.verts) if self.incr else 0
         ld = len(self.decr.verts) if self.decr else 0
-        t = [self.name, str(self.incr), li, str(self.decr), ld, self.value]
+        t = [self.name, str(self.incr), li, str(self.decr), ld, self.pattern, self.value]
         return (t)
 
 
@@ -32,6 +33,21 @@ class Modelling:
 
     def decr_target(self, fname):
         self.decr = fname
+
+    def search_pattern(self):
+        d = str(self.decr)
+        i = str(self.incr)
+        self.pattern = "unknown"
+        if d.endswith("-decr") and i.endswith("-incr"):
+            self.pattern = d + "|incr"
+        elif d.endswith("-down") and i.endswith("-up"):
+            self.pattern = d + "|up"
+        elif d.endswith("-in") and i.endswith("-out"):
+            self.pattern = d + "|out"
+        elif d.endswith("-backward") and i.endswith("-forward"):
+            self.pattern = d + "|forward"
+        elif i != "None":
+            self.pattern = i
 
     def set_refresh(self,refreshwindow):
         self.refresh = refreshwindow
@@ -75,7 +91,7 @@ class Morphtarget:
         return (self.name)
 
     def loadTextFile(self, path):
-        filename = os.path.join(path, self.name)
+        filename = os.path.join(path, self.name) + ".target"
         try:
             fd = open(filename, 'r', encoding='utf-8')
         except:
@@ -111,6 +127,7 @@ class Targets:
         self.glob =glob
         self.env = glob.env
         self.modelling_targets = []
+        self.target_repo = {} # will contain targets by pattern
         glob.Targets = self
         self.collection = None
         self.baseClass = glob.baseClass
@@ -171,6 +188,9 @@ class Targets:
                 m.set_displayname(t["name"])
             if "group" in t:
                 m.set_group(t["group"])
+            m.search_pattern()
+            if m.pattern != "unknown":
+                self.target_repo[m.pattern] = m
             self.modelling_targets.append(m)
 
     def refreshTargets(self, window):
@@ -180,24 +200,21 @@ class Targets:
         for target in self.modelling_targets:
             target.set_refresh(window)
 
+    def reset(self):
+        #
+        # TODO: might be a different value for certain targets later
+        #
+        for target in self.modelling_targets:
+            target.value = 0.0
+
     def setTargetByName(self, key, value):
         """
-        must be improved
+        set values
         """
-        if "|" in key:
-            (name, d) = key.split("|")
-            if name.endswith("decr"):
-                name = name.replace("decr", "incr") + ".target"
-        else:
-            name = key + ".target"
-
-        for target in self.modelling_targets:
-            if target.incr is not None:
-                if name == str(target.incr):
-                    print (" >>> Found target: " + str(target.incr))
-                    target.value = float(value) * 100.0
-
-
+        if key in self.target_repo:
+            t = self.target_repo[key]
+            print (" >>> Found target: " + key)
+            t.value = float(value) * 100.0
 
 
     def destroyTargets(self):
@@ -241,28 +258,30 @@ class TargetCategories:
         if mod > self.mod_latest:
             self.env.logLine(8, "Newer modification time detected: " + filename + " " + str(mod))
             self.mod_latest = mod
-        self.user_targets.append(filename)
+        self.user_targets.append(filename[:-7])
 
 
     def formatModellingEntry(self, user_mod, cats, folder, filename):
-        rname = filename[:-7]
-        name = rname.replace('-', ' ') # throw away target
+        """
+        :param: filename is target without suffix
+        """
+        name = filename.replace('-', ' ') # display name
         print ("Name: " + name)
         if folder is not None:
             fname = os.path.join(folder, filename)
             elem = folder.capitalize() + " " + name.capitalize()
             group = "user|" + folder
-            iconname = folder + "-" + rname
+            iconname = folder + "-" + filename
         else:
             fname = filename
             elem = "User " + name.capitalize()
             group = "user|unsorted"
-            iconname = rname
-        if rname.endswith("incr"):
+            iconname = filename
+        if filename.endswith("incr"):
             if folder is not None:
-                opposite = os.path.join(folder, rname.replace("incr", "decr") + ".target")
+                opposite = os.path.join(folder, filename.replace("incr", "decr"))
             else:
-                opposite = rname.replace("incr", "decr") + ".target"
+                opposite = filename.replace("incr", "decr")
             print ("Need to check for " + opposite)
             if opposite in cats:
                 name = name[:-5]
@@ -272,11 +291,11 @@ class TargetCategories:
                 iconname = iconname[:-5] + ".png"
                 if iconname in self.icon_repos:
                     user_mod[elem]["icon"] = iconname
-        elif rname.endswith("decr"):
+        elif filename.endswith("decr"):
             if folder is not None:
-                opposite = os.path.join(folder, rname.replace("decr", "incr") + ".target")
+                opposite = os.path.join(folder, filename.replace("decr", "incr"))
             else:
-                opposite = rname.replace("decr", "incr") + ".target"
+                opposite = filename.replace("decr", "incr")
 
             print ("Need to check for " + opposite)
             if opposite not in cats:
@@ -405,7 +424,8 @@ class TargetCategories:
             self.env.logLine(8, "User target category and modelling file is not changed")
 
         userjson = self.env.readJSON(catfilename)
-        targetjson["User"] = userjson["User"]
+        if userjson is not None:
+            targetjson["User"] = userjson["User"]
 
         # make it globally available
         #

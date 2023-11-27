@@ -55,9 +55,17 @@ class baseClass():
 
 
         fp.close()
+
+        # reset all targets and mesh
+        #
+        self.glob.Targets.reset()
+        self.baseMesh.resetMesh()
+
         for elem in loaded.modifiers:
             name, value = elem.split()
             self.glob.Targets.setTargetByName(name, value)
+
+        self.applyAllTargets()
         return (True, "okay")
 
     def prepareClass(self):
@@ -65,6 +73,8 @@ class baseClass():
 
         basepath = os.path.join(self.env.path_sysdata, "base", self.env.basename)
         filename = os.path.join(basepath, "base.json")
+
+        self.glob.generateBaseSubDirs(self.env.basename)
 
         self.baseInfo = self.env.readJSON(filename)
         if self.baseInfo is None:
@@ -134,6 +144,16 @@ class baseClass():
             # TODO: could be that the method will be to attached_asset
             #
             asset.obj.approxByTarget(asset, self.baseMesh)
+
+    def applyAllTargets(self):
+        #
+        # TODO: reset
+        #
+        targets = self.glob.Targets.modelling_targets
+        for target in targets:
+            if target.value != 0.0:
+                print ("Update " + target.name)
+                self.updateByTarget(target.value / 100, target.decr, target.incr)
 
     def __del__(self):
         self.env.logLine (4, " -- __del__ baseClass " + self.name)

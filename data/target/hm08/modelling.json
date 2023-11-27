@@ -20,7 +20,7 @@
 	"Female Apple": {
 		"group": "shapes|female shapes",
 		"icon": "bodyshapes-elvs-fem-apple.png",
-		"incr": "bodyshapes/bodyshapes-elvs-fem-apple.target"
+		"incr": "bodyshapes/bodyshapes-elvs-fem-apple"
 	},
 	"Female Diamond": {
 		"group": "shapes|female shapes"
@@ -61,7 +61,7 @@
 	"Male Apple": {
 		"group": "shapes|male shapes",
 		"icon": "bodyshapes-elvs-man-apple.png",
-		"incr": "bodyshapes/bodyshapes-elvs-man-apple.target"
+		"incr": "bodyshapes/bodyshapes-elvs-man-apple"
 	},
 	"Male Lean Column": {
 		"group": "shapes|male shapes"
@@ -95,8 +95,8 @@
 		"name": "Vertical Position",
 		"group": "gender|breast",
 		"icon": "breast-trans-down-up.png",
-		"decr": "breast/breast-trans-down.target",
-		"incr": "breast/breast-trans-up.target"
+		"decr": "breast/breast-trans-down",
+		"incr": "breast/breast-trans-up"
 	},
 	"Breast Size": {
 		"group": "gender|breast",
@@ -105,33 +105,33 @@
 	"Breast Pointiness": {
 		"group": "gender|breast",
 		"icon": "breast-point-decr-incr.png",
-		"decr": "breast/breast-point-decr.target",
-		"incr": "breast/breast-point-incr.target"
+		"decr": "breast/breast-point-decr",
+		"incr": "breast/breast-point-incr"
 	},
 	"Breast DistHor": {
 		"name": "Horizontal Distance",
 		"group": "gender|breast",
 		"icon": "breast-dist-decr-incr.png",
-		"decr": "breast/breast-dist-decr.target",
-		"incr": "breast/breast-dist-incr.target"
+		"decr": "breast/breast-dist-decr",
+		"incr": "breast/breast-dist-incr"
 	},
 	"Breast Volume": {
 		"group": "gender|breast",
 		"icon": "breast-volume-vert-down-up.png",
-		"decr": "breast/breast-volume-vert-down.target",
-		"incr": "breast/breast-volume-vert-up.target"
+		"decr": "breast/breast-volume-vert-down",
+		"incr": "breast/breast-volume-vert-up"
 	},
 	"Nipple Size": {
 		"group": "gender|breast",
 		"icon": "nipple-size-decr-incr.png",
-		"decr": "breast/nipple-size-decr.target",
-		"incr": "breast/nipple-size-incr.target"
+		"decr": "breast/nipple-size-decr",
+		"incr": "breast/nipple-size-incr"
 	},
 	"Nipple Pointiness": {
 		"group": "gender|breast",
 		"icon": "nipple-point-decr-incr.png",
-		"decr": "breast/nipple-point-decr.target",
-		"incr": "breast/nipple-point-incr.target"
+		"decr": "breast/nipple-point-decr",
+		"incr": "breast/nipple-point-incr"
 	},
 	"Penis Length": {
 		"group": "gender|genitals"
@@ -146,14 +146,20 @@
 		"name": "Age",
 		"group": "face|head shape",
 		"icon": "head-age-decr-incr.png",
-		"decr": "head/head-age-decr.target",
-		"incr": "head/head-age-incr.target"
+		"decr": "head/head-age-decr",
+		"incr": "head/head-age-incr"
 	},
 	"Head Fat": {
-		"group": "face|head shape"
+		"group": "face|head shape",
+		"icon": "head-fat-decr-incr.png",
+		"decr": "head/head-fat-decr",
+		"incr": "head/head-fat-incr"
 	},
 	"Head Angle": {
-		"group": "face|head shape"
+		"group": "face|head shape",
+		"icon": "head-angle-in-out.png",
+		"decr": "head/head-angle-in",
+		"incr": "head/head-angle-out"
 	},
 	"Head Oval": {
 		"name": "Oval Shape",
@@ -177,7 +183,9 @@
 	},
 	"Head Inverted Triangular": {
 		"name": "Inverted Triangular Shape",
-		"group": "face|head shape"
+		"group": "face|head shape",
+		"icon": "head-invertedtriangular.png",
+		"incr": "head/head-invertedtriangular"
 	},
 	"Head Diamond": {
 		"name": "Diamond Shape",
@@ -191,43 +199,43 @@
 		"name": "Scale Horizontally",
 		"group": "face|head size",
 		"icon": "head-scale-horiz-decr-incr.png",
-		"decr": "head/head-scale-horiz-decr.target",
-		"incr": "head/head-scale-horiz-incr.target"
+		"decr": "head/head-scale-horiz-decr",
+		"incr": "head/head-scale-horiz-incr"
 	},
 	"Head ScaleVer": {
 		"name": "Scale Vertically",
 		"group": "face|head size",
 		"icon": "head-scale-vert-decr-incr.png",
-		"decr": "head/head-scale-vert-decr.target",
-		"incr": "head/head-scale-vert-incr.target"
+		"decr": "head/head-scale-vert-decr",
+		"incr": "head/head-scale-vert-incr"
 	},
 	"Head ScaleDep": {
 		"name": "Scale Depth",
 		"group": "face|head size",
 		"icon": "head-scale-depth-decr-incr.png",
-		"decr": "head/head-scale-depth-decr.target",
-		"incr": "head/head-scale-depth-incr.target"
+		"decr": "head/head-scale-depth-decr",
+		"incr": "head/head-scale-depth-incr"
 	},
 	"Head MoveHor": {
 		"name": "Move Horizontally",
 		"group": "face|head size",
 		"icon": "head-trans-in-out.png",
-		"decr": "head/head-trans-in.target",
-		"incr": "head/head-trans-out.target"
+		"decr": "head/head-trans-in",
+		"incr": "head/head-trans-out"
 	},
 	"Head MoveVer": {
 		"name": "Move Vertically",
 		"group": "face|head size",
 		"icon": "head-trans-down-up.png",
-		"decr": "head/head-trans-down.target",
-		"incr": "head/head-trans-up.target"
+		"decr": "head/head-trans-down",
+		"incr": "head/head-trans-up"
 	},
 	"Head MoveDep": {
 		"name": "Move Depth",
 		"group": "face|head size",
 		"icon": "head-trans-backward-forward.png",
-		"decr": "head/head-trans-backward.target",
-		"incr": "head/head-trans-forward.target"
+		"decr": "head/head-trans-backward",
+		"incr": "head/head-trans-forward"
 	},
 	"Forehead Bulge": {
 		"group": "face|forehead"
@@ -744,8 +752,8 @@
 		"name": "Scale Horizontally",
 		"group": "torso|shape",
 		"icon": "torso-scale-horiz-decr-incr.png",
-		"decr": "torso/torso-scale-horiz-decr.target",
-		"incr": "torso/torso-scale-horiz-incr.target"
+		"decr": "torso/torso-scale-horiz-decr",
+		"incr": "torso/torso-scale-horiz-incr"
 	},
 	"Torso ScaleVer": {
 		"name": "Scale Vertically",
@@ -927,71 +935,71 @@
 		"name": "Scale",
 		"group": "arms|right hand",
 		"icon": "r-hand-scale-decr-incr.png",
-		"decr": "armslegs/r-hand-scale-decr.target",
-		"incr": "armslegs/r-hand-scale-incr.target"
+		"decr": "armslegs/r-hand-scale-decr",
+		"incr": "armslegs/r-hand-scale-incr"
 	},
 	"R-Hand Pos": {
 		"name": "Position",
 		"group": "arms|right hand",
 		"icon": "r-hand-trans-in-out.png",
-		"decr": "armslegs/r-hand-trans-in.target",
-		"incr": "armslegs/r-hand-trans-out.target"
+		"decr": "armslegs/r-hand-trans-in",
+		"incr": "armslegs/r-hand-trans-out"
 	},
 	"R-Hand FingerLen": {
 		"name": "Fingers length",
 		"group": "arms|right hand",
 		"icon": "r-hand-fingers-length-decr-incr.png",
-		"decr": "armslegs/r-hand-fingers-length-decr.target",
-		"incr": "armslegs/r-hand-fingers-length-incr.target"
+		"decr": "armslegs/r-hand-fingers-length-decr",
+		"incr": "armslegs/r-hand-fingers-length-incr"
 	},
 	"R-Hand FingerDia": {
 		"name": "Fingers Diameter",
 		"group": "arms|right hand",
 		"icon": "r-hand-fingers-diameter-decr-incr.png",
-		"decr": "armslegs/r-hand-fingers-diameter-decr.target",
-		"incr": "armslegs/r-hand-fingers-diameter-incr.target"
+		"decr": "armslegs/r-hand-fingers-diameter-decr",
+		"incr": "armslegs/r-hand-fingers-diameter-incr"
 	},
 	"R-Hand FingerDist": {
 		"name": "Fingers Distance",
 		"group": "arms|right hand",
 		"icon": "r-hand-fingers-distance-decr-incr.png",
-		"decr": "armslegs/r-hand-fingers-distance-decr.target",
-		"incr": "armslegs/r-hand-fingers-distance-incr.target"
+		"decr": "armslegs/r-hand-fingers-distance-decr",
+		"incr": "armslegs/r-hand-fingers-distance-incr"
 	},
 	"L-Hand Scale": {
 		"name": "Scale",
 		"group": "arms|left hand",
 		"icon": "l-hand-scale-decr-incr.png",
-		"decr": "armslegs/l-hand-scale-decr.target",
-		"incr": "armslegs/l-hand-scale-incr.target"
+		"decr": "armslegs/l-hand-scale-decr",
+		"incr": "armslegs/l-hand-scale-incr"
 	},
 	"L-Hand Pos": {
 		"name": "Position",
 		"group": "arms|left hand",
 		"icon": "l-hand-trans-in-out.png",
-		"decr": "armslegs/l-hand-trans-in.target",
-		"incr": "armslegs/l-hand-trans-out.target"
+		"decr": "armslegs/l-hand-trans-in",
+		"incr": "armslegs/l-hand-trans-out"
 	},
 	"L-Hand FingerLen": {
 		"name": "Fingers length",
 		"group": "arms|left hand",
 		"icon": "l-hand-fingers-length-decr-incr.png",
-		"decr": "armslegs/l-hand-fingers-length-decr.target",
-		"incr": "armslegs/l-hand-fingers-length-incr.target"
+		"decr": "armslegs/l-hand-fingers-length-decr",
+		"incr": "armslegs/l-hand-fingers-length-incr"
 	},
 	"L-Hand FingerDia": {
 		"name": "Fingers Diameter",
 		"group": "arms|left hand",
 		"icon": "l-hand-fingers-diameter-decr-incr.png",
-		"decr": "armslegs/l-hand-fingers-diameter-decr.target",
-		"incr": "armslegs/l-hand-fingers-diameter-incr.target"
+		"decr": "armslegs/l-hand-fingers-diameter-decr",
+		"incr": "armslegs/l-hand-fingers-diameter-incr"
 	},
 	"L-Hand FingerDist": {
 		"name": "Fingers Distance",
 		"group": "arms|left hand",
 		"icon": "l-hand-fingers-distance-decr-incr.png",
-		"decr": "armslegs/l-hand-fingers-distance-decr.target",
-		"incr": "armslegs/l-hand-fingers-distance-incr.target"
+		"decr": "armslegs/l-hand-fingers-distance-decr",
+		"incr": "armslegs/l-hand-fingers-distance-incr"
 	},
 	"Legs UpperLen": {
 		"name": "Upperlegs Height",

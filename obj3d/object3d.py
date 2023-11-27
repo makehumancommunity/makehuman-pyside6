@@ -174,6 +174,9 @@ class object3d:
         #self.calculateMaxAttachedFaces()
         self.calcNormals()
 
+    def resetMesh(self):
+        self.gl_coord[:] = self.gl_coord_o[:] # get back the copy
+
     def getInitialCopyForSlider(self, factor, targetlower, targetupper):
         """
         called when starting work with one slider, a copy without the value

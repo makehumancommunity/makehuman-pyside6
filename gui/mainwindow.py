@@ -62,12 +62,13 @@ class MHMainWindow(QMainWindow):
 
         self.createCentralWidget()
 
-    def fileRequest(self, ftext, pattern, save=False):
+    def fileRequest(self, ftext, pattern, directory, save=False):
         """
         Simplified file request
         """
         dialog = QFileDialog()
         dialog.setNameFilter(pattern)
+        dialog.setDirectory(directory)
         if save is False:
             dialog.setWindowTitle("Load " + str(ftext) + " file")
             dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
@@ -233,13 +234,16 @@ class MHMainWindow(QMainWindow):
 
     def loadmhm_call(self):
         if self.glob.baseClass is not None:
-            filename = self.fileRequest("Model", "Model files (*.mhm)")
+            directory = os.path.join(self.env.path_userdata, "models", self.env.basename)
+            print (directory)
+            filename = self.fileRequest("Model", "Model files (*.mhm)", directory)
             if filename is not None:
                 self.glob.baseClass.loadMHMFile(filename)
+                self.graph.update()
 
 
     def savemhm_call(self):
-        filename = self.fileRequest("Model", "Model files (*.mhm)", save=True)
+        filename = self.fileRequest("Model", "Model files (*.mhm)", directory, save=True)
         print(filename)
 
     def info_call(self):

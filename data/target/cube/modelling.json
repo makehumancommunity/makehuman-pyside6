@@ -3,14 +3,14 @@
 		"group": "main|macro",
 		"icon": "smallercube.png",
 		"tip": "Select to resize cube",
-		"decr": "cube-decr.target",
-                "incr": "cube-incr.target"
+		"decr": "cube-decr",
+                "incr": "cube-incr"
 
 	},
 	"Bigger Cube": {
 		"group": "main|macro",
 		"icon": "biggercube.png",
-		"decr": "cube-decr.target",
-                "incr": "cube-incr.target"
+		"decr": "cube-decr",
+                "incr": "cube-incr"
 	}
 }

@@ -78,7 +78,7 @@ class MHMemWindow(QWidget):
         self.targetTable = QTableView()
         data = self.refreshTargetTable()
 
-        self.targetModel = MemTableModel(data, ["Name", "File Increment", "Verts I",  "File Decrement", "Verts D", "Current"])
+        self.targetModel = MemTableModel(data, ["Name", "File Increment", "Verts I",  "File Decrement", "Verts D", "MHM Identifier", "Current"])
         self.targetTable.setModel(self.targetModel)
         self.targetModel.bestFit(self.targetTable)
         layout.addWidget(self.targetTable)
