@@ -163,23 +163,33 @@
 	},
 	"Head Oval": {
 		"name": "Oval Shape",
-		"group": "face|head shape"
+		"group": "face|head shape",
+		"icon": "head-oval.png",
+		"incr": "head/head-oval"
 	},
 	"Head Round": {
 		"name": "Round Shape",
-		"group": "face|head shape"
+		"group": "face|head shape",
+		"icon": "head-round.png",
+		"incr": "head/head-round"
 	},
 	"Head Rectangular": {
 		"name": "Rectangular Shape",
-		"group": "face|head shape"
+		"group": "face|head shape",
+		"icon": "head-rectangular.png",
+		"incr": "head/head-rectangular"
 	},
 	"Head Square": {
 		"name": "Square Shape",
-		"group": "face|head shape"
+		"group": "face|head shape",
+		"icon": "head-square.png",
+		"incr": "head/head-square"
 	},
 	"Head Triangular": {
 		"name": "Triangular Shape",
-		"group": "face|head shape"
+		"group": "face|head shape",
+		"icon": "head-triangular.png",
+		"incr": "head/head-triangular"
 	},
 	"Head Inverted Triangular": {
 		"name": "Inverted Triangular Shape",
@@ -189,11 +199,16 @@
 	},
 	"Head Diamond": {
 		"name": "Diamond Shape",
-		"group": "face|head shape"
+		"group": "face|head shape",
+		"icon": "head-diamond.png",
+		"incr": "head/head-diamond"
 	},
 	"Head Parietal Side": {
 		"name": "Scale Depth of parietal side",
-		"group": "face|head shape"
+		"group": "face|head shape",
+		"icon": "head-back-scale-depth-decr-incr.png",
+		"decr": "head/head-back-scale-depth-decr",
+		"incr": "head/head-back-scale-depth-incr"
 	},
 	"Head ScaleHor": {
 		"name": "Scale Horizontally",

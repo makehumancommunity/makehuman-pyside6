@@ -68,6 +68,29 @@ class baseClass():
         self.applyAllTargets()
         return (True, "okay")
 
+    def saveMHMFile(self, filename):
+        self.env.logLine(8, "Save: " + filename)
+        try:
+            fp = open(filename, "w", encoding="utf-8", errors='ignore')
+        except IOError as err:
+            return (False, str(err))
+
+        # create version as string, name from filename
+        #
+        vers = ".".join(map(str,self.env.release_info["version"]))
+        (p, name) = os.path.split(filename[:-4])
+
+        fp.write("# MakeHuman2 Model File\nversion v" + vers + "\nname " + name + "\n")
+
+        # write targets
+        #
+        if self.glob.Targets is not None:
+            for target in self.glob.Targets.modelling_targets:
+                if target.value != 0.0 and target.pattern != "None":
+                    fp.write ("modifier " + target.pattern + " " + str(target.value / 100) + "\n")
+
+        fp.close()
+
     def prepareClass(self):
         self.env.logLine(2, "Prepare class called with: " + self.env.basename)
 

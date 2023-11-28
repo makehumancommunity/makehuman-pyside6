@@ -62,14 +62,14 @@ class MHMainWindow(QMainWindow):
 
         self.createCentralWidget()
 
-    def fileRequest(self, ftext, pattern, directory, save=False):
+    def fileRequest(self, ftext, pattern, directory, save=None):
         """
         Simplified file request
         """
         dialog = QFileDialog()
         dialog.setNameFilter(pattern)
         dialog.setDirectory(directory)
-        if save is False:
+        if save is None:
             dialog.setWindowTitle("Load " + str(ftext) + " file")
             dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
             dialog.setAcceptMode(QFileDialog.AcceptOpen)
@@ -79,8 +79,14 @@ class MHMainWindow(QMainWindow):
             dialog.setAcceptMode(QFileDialog.AcceptSave)
         success = dialog.exec()
         if success:
-            selectedFiles = dialog.selectedFiles()
-            return(selectedFiles[0])
+            filename = dialog.selectedFiles()[0]
+
+            if save is not None:
+                # add suffix for save (security check for overwriting is done by request)
+                #
+                if not filename.endswith(save):
+                    filename += save
+            return(filename)
         return (None)
 
 
@@ -235,7 +241,6 @@ class MHMainWindow(QMainWindow):
     def loadmhm_call(self):
         if self.glob.baseClass is not None:
             directory = os.path.join(self.env.path_userdata, "models", self.env.basename)
-            print (directory)
             filename = self.fileRequest("Model", "Model files (*.mhm)", directory)
             if filename is not None:
                 self.glob.baseClass.loadMHMFile(filename)
@@ -243,8 +248,11 @@ class MHMainWindow(QMainWindow):
 
 
     def savemhm_call(self):
-        filename = self.fileRequest("Model", "Model files (*.mhm)", directory, save=True)
-        print(filename)
+        if self.glob.baseClass is not None:
+            directory = os.path.join(self.env.path_userdata, "models", self.env.basename)
+            filename = self.fileRequest("Model", "Model files (*.mhm)", directory, save=".mhm")
+            if filename is not None:
+                self.glob.baseClass.saveMHMFile(filename)
 
     def info_call(self):
         """

@@ -170,9 +170,11 @@ class programInfo():
                 json_object = json.load(f)
             except json.JSONDecodeError as e:
                 self.last_error = "JSON format error in " + path + " > " + str(e)
+                self.logLine(1, self.last_error)
                 return None
             if not json_object:
                 self.last_error =  "Empty JSON file " + path
+                self.logLine(1, self.last_error)
                 return None
         return (json_object)
             

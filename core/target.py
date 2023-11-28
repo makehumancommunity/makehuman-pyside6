@@ -16,7 +16,7 @@ class Modelling:
         self.decr = None    # target "decr"
         self.displayname = name
         self.group = None
-        self.pattern = "unknown"
+        self.pattern = "None"
 
     def __str__(self):
         return (self.name + ": " + str(self.incr) + "/" + str(self.decr))
@@ -37,7 +37,7 @@ class Modelling:
     def search_pattern(self):
         d = str(self.decr)
         i = str(self.incr)
-        self.pattern = "unknown"
+        self.pattern = "None"
         if d.endswith("-decr") and i.endswith("-incr"):
             self.pattern = d + "|incr"
         elif d.endswith("-down") and i.endswith("-up"):
@@ -189,7 +189,7 @@ class Targets:
             if "group" in t:
                 m.set_group(t["group"])
             m.search_pattern()
-            if m.pattern != "unknown":
+            if m.pattern != "None":
                 self.target_repo[m.pattern] = m
             self.modelling_targets.append(m)
 
