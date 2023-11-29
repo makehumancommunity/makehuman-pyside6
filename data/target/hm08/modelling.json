@@ -253,17 +253,29 @@
 		"incr": "head/head-trans-forward"
 	},
 	"Forehead Bulge": {
-		"group": "face|forehead"
+		"group": "face|forehead",
+		"icon": "forehead-trans-backward-forward.png",
+		"decr": "forehead/forehead-trans-backward",
+		"incr": "forehead/forehead-trans-forward"
 	},
 	"Forehead ScaleVer": {
 		"name": "Scale Vertically",
-		"group": "face|forehead"
+		"group": "face|forehead",
+		"icon": "forehead-scale-vert-decr-incr.png",
+		"decr": "forehead/forehead-scale-vert-decr",
+		"incr": "forehead/forehead-scale-vert-incr"
 	},
 	"Cranic Shape": {
-		"group": "face|forehead"
+		"group": "face|forehead",
+		"icon": "forehead-nubian-decr-incr.png",
+		"decr": "forehead/forehead-nubian-decr",
+		"incr": "forehead/forehead-nubian-incr"
 	},
 	"Temple Bulge": {
-		"group": "face|forehead"
+		"group": "face|forehead",
+		"icon": "forehead-temple-decr-incr.png",
+                "decr": "forehead/forehead-temple-decr",
+                "incr": "forehead/forehead-temple-incr"
 	},
 	"Eyebrows Bulge": {
 		"group": "face|eyebrows"

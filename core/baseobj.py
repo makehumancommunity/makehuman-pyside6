@@ -164,8 +164,16 @@ class baseClass():
         self.baseMesh.updateByTarget(factor, decr, incr)
         for asset in self.attachedAssets:
             #
-            # TODO: could be that the method will be to attached_asset
+            # TODO: could be that the method will be moved to attached_asset
             #
+            asset.obj.approxByTarget(asset, self.baseMesh)
+
+    def setTarget(self, factor, decr, incr):
+        """
+        set all meshe by target
+        """
+        self.baseMesh.setTarget(factor, decr, incr)
+        for asset in self.attachedAssets:
             asset.obj.approxByTarget(asset, self.baseMesh)
 
     def applyAllTargets(self):
@@ -175,8 +183,8 @@ class baseClass():
         targets = self.glob.Targets.modelling_targets
         for target in targets:
             if target.value != 0.0:
-                print ("Update " + target.name)
-                self.updateByTarget(target.value / 100, target.decr, target.incr)
+                print ("Set " + target.name)
+                self.setTarget(target.value / 100, target.decr, target.incr)
 
     def __del__(self):
         self.env.logLine (4, " -- __del__ baseClass " + self.name)

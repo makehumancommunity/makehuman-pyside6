@@ -232,6 +232,30 @@ class object3d:
         #
         self.overflowCorrection(self.gl_coord)
 
+    def setTarget(self, factor, targetlower, targetupper):
+        """
+        updates from file (all done on basemesh directly)
+        """
+        if factor < 0.0:
+            if targetlower is None:
+                return
+            verts = targetlower.verts
+            data  = targetlower.data
+            factor = -factor
+        elif factor > 0.0:
+            verts = targetupper.verts
+            data  = targetupper.data
+
+        for i in range(0, len(verts)):
+            x = verts[i] * 3
+            self.gl_coord[x]   = self.gl_coord[x]   + factor * data[i][0]
+            self.gl_coord[x+1] = self.gl_coord[x+1] + factor * data[i][1]
+            self.gl_coord[x+2] = self.gl_coord[x+2] + factor * data[i][2]
+
+        # do not forget the overflow vertices
+        #
+        self.overflowCorrection(self.gl_coord)
+
 
     def approxByTarget(self, asset, base):
         """

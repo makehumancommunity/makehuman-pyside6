@@ -244,7 +244,7 @@ class MHMainWindow(QMainWindow):
             filename = self.fileRequest("Model", "Model files (*.mhm)", directory)
             if filename is not None:
                 self.glob.baseClass.loadMHMFile(filename)
-                self.graph.update()
+                self.graph.view.Tweak()
 
 
     def savemhm_call(self):
