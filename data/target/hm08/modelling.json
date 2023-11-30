@@ -1,21 +1,29 @@
 {
 	"Gender": {
-		"group": "main|macro"
+		"group": "main|macro",
+		"macro": "macrodetails/Gender"
 	},
 	"Age": {
-		"group": "main|macro"
+		"group": "main|macro",
+		"tip": "Age of the human (range from 1 year to 90 years old, with center position 25 years).",
+		"macro": "macrodetails/Age"
 	},
 	"Muscle": {
-		"group": "main|macro"
+		"group": "main|macro",
+		"macro": "macrodetails-universal/Muscle"
 	},
 	"Weight": {
-		"group": "main|macro"
+		"group": "main|macro",
+		"macro": "macrodetails-universal/Weight"
 	},
 	"Height": {
-		"group": "main|macro"
+		"group": "main|macro",
+		"macro": "macrodetails-height/Height"
 	},
 	"Proportions": {
-		"group": "main|macro"
+		"group": "main|macro",
+		"tip": "Proportions of the human features, often subjectively referred to as qualities of beauty<br>(min is unusual, center position is average and max is idealistic proportions).",
+		"macro": "macrodetails-proportions/BodyProportions"
 	},
 	"Female Apple": {
 		"group": "shapes|female shapes",
@@ -89,7 +97,8 @@
 	},
 	"Breast Firmness": {
 		"group": "gender|breast",
-		"icon": "breastfirmness.png"
+		"icon": "breastfirmness.png",
+		"macro": "breast/BreastFirmness"
 	},
 	"Breast PosVer": {
 		"name": "Vertical Position",
@@ -100,7 +109,8 @@
 	},
 	"Breast Size": {
 		"group": "gender|breast",
-		"icon": "breastsize.png"
+		"icon": "breastsize.png",
+		"macro": "breast/BreastSize"
 	},
 	"Breast Pointiness": {
 		"group": "gender|breast",
@@ -278,14 +288,23 @@
                 "incr": "forehead/forehead-temple-incr"
 	},
 	"Eyebrows Bulge": {
-		"group": "face|eyebrows"
+		"group": "face|eyebrows",
+		"icon": "eyebrows-trans-backward-forward.png",
+                "decr": "eyebrows/eyebrows-trans-backward",
+                "incr": "eyebrows/eyebrows-trans-forward"
 	},
 	"Eyebrows Angle": {
-		"group": "face|eyebrows"
+		"group": "face|eyebrows",
+		"icon": "eyebrows-angle-down-up.png",
+                "decr": "eyebrows/eyebrows-angle-down",
+                "incr": "eyebrows/eyebrows-angle-up"
 	},
 	"Eyebrows MoveVer": {
 		"name": "Move Vertically",
-		"group": "face|eyebrows"
+		"group": "face|eyebrows",
+		"icon": "eyebrows-trans-down-up.png",
+                "decr": "eyebrows/eyebrows-trans-down",
+                "incr": "eyebrows/eyebrows-trans-up"
 	},
 	"Neck ScaleHor": {
 		"name": "Scale Horizontally",

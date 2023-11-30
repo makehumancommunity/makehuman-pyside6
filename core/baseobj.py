@@ -123,6 +123,8 @@ class baseClass():
         self.glob.baseClass = self
         target = Targets(self.glob)
         target.loadTargets()
+        if "modifier-presets" in self.baseInfo:
+            target.modifierPresets (self.baseInfo["modifier-presets"])
         #
         # attach the assets to the basemesh
         #

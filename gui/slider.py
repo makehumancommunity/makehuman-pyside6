@@ -88,7 +88,7 @@ class ScaleCombo(QWidget):
         """
         self.comboLayout.setContentsMargins(self.margin,0, self.margin,0 )
         self.gvalue = QProgressBar()
-        self.gvalue.setRange(-100,100)
+        self.gvalue.setRange(self.min,self.max)
         self.gvalue.setValue(self.elem.value)
         self.gvalue.setMaximumHeight(15)
         self.gvalue.setFormat("%v")
@@ -222,7 +222,7 @@ class ScaleComboArray(QWidget):
         cnt = 0
         for elem in modelling:
             if filterparam is None or elem.group == filterparam:
-                if elem.decr is None:
+                if elem.opposite is False:
                     print (elem.name)
                     scalecombo = ScaleCombo(elem,  0, 100, 10, parent=self, update=self.comboArrayUpdate)
                 else:

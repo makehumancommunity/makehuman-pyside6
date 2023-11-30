@@ -1,5 +1,18 @@
 {
 	"visible groups": [ "body"],
+	"modifier-presets": {
+		"macrodetails/Gender": 0.5,
+		"macrodetails/Age": 0.5,
+		"macrodetails-universal/Muscle": 0.5,
+		"macrodetails-universal/Weight": 0.5,
+		"macrodetails-height/Height": 0.5,
+		"macrodetails-proportions/BodyProportions": 0.5,
+		"macrodetails/Asian": 0.33,
+		"macrodetails/Caucasian": 0.33,
+		"macrodetails/African": 0.33,
+		"breast/BreastSize": 0.5,
+		"breast/BreastFirmness": 0.5
+	},
 	"meshes": [
 		{"cat": "eyes", "name": "low-poly.mhclo" }
 	]

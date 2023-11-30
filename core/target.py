@@ -14,6 +14,8 @@ class Modelling:
         self.value = 0.0
         self.incr = None    # target "incr"
         self.decr = None    # target "decr"
+        self.macro = None
+        self.opposite = True # two.directional slider
         self.displayname = name
         self.group = None
         self.pattern = "None"
@@ -22,9 +24,12 @@ class Modelling:
         return (self.name + ": " + str(self.incr) + "/" + str(self.decr))
 
     def memInfo(self):
-        li = len(self.incr.verts) if self.incr else 0
-        ld = len(self.decr.verts) if self.decr else 0
-        t = [self.name, str(self.incr), li, str(self.decr), ld, self.pattern, self.value]
+        if self.macro:
+            t = [self.name, str(self.macro), -1, str(self.macro), -1, self.pattern, self.value]
+        else:
+            li = len(self.incr.verts) if self.incr else 0
+            ld = len(self.decr.verts) if self.decr else 0
+            t = [self.name, str(self.incr), li, str(self.decr), ld, self.pattern, self.value]
         return (t)
 
 
@@ -34,7 +39,15 @@ class Modelling:
     def decr_target(self, fname):
         self.decr = fname
 
+    def macro_target(self, name):
+        self.macro = name
+
     def search_pattern(self):
+        if self.macro:
+            self.pattern = self.macro
+            self.opposite = False
+            return
+
         d = str(self.decr)
         i = str(self.incr)
         self.pattern = "None"
@@ -48,6 +61,7 @@ class Modelling:
             self.pattern = d + "|forward"
         elif i != "None":
             self.pattern = i
+            self.opposite = False
 
     def set_refresh(self,refreshwindow):
         self.refresh = refreshwindow
@@ -184,6 +198,8 @@ class Targets:
                 mt = Morphtarget(self.env, t["incr"])
                 mt.loadTextFile(targetpath)
                 m.incr_target(mt)
+            if "macro" in t:
+                m.macro_target(t["macro"])
             if "name" in t:
                 m.set_displayname(t["name"])
             if "group" in t:
@@ -215,6 +231,13 @@ class Targets:
             t = self.target_repo[key]
             print (" >>> Found target: " + key)
             t.value = float(value) * 100.0
+
+    def modifierPresets(self, presets):
+        """
+        set presets from base.json
+        """
+        for elem in presets:
+            self.setTargetByName(elem, presets[elem])
 
 
     def destroyTargets(self):
