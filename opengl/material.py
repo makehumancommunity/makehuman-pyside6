@@ -28,7 +28,7 @@ class Material:
         texture = QOpenGLTexture(QOpenGLTexture.Target2D)
         texture.create()
         texture.setData(QImage(path))
-        self.glob.addTexture(path)
+        self.glob.addTexture(path, texture)
         #texture.setData(MH_Image(path, self.env))
         texture.setMinMagFilters(QOpenGLTexture.Linear, QOpenGLTexture.Linear)
         texture.setWrapMode(QOpenGLTexture.ClampToEdge)

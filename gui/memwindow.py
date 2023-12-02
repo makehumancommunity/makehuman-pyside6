@@ -90,7 +90,7 @@ class MHMemWindow(QWidget):
         self.textureTable = QTableView()
         data = self.refreshTextureTable()
 
-        self.textureModel = MemTableModel(data, ["Name"])
+        self.textureModel = MemTableModel(data, ["Name", "Width", "Height"])
         self.textureTable.setModel(self.textureModel)
         self.textureModel.bestFit(self.textureTable)
         layout.addWidget(self.textureTable)
@@ -132,9 +132,10 @@ class MHMemWindow(QWidget):
 
     def refreshTextureTable(self):
         data = []
-        if len(self.glob.textures) > 0:
-            for texture in self.glob.textures:
-                data.append([texture])
+        t = self.glob.textures
+        if len(t) > 0:
+            for texture in t:
+                data.append([texture, t[texture].width(), t[texture].height()])
         else:
             data = [["no textures loaded"]]
         return (data)

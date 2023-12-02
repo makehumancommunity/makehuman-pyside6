@@ -16,13 +16,16 @@ class globalObjects():
         self.Targets = None
         self.targetCategories = None        # will contain the category object
         self.baseClass = None
-        self.textures = []
+        self.textures = {}
 
     def freeTextures(self):
-        self.textures = []
+        t = self.textures
+        for elem in t:
+            t[elem].destroy()
+        self.textures = {}
 
-    def addTexture(self, path):
-        self.textures.append(path)
+    def addTexture(self, path, texture):
+        self.textures[path] = texture
 
     def generateBaseSubDirs(self, basename):
         for name in [ "models", "target" ]:

@@ -297,6 +297,7 @@ class MHMainWindow(QMainWindow):
         """
         save session (if desired)
         """
+        self.glob.freeTextures()
         if self.in_close is False:
             self.in_close = True                # avoid double call by closeAllWindows
             s = self.env.session["mainwinsize"]
