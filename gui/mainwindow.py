@@ -245,6 +245,8 @@ class MHMainWindow(QMainWindow):
             if filename is not None:
                 self.glob.baseClass.loadMHMFile(filename)
                 self.graph.view.Tweak()
+                self.targetfilter = "main|macro" # TODO, Need a better reset here
+                self.redrawNewCategory(self.targetfilter, "Toolpanel")
 
 
     def savemhm_call(self):

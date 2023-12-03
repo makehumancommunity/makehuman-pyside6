@@ -15,6 +15,7 @@ class Modelling:
         self.incr = None    # target "incr"
         self.decr = None    # target "decr"
         self.macro = None
+        self.barycentric = None # map slider
         self.opposite = True # two.directional slider
         self.displayname = name
         self.group = None
@@ -24,7 +25,9 @@ class Modelling:
         return (self.name + ": " + str(self.incr) + "/" + str(self.decr))
 
     def memInfo(self):
-        if self.macro:
+        if self.barycentric:
+            t = [self.name, "barycentric", -1, "barycentric", -1, str(self.pattern), self.value]
+        elif self.macro:
             t = [self.name, str(self.macro), -1, str(self.macro), -1, self.pattern, self.value]
         else:
             li = len(self.incr.verts) if self.incr else 0
@@ -42,7 +45,24 @@ class Modelling:
     def macro_target(self, name):
         self.macro = name
 
+    def macro_barycentric(self, val):
+        text = ["A", "B", "C"]
+        #value = [0.33, 0.33, 0.33]
+        value = [0.0, 0.0, 1.0]
+        i = 0
+        for x in val:
+            text[i] = x.split("/")[1] if "/" in x else x
+            i += 1
+        self.barycentric = [
+                {"name": val[0], "text": text[0], "value": value[0] },
+                {"name": val[1], "text": text[1], "value": value[1] },
+                {"name": val[2], "text": text[2], "value": value[2] } ]
+
     def search_pattern(self):
+        if self.barycentric:
+            self.pattern = self.barycentric
+            self.opposite = False
+            return
         if self.macro:
             self.pattern = self.macro
             self.opposite = False
@@ -200,13 +220,19 @@ class Targets:
                 m.incr_target(mt)
             if "macro" in t:
                 m.macro_target(t["macro"])
+            if "barycentric" in t:
+                m.macro_barycentric(t["barycentric"])
             if "name" in t:
                 m.set_displayname(t["name"])
             if "group" in t:
                 m.set_group(t["group"])
             m.search_pattern()
             if m.pattern != "None":
-                self.target_repo[m.pattern] = m
+                if isinstance(m.pattern, list):
+                    for l in m.pattern:
+                        self.target_repo[l["name"]] = m
+                else:
+                    self.target_repo[m.pattern] = m
             self.modelling_targets.append(m)
 
     def refreshTargets(self, window):
@@ -230,7 +256,12 @@ class Targets:
         if key in self.target_repo:
             t = self.target_repo[key]
             print (" >>> Found target: " + key)
-            t.value = float(value) * 100.0
+            if t.barycentric is not None:
+                for l in t.barycentric:
+                    if l["name"] == key:
+                        l["value"] = float(value)
+            else:
+                t.value = float(value) * 100.0
 
     def modifierPresets(self, presets):
         """

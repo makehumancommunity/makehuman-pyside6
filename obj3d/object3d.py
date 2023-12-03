@@ -243,6 +243,8 @@ class object3d:
             data  = targetlower.data
             factor = -factor
         elif factor > 0.0:
+            if targetupper is None:
+                return
             verts = targetupper.verts
             data  = targetupper.data
 

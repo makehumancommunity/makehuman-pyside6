@@ -4,7 +4,7 @@ from PySide6.QtCore import Qt, QRect, QPoint
 from PySide6.QtGui import QPainter, QPixmap, QPen
 
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QSlider, QStyle, QStyleOptionSlider, QLabel, QPushButton, QSizePolicy, QDoubleSpinBox, QProgressBar, QFrame
-
+from gui.mapslider import MapBaryCentricCombo
 
 
 class ScalePictureButton(QPushButton):
@@ -222,6 +222,18 @@ class ScaleComboArray(QWidget):
         cnt = 0
         for elem in modelling:
             if filterparam is None or elem.group == filterparam:
+
+                # special case of barycentric slider first
+                #
+                if elem.barycentric is not None:
+                    texts = [d['text'] for d in elem.barycentric]
+                    values = [d['value'] for d in elem.barycentric]
+
+                    mapBary = MapBaryCentricCombo(values, texts)
+                    self.layout.addWidget(mapBary)
+                    cnt +=1 
+                    continue
+
                 if elem.opposite is False:
                     print (elem.name)
                     scalecombo = ScaleCombo(elem,  0, 100, 10, parent=self, update=self.comboArrayUpdate)

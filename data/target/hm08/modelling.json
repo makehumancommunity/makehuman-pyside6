@@ -25,6 +25,10 @@
 		"tip": "Proportions of the human features, often subjectively referred to as qualities of beauty<br>(min is unusual, center position is average and max is idealistic proportions).",
 		"macro": "macrodetails-proportions/BodyProportions"
 	},
+	"Phenotype": {
+		"group": "main|macro",
+		"barycentric": [ "macrodetails/African", "macrodetails/Asian", "macrodetails/Caucasian"]
+	},
 	"Female Apple": {
 		"group": "shapes|female shapes",
 		"icon": "bodyshapes-elvs-fem-apple.png",
@@ -357,15 +361,24 @@
 	},
 	"R-Eye Bag Volume": {
 		"name": "Eye Bag Volume",
-		"group": "face|right eye"
+		"group": "face|right eye",
+		"icon": "r-eye-bag-decr-incr.png",
+		"decr": "eyes/r-eye-bag-decr",
+                "incr": "eyes/r-eye-bag-incr"
 	},
 	"R-Eye Bag Distorsion": {
 		"name": "Eye Bag Distorsion",
-		"group": "face|right eye"
+		"group": "face|right eye",
+		"icon": "r-eye-bag-in-out.png",
+		"decr": "eyes/r-eye-bag-in",
+                "incr": "eyes/r-eye-bag-out"
 	},
 	"R-Eye Bag Height": {
 		"name": "Eye Bag Height",
-		"group": "face|right eye"
+		"group": "face|right eye",
+		"icon": "r-eye-bag-height-decr-incr.png",
+		"decr": "eyes/r-eye-bag-height-decr",
+                "incr": "eyes/r-eye-bag-height-incr"
 	},
 	"R-Eye Fold Angle": {
 		"name": "Eyefold Angle",
@@ -425,15 +438,24 @@
 	},
 	"L-Eye Bag Volume": {
 		"name": "Eye Bag Volume",
-		"group": "face|left eye"
+		"group": "face|left eye",
+		"icon": "l-eye-bag-decr-incr.png",
+		"decr": "eyes/l-eye-bag-decr",
+                "incr": "eyes/l-eye-bag-incr"
 	},
 	"L-Eye Bag Distorsion": {
 		"name": "Eye Bag Distorsion",
-		"group": "face|left eye"
+		"group": "face|left eye",
+		"icon": "l-eye-bag-in-out.png",
+		"decr": "eyes/l-eye-bag-in",
+                "incr": "eyes/l-eye-bag-out"
 	},
 	"L-Eye Bag Height": {
 		"name": "Eye Bag Height",
-		"group": "face|left eye"
+		"group": "face|left eye",
+		"icon": "l-eye-bag-height-decr-incr.png",
+		"decr": "eyes/l-eye-bag-height-decr",
+                "incr": "eyes/l-eye-bag-height-incr"
 	},
 	"L-Eye Fold Angle": {
 		"name": "Eyefold Angle",
