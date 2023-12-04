@@ -4,10 +4,11 @@ from PySide6.QtCore import Qt, QObject, QEvent, QPointF
 from PySide6.QtGui import QPainter, QPainterPath, QPixmap, QPaintEvent, QPen, QBrush, QColor, QColor, QFont, QFontMetrics
 
 class MapInputWidget(QFrame):
-    def __init__(self, size, framewidth, info, initialValue):
+    def __init__(self, size, framewidth, info, initialValue, callback):
         super().__init__()
         self.dimension = size
         self.info = info
+        self.callback = callback
         self.framewidth = framewidth
         self.canvassize = size + framewidth * 2
         self.setFixedSize(self.canvassize, self.canvassize)
@@ -80,17 +81,19 @@ class MapInputWidget(QFrame):
         (self.x, self.y ) = self.maskAndSetValues(x-f, y-f)
         if self.info is not None:
             self.displayInfo()
+        if self.callback is not None:
+           self.callback()
         self.update()
 
 
 class MapInputWidgetXY(MapInputWidget):
-    def __init__(self, size, framewidth, info=None, initialValue=None):
+    def __init__(self, size, framewidth, info=None, initialValue=None, callback=None):
         if initialValue is None:
             initialValue = [ 0.5, 0.5 ]
         super().__init__(size, framewidth, info, initialValue)
 
 class MapInputWidgetBaryCentric(MapInputWidget):
-    def __init__(self, size, framewidth, info=None, initialValue=None, texts=None):
+    def __init__(self, size, framewidth, info=None, initialValue=None, texts=None, callback=None):
         self.barycentric = [ 1/3, 1/3, 1/3 ]
         if initialValue is not None:
             self.barycentric = initialValue
@@ -106,7 +109,7 @@ class MapInputWidgetBaryCentric(MapInputWidget):
         self._pix1 = fm.horizontalAdvance(self._baryTexts[0])
         self._pix2 = -5
         self._pix3 = fm.horizontalAdvance(self._baryTexts[2]) + 5
-        super().__init__(size, framewidth, info, [self.x, self.y])
+        super().__init__(size, framewidth, info, [self.x, self.y], callback)
 
     def toBaryCentric(self):
         v = self.barycentric
@@ -192,21 +195,20 @@ class MapInputWidgetBaryCentric(MapInputWidget):
 
 
 class MapBaryCentricCombo(QWidget):
-    def __init__(self, initial, texts, parent=None):
+    def __init__(self, initial, texts, callback, parent=None):
         super(MapBaryCentricCombo, self).__init__(parent=parent)
 
         self.info = QLabel(self)
         self.info.setGeometry(10, 10, 200, 50)
         self.info.setAlignment(Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-
         hLayout = QHBoxLayout()
-        self.mapBary = MapInputWidgetBaryCentric(100, 20, info=self.info, initialValue=initial, texts=texts)
+        self.mapBary = MapInputWidgetBaryCentric(100, 20, info=self.info, initialValue=initial, texts=texts, callback=callback)
         hLayout.addWidget(self.mapBary)
         hLayout.addWidget(self.info)
         self.setLayout(hLayout)
 
 class MapXYCombo(QWidget):
-    def __init__(self, initial, parent=None):
+    def __init__(self, initial, callback, parent=None):
         super(MapXYCombo, self).__init__(parent=parent)
 
         self.info = QLabel(self)
@@ -214,7 +216,7 @@ class MapXYCombo(QWidget):
         self.info.setAlignment(Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         hLayout = QHBoxLayout()
-        self.mapInput = MapInputWidgetXY(100, 20, info=self.info, initialValue=initial)
+        self.mapInput = MapInputWidgetXY(100, 20, info=self.info, initialValue=initial, callback=callback)
         hLayout.addWidget(self.mapInput)
         hLayout.addWidget(self.info)
         self.setLayout(hLayout)

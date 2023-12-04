@@ -1,0 +1,9 @@
+{
+	"influences": [
+		{ "name": "phenotype-gender-age", "groups": [ "phenotype", "gender", "age" ] },
+		{ "name": "gender-age-muscle-weight", "groups": [ "!universal", "gender", "age", "muscle", "weight" ] },
+		{ "name": "gender-age-muscle-weight-prop", "groups": [ "gender", "age", "muscle", "weight", "proportions" ], "folder": "proportions" },
+		{ "name": "gender-age-muscle-weight-height", "groups": [ "gender", "age", "muscle", "weight", "height" ], "folder": "height" },
+		{ "name": "breastsize-breastfirmness", "groups": [ "gender", "age", "muscle", "weight", "cupsize", "firmness" ], "folder": "breast" }
+	]
+}

@@ -14,12 +14,14 @@ class Modelling:
         self.value = 0.0
         self.incr = None    # target "incr"
         self.decr = None    # target "decr"
-        self.macro = None
+        self.macro = None   # macro target
+        self.m_influence = []   # all influences
         self.barycentric = None # map slider
         self.opposite = True # two.directional slider
         self.displayname = name
         self.group = None
         self.pattern = "None"
+        self.macrodef = None # pointer to macrodefinition
 
     def __str__(self):
         return (self.name + ": " + str(self.incr) + "/" + str(self.decr))
@@ -44,6 +46,21 @@ class Modelling:
 
     def macro_target(self, name):
         self.macro = name
+
+    def macro_influence(self, json, array):
+        #
+        self.m_influence = []
+        self.macrodef = json
+        if json is not None:
+            cnt = len(json["influences"])
+
+            # test boundaries to avoid crashes
+            #
+            for elem in array:
+                if elem < cnt:
+                    self.m_influence.append(elem)
+
+
 
     def macro_barycentric(self, val):
         text = ["A", "B", "C"]
@@ -100,8 +117,12 @@ class Modelling:
 
     def callback(self):
         factor = self.value / 100
-        print("change " + self.name)
-        if self.incr is not None or self.decr is not None:
+        if len(self.m_influence) > 0:
+            print ("Macro change " +  str(self.m_influence))
+            for l in self.m_influence:
+                print ("   " + self.macrodef["influences"][l]["name"])
+        elif self.incr is not None or self.decr is not None:
+            print("change " + self.name)
             self.obj.updateByTarget(factor, self.decr, self.incr)
             self.refresh.Tweak()
 
@@ -164,6 +185,7 @@ class Targets:
         self.target_repo = {} # will contain targets by pattern
         glob.Targets = self
         self.collection = None
+        self.macrodef = None
         self.baseClass = glob.baseClass
         self.graphwindow = glob.graphwindow
 
@@ -172,6 +194,10 @@ class Targets:
 
     def loadModellingJSON(self):
         targetpath = os.path.join(self.env.path_sysdata, "target", self.env.basename)
+
+        filename = os.path.join(targetpath, "macro.json")
+        self.macrodef = self.env.readJSON(filename)
+
         filename = os.path.join(targetpath, "modelling.json")
         targetjson = self.env.readJSON(filename)
 
@@ -220,6 +246,8 @@ class Targets:
                 m.incr_target(mt)
             if "macro" in t:
                 m.macro_target(t["macro"])
+            if "macro_influence" in t:
+                m.macro_influence(self.macrodef, t["macro_influence"])
             if "barycentric" in t:
                 m.macro_barycentric(t["barycentric"])
             if "name" in t:

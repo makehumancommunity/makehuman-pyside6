@@ -1,33 +1,40 @@
 {
 	"Gender": {
 		"group": "main|macro",
-		"macro": "macrodetails/Gender"
+		"macro": "macrodetails/Gender",
+		"macro_influence": [0, 1, 2, 3, 4]
 	},
 	"Age": {
 		"group": "main|macro",
 		"tip": "Age of the human (range from 1 year to 90 years old, with center position 25 years).",
-		"macro": "macrodetails/Age"
+		"macro": "macrodetails/Age",
+		"macro_influence": [0, 1, 2, 3, 4]
 	},
 	"Muscle": {
 		"group": "main|macro",
-		"macro": "macrodetails-universal/Muscle"
+		"macro": "macrodetails-universal/Muscle",
+		"macro_influence": [1, 2, 3, 4]
 	},
 	"Weight": {
 		"group": "main|macro",
-		"macro": "macrodetails-universal/Weight"
+		"macro": "macrodetails-universal/Weight",
+		"macro_influence": [1, 2, 3, 4]
 	},
 	"Height": {
 		"group": "main|macro",
-		"macro": "macrodetails-height/Height"
+		"macro": "macrodetails-height/Height",
+		"macro_influence": [3]
 	},
 	"Proportions": {
 		"group": "main|macro",
 		"tip": "Proportions of the human features, often subjectively referred to as qualities of beauty<br>(min is unusual, center position is average and max is idealistic proportions).",
-		"macro": "macrodetails-proportions/BodyProportions"
+		"macro": "macrodetails-proportions/BodyProportions",
+		"macro_influence": [2]
 	},
 	"Phenotype": {
 		"group": "main|macro",
-		"barycentric": [ "macrodetails/African", "macrodetails/Asian", "macrodetails/Caucasian"]
+		"barycentric": [ "macrodetails/African", "macrodetails/Asian", "macrodetails/Caucasian"],
+		"macro_influence": [0]
 	},
 	"Female Apple": {
 		"group": "shapes|female shapes",
@@ -102,7 +109,8 @@
 	"Breast Firmness": {
 		"group": "gender|breast",
 		"icon": "breastfirmness.png",
-		"macro": "breast/BreastFirmness"
+		"macro": "breast/BreastFirmness",
+		"macro_influence": [4]
 	},
 	"Breast PosVer": {
 		"name": "Vertical Position",
@@ -114,7 +122,8 @@
 	"Breast Size": {
 		"group": "gender|breast",
 		"icon": "breastsize.png",
-		"macro": "breast/BreastSize"
+		"macro": "breast/BreastSize",
+		"macro_influence": [4]
 	},
 	"Breast Pointiness": {
 		"group": "gender|breast",
@@ -394,7 +403,10 @@
 	},
 	"R-Eye Epicanthus": {
 		"name": "Eye Epicathus",
-		"group": "face|right eye"
+		"group": "face|right eye",
+		"icon": "r-eye-epicanthus-in-out.png",
+		"decr": "eyes/r-eye-epicanthus-in",
+                "incr": "eyes/r-eye-epicanthus-out"
 	},
 	"R-Eye Scale": {
 		"name": "Scale Eye",
@@ -422,7 +434,10 @@
 	},
 	"R-Eye OutCorn MoveVer": {
 		"name": "Move Outer Corner Vertically",
-		"group": "face|right eye"
+		"group": "face|right eye",
+		"icon": "r-eye-corner1-down-up.png",
+                "decr": "eyes/r-eye-corner1-down",
+                "incr": "eyes/r-eye-corner1-up"
 	},
 	"R-Eye InCorn MoveHor": {
 		"name": "Move Inner Corner Horizontally",
@@ -430,7 +445,10 @@
 	},
 	"R-Eye InCorn MoveVer": {
 		"name": "Move Inner Corner Vertically",
-		"group": "face|right eye"
+		"group": "face|right eye",
+		"icon": "r-eye-corner2-down-up.png",
+                "decr": "eyes/r-eye-corner2-down",
+                "incr": "eyes/r-eye-corner2-up"
 	},
 	"R-Eye MoveVer": {
 		"name": "Move Eye Vertically",
@@ -471,7 +489,10 @@
 	},
 	"L-Eye Epicanthus": {
 		"name": "Eye Epicathus",
-		"group": "face|left eye"
+		"group": "face|left eye",
+		"icon": "l-eye-epicanthus-in-out.png",
+		"decr": "eyes/l-eye-epicanthus-in",
+                "incr": "eyes/l-eye-epicanthus-out"
 	},
 	"L-Eye Scale": {
 		"name": "Scale Eye",
@@ -499,7 +520,10 @@
 	},
 	"L-Eye OutCorn MoveVer": {
 		"name": "Move Outer Corner Vertically",
-		"group": "face|left eye"
+		"group": "face|left eye",
+		"icon": "l-eye-corner1-down-up.png",
+                "decr": "eyes/l-eye-corner1-down",
+                "incr": "eyes/l-eye-corner1-up"
 	},
 	"L-Eye InCorn MoveHor": {
 		"name": "Move Inner Corner Horizontally",
@@ -507,7 +531,10 @@
 	},
 	"L-Eye InCorn MoveVer": {
 		"name": "Move Inner Corner Vertically",
-		"group": "face|left eye"
+		"group": "face|left eye",
+		"icon": "l-eye-corner2-down-up.png",
+                "decr": "eyes/l-eye-corner2-down",
+                "incr": "eyes/l-eye-corner2-up"
 	},
 	"L-Eye MoveVer": {
 		"name": "Move Eye Vertically",
