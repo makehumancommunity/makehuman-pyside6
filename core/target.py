@@ -4,12 +4,16 @@ import json
 import numpy as np
 
 class Modelling:
-    def __init__(self, name, obj, refreshwindow, icon, tip):
+    def __init__(self, parent, name, icon, tip):
+        self.glob     = parent.glob
+        self.obj      = parent.baseClass
+        self.refresh  = parent.graphwindow
+        self.macrodef = parent.macrodef      # pointer to macrodefinition
+        self.target_repo = parent.target_repo # pointer for other targets
+
         self.name = name
         self.icon = icon
         self.tip  = tip
-        self.obj  = obj
-        self.refresh = refreshwindow
         self.selected = False
         self.value = 0.0
         self.incr = None    # target "incr"
@@ -21,7 +25,6 @@ class Modelling:
         self.displayname = name
         self.group = None
         self.pattern = "None"
-        self.macrodef = None # pointer to macrodefinition
 
     def __str__(self):
         return (self.name + ": " + str(self.incr) + "/" + str(self.decr))
@@ -47,20 +50,17 @@ class Modelling:
     def macro_target(self, name):
         self.macro = name
 
-    def macro_influence(self, json, array):
+    def macro_influence(self, array):
         #
         self.m_influence = []
-        self.macrodef = json
-        if json is not None:
-            cnt = len(json["influences"])
+        if self.macrodef is not None:
+            cnt = len(self.macrodef["influences"])
 
             # test boundaries to avoid crashes
             #
             for elem in array:
                 if elem < cnt:
                     self.m_influence.append(elem)
-
-
 
     def macro_barycentric(self, val):
         text = ["A", "B", "C"]
@@ -96,6 +96,8 @@ class Modelling:
             self.pattern = d + "|out"
         elif d.endswith("-backward") and i.endswith("-forward"):
             self.pattern = d + "|forward"
+        elif d.endswith("-concave") and i.endswith("-convex"):
+            self.pattern = d + "|convex"
         elif i != "None":
             self.pattern = i
             self.opposite = False
@@ -115,12 +117,58 @@ class Modelling:
         if self.incr is not None or self.decr is not None:
             self.obj.getInitialCopyForSlider(factor, self.decr, self.incr)
 
+    def nacroCalculation(self):
+        influences = self.macrodef["influences"]
+        components = self.macrodef["components"]
+        for l in self.m_influence:
+            print ("   " + influences[l]["name"])
+            comps = influences[l]["comp"]
+            for elem in comps:
+                if elem in components:
+                    pattern = components[elem]["pattern"]
+                    values  = components[elem]["values"]
+                    print ("\t\t" + str(values))
+                    print ("\t\t" + str(pattern))
+
+                    if "steps" not in components[elem]:
+
+                        # extra for sum of sliders (human phenotype)
+                        #
+                        print ("\t\tIdentical")
+                        sum = components[elem]["sum"]
+                        for i,v in enumerate(values):
+                            p = pattern +  sum[i]
+                            if p not in self.target_repo:
+                                continue
+                            current = self.target_repo[p]
+                            print (self.target_repo[p])
+                            print ("\t\tCurrent value " + str(current.barycentric[i]["value"]))
+                    else:
+                        steps = components[elem]["steps"]
+                        if pattern not in self.target_repo:
+                            continue
+                        #print (self.target_repo[pattern])
+                        current = self.target_repo[pattern].value / 100
+                        print ("\t\tCurrent value " + str(current))
+                        print ("\t\tDivisions: " + str(len(steps)))
+
+                        for i in range(0,len(steps)-1):
+                            if current > steps[i+1]:
+                                continue
+                            else:
+                                c = (current - steps[i]) / (steps[i+1] - steps[i])
+                                if c < 0.999:
+                                    print ('\t' * 3 + values[i] + " " + str(1-c))
+                                if c > 0.001:
+                                    print ('\t' * 3 + values[i+1] + " " + str(c))
+                                break
+                        
+
     def callback(self):
         factor = self.value / 100
         if len(self.m_influence) > 0:
             print ("Macro change " +  str(self.m_influence))
-            for l in self.m_influence:
-                print ("   " + self.macrodef["influences"][l]["name"])
+            self.nacroCalculation()
         elif self.incr is not None or self.decr is not None:
             print("change " + self.name)
             self.obj.updateByTarget(factor, self.decr, self.incr)
@@ -234,7 +282,7 @@ class Targets:
             targetpath = targetpath_user if "user" in t else targetpath_sys
             iconpath = os.path.join(targetpath, "icons")
             icon = os.path.join(iconpath, t["icon"]) if "icon" in t else default_icon
-            m = Modelling(name, self.baseClass, self.graphwindow, icon, tip)
+            m = Modelling(self, name, icon, tip)
 
             if "decr" in t:
                 mt = Morphtarget(self.env, t["decr"])
@@ -247,7 +295,7 @@ class Targets:
             if "macro" in t:
                 m.macro_target(t["macro"])
             if "macro_influence" in t:
-                m.macro_influence(self.macrodef, t["macro_influence"])
+                m.macro_influence(t["macro_influence"])
             if "barycentric" in t:
                 m.macro_barycentric(t["barycentric"])
             if "name" in t:

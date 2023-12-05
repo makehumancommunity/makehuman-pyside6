@@ -1,9 +1,20 @@
 {
+	"components": {
+		"phenotype": {"values": ["african", "asian", "caucasian"], "pattern": "macrodetails/", "sum": ["African", "Asian", "Caucasian"]  },
+		"gender":    {"values": ["female", "male"], "steps": [0.0, 1.0], "pattern": "macrodetails/Gender" },
+		"age":       {"values": ["baby", "child", "young", "old"], "steps": [0.0, 0.1875, 0.5, 1.0], "pattern": "macrodetails/Age" },
+		"muscle":    {"values": ["minmuscle", "averagemuscle", "maxmuscle"], "steps": [0.0, 0.5, 1.0], "pattern": "macrodetails-universal/Muscle" },
+		"weight":    {"values": ["minweight", "averageweight", "maxweight"], "steps": [0.0, 0.5, 1.0], "pattern": "macrodetails-universal/Weight" },
+		"proportion":{"values": ["uncommonproportions", "idealproportions"], "steps": [0.0, 1.0], "pattern": "macrodetails-proportions/BodyProportions" },
+		"height":    {"values": ["minheight", "maxheight"], "steps": [0.0, 1.0], "pattern": "macrodetails-height/Height" },
+		"cupsize":   {"values": ["mincup", "averagecup", "maxcup"], "steps": [0.0, 0.5, 1.0], "pattern": "breast/BreastSize" },
+		"firmness":  {"values": ["minfirmness", "averagefirmness", "maxfirmness"], "steps": [0.0, 0.5, 1.0], "pattern": "breast/BreastFirmness" }
+	},
 	"influences": [
-		{ "name": "phenotype-gender-age", "groups": [ "phenotype", "gender", "age" ] },
-		{ "name": "gender-age-muscle-weight", "groups": [ "!universal", "gender", "age", "muscle", "weight" ] },
-		{ "name": "gender-age-muscle-weight-prop", "groups": [ "gender", "age", "muscle", "weight", "proportions" ], "folder": "proportions" },
-		{ "name": "gender-age-muscle-weight-height", "groups": [ "gender", "age", "muscle", "weight", "height" ], "folder": "height" },
-		{ "name": "breastsize-breastfirmness", "groups": [ "gender", "age", "muscle", "weight", "cupsize", "firmness" ], "folder": "breast" }
+		{ "name": "phenotype-gender-age", "comp": [ "phenotype", "gender", "age" ] },
+		{ "name": "gender-age-muscle-weight", "comp": [ "!universal", "gender", "age", "muscle", "weight" ] },
+		{ "name": "gender-age-muscle-weight-prop", "comp": [ "gender", "age", "muscle", "weight", "proportion" ], "folder": "proportions" },
+		{ "name": "gender-age-muscle-weight-height", "comp": [ "gender", "age", "muscle", "weight", "height" ], "folder": "height" },
+		{ "name": "breastsize-breastfirmness", "comp": [ "gender", "age", "muscle", "weight", "cupsize", "firmness" ], "folder": "breast" }
 	]
 }

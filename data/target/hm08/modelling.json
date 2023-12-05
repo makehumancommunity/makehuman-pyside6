@@ -391,15 +391,24 @@
 	},
 	"R-Eye Fold Angle": {
 		"name": "Eyefold Angle",
-		"group": "face|right eye"
+		"group": "face|right eye",
+		"icon": "r-eye-eyefold-angle-down-up.png",
+		"decr": "eyes/r-eye-eyefold-angle-down",
+                "incr": "eyes/r-eye-eyefold-angle-up"
 	},
 	"R-Eye Fold Volume": {
 		"name": "Eyefold Volume",
-		"group": "face|right eye"
+		"group": "face|right eye",
+		"icon": "r-eye-eyefold-concave-convex.png",
+		"decr": "eyes/r-eye-eyefold-concave",
+                "incr": "eyes/r-eye-eyefold-convex"
 	},
 	"R-Eye Fold Pos": {
 		"name": "Eyefold Position",
-		"group": "face|right eye"
+		"group": "face|right eye",
+		"icon": "r-eye-eyefold-down-up.png",
+		"decr": "eyes/r-eye-eyefold-down",
+                "incr": "eyes/r-eye-eyefold-up"
 	},
 	"R-Eye Epicanthus": {
 		"name": "Eye Epicathus",
@@ -477,15 +486,24 @@
 	},
 	"L-Eye Fold Angle": {
 		"name": "Eyefold Angle",
-		"group": "face|left eye"
+		"group": "face|left eye",
+		"icon": "l-eye-eyefold-angle-down-up.png",
+		"decr": "eyes/l-eye-eyefold-angle-down",
+                "incr": "eyes/l-eye-eyefold-angle-up"
 	},
 	"L-Eye Fold Volume": {
 		"name": "Eyefold Volume",
-		"group": "face|left eye"
+		"group": "face|left eye",
+		"icon": "l-eye-eyefold-concave-convex.png",
+		"decr": "eyes/l-eye-eyefold-concave",
+                "incr": "eyes/l-eye-eyefold-convex"
 	},
 	"L-Eye Fold Pos": {
 		"name": "Eyefold Position",
-		"group": "face|left eye"
+		"group": "face|left eye",
+		"icon": "l-eye-eyefold-down-up.png",
+		"decr": "eyes/l-eye-eyefold-down",
+                "incr": "eyes/l-eye-eyefold-up"
 	},
 	"L-Eye Epicanthus": {
 		"name": "Eye Epicathus",
