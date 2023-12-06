@@ -423,15 +423,24 @@
 	},
 	"R-Eye ScaleVer1": {
 		"name": "Eye Scale Inner Height",
-		"group": "face|right eye"
+		"group": "face|right eye",
+		"icon": "r-eye-height1-decr-incr.png",
+		"decr": "eyes/r-eye-height1-decr",
+		"incr": "eyes/r-eye-height1-incr"
 	},
 	"R-Eye ScaleVer2": {
 		"name": "Eye Scale Central Height",
-		"group": "face|right eye"
+		"group": "face|right eye",
+		"icon": "r-eye-height2-decr-incr.png",
+		"decr": "eyes/r-eye-height2-decr",
+		"incr": "eyes/r-eye-height2-incr"
 	},
 	"R-Eye ScaleVer3": {
 		"name": "Eye Scale Outer Height",
-		"group": "face|right eye"
+		"group": "face|right eye",
+		"icon": "r-eye-height3-decr-incr.png",
+		"decr": "eyes/r-eye-height3-decr",
+		"incr": "eyes/r-eye-height3-incr"
 	},
 	"R-Eye MoveHor": {
 		"name": "Move Eye Horizontally",
@@ -518,15 +527,24 @@
 	},
 	"L-Eye ScaleVer1": {
 		"name": "Eye Scale Inner Height",
-		"group": "face|left eye"
+		"group": "face|left eye",
+		"icon": "l-eye-height1-decr-incr.png",
+		"decr": "eyes/l-eye-height1-decr",
+		"incr": "eyes/l-eye-height1-incr"
 	},
 	"L-Eye ScaleVer2": {
 		"name": "Eye Scale Central Height",
-		"group": "face|left eye"
+		"group": "face|left eye",
+		"icon": "l-eye-height2-decr-incr.png",
+		"decr": "eyes/l-eye-height2-decr",
+		"incr": "eyes/l-eye-height2-incr"
 	},
 	"L-Eye ScaleVer3": {
 		"name": "Eye Scale Outer Height",
-		"group": "face|left eye"
+		"group": "face|left eye",
+		"icon": "l-eye-height3-decr-incr.png",
+		"decr": "eyes/l-eye-height3-decr",
+		"incr": "eyes/l-eye-height3-incr"
 	},
 	"L-Eye MoveHor": {
 		"name": "Move Eye Horizontally",

@@ -3,6 +3,30 @@ import sys
 import json
 import numpy as np
 
+class MacroTree:
+    def __init__(self):
+        self.lname = None
+        self.uname = None
+        self.lvalue = 0.0
+        self.uvalue = 0.0
+
+    def first(self, name, value):
+        self.lname = name
+        self.lvalue = value
+
+    def second(self, name, value):
+        if self.lname is None:
+            self.first(name, value)
+        else:
+            self.uname = name
+            self.uvalue = value
+
+    def __str__(self):
+        if self.uname is None:
+            return (self.lname + ": " + str(self.lvalue))
+        else:
+            return (self.lname + ": " + str(self.lvalue) + " / " + self.uname + ": " +str(self.uvalue))
+
 class Modelling:
     def __init__(self, parent, name, icon, tip):
         self.glob     = parent.glob
@@ -117,18 +141,26 @@ class Modelling:
         if self.incr is not None or self.decr is not None:
             self.obj.getInitialCopyForSlider(factor, self.decr, self.incr)
 
-    def nacroCalculation(self):
+    def generateAllMacroWeights(self, targetlist, macroname, factor, weights):
+        if len(weights) > 0:
+            self.generateAllMacroWeights(targetlist, macroname + "-" +  weights[0].lname, factor * weights[0].lvalue, weights[1:])
+            if weights[0].uname is not None:
+                self.generateAllMacroWeights(targetlist, macroname + "-" + weights[0].uname, factor * weights[0].uvalue, weights[1:])
+        else:
+            targetlist.append ({"name": macroname[1:], "factor": factor})
+
+    def macroCalculation(self):
         influences = self.macrodef["influences"]
         components = self.macrodef["components"]
         for l in self.m_influence:
             print ("   " + influences[l]["name"])
             comps = influences[l]["comp"]
+            weightarray = []
             for elem in comps:
                 if elem in components:
                     pattern = components[elem]["pattern"]
                     values  = components[elem]["values"]
-                    print ("\t\t" + str(values))
-                    print ("\t\t" + str(pattern))
+                    print ("\t\tPattern:" +  str(pattern) + " " + str(values))
 
                     if "steps" not in components[elem]:
 
@@ -149,26 +181,37 @@ class Modelling:
                             continue
                         #print (self.target_repo[pattern])
                         current = self.target_repo[pattern].value / 100
-                        print ("\t\tCurrent value " + str(current))
-                        print ("\t\tDivisions: " + str(len(steps)))
+                        print ("\t\tCurrent " + str(current) + " Divisions: " + str(len(steps)))
+                        m = MacroTree()
 
                         for i in range(0,len(steps)-1):
                             if current > steps[i+1]:
                                 continue
                             else:
                                 c = (current - steps[i]) / (steps[i+1] - steps[i])
+                                m = MacroTree()
                                 if c < 0.999:
-                                    print ('\t' * 3 + values[i] + " " + str(1-c))
+                                    m.first(values[i], 1-c)
                                 if c > 0.001:
-                                    print ('\t' * 3 + values[i+1] + " " + str(c))
+                                    m.second(values[i+1], c)
+                                weightarray.append(m)
                                 break
-                        
+            #
+            # all components done
+            targetlist = []
+            self.generateAllMacroWeights(targetlist, "", 1.0, weightarray)
+            for elem in targetlist:
+                print (elem)
+                #
+                # here we got a list of macros to use. they will still should be checked to avoid doubles
+                # normally, then neighboring identical targets should not be used more than one time, just the factor should be changed!
+
 
     def callback(self):
         factor = self.value / 100
         if len(self.m_influence) > 0:
             print ("Macro change " +  str(self.m_influence))
-            self.nacroCalculation()
+            self.macroCalculation()
         elif self.incr is not None or self.decr is not None:
             print("change " + self.name)
             self.obj.updateByTarget(factor, self.decr, self.incr)
