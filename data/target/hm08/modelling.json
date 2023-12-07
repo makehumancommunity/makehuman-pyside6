@@ -448,7 +448,10 @@
 	},
 	"R-Eye OutCorn MoveHor": {
 		"name": "Move Outer Corner Horizontally",
-		"group": "face|right eye"
+		"group": "face|right eye",
+		"icon": "r-eye-push1-in-out.png",
+		"decr": "eyes/r-eye-push1-in",
+		"incr": "eyes/r-eye-push1-out"
 	},
 	"R-Eye OutCorn MoveVer": {
 		"name": "Move Outer Corner Vertically",
@@ -459,7 +462,10 @@
 	},
 	"R-Eye InCorn MoveHor": {
 		"name": "Move Inner Corner Horizontally",
-		"group": "face|right eye"
+		"group": "face|right eye",
+		"icon": "r-eye-push2-in-out.png",
+		"decr": "eyes/r-eye-push2-in",
+		"incr": "eyes/r-eye-push2-out"
 	},
 	"R-Eye InCorn MoveVer": {
 		"name": "Move Inner Corner Vertically",
@@ -552,7 +558,10 @@
 	},
 	"L-Eye OutCorn MoveHor": {
 		"name": "Move Outer Corner Horizontally",
-		"group": "face|left eye"
+		"group": "face|left eye",
+		"icon": "l-eye-push1-in-out.png",
+		"decr": "eyes/l-eye-push1-in",
+		"incr": "eyes/l-eye-push1-out"
 	},
 	"L-Eye OutCorn MoveVer": {
 		"name": "Move Outer Corner Vertically",
@@ -563,7 +572,10 @@
 	},
 	"L-Eye InCorn MoveHor": {
 		"name": "Move Inner Corner Horizontally",
-		"group": "face|left eye"
+		"group": "face|left eye",
+		"icon": "l-eye-push2-in-out.png",
+		"decr": "eyes/l-eye-push2-in",
+		"incr": "eyes/l-eye-push2-out"
 	},
 	"L-Eye InCorn MoveVer": {
 		"name": "Move Inner Corner Vertically",

@@ -152,6 +152,7 @@ class Modelling:
     def macroCalculation(self):
         influences = self.macrodef["influences"]
         components = self.macrodef["components"]
+        targetnames = self.macrodef["target"]
         for l in self.m_influence:
             print ("   " + influences[l]["name"])
             comps = influences[l]["comp"]
@@ -200,12 +201,24 @@ class Modelling:
             # all components done
             targetlist = []
             self.generateAllMacroWeights(targetlist, "", 1.0, weightarray)
-            for elem in targetlist:
-                print (elem)
-                #
-                # here we got a list of macros to use. they will still should be checked to avoid doubles
-                # normally, then neighboring identical targets should not be used more than one time, just the factor should be changed!
 
+            # now the target list is found, last step: use real name and find double targets
+            #
+            sortedtargets = {}
+            l = self.macrodef["targetlink"]
+
+            for elem in targetlist:
+                name = elem["name"]
+                if name in l:
+                    if l[name] in sortedtargets:
+                        sortedtargets[l[name]] += elem["factor"]
+                    else:
+                        sortedtargets[l[name]] = elem["factor"]
+
+            # add them to screen first
+            #
+            for elem in sortedtargets:
+                print (elem, sortedtargets[elem])
 
     def callback(self):
         factor = self.value / 100
@@ -288,6 +301,12 @@ class Targets:
 
         filename = os.path.join(targetpath, "macro.json")
         self.macrodef = self.env.readJSON(filename)
+        l = self.macrodef["targetlink"] = {}
+        if "target" in self.macrodef:
+            for elem in self.macrodef["target"]:
+                if "name" in elem and "t" in elem:
+                    l[elem["name"]] = elem["t"]
+            self.macrodef["target"] = None  # no longer needed
 
         filename = os.path.join(targetpath, "modelling.json")
         targetjson = self.env.readJSON(filename)
