@@ -419,7 +419,10 @@
 	},
 	"R-Eye Scale": {
 		"name": "Scale Eye",
-		"group": "face|right eye"
+		"group": "face|right eye",
+		"icon": "r-eye-scale-decr-incr.png",
+		"decr": "eyes/r-eye-scale-decr",
+		"incr": "eyes/r-eye-scale-incr"
 	},
 	"R-Eye ScaleVer1": {
 		"name": "Eye Scale Inner Height",
@@ -444,7 +447,10 @@
 	},
 	"R-Eye MoveHor": {
 		"name": "Move Eye Horizontally",
-		"group": "face|right eye"
+		"group": "face|right eye",
+		"icon": "r-eye-trans-in-out.png",
+		"decr": "eyes/r-eye-trans-in",
+		"incr": "eyes/r-eye-trans-out"
 	},
 	"R-Eye OutCorn MoveHor": {
 		"name": "Move Outer Corner Horizontally",
@@ -476,7 +482,10 @@
 	},
 	"R-Eye MoveVer": {
 		"name": "Move Eye Vertically",
-		"group": "face|right eye"
+		"group": "face|right eye",
+		"icon": "r-eye-trans-down-up.png",
+		"decr": "eyes/r-eye-trans-down",
+		"incr": "eyes/r-eye-trans-up"
 	},
 	"L-Eye Bag Volume": {
 		"name": "Eye Bag Volume",
@@ -529,7 +538,10 @@
 	},
 	"L-Eye Scale": {
 		"name": "Scale Eye",
-		"group": "face|left eye"
+		"group": "face|left eye",
+		"icon": "l-eye-scale-decr-incr.png",
+		"decr": "eyes/l-eye-scale-decr",
+		"incr": "eyes/l-eye-scale-incr"
 	},
 	"L-Eye ScaleVer1": {
 		"name": "Eye Scale Inner Height",
@@ -554,7 +566,10 @@
 	},
 	"L-Eye MoveHor": {
 		"name": "Move Eye Horizontally",
-		"group": "face|left eye"
+		"group": "face|left eye",
+		"icon": "l-eye-trans-in-out.png",
+		"decr": "eyes/l-eye-trans-in",
+		"incr": "eyes/l-eye-trans-out"
 	},
 	"L-Eye OutCorn MoveHor": {
 		"name": "Move Outer Corner Horizontally",
@@ -586,7 +601,10 @@
 	},
 	"L-Eye MoveVer": {
 		"name": "Move Eye Vertically",
-		"group": "face|left eye"
+		"group": "face|left eye",
+		"icon": "l-eye-trans-down-up.png",
+		"decr": "eyes/l-eye-trans-down",
+		"incr": "eyes/l-eye-trans-up"
 	},
 	"Nose MoveHor": {
 		"name": "Move Horizontally",

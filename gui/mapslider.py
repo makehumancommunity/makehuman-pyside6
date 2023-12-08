@@ -31,6 +31,9 @@ class MapInputWidget(QFrame):
         if info:
             self.displayInfo()
 
+    def getValues(self):
+        return self.values
+
     def DrawMask(self, painter):
         pass
 
@@ -82,7 +85,7 @@ class MapInputWidget(QFrame):
         if self.info is not None:
             self.displayInfo()
         if self.callback is not None:
-           self.callback()
+           self.callback(self)
         self.update()
 
 
@@ -110,6 +113,9 @@ class MapInputWidgetBaryCentric(MapInputWidget):
         self._pix2 = -5
         self._pix3 = fm.horizontalAdvance(self._baryTexts[2]) + 5
         super().__init__(size, framewidth, info, [self.x, self.y], callback)
+
+    def getValues(self):
+        return self.barycentric
 
     def toBaryCentric(self):
         v = self.barycentric

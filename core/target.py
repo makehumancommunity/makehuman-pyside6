@@ -5,27 +5,19 @@ import numpy as np
 
 class MacroTree:
     def __init__(self):
-        self.lname = None
-        self.uname = None
-        self.lvalue = 0.0
-        self.uvalue = 0.0
+        self.names = [ None, None, None ]
+        self.values = [ 0.0, 0.0, 0.0 ]
 
-    def first(self, name, value):
-        self.lname = name
-        self.lvalue = value
-
-    def second(self, name, value):
-        if self.lname is None:
-            self.first(name, value)
-        else:
-            self.uname = name
-            self.uvalue = value
+    def insert(self, name, value):
+        for i in range(0, 3):
+            if self.names[i] is None:
+                self.names[i] = name
+                self.values[i] = value
+                return
 
     def __str__(self):
-        if self.uname is None:
-            return (self.lname + ": " + str(self.lvalue))
-        else:
-            return (self.lname + ": " + str(self.lvalue) + " / " + self.uname + ": " +str(self.uvalue))
+        return (str(self.names) + " " + str(self.values))
+
 
 class Modelling:
     def __init__(self, parent, name, icon, tip):
@@ -99,6 +91,11 @@ class Modelling:
                 {"name": val[1], "text": text[1], "value": value[1] },
                 {"name": val[2], "text": text[2], "value": value[2] } ]
 
+    def set_barycentric(self, val):
+        self.barycentric[0]["value"] = val[0]
+        self.barycentric[1]["value"] = val[1]
+        self.barycentric[2]["value"] = val[2]
+
     def search_pattern(self):
         if self.barycentric:
             self.pattern = self.barycentric
@@ -143,9 +140,9 @@ class Modelling:
 
     def generateAllMacroWeights(self, targetlist, macroname, factor, weights):
         if len(weights) > 0:
-            self.generateAllMacroWeights(targetlist, macroname + "-" +  weights[0].lname, factor * weights[0].lvalue, weights[1:])
-            if weights[0].uname is not None:
-                self.generateAllMacroWeights(targetlist, macroname + "-" + weights[0].uname, factor * weights[0].uvalue, weights[1:])
+            for i in range(0,3):
+                if  weights[0].names[i] is not None:
+                    self.generateAllMacroWeights(targetlist, macroname + "-" +  weights[0].names[i], factor * weights[0].values[i], weights[1:])
         else:
             targetlist.append ({"name": macroname[1:], "factor": factor})
 
@@ -167,15 +164,18 @@ class Modelling:
 
                         # extra for sum of sliders (human phenotype)
                         #
-                        print ("\t\tIdentical")
                         sum = components[elem]["sum"]
+                        m = MacroTree()
                         for i,v in enumerate(values):
                             p = pattern +  sum[i]
                             if p not in self.target_repo:
                                 continue
                             current = self.target_repo[p]
-                            print (self.target_repo[p])
-                            print ("\t\tCurrent value " + str(current.barycentric[i]["value"]))
+                            b = current.barycentric[i]["value"]
+                            if b > 0.001:
+                                print ("\t\tCurrent value " + v + " " + str(b))
+                                m.insert(v, b)
+                        weightarray.append(m)
                     else:
                         steps = components[elem]["steps"]
                         if pattern not in self.target_repo:
@@ -183,7 +183,6 @@ class Modelling:
                         #print (self.target_repo[pattern])
                         current = self.target_repo[pattern].value / 100
                         print ("\t\tCurrent " + str(current) + " Divisions: " + str(len(steps)))
-                        m = MacroTree()
 
                         for i in range(0,len(steps)-1):
                             if current > steps[i+1]:
@@ -192,13 +191,22 @@ class Modelling:
                                 c = (current - steps[i]) / (steps[i+1] - steps[i])
                                 m = MacroTree()
                                 if c < 0.999:
-                                    m.first(values[i], 1-c)
+                                    m.insert(values[i], 1-c)
                                 if c > 0.001:
-                                    m.second(values[i+1], c)
+                                    m.insert(values[i+1], c)
                                 weightarray.append(m)
                                 break
-            #
+                else:
+                    if elem.startswith("!"):
+
+                        # use component as name (always 100%)
+                        #
+                        m = MacroTree()
+                        m.insert(elem[1:], 1.0)
+                        weightarray.append(m)
+
             # all components done
+            #
             targetlist = []
             self.generateAllMacroWeights(targetlist, "", 1.0, weightarray)
 
@@ -208,6 +216,7 @@ class Modelling:
             l = self.macrodef["targetlink"]
 
             for elem in targetlist:
+                print (elem)
                 name = elem["name"]
                 if name in l:
                     if l[name] in sortedtargets:
@@ -220,10 +229,16 @@ class Modelling:
             for elem in sortedtargets:
                 print (elem, sortedtargets[elem])
 
-    def callback(self):
+    def callback(self, param=None):
         factor = self.value / 100
         if len(self.m_influence) > 0:
             print ("Macro change " +  str(self.m_influence))
+
+            # extra parameter to get value from non-standard sliders
+            # 
+            if param is not None:
+                self.set_barycentric(param.getValues())
+
             self.macroCalculation()
         elif self.incr is not None or self.decr is not None:
             print("change " + self.name)
