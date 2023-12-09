@@ -608,27 +608,45 @@
 	},
 	"Nose MoveHor": {
 		"name": "Move Horizontally",
-		"group": "face|nose size"
+		"group": "face|nose size",
+		"icon": "nose-trans-in-out.png",
+		"decr": "nose/nose-trans-in",
+		"incr": "nose/nose-trans-out"
 	},
 	"Nose MoveVer": {
 		"name": "Move Vertically",
-		"group": "face|nose size"
+		"group": "face|nose size",
+		"icon": "nose-trans-down-up.png",
+		"decr": "nose/nose-trans-down",
+		"incr": "nose/nose-trans-up"
 	},
 	"Nose MoveDep": {
 		"name": "Move Depth",
-		"group": "face|nose size"
+		"group": "face|nose size",
+		"icon": "nose-trans-backward-forward.png",
+		"decr": "nose/nose-trans-backward",
+		"incr": "nose/nose-trans-forward"
 	},
 	"Nose ScaleHor": {
 		"name": "Scale Horizontally",
-		"group": "face|nose size"
+		"group": "face|nose size",
+		"icon": "nose-scale-horiz-decr-incr.png",
+		"decr": "nose/nose-scale-horiz-decr",
+		"incr": "nose/nose-scale-horiz-incr"
 	},
 	"Nose ScaleVer": {
 		"name": "Scale Vertically",
-		"group": "face|nose size"
+		"group": "face|nose size",
+		"icon": "nose-scale-vert-decr-incr.png",
+		"decr": "nose/nose-scale-vert-decr",
+		"incr": "nose/nose-scale-vert-incr"
 	},
 	"Nose ScaleDep": {
 		"name": "Scale Depth",
-		"group": "face|nose size"
+		"group": "face|nose size",
+		"icon": "nose-scale-depth-decr-incr.png",
+		"decr": "nose/nose-scale-depth-decr",
+		"incr": "nose/nose-scale-depth-incr"
 	},
 	"Nose Tip ScaleHor": {
 		"name": "Scale Tip Width",

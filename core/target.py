@@ -144,7 +144,8 @@ class Modelling:
                 if  weights[0].names[i] is not None:
                     self.generateAllMacroWeights(targetlist, macroname + "-" +  weights[0].names[i], factor * weights[0].values[i], weights[1:])
         else:
-            targetlist.append ({"name": macroname[1:], "factor": factor})
+            if factor > 0.01:
+                targetlist.append ({"name": macroname[1:], "factor": factor})
 
     def macroCalculation(self):
         influences = self.macrodef["influences"]
