@@ -26,6 +26,7 @@ class Modelling:
         self.refresh  = parent.graphwindow
         self.macrodef = parent.macrodef      # pointer to macrodefinition
         self.target_repo = parent.target_repo # pointer for other targets
+        self.macro_repo = parent.macro_repo # pointer for macro
 
         self.name = name
         self.icon = icon
@@ -47,7 +48,13 @@ class Modelling:
 
     def memInfo(self):
         if self.barycentric:
-            t = [self.name, "barycentric", -1, "barycentric", -1, str(self.pattern), self.value]
+            text = ""
+            value = "0"
+            if isinstance(self.pattern, list):
+                l = self.pattern
+                text  = l[0]["name"] + " " + l[1]["name"] + " " + l[2]["name"]
+                value = str(l[0]["value"] * 100) + " " + str(l[1]["value"] * 100) + "  " + str(l[2]["value"] * 100)
+            t = [self.name, "barycentric", -1, "barycentric", -1, text, value]
         elif self.macro:
             t = [self.name, str(self.macro), -1, str(self.macro), -1, self.pattern, self.value]
         else:
@@ -70,7 +77,7 @@ class Modelling:
         #
         self.m_influence = []
         if self.macrodef is not None:
-            cnt = len(self.macrodef["influences"])
+            cnt = len(self.macrodef["macrodef"])
 
             # test boundaries to avoid crashes
             #
@@ -148,9 +155,8 @@ class Modelling:
                 targetlist.append ({"name": macroname[1:], "factor": factor})
 
     def macroCalculation(self):
-        influences = self.macrodef["influences"]
+        influences = self.macrodef["macrodef"]
         components = self.macrodef["components"]
-        targetnames = self.macrodef["target"]
         for l in self.m_influence:
             print ("   " + influences[l]["name"])
             comps = influences[l]["comp"]
@@ -226,9 +232,13 @@ class Modelling:
                         sortedtargets[l[name]] = elem["factor"]
 
             # add them to screen first
+            # TODO; must be replaced by set command
             #
             for elem in sortedtargets:
-                print (elem, sortedtargets[elem])
+                if elem in self.macro_repo:
+                    print (elem, sortedtargets[elem])
+                    self.obj.updateByTarget(sortedtargets[elem], None, self.macro_repo[elem])
+            self.refresh.Tweak()
 
     def callback(self, param=None):
         factor = self.value / 100
@@ -303,6 +313,7 @@ class Targets:
         self.env = glob.env
         self.modelling_targets = []
         self.target_repo = {} # will contain targets by pattern
+        self.macro_repo = {}  # will contain macro targets
         glob.Targets = self
         self.collection = None
         self.macrodef = None
@@ -318,11 +329,15 @@ class Targets:
         filename = os.path.join(targetpath, "macro.json")
         self.macrodef = self.env.readJSON(filename)
         l = self.macrodef["targetlink"] = {}
-        if "target" in self.macrodef:
-            for elem in self.macrodef["target"]:
-                if "name" in elem and "t" in elem:
-                    l[elem["name"]] = elem["t"]
-            self.macrodef["target"] = None  # no longer needed
+        if "macrodef" in self.macrodef:
+            for mtype in self.macrodef["macrodef"]:
+                if "folder" in mtype:
+                    folder = mtype["folder"]
+                if "targets" in mtype:
+                    for elem in mtype["targets"]:
+                        if "name" in elem and "t" in elem:
+                            l[elem["name"]] = os.path.join(folder, elem["t"])
+                    mtype["targets"] = None  # no longer needed
 
         filename = os.path.join(targetpath, "modelling.json")
         targetjson = self.env.readJSON(filename)
@@ -353,7 +368,18 @@ class Targets:
         if targetjson is None:
             self.env.logLine(1, self.env.last_error )
             return
+        
+        # load macrotargets (atm only system path)
+        #
+        for link in self.macrodef["targetlink"]:
+            name = self.macrodef["targetlink"][link]
+            if name not in self.macro_repo:
+                mt = Morphtarget(self.env, name)
+                mt.loadTextFile(targetpath_sys)
+                self.macro_repo[name] = mt
 
+        # load targets mentioned in modelling.json
+        #
         for name in targetjson:
             t = targetjson[name]
             tip = t["tip"] if "tip" in t else "Select to modify"

@@ -59,7 +59,6 @@ class baseClass():
         # reset all targets and mesh
         #
         self.glob.Targets.reset()
-        self.baseMesh.resetMesh()
 
         for elem in loaded.modifiers:
             name, value = elem.split()
@@ -182,6 +181,7 @@ class baseClass():
         #
         # TODO: reset
         #
+        self.baseMesh.resetMesh()
         targets = self.glob.Targets.modelling_targets
         for target in targets:
             if target.value != 0.0:
