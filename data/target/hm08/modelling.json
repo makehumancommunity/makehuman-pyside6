@@ -1,6 +1,7 @@
 {
 	"Gender": {
 		"group": "main|macro",
+		"tip": "Gender, minimum value is female, maximum value is male.",
 		"macro": "macrodetails/Gender",
 		"macro_influence": [0, 1, 2, 3, 4]
 	},
@@ -650,27 +651,45 @@
 	},
 	"Nose Tip ScaleHor": {
 		"name": "Scale Tip Width",
-		"group": "face|nose details"
+		"group": "face|nose details",
+		"icon": "nose-point-width-decr-incr.png",
+		"decr": "nose/nose-point-width-decr",
+		"incr": "nose/nose-point-width-incr"
 	},
 	"Nose Tip MoveVer": {
 		"name": "Move Tip Vertically",
-		"group": "face|nose details"
+		"group": "face|nose details",
+		"icon": "nose-point-down-up.png",
+		"decr": "nose/nose-point-down",
+		"incr": "nose/nose-point-up"
 	},
 	"Nose Base MoveVer": {
 		"name": "Move Base Vertically",
-		"group": "face|nose details"
+		"group": "face|nose details",
+		"icon": "nose-base-down-up.png",
+		"decr": "nose/nose-base-down",
+		"incr": "nose/nose-base-up"
 	},
 	"Nose ScaleHor1": {
 		"name": "Scale Upper Width",
-		"group": "face|nose details"
+		"group": "face|nose details",
+		"icon": "nose-width1-decr-incr.png",
+		"decr": "nose/nose-width1-decr",
+		"incr": "nose/nose-width1-incr"
 	},
 	"Nose ScaleHor2": {
 		"name": "Scale Central Width",
-		"group": "face|nose details"
+		"group": "face|nose details",
+		"icon": "nose-width2-decr-incr.png",
+		"decr": "nose/nose-width2-decr",
+		"incr": "nose/nose-width2-incr"
 	},
 	"Nose ScaleHor3": {
 		"name": "Scale Lower Width",
-		"group": "face|nose details"
+		"group": "face|nose details",
+		"icon": "nose-width3-decr-incr.png",
+		"decr": "nose/nose-width3-decr",
+		"incr": "nose/nose-width3-incr"
 	},
 	"Nose Compress": {
 		"name": "Compression",
