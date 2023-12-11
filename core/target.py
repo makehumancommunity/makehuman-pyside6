@@ -126,6 +126,8 @@ class Modelling:
             self.pattern = d + "|forward"
         elif d.endswith("-concave") and i.endswith("-convex"):
             self.pattern = d + "|convex"
+        elif d.endswith("-compress") and i.endswith("-uncompress"):
+            self.pattern = d + "|uncompress"
         elif i != "None":
             self.pattern = i
             self.opposite = False
@@ -203,14 +205,6 @@ class Modelling:
                                     m.insert(values[i+1], c)
                                 weightarray.append(m)
                                 break
-                else:
-                    if elem.startswith("!"):
-
-                        # use component as name (always 100%)
-                        #
-                        m = MacroTree()
-                        m.insert(elem[1:], 1.0)
-                        weightarray.append(m)
 
             # all components done
             #
@@ -225,11 +219,12 @@ class Modelling:
             for elem in targetlist:
                 print (elem)
                 name = elem["name"]
-                if name in l:
-                    if l[name] in sortedtargets:
-                        sortedtargets[l[name]] += elem["factor"]
-                    else:
-                        sortedtargets[l[name]] = elem["factor"]
+                if name is not None:
+                    if name in l:
+                        if l[name] in sortedtargets:
+                            sortedtargets[l[name]] += elem["factor"]
+                        else:
+                            sortedtargets[l[name]] = elem["factor"]
 
             # add them to screen first
             # TODO; must be replaced by set command
@@ -336,7 +331,10 @@ class Targets:
                 if "targets" in mtype:
                     for elem in mtype["targets"]:
                         if "name" in elem and "t" in elem:
-                            l[elem["name"]] = os.path.join(folder, elem["t"])
+                            if elem["t"] is not None:
+                                l[elem["name"]] = os.path.join(folder, elem["t"])
+                            else:
+                                l[elem["name"]] = None # to support empty or non-existent targets
                     mtype["targets"] = None  # no longer needed
 
         filename = os.path.join(targetpath, "modelling.json")
@@ -373,7 +371,7 @@ class Targets:
         #
         for link in self.macrodef["targetlink"]:
             name = self.macrodef["targetlink"][link]
-            if name not in self.macro_repo:
+            if name is not None and name not in self.macro_repo:
                 mt = Morphtarget(self.env, name)
                 mt.loadTextFile(targetpath_sys)
                 self.macro_repo[name] = mt

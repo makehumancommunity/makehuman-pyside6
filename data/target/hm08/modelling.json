@@ -693,23 +693,38 @@
 	},
 	"Nose Compress": {
 		"name": "Compression",
-		"group": "face|nose features"
+		"group": "face|nose features",
+		"icon": "nose-compression-compress-uncompress.png",
+		"decr": "nose/nose-compression-compress",
+		"incr": "nose/nose-compression-uncompress"
 	},
 	"Nose Volume": {
 		"name": "Volume",
-		"group": "face|nose features"
+		"group": "face|nose features",
+		"icon": "nose-volume-decr-incr.png",
+		"decr": "nose/nose-volume-decr",
+		"incr": "nose/nose-volume-incr"
 	},
 	"Nose Curve": {
 		"name": "Curve",
-		"group": "face|nose features"
+		"group": "face|nose features",
+		"icon": "nose-curve-concave-convex.png",
+		"decr": "nose/nose-curve-concave",
+		"incr": "nose/nose-curve-convex"
 	},
 	"Nose Greek": {
 		"name": "Greek",
-		"group": "face|nose features"
+		"group": "face|nose features",
+		"icon": "nose-greek-decr-incr.png",
+		"decr": "nose/nose-greek-decr",
+		"incr": "nose/nose-greek-incr"
 	},
 	"Nose Hump": {
 		"name": "Hump",
-		"group": "face|nose features"
+		"group": "face|nose features",
+		"icon": "nose-hump-decr-incr.png",
+		"decr": "nose/nose-hump-decr",
+		"incr": "nose/nose-hump-incr"
 	},
 	"Nose Septum Angle": {
 		"name": "Septum Angle",
