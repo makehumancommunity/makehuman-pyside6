@@ -728,19 +728,31 @@
 	},
 	"Nose Septum Angle": {
 		"name": "Septum Angle",
-		"group": "face|nose features"
+		"group": "face|nose features",
+		"icon": "nose-septumangle-decr-incr.png",
+		"decr": "nose/nose-septumangle-decr",
+		"incr": "nose/nose-septumangle-incr"
 	},
 	"Nose NostrilAngle": {
 		"name": "Nostrils Angle",
-		"group": "face|nose features"
+		"group": "face|nose features",
+		"icon": "nose-nostrils-angle-down-up.png",
+		"decr": "nose/nose-nostrils-angle-down",
+		"incr": "nose/nose-nostrils-angle-up"
 	},
 	"Nose Scale NostrilHor": {
 		"name": "Scale Nostrils Width",
-		"group": "face|nose features"
+		"group": "face|nose features",
+		"icon": "nose-nostrils-width-decr-incr.png",
+		"decr": "nose/nose-nostrils-width-decr",
+		"incr": "nose/nose-nostrils-width-incr"
 	},
 	"Nose Scale NostrilFlare": {
 		"name": "Scale Nostrils Flaring",
-		"group": "face|nose features"
+		"group": "face|nose features",
+		"icon": "nose-flaring-decr-incr.png",
+		"decr": "nose/nose-flaring-decr",
+		"incr": "nose/nose-flaring-incr"
 	},
 	"Mouth ScaleHor": {
 		"name": "Scale Horizontally",
