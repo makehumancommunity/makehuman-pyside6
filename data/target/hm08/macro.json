@@ -11,7 +11,32 @@
 		"firmness":  {"values": ["minfirmness", "averagefirmness", "maxfirmness"], "steps": [0.0, 0.5, 1.0], "pattern": "breast/BreastFirmness" }
 	},
 	"macrodef": [
-		{ "name": "phenotype-gender-age", "comp": [ "phenotype", "gender", "age" ], "folder": "macro_gen", "targets": [] },
+		{ "name": "phenotype-gender-age", "comp": [ "phenotype", "gender", "age" ], "folder": "macro_age", "targets": [
+			{ "name": "african-female-baby.target", "t": "african-female-baby.target" },
+			{ "name": "african-female-child.target", "t": "african-female-child.target" },
+			{ "name": "african-female-old.target", "t": "african-female-old.target" },
+			{ "name": "african-female-young.target", "t": "african-female-young.target" },
+			{ "name": "african-male-baby.target", "t": "african-male-baby.target" },
+			{ "name": "african-male-child.target", "t": "african-male-child.target" },
+			{ "name": "african-male-old.target", "t": "african-male-old.target" },
+			{ "name": "african-male-young.target", "t": "african-male-young.target" },
+			{ "name": "asian-female-baby.target", "t": "asian-female-baby.target" },
+			{ "name": "asian-female-child.target", "t": "asian-female-child.target" },
+			{ "name": "asian-female-old.target", "t": "asian-female-old.target" },
+			{ "name": "asian-female-young.target", "t": "asian-female-young.target" },
+			{ "name": "asian-male-baby.target", "t": "asian-male-baby.target" },
+			{ "name": "asian-male-child.target", "t": "asian-male-child.target" },
+			{ "name": "asian-male-old.target", "t": "asian-male-old.target" },
+			{ "name": "asian-male-young.target", "t": "asian-male-young.target" },
+			{ "name": "caucasian-female-baby.target", "t": "caucasian-female-baby.target" },
+			{ "name": "caucasian-female-child.target", "t": "caucasian-female-child.target" },
+			{ "name": "caucasian-female-old.target", "t": "caucasian-female-old.target" },
+			{ "name": "caucasian-female-young.target", "t": "caucasian-female-young.target" },
+			{ "name": "caucasian-male-baby.target", "t": "caucasian-male-baby.target" },
+			{ "name": "caucasian-male-child.target", "t": "caucasian-male-child.target" },
+			{ "name": "caucasian-male-old.target", "t": "caucasian-male-old.target" },
+			{ "name": "caucasian-male-young.target", "t": "caucasian-male-young.target" }
+		] },
 		{ "name": "gender-age-muscle-weight", "comp": [ "gender", "age", "muscle", "weight" ], "folder": "macro_muscle", "targets": [
 			{ "name": "female-baby-averagemuscle-averageweight",	"t": null },
 			{ "name": "female-baby-averagemuscle-maxweight",	"t": "female-baby-averagemuscle-maxweight" },
