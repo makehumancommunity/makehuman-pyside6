@@ -367,6 +367,276 @@
                         { "name": "male-young-minmuscle-minweight-maxheight",		"t": "universal-youngold-allmuscle-allweight-maxheight"  },
 			{ "name": "male-young-minmuscle-minweight-minheight",		"t": "male-young-minmuscle-minweight-minheight" }
 		] },
-		{ "name": "breastsize-breastfirmness", "comp": [ "gender", "age", "muscle", "weight", "cupsize", "firmness" ], "folder": "breast", "targets": [] }
+		{ "name": "breastsize-breastfirmness", "comp": [ "gender", "age", "muscle", "weight", "cupsize", "firmness" ], "folder": "macro_fembreast", "targets": [
+			{ "name": "female-child-averagemuscle-averageweight-averagecup-maxfirmness",	"t": "child-averagemuscle-averageweight-averagecup-maxfirmness" },
+			{ "name": "female-child-averagemuscle-averageweight-averagecup-minfirmness",	"t": "child-averagemuscle-averageweight-averagecup-minfirmness" },
+
+			{ "name": "female-child-averagemuscle-averageweight-maxcup-averagefirmness",	"t": "child-averagemuscle-averageweight-maxcup-averagefirmness" },
+			{ "name": "female-child-averagemuscle-averageweight-maxcup-maxfirmness",	"t": "child-averagemuscle-averageweight-maxcup-maxfirmness" },
+			{ "name": "female-child-averagemuscle-averageweight-maxcup-minfirmness",	"t": "child-averagemuscle-averageweight-maxcup-minfirmness" },
+			{ "name": "female-child-averagemuscle-averageweight-mincup-averagefirmness",	"t": "child-averagemuscle-averageweight-mincup-allfirmness" },
+			{ "name": "female-child-averagemuscle-averageweight-mincup-maxfirmness",	"t": "child-averagemuscle-averageweight-mincup-allfirmness" },
+			{ "name": "female-child-averagemuscle-averageweight-mincup-minfirmness",	"t": "child-averagemuscle-averageweight-mincup-allfirmness" },
+
+			{ "name": "female-child-averagemuscle-maxweight-averagecup-maxfirmness",	"t": "child-averagemuscle-maxweight-averagecup-maxfirmness" },
+			{ "name": "female-child-averagemuscle-maxweight-averagecup-minfirmness",	"t": "child-maxavgmuscle-allweight-averagecup-minfirmness" },
+
+			{ "name": "female-child-averagemuscle-maxweight-maxcup-averagefirmness",	"t": "child-averagemuscle-maxweight-maxcup-averagefirmness" },
+			{ "name": "female-child-averagemuscle-maxweight-maxcup-maxfirmness",		"t": "child-averagemuscle-maxweight-maxcup-maxfirmness" },
+			{ "name": "female-child-averagemuscle-maxweight-maxcup-minfirmness",		"t": "child-averagemuscle-maxweight-maxcup-minfirmness" },
+			{ "name": "female-child-averagemuscle-maxweight-mincup-averagefirmness",	"t": "child-minavgmuscle-maxweight-mincup-allfirmness" },
+			{ "name": "female-child-averagemuscle-maxweight-mincup-maxfirmness",		"t": "child-minavgmuscle-maxweight-mincup-allfirmness" },
+			{ "name": "female-child-averagemuscle-maxweight-mincup-minfirmness",		"t": "child-minavgmuscle-maxweight-mincup-allfirmness" },
+
+			{ "name": "female-child-averagemuscle-minweight-averagecup-maxfirmness",	"t": "child-averagemuscle-minweight-averagecup-maxfirmness" },
+			{ "name": "female-child-averagemuscle-minweight-averagecup-minfirmness",	"t": "child-maxavgmuscle-allweight-averagecup-minfirmness" },
+
+			{ "name": "female-child-averagemuscle-minweight-maxcup-averagefirmness",	"t": "child-averagemuscle-minweight-maxcup-averagefirmness" },
+			{ "name": "female-child-averagemuscle-minweight-maxcup-maxfirmness",		"t": "child-averagemuscle-minweight-maxcup-maxfirmness" },
+			{ "name": "female-child-averagemuscle-minweight-maxcup-minfirmness",		"t": "child-averagemuscle-minweight-maxcup-minfirmness" },
+			{ "name": "female-child-averagemuscle-minweight-mincup-averagefirmness",	"t": "child-averagemuscle-minweight-mincup-allfirmness" },
+			{ "name": "female-child-averagemuscle-minweight-mincup-maxfirmness",		"t": "child-averagemuscle-minweight-mincup-allfirmness" },
+			{ "name": "female-child-averagemuscle-minweight-mincup-minfirmness",		"t": "child-averagemuscle-minweight-mincup-allfirmness" },
+
+			{ "name": "female-child-maxmuscle-averageweight-averagecup-maxfirmness",	"t": "child-maxmuscle-averageweight-averagecup-maxfirmness" },
+			{ "name": "female-child-maxmuscle-averageweight-averagecup-minfirmness",	"t": "child-maxavgmuscle-allweight-averagecup-minfirmness" },
+
+			{ "name": "female-child-maxmuscle-averageweight-maxcup-averagefirmness",	"t": "child-maxmuscle-averageweight-maxcup-averagefirmness" },
+			{ "name": "female-child-maxmuscle-averageweight-maxcup-maxfirmness",		"t": "child-maxmuscle-averageweight-maxcup-maxfirmness" },
+			{ "name": "female-child-maxmuscle-averageweight-maxcup-minfirmness",		"t": "child-maxmuscle-averageweight-maxcup-minfirmness" },
+			{ "name": "female-child-maxmuscle-averageweight-mincup-averagefirmness",	"t": "child-maxmuscle-averageweight-mincup-allfirmness" },
+			{ "name": "female-child-maxmuscle-averageweight-mincup-maxfirmness",		"t": "child-maxmuscle-averageweight-mincup-allfirmness" },
+			{ "name": "female-child-maxmuscle-averageweight-mincup-minfirmness",		"t": "child-maxmuscle-averageweight-mincup-allfirmness" },
+
+			{ "name": "female-child-maxmuscle-maxweight-averagecup-maxfirmness",		"t": "child-maxmuscle-maxweight-averagecup-maxfirmness" },
+			{ "name": "female-child-maxmuscle-maxweight-averagecup-minfirmness",		"t": "child-maxavgmuscle-allweight-averagecup-minfirmness" },
+
+			{ "name": "female-child-maxmuscle-maxweight-maxcup-averagefirmness",		"t": "child-maxmuscle-maxweight-maxcup-averagefirmness" },
+			{ "name": "female-child-maxmuscle-maxweight-maxcup-maxfirmness",		"t": "child-maxmuscle-maxweight-maxcup-maxfirmness" },
+			{ "name": "female-child-maxmuscle-maxweight-maxcup-minfirmness",		"t": "child-maxmuscle-maxweight-maxcup-minfirmness" },
+			{ "name": "female-child-maxmuscle-maxweight-mincup-averagefirmness",		"t": "child-maxmuscle-maxweight-mincup-allfirmness" },
+			{ "name": "female-child-maxmuscle-maxweight-mincup-maxfirmness",		"t": "child-maxmuscle-maxweight-mincup-allfirmness" },
+			{ "name": "female-child-maxmuscle-maxweight-mincup-minfirmness",		"t": "child-maxmuscle-maxweight-mincup-allfirmness" },
+
+			{ "name": "female-child-maxmuscle-minweight-averagecup-maxfirmness",		"t": "child-maxmuscle-minweight-averagecup-maxfirmness" },
+			{ "name": "female-child-maxmuscle-minweight-averagecup-minfirmness",		"t": "child-maxavgmuscle-allweight-averagecup-minfirmness" },
+
+			{ "name": "female-child-maxmuscle-minweight-maxcup-averagefirmness",		"t": "child-maxmuscle-minweight-maxcup-averagefirmness" },
+			{ "name": "female-child-maxmuscle-minweight-maxcup-maxfirmness",		"t": "child-maxmuscle-minweight-maxcup-maxfirmness" },
+			{ "name": "female-child-maxmuscle-minweight-maxcup-minfirmness",		"t": "child-maxmuscle-minweight-maxcup-minfirmness" },
+			{ "name": "female-child-maxmuscle-minweight-mincup-averagefirmness",		"t": "child-maxmuscle-minweight-mincup-allfirmness" },
+			{ "name": "female-child-maxmuscle-minweight-mincup-maxfirmness",		"t": "child-maxmuscle-minweight-mincup-allfirmness" },
+			{ "name": "female-child-maxmuscle-minweight-mincup-minfirmness",		"t": "child-maxmuscle-minweight-mincup-allfirmness" },
+
+			{ "name": "female-child-minmuscle-averageweight-averagecup-maxfirmness",	"t": "child-minmuscle-maxweight-averagecup-maxfirmness" },
+			{ "name": "female-child-minmuscle-averageweight-averagecup-minfirmness",	"t": "child-minmuscle-maxweight-averagecup-minfirmness" },
+
+			{ "name": "female-child-minmuscle-averageweight-maxcup-averagefirmness",	"t": "child-minmuscle-averageweight-maxcup-averagefirmness" },
+			{ "name": "female-child-minmuscle-averageweight-maxcup-maxfirmness",		"t": "child-minmuscle-averageweight-maxcup-maxfirmness" },
+			{ "name": "female-child-minmuscle-averageweight-maxcup-minfirmness",		"t": "child-minmuscle-averageweight-maxcup-minfirmness" },
+			{ "name": "female-child-minmuscle-averageweight-mincup-averagefirmness",	"t": "child-minavgmuscle-maxweight-mincup-allfirmness" },
+			{ "name": "female-child-minmuscle-averageweight-mincup-maxfirmness",		"t": "child-minavgmuscle-maxweight-mincup-allfirmness" },
+			{ "name": "female-child-minmuscle-averageweight-mincup-minfirmness",		"t": "child-minavgmuscle-maxweight-mincup-allfirmness" },
+
+			{ "name": "female-child-minmuscle-maxweight-averagecup-maxfirmness",		"t": "child-minmuscle-maxweight-averagecup-maxfirmness" },
+			{ "name": "female-child-minmuscle-maxweight-averagecup-minfirmness",		"t": "child-minmuscle-maxweight-averagecup-minfirmness" },
+
+			{ "name": "female-child-minmuscle-maxweight-maxcup-averagefirmness",		"t": "child-minmuscle-maxweight-maxcup-averagefirmness" },
+			{ "name": "female-child-minmuscle-maxweight-maxcup-maxfirmness",		"t": "child-minmuscle-maxweight-maxcup-maxfirmness" },
+			{ "name": "female-child-minmuscle-maxweight-maxcup-minfirmness",		"t": "child-minmuscle-maxweight-maxcup-minfirmness" },
+			{ "name": "female-child-minmuscle-maxweight-mincup-averagefirmness",		"t": "child-minmuscle-maxweight-mincup-allfirmness" },
+			{ "name": "female-child-minmuscle-maxweight-mincup-maxfirmness",		"t": "child-minmuscle-maxweight-mincup-allfirmness" },
+			{ "name": "female-child-minmuscle-maxweight-mincup-minfirmness",		"t": "child-minmuscle-maxweight-mincup-allfirmness" },
+
+			{ "name": "female-child-minmuscle-minweight-averagecup-maxfirmness",		"t": "child-minmuscle-minweight-averagecup-maxfirmness" },
+			{ "name": "female-child-minmuscle-minweight-averagecup-minfirmness",		"t": "child-minmuscle-minweight-averagecup-minfirmness" },
+
+			{ "name": "female-child-minmuscle-minweight-maxcup-averagefirmness",		"t": "child-minmuscle-minweight-maxcup-averagefirmness" },
+			{ "name": "female-child-minmuscle-minweight-maxcup-maxfirmness",		"t": "child-minmuscle-minweight-maxcup-maxfirmness" },
+			{ "name": "female-child-minmuscle-minweight-maxcup-minfirmness",		"t": "child-minmuscle-minweight-maxcup-minfirmness" },
+			{ "name": "female-child-minmuscle-minweight-mincup-averagefirmness",		"t": "child-minmuscle-minweight-mincup-allfirmness" },
+			{ "name": "female-child-minmuscle-minweight-mincup-maxfirmness",		"t": "child-minmuscle-minweight-mincup-allfirmness" },
+			{ "name": "female-child-minmuscle-minweight-mincup-minfirmness",		"t": "child-minmuscle-minweight-mincup-allfirmness" },
+
+			{ "name": "female-old-averagemuscle-averageweight-averagecup-maxfirmness",	"t": "old-averagemuscle-averageweight-averagecup-maxfirmness" },
+			{ "name": "female-old-averagemuscle-averageweight-averagecup-minfirmness",	"t": "old-averagemuscle-averageweight-averagecup-minfirmness" },
+
+			{ "name": "female-old-averagemuscle-averageweight-maxcup-averagefirmness",	"t": "old-averagemuscle-averageweight-maxcup-averagefirmness" },
+			{ "name": "female-old-averagemuscle-averageweight-maxcup-maxfirmness",		"t": "old-averagemuscle-averageweight-maxcup-maxfirmness" },
+			{ "name": "female-old-averagemuscle-averageweight-maxcup-minfirmness",		"t": "old-averagemuscle-averageweight-maxcup-minfirmness" },
+			{ "name": "female-old-averagemuscle-averageweight-mincup-averagefirmness",	"t": "old-averagemuscle-averageweight-mincup-allfirmness" },
+			{ "name": "female-old-averagemuscle-averageweight-mincup-maxfirmness",		"t": "old-averagemuscle-averageweight-mincup-allfirmness" },
+			{ "name": "female-old-averagemuscle-averageweight-mincup-minfirmness",		"t": "old-averagemuscle-averageweight-mincup-allfirmness" },
+
+			{ "name": "female-old-averagemuscle-maxweight-averagecup-maxfirmness",		"t": "old-averagemuscle-maxweight-averagecup-maxfirmness" },
+			{ "name": "female-old-averagemuscle-maxweight-averagecup-minfirmness",		"t": "old-averagemuscle-maxweight-averagecup-minfirmness" },
+
+			{ "name": "female-old-averagemuscle-maxweight-maxcup-averagefirmness",		"t": "old-averagemuscle-maxweight-maxcup-averagefirmness" },
+			{ "name": "female-old-averagemuscle-maxweight-maxcup-maxfirmness",		"t": "old-averagemuscle-maxweight-maxcup-maxfirmness" },
+			{ "name": "female-old-averagemuscle-maxweight-maxcup-minfirmness",		"t": "old-averagemuscle-maxweight-maxcup-minfirmness" },
+			{ "name": "female-old-averagemuscle-maxweight-mincup-averagefirmness",		"t": "old-averagemuscle-maxweight-mincup-allfirmness" },
+			{ "name": "female-old-averagemuscle-maxweight-mincup-maxfirmness",		"t": "old-averagemuscle-maxweight-mincup-allfirmness" },
+			{ "name": "female-old-averagemuscle-maxweight-mincup-minfirmness",		"t": "old-averagemuscle-maxweight-mincup-allfirmness" },
+
+			{ "name": "female-old-averagemuscle-minweight-averagecup-maxfirmness",		"t": "old-averagemuscle-minweight-averagecup-allfirmness" },
+			{ "name": "female-old-averagemuscle-minweight-averagecup-minfirmness",		"t": "old-averagemuscle-minweight-averagecup-allfirmness" },
+
+			{ "name": "female-old-averagemuscle-minweight-maxcup-averagefirmness",		"t": "old-averagemuscle-minweight-maxcup-averagefirmness" },
+			{ "name": "female-old-averagemuscle-minweight-maxcup-maxfirmness",		"t": "old-averagemuscle-minweight-maxcup-maxfirmness" },
+			{ "name": "female-old-averagemuscle-minweight-maxcup-minfirmness",		"t": "old-averagemuscle-minweight-maxcup-minfirmness" },
+			{ "name": "female-old-averagemuscle-minweight-mincup-averagefirmness",		"t": "old-averagemuscle-minweight-mincup-allfirmness" },
+			{ "name": "female-old-averagemuscle-minweight-mincup-maxfirmness",		"t": "old-averagemuscle-minweight-mincup-allfirmness" },
+			{ "name": "female-old-averagemuscle-minweight-mincup-minfirmness",		"t": "old-averagemuscle-minweight-mincup-allfirmness" },
+
+			{ "name": "female-old-maxmuscle-averageweight-averagecup-maxfirmness",		"t": "old-maxmuscle-averageweight-averagecup-maxfirmness" },
+			{ "name": "female-old-maxmuscle-averageweight-averagecup-minfirmness",		"t": "old-maxmuscle-averageweight-averagecup-minfirmness" },
+
+			{ "name": "female-old-maxmuscle-averageweight-maxcup-averagefirmness",		"t": "old-maxmuscle-averageweight-maxcup-averagefirmness" },
+			{ "name": "female-old-maxmuscle-averageweight-maxcup-maxfirmness",		"t": "old-maxmuscle-averageweight-maxcup-maxfirmness" },
+			{ "name": "female-old-maxmuscle-averageweight-maxcup-minfirmness",		"t": "old-maxmuscle-averageweight-maxcup-minfirmness" },
+			{ "name": "female-old-maxmuscle-averageweight-mincup-averagefirmness",		"t": "old-maxmuscle-averageweight-mincup-allfirmness" },
+			{ "name": "female-old-maxmuscle-averageweight-mincup-maxfirmness",		"t": "old-maxmuscle-averageweight-mincup-allfirmness" },
+			{ "name": "female-old-maxmuscle-averageweight-mincup-minfirmness",		"t": "old-maxmuscle-averageweight-mincup-allfirmness" },
+
+			{ "name": "female-old-maxmuscle-maxweight-averagecup-maxfirmness",		"t": "old-maxmuscle-maxweight-avgmaxcup-maxfirmness" },
+			{ "name": "female-old-maxmuscle-maxweight-averagecup-minfirmness",		"t": "old-maxmuscle-maxweight-averagecup-minfirmness" },
+
+			{ "name": "female-old-maxmuscle-maxweight-maxcup-averagefirmness",		"t": "old-maxmuscle-maxweight-maxcup-averagefirmness" },
+			{ "name": "female-old-maxmuscle-maxweight-maxcup-maxfirmness",			"t": "old-maxmuscle-maxweight-avgmaxcup-maxfirmness" },
+			{ "name": "female-old-maxmuscle-maxweight-maxcup-minfirmness",			"t": "old-maxmuscle-maxweight-maxcup-minfirmness" },
+			{ "name": "female-old-maxmuscle-maxweight-mincup-averagefirmness",		"t": "old-maxmuscle-maxweight-mincup-allfirmness" },
+			{ "name": "female-old-maxmuscle-maxweight-mincup-maxfirmness",			"t": "old-maxmuscle-maxweight-mincup-allfirmness" },
+			{ "name": "female-old-maxmuscle-maxweight-mincup-minfirmness",			"t": "old-maxmuscle-maxweight-mincup-allfirmness" },
+
+			{ "name": "female-old-maxmuscle-minweight-averagecup-maxfirmness",		"t": "old-maxmuscle-minweight-averagecup-maxfirmness" },
+			{ "name": "female-old-maxmuscle-minweight-averagecup-minfirmness",		"t": "old-maxmuscle-minweight-averagecup-minfirmness" },
+
+			{ "name": "female-old-maxmuscle-minweight-maxcup-averagefirmness",		"t": "old-maxmuscle-minweight-maxcup-averagefirmness" },
+			{ "name": "female-old-maxmuscle-minweight-maxcup-maxfirmness",			"t": "old-maxmuscle-minweight-maxcup-maxfirmness" },
+			{ "name": "female-old-maxmuscle-minweight-maxcup-minfirmness",			"t": "old-maxmuscle-minweight-maxcup-minfirmness" },
+			{ "name": "female-old-maxmuscle-minweight-mincup-averagefirmness",		"t": "old-maxmuscle-minweight-mincup-allfirmness" },
+			{ "name": "female-old-maxmuscle-minweight-mincup-maxfirmness",			"t": "old-maxmuscle-minweight-mincup-allfirmness" },
+			{ "name": "female-old-maxmuscle-minweight-mincup-minfirmness",			"t": "old-maxmuscle-minweight-mincup-allfirmness" },
+
+			{ "name": "female-old-minmuscle-averageweight-averagecup-maxfirmness",		"t": "old-minmuscle-averageweight-averagecup-maxfirmness" },
+			{ "name": "female-old-minmuscle-averageweight-averagecup-minfirmness",		"t": "old-minmuscle-averageweight-averagecup-minfirmness" },
+
+			{ "name": "female-old-minmuscle-averageweight-maxcup-averagefirmness",		"t": "old-minmuscle-averageweight-maxcup-averagefirmness" },
+			{ "name": "female-old-minmuscle-averageweight-maxcup-maxfirmness",		"t": "old-minmuscle-averageweight-maxcup-maxfirmness" },
+			{ "name": "female-old-minmuscle-averageweight-maxcup-minfirmness",		"t": "old-minmuscle-averageweight-maxcup-minfirmness" },
+			{ "name": "female-old-minmuscle-averageweight-mincup-averagefirmness",		"t": "old-minmuscle-averageweight-mincup-allfirmness" },
+			{ "name": "female-old-minmuscle-averageweight-mincup-maxfirmness",		"t": "old-minmuscle-averageweight-mincup-allfirmness" },
+			{ "name": "female-old-minmuscle-averageweight-mincup-minfirmness",		"t": "old-minmuscle-averageweight-mincup-allfirmness" },
+
+			{ "name": "female-old-minmuscle-maxweight-averagecup-maxfirmness",		"t": "old-minmuscle-maxweight-averagecup-maxfirmness" },
+			{ "name": "female-old-minmuscle-maxweight-averagecup-minfirmness",		"t": "old-minmuscle-maxweight-averagecup-minfirmness" },
+
+			{ "name": "female-old-minmuscle-maxweight-maxcup-averagefirmness",		"t": "old-minmuscle-maxweight-maxcup-averagefirmness" },
+			{ "name": "female-old-minmuscle-maxweight-maxcup-maxfirmness",			"t": "old-minmuscle-maxweight-maxcup-maxfirmness" },
+			{ "name": "female-old-minmuscle-maxweight-maxcup-minfirmness",			"t": "old-minmuscle-maxweight-maxcup-minfirmness" },
+			{ "name": "female-old-minmuscle-maxweight-mincup-averagefirmness",		"t": "old-minmuscle-maxweight-mincup-allfirmness" },
+			{ "name": "female-old-minmuscle-maxweight-mincup-maxfirmness",			"t": "old-minmuscle-maxweight-mincup-allfirmness" },
+			{ "name": "female-old-minmuscle-maxweight-mincup-minfirmness",			"t": "old-minmuscle-maxweight-mincup-allfirmness" },
+
+			{ "name": "female-old-minmuscle-minweight-averagecup-maxfirmness",		"t": "old-minmuscle-minweight-averagecup-maxfirmness" },
+			{ "name": "female-old-minmuscle-minweight-averagecup-minfirmness",		"t": "old-minmuscle-minweight-averagecup-minfirmness" },
+
+			{ "name": "female-old-minmuscle-minweight-maxcup-averagefirmness",		"t": null },
+			{ "name": "female-old-minmuscle-minweight-maxcup-maxfirmness",			"t": "old-minmuscle-minweight-maxcup-maxfirmness" },
+			{ "name": "female-old-minmuscle-minweight-maxcup-minfirmness",			"t": "old-minmuscle-minweight-maxcup-minfirmness" },
+			{ "name": "female-old-minmuscle-minweight-mincup-averagefirmness",		"t": "old-minmuscle-minweight-mincup-allfirmness" },
+			{ "name": "female-old-minmuscle-minweight-mincup-maxfirmness",			"t": "old-minmuscle-minweight-mincup-allfirmness" },
+			{ "name": "female-old-minmuscle-minweight-mincup-minfirmness",			"t": "old-minmuscle-minweight-mincup-allfirmness" },
+
+			{ "name": "female-young-averagemuscle-averageweight-averagecup-maxfirmness",	"t": "young-averagemuscle-averageweight-averagecup-maxfirmness" },
+			{ "name": "female-young-averagemuscle-averageweight-averagecup-minfirmness",	"t": "young-averagemuscle-averageweight-averagecup-minfirmness" },
+
+			{ "name": "female-young-averagemuscle-averageweight-maxcup-averagefirmness",	"t": "young-averagemuscle-averageweight-maxcup-averagefirmness" },
+			{ "name": "female-young-averagemuscle-averageweight-maxcup-maxfirmness",	"t": "young-averagemuscle-averageweight-maxcup-maxfirmness" },
+			{ "name": "female-young-averagemuscle-averageweight-maxcup-minfirmness",	"t": "young-averagemuscle-averageweight-maxcup-minfirmness" },
+			{ "name": "female-young-averagemuscle-averageweight-mincup-averagefirmness",	"t": "young-averagemuscle-averageweight-mincup-allfirmness" },
+			{ "name": "female-young-averagemuscle-averageweight-mincup-maxfirmness",	"t": "young-averagemuscle-averageweight-mincup-allfirmness" },
+			{ "name": "female-young-averagemuscle-averageweight-mincup-minfirmness",	"t": "young-averagemuscle-averageweight-mincup-allfirmness" },
+
+			{ "name": "female-young-averagemuscle-maxweight-averagecup-maxfirmness",	"t": "young-averagemuscle-maxweight-averagecup-maxfirmness" },
+			{ "name": "female-young-averagemuscle-maxweight-averagecup-minfirmness",	"t": "young-averagemuscle-maxweight-averagecup-minfirmness" },
+
+			{ "name": "female-young-averagemuscle-maxweight-maxcup-averagefirmness",	"t": "young-averagemuscle-maxweight-maxcup-averagefirmness" },
+			{ "name": "female-young-averagemuscle-maxweight-maxcup-maxfirmness",		"t": "young-averagemuscle-maxweight-maxcup-maxfirmness" },
+			{ "name": "female-young-averagemuscle-maxweight-maxcup-minfirmness",		"t": "young-averagemuscle-maxweight-maxcup-minfirmness" },
+			{ "name": "female-young-averagemuscle-maxweight-mincup-averagefirmness",	"t": "young-averagemuscle-maxweight-mincup-allfirmness" },
+			{ "name": "female-young-averagemuscle-maxweight-mincup-maxfirmness",		"t": "young-averagemuscle-maxweight-mincup-allfirmness" },
+			{ "name": "female-young-averagemuscle-maxweight-mincup-minfirmness",		"t": "young-averagemuscle-maxweight-mincup-allfirmness" },
+
+			{ "name": "female-young-averagemuscle-minweight-averagecup-maxfirmness",	"t": "young-allmuscle-minweight-averagecup-maxfirmness" },
+			{ "name": "female-young-averagemuscle-minweight-averagecup-minfirmness",	"t": "young-minavgmuscle-minweight-averagecup-minfirmness" },
+
+			{ "name": "female-young-averagemuscle-minweight-maxcup-averagefirmness",	"t": "young-averagemuscle-minweight-maxcup-averagefirmness" },
+			{ "name": "female-young-averagemuscle-minweight-maxcup-maxfirmness",		"t": "young-averagemuscle-minweight-maxcup-maxfirmness" },
+			{ "name": "female-young-averagemuscle-minweight-maxcup-minfirmness",		"t": "young-averagemuscle-minweight-maxcup-minfirmness" },
+			{ "name": "female-young-averagemuscle-minweight-mincup-averagefirmness",	"t": "young-averagemuscle-minweight-mincup-averagefirmness" },
+			{ "name": "female-young-averagemuscle-minweight-mincup-maxfirmness",		"t": "young-averagemuscle-minweight-mincup-maxfirmness" },
+			{ "name": "female-young-averagemuscle-minweight-mincup-minfirmness",		"t": "young-averagemuscle-minweight-mincup-minfirmness" },
+
+			{ "name": "female-young-maxmuscle-averageweight-averagecup-maxfirmness",	"t": "young-maxmuscle-averageweight-averagecup-maxfirmness" },
+			{ "name": "female-young-maxmuscle-averageweight-averagecup-minfirmness",	"t": "young-maxmuscle-averageweight-averagecup-minfirmness" },
+
+			{ "name": "female-young-maxmuscle-averageweight-maxcup-averagefirmness",	"t": "young-maxmuscle-averageweight-maxcup-averagefirmness" },
+			{ "name": "female-young-maxmuscle-averageweight-maxcup-maxfirmness",		"t": "young-maxmuscle-averageweight-maxcup-maxfirmness" },
+			{ "name": "female-young-maxmuscle-averageweight-maxcup-minfirmness",		"t": "young-maxmuscle-averageweight-maxcup-minfirmness" },
+			{ "name": "female-young-maxmuscle-averageweight-mincup-averagefirmness",	"t": "young-maxmuscle-averageweight-mincup-avgmaxfirmness" },
+			{ "name": "female-young-maxmuscle-averageweight-mincup-maxfirmness",		"t": "young-maxmuscle-averageweight-mincup-avgmaxfirmness" },
+			{ "name": "female-young-maxmuscle-averageweight-mincup-minfirmness",		"t": "young-maxmuscle-averageweight-mincup-minfirmness" },
+
+			{ "name": "female-young-maxmuscle-maxweight-averagecup-maxfirmness",		"t": "young-maxmuscle-maxweight-averagecup-maxfirmness" },
+			{ "name": "female-young-maxmuscle-maxweight-averagecup-minfirmness",		"t": "young-maxmuscle-maxweight-averagecup-minfirmness" },
+
+			{ "name": "female-young-maxmuscle-maxweight-maxcup-averagefirmness",		"t": "young-maxmuscle-maxweight-maxcup-averagefirmness" },
+			{ "name": "female-young-maxmuscle-maxweight-maxcup-maxfirmness",		"t": "young-maxmuscle-maxweight-maxcup-maxfirmness" },
+			{ "name": "female-young-maxmuscle-maxweight-maxcup-minfirmness",		"t": "young-maxmuscle-maxweight-maxcup-minfirmness" },
+			{ "name": "female-young-maxmuscle-maxweight-mincup-averagefirmness",		"t": "young-maxmuscle-maxweight-mincup-averagefirmness" },
+			{ "name": "female-young-maxmuscle-maxweight-mincup-maxfirmness",		"t": "young-maxmuscle-maxweight-mincup-maxfirmness" },
+			{ "name": "female-young-maxmuscle-maxweight-mincup-minfirmness",		"t": "young-maxmuscle-maxweight-mincup-minfirmness" },
+
+			{ "name": "female-young-maxmuscle-minweight-averagecup-maxfirmness",		"t": "young-allmuscle-minweight-averagecup-maxfirmness" },
+			{ "name": "female-young-maxmuscle-minweight-averagecup-minfirmness",		"t": "young-maxmuscle-minweight-averagecup-minfirmness" },
+
+			{ "name": "female-young-maxmuscle-minweight-maxcup-averagefirmness",		"t": "young-maxmuscle-minweight-maxcup-averagefirmness" },
+			{ "name": "female-young-maxmuscle-minweight-maxcup-maxfirmness",		"t": "young-maxmuscle-minweight-maxcup-maxfirmness" },
+			{ "name": "female-young-maxmuscle-minweight-maxcup-minfirmness",		"t": "young-maxmuscle-minweight-maxcup-minfirmness" },
+			{ "name": "female-young-maxmuscle-minweight-mincup-averagefirmness",		"t": "young-maxmuscle-minweight-mincup-averagefirmness" },
+			{ "name": "female-young-maxmuscle-minweight-mincup-maxfirmness",		"t": "young-maxmuscle-minweight-mincup-maxfirmness" },
+			{ "name": "female-young-maxmuscle-minweight-mincup-minfirmness",		"t": "young-maxmuscle-minweight-mincup-minfirmness" },
+
+			{ "name": "female-young-minmuscle-averageweight-averagecup-maxfirmness",	"t": "young-minmuscle-averageweight-averagecup-maxfirmness" },
+			{ "name": "female-young-minmuscle-averageweight-averagecup-minfirmness",	"t": "young-minmuscle-averageweight-averagecup-minfirmness" },
+
+			{ "name": "female-young-minmuscle-averageweight-maxcup-averagefirmness",	"t": "young-minmuscle-averageweight-maxcup-averagefirmness" },
+			{ "name": "female-young-minmuscle-averageweight-maxcup-maxfirmness",		"t": "young-minmuscle-averageweight-maxcup-maxfirmness" },
+			{ "name": "female-young-minmuscle-averageweight-maxcup-minfirmness",		"t": "young-minmuscle-averageweight-maxcup-minfirmness" },
+			{ "name": "female-young-minmuscle-averageweight-mincup-averagefirmness",	"t": "young-minmuscle-averageweight-mincup-allfirmness" },
+			{ "name": "female-young-minmuscle-averageweight-mincup-maxfirmness",		"t": "young-minmuscle-averageweight-mincup-allfirmness" },
+			{ "name": "female-young-minmuscle-averageweight-mincup-minfirmness",		"t": "young-minmuscle-averageweight-mincup-allfirmness" },
+
+			{ "name": "female-young-minmuscle-maxweight-averagecup-maxfirmness",		"t": "young-minmuscle-maxweight-averagecup-maxfirmness" },
+			{ "name": "female-young-minmuscle-maxweight-averagecup-minfirmness",		"t": "young-minmuscle-maxweight-averagecup-minfirmness" },
+
+			{ "name": "female-young-minmuscle-maxweight-maxcup-averagefirmness",		"t": "young-minmuscle-maxweight-maxcup-averagefirmness" },
+			{ "name": "female-young-minmuscle-maxweight-maxcup-maxfirmness",		"t": "young-minmuscle-maxweight-maxcup-maxfirmness" },
+			{ "name": "female-young-minmuscle-maxweight-maxcup-minfirmness",		"t": "young-minmuscle-maxweight-maxcup-minfirmness" },
+			{ "name": "female-young-minmuscle-maxweight-mincup-averagefirmness",		"t": "young-minmuscle-maxweight-mincup-averagefirmness" },
+			{ "name": "female-young-minmuscle-maxweight-mincup-maxfirmness",		"t": "young-minmuscle-maxweight-mincup-maxfirmness" },
+			{ "name": "female-young-minmuscle-maxweight-mincup-minfirmness",		"t": "young-minmuscle-maxweight-mincup-minfirmness" },
+
+			{ "name": "female-young-minmuscle-minweight-averagecup-maxfirmness",		"t": "young-allmuscle-minweight-averagecup-maxfirmness" },
+			{ "name": "female-young-minmuscle-minweight-averagecup-minfirmness",		"t": "young-minavgmuscle-minweight-averagecup-minfirmness" },
+
+			{ "name": "female-young-minmuscle-minweight-maxcup-averagefirmness",		"t": "young-minmuscle-minweight-maxcup-averagefirmness" },
+			{ "name": "female-young-minmuscle-minweight-maxcup-maxfirmness",		"t": "young-minmuscle-minweight-maxcup-maxfirmness" },
+			{ "name": "female-young-minmuscle-minweight-maxcup-minfirmness",		"t": "young-minmuscle-minweight-maxcup-minfirmness" },
+			{ "name": "female-young-minmuscle-minweight-mincup-averagefirmness",		"t": "young-minmuscle-minweight-mincup-averagefirmness" },
+			{ "name": "female-young-minmuscle-minweight-mincup-maxfirmness",		"t": "young-minmuscle-minweight-mincup-maxfirmness" },
+			{ "name": "female-young-minmuscle-minweight-mincup-minfirmness",		"t": "young-minmuscle-minweight-mincup-minfirmness" }
+		] }
 	]
 }
