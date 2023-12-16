@@ -71,6 +71,8 @@ class MHMemWindow(QWidget):
 
         tab = QTabWidget()
 
+        # targets
+        #
         targetpage = QWidget()
         layout = QVBoxLayout()
         targetpage.setLayout(layout)
@@ -83,6 +85,22 @@ class MHMemWindow(QWidget):
         self.targetModel.bestFit(self.targetTable)
         layout.addWidget(self.targetTable)
 
+        # macros
+        #
+        macropage = QWidget()
+        layout = QVBoxLayout()
+        macropage.setLayout(layout)
+
+        self.macroTable = QTableView()
+        data = self.refreshMacroTable()
+
+        self.macroModel = MemTableModel(data, ["Name", "Verts"])
+        self.macroTable.setModel(self.macroModel)
+        self.macroModel.bestFit(self.macroTable)
+        layout.addWidget(self.macroTable)
+
+        # imagess
+        #
         imagepage = QWidget()
         layout = QVBoxLayout()
         imagepage.setLayout(layout)
@@ -96,6 +114,7 @@ class MHMemWindow(QWidget):
         layout.addWidget(self.textureTable)
 
         tab.addTab(targetpage, "Targets")
+        tab.addTab(macropage, "Macro-Targets")
         tab.addTab(imagepage, "Textures")
 
         layout = QVBoxLayout()
@@ -126,8 +145,19 @@ class MHMemWindow(QWidget):
         if targets is not None:
             for target in targets.modelling_targets:
                 data.append(target.memInfo())
-        else:
+        if len(data) == 0:
             data = [["no targets loaded"]]
+        return (data)
+
+    def refreshMacroTable(self):
+        data = []
+        macros = self.glob.macroRepo
+        if macros is not None:
+            for macro in macros:
+                m = self.glob.macroRepo[macro]
+                data.append([str(macro), len(m.verts)])
+        if len(data) == 0:
+            data = [["no macros loaded"]]
         return (data)
 
     def refreshTextureTable(self):
@@ -147,6 +177,9 @@ class MHMemWindow(QWidget):
         """
         self.targetModel.refreshWithReset(self.refreshTargetTable())
         self.targetTable.viewport().update()
+
+        self.macroModel.refreshWithReset(self.refreshMacroTable())
+        self.macroTable.viewport().update()
 
         self.textureModel.refreshWithReset(self.refreshTextureTable())
         self.textureTable.viewport().update()

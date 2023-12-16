@@ -4,6 +4,7 @@ from core.attached_asset import attachedAsset
 from obj3d.fops_wavefront import importWaveFront
 from obj3d.object3d import object3d
 from core.debug import memInfo
+from core.target import Modelling
 
 class loadedMHM():
     def __init__(self):
@@ -117,7 +118,7 @@ class baseClass():
 
         if self.glob.baseClass is not None:
             self.env.logLine(2, "class before: " + str(self.glob.baseClass.baseMesh))
-            self.glob.freeTextures()
+            self.glob.reset()
             del self.glob.baseClass
         self.glob.baseClass = self
         target = Targets(self.glob)
@@ -179,14 +180,22 @@ class baseClass():
 
     def applyAllTargets(self):
         #
-        # TODO: reset
         #
         self.baseMesh.resetMesh()
         targets = self.glob.Targets.modelling_targets
+        if self.glob.targetMacros is not None:
+            #
+            # TODO: this dummy class method is not that good 
+            #
+            m = self.glob.targetMacros['macrodef']
+            mo = Modelling(self.glob, "dummy", None, None)
+            mo.macroCalculation(list(range(0,len(m))))
+            
         for target in targets:
             if target.value != 0.0:
                 print ("Set " + target.name)
-                self.setTarget(target.value / 100, target.decr, target.incr)
+                if target.macro is None:
+                    self.setTarget(target.value / 100, target.decr, target.incr)
 
     def __del__(self):
         self.env.logLine (4, " -- __del__ baseClass " + self.name)

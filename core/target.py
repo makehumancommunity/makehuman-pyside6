@@ -20,19 +20,17 @@ class MacroTree:
 
 
 class Modelling:
-    def __init__(self, parent, name, icon, tip):
-        self.glob     = parent.glob
-        self.obj      = parent.baseClass
-        self.refresh  = parent.graphwindow
-        self.macrodef = parent.macrodef      # pointer to macrodefinition
-        self.target_repo = parent.target_repo # pointer for other targets
-        self.macro_repo = parent.macro_repo # pointer for macro
+    def __init__(self, glob, name, icon, tip):
+        self.glob     = glob
+        self.obj      = glob.baseClass
+        self.refresh  = glob.graphwindow
 
         self.name = name
         self.icon = icon
         self.tip  = tip
         self.selected = False
         self.value = 0.0
+        self.default = 0.0
         self.incr = None    # target "incr"
         self.decr = None    # target "decr"
         self.macro = None   # macro target
@@ -76,8 +74,8 @@ class Modelling:
     def macro_influence(self, array):
         #
         self.m_influence = []
-        if self.macrodef is not None:
-            cnt = len(self.macrodef["macrodef"])
+        if self.glob.targetMacros is not None:
+            cnt = len(self.glob.targetMacros["macrodef"])
 
             # test boundaries to avoid crashes
             #
@@ -97,6 +95,16 @@ class Modelling:
                 {"name": val[0], "text": text[0], "value": value[0] },
                 {"name": val[1], "text": text[1], "value": value[1] },
                 {"name": val[2], "text": text[2], "value": value[2] } ]
+
+    def setDefault(self,default):
+        self.default = default
+
+    def resetValue(self):
+        self.value = self.default
+        if self.barycentric is not None:
+            self.barycentric[0]["value"] = 0.33
+            self.barycentric[1]["value"] = 0.33
+            self.barycentric[2]["value"] = 0.34
 
     def set_barycentric(self, val):
         self.barycentric[0]["value"] = val[0]
@@ -156,12 +164,13 @@ class Modelling:
             if factor > 0.01:
                 targetlist.append ({"name": macroname[1:], "factor": factor})
 
-    def macroCalculation(self):
-        influences = self.macrodef["macrodef"]
-        components = self.macrodef["components"]
-        for l in self.m_influence:
-            print ("   " + influences[l]["name"])
-            comps = influences[l]["comp"]
+    def macroCalculation(self, m_influence):
+        macros = self.glob.targetMacros
+        macrodef = macros["macrodef"]
+        components = macros["components"]
+        for l in m_influence:
+            print ("   " + macrodef[l]["name"])
+            comps = macrodef[l]["comp"]
             weightarray = []
             for elem in comps:
                 if elem in components:
@@ -177,9 +186,9 @@ class Modelling:
                         m = MacroTree()
                         for i,v in enumerate(values):
                             p = pattern +  sum[i]
-                            if p not in self.target_repo:
+                            if p not in self.glob.targetRepo:
                                 continue
-                            current = self.target_repo[p]
+                            current = self.glob.targetRepo[p]
                             b = current.barycentric[i]["value"]
                             if b > 0.001:
                                 print ("\t\tCurrent value " + v + " " + str(b))
@@ -187,10 +196,10 @@ class Modelling:
                         weightarray.append(m)
                     else:
                         steps = components[elem]["steps"]
-                        if pattern not in self.target_repo:
+                        if pattern not in self.glob.targetRepo:
                             continue
-                        #print (self.target_repo[pattern])
-                        current = self.target_repo[pattern].value / 100
+                        #print (self.glob.targetRepo[pattern])
+                        current = self.glob.targetRepo[pattern].value / 100
                         print ("\t\tCurrent " + str(current) + " Divisions: " + str(len(steps)))
 
                         for i in range(0,len(steps)-1):
@@ -214,7 +223,7 @@ class Modelling:
             # now the target list is found, last step: use real name and find double targets
             #
             sortedtargets = {}
-            l = self.macrodef["targetlink"]
+            l = macros["targetlink"]
 
             for elem in targetlist:
                 print (elem)
@@ -227,13 +236,12 @@ class Modelling:
                             sortedtargets[l[name]] = elem["factor"]
 
             # add them to screen first
-            # TODO; must be replaced by set command
             #
             for elem in sortedtargets:
-                if elem in self.macro_repo:
+                if elem in self.glob.macroRepo:
                     print (elem, sortedtargets[elem])
-                    self.obj.updateByTarget(sortedtargets[elem], None, self.macro_repo[elem])
-            self.refresh.Tweak()
+                    #self.obj.updateByTarget(sortedtargets[elem], None, self.glob.macroRepo[elem])
+                    self.obj.setTarget(sortedtargets[elem], None, self.glob.macroRepo[elem])
 
     def callback(self, param=None):
         factor = self.value / 100
@@ -245,7 +253,9 @@ class Modelling:
             if param is not None:
                 self.set_barycentric(param.getValues())
 
-            self.macroCalculation()
+            self.macroCalculation(self.m_influence)
+            self.refresh.Tweak()
+
         elif self.incr is not None or self.decr is not None:
             print("change " + self.name)
             self.obj.updateByTarget(factor, self.decr, self.incr)
@@ -307,8 +317,6 @@ class Targets:
         self.glob =glob
         self.env = glob.env
         self.modelling_targets = []
-        self.target_repo = {} # will contain targets by pattern
-        self.macro_repo = {}  # will contain macro targets
         glob.Targets = self
         self.collection = None
         self.macrodef = None
@@ -323,19 +331,21 @@ class Targets:
 
         filename = os.path.join(targetpath, "macro.json")
         self.macrodef = self.env.readJSON(filename)
-        l = self.macrodef["targetlink"] = {}
-        if "macrodef" in self.macrodef:
-            for mtype in self.macrodef["macrodef"]:
-                if "folder" in mtype:
-                    folder = mtype["folder"]
-                if "targets" in mtype:
-                    for elem in mtype["targets"]:
-                        if "name" in elem and "t" in elem:
-                            if elem["t"] is not None:
-                                l[elem["name"]] = os.path.join(folder, elem["t"])
-                            else:
-                                l[elem["name"]] = None # to support empty or non-existent targets
-                    mtype["targets"] = None  # no longer needed
+        if self.macrodef is not None:
+            l = self.macrodef["targetlink"] = {}
+            if "macrodef" in self.macrodef:
+                for mtype in self.macrodef["macrodef"]:
+                    if "folder" in mtype:
+                        folder = mtype["folder"]
+                    if "targets" in mtype:
+                        for elem in mtype["targets"]:
+                            if "name" in elem and "t" in elem:
+                                if elem["t"] is not None:
+                                    l[elem["name"]] = os.path.join(folder, elem["t"])
+                                else:
+                                    l[elem["name"]] = None # to support empty or non-existent targets
+                        mtype["targets"] = None  # no longer needed
+            self.glob.targetMacros = self.macrodef
 
         filename = os.path.join(targetpath, "modelling.json")
         targetjson = self.env.readJSON(filename)
@@ -369,12 +379,13 @@ class Targets:
         
         # load macrotargets (atm only system path)
         #
-        for link in self.macrodef["targetlink"]:
-            name = self.macrodef["targetlink"][link]
-            if name is not None and name not in self.macro_repo:
-                mt = Morphtarget(self.env, name)
-                mt.loadTextFile(targetpath_sys)
-                self.macro_repo[name] = mt
+        if  self.macrodef is not None:
+            for link in self.macrodef["targetlink"]:
+                name = self.macrodef["targetlink"][link]
+                if name is not None and name not in self.glob.macroRepo:
+                    mt = Morphtarget(self.env, name)
+                    mt.loadTextFile(targetpath_sys)
+                    self.glob.macroRepo[name] = mt
 
         # load targets mentioned in modelling.json
         #
@@ -384,7 +395,7 @@ class Targets:
             targetpath = targetpath_user if "user" in t else targetpath_sys
             iconpath = os.path.join(targetpath, "icons")
             icon = os.path.join(iconpath, t["icon"]) if "icon" in t else default_icon
-            m = Modelling(self, name, icon, tip)
+            m = Modelling(self.glob, name, icon, tip)
 
             if "decr" in t:
                 mt = Morphtarget(self.env, t["decr"])
@@ -404,13 +415,15 @@ class Targets:
                 m.set_displayname(t["name"])
             if "group" in t:
                 m.set_group(t["group"])
+            if "default" in t:
+                m.setDefault(t["default"] * 100)
             m.search_pattern()
             if m.pattern != "None":
                 if isinstance(m.pattern, list):
                     for l in m.pattern:
-                        self.target_repo[l["name"]] = m
+                        self.glob.targetRepo[l["name"]] = m
                 else:
-                    self.target_repo[m.pattern] = m
+                    self.glob.targetRepo[m.pattern] = m
             self.modelling_targets.append(m)
 
     def refreshTargets(self, window):
@@ -421,18 +434,15 @@ class Targets:
             target.set_refresh(window)
 
     def reset(self):
-        #
-        # TODO: might be a different value for certain targets later
-        #
         for target in self.modelling_targets:
-            target.value = 0.0
+            target.resetValue()
 
     def setTargetByName(self, key, value):
         """
         set values
         """
-        if key in self.target_repo:
-            t = self.target_repo[key]
+        if key in self.glob.targetRepo:
+            t = self.glob.targetRepo[key]
             print (" >>> Found target: " + key)
             if t.barycentric is not None:
                 for l in t.barycentric:

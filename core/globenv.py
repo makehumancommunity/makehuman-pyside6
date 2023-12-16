@@ -13,15 +13,22 @@ class globalObjects():
     def __init__(self, env):
         self.env = env
         self.graphwindow = None
+        self.baseClass = None
+        self.reset()
+
+    def reset(self):
+        self.freeTextures()
         self.Targets = None
         self.targetCategories = None        # will contain the category object
-        self.baseClass = None
-        self.textures = {}
+        self.targetMacros     = None        # will contain macrodefinitions (JSON structure, if available)
+        self.targetRepo       = {}          # will contain a list of available targets
+        self.macroRepo        = {}          # will contain a list of available macros
 
     def freeTextures(self):
-        t = self.textures
-        for elem in t:
-            t[elem].destroy()
+        if hasattr(self, "textures"):
+            t = self.textures
+            for elem in t:
+                t[elem].destroy()
         self.textures = {}
 
     def addTexture(self, path, texture):

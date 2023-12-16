@@ -3,34 +3,40 @@
 		"group": "main|macro",
 		"tip": "Gender, minimum value is female, maximum value is male.",
 		"macro": "macrodetails/Gender",
-		"macro_influence": [0, 1, 2, 3, 4]
+		"macro_influence": [0, 1, 2, 3, 4],
+		"default": 0.5
 	},
 	"Age": {
 		"group": "main|macro",
 		"tip": "Age of the human (range from 1 year to 90 years old, with center position 25 years).",
 		"macro": "macrodetails/Age",
-		"macro_influence": [0, 1, 2, 3, 4]
+		"macro_influence": [0, 1, 2, 3, 4],
+		"default": 0.5
 	},
 	"Muscle": {
 		"group": "main|macro",
 		"macro": "macrodetails-universal/Muscle",
-		"macro_influence": [1, 2, 3, 4]
+		"macro_influence": [1, 2, 3, 4],
+		"default": 0.5
 	},
 	"Weight": {
 		"group": "main|macro",
 		"macro": "macrodetails-universal/Weight",
-		"macro_influence": [1, 2, 3, 4]
+		"macro_influence": [1, 2, 3, 4],
+		"default": 0.5
 	},
 	"Height": {
 		"group": "main|macro",
 		"macro": "macrodetails-height/Height",
-		"macro_influence": [3]
+		"macro_influence": [3],
+		"default": 0.5
 	},
 	"Proportions": {
 		"group": "main|macro",
 		"tip": "Proportions of the human features, often subjectively referred to as qualities of beauty<br>(min is unusual, center position is average and max is idealistic proportions).",
 		"macro": "macrodetails-proportions/BodyProportions",
-		"macro_influence": [2]
+		"macro_influence": [2],
+		"default": 0.5
 	},
 	"Phenotype": {
 		"group": "main|macro",
@@ -798,31 +804,52 @@
 	},
 	"Mouth LLip ScaleHor": {
 		"name": "Scale Lowerlip Horizontally",
-		"group": "face|mouth details"
+		"group": "face|mouth details",
+		"icon": "mouth-lowerlip-width-decr-incr.png",
+		"decr": "mouth/mouth-lowerlip-width-decr",
+		"incr": "mouth/mouth-lowerlip-width-incr"
 	},
 	"Mouth LLip ScaleVer": {
 		"name": "Scale Lowerlip Vertically",
-		"group": "face|mouth details"
+		"group": "face|mouth details",
+		"icon": "mouth-lowerlip-height-decr-incr.png",
+		"decr": "mouth/mouth-lowerlip-height-decr",
+		"incr": "mouth/mouth-lowerlip-height-incr"
 	},
 	"Mouth ULip ScaleHor": {
 		"name": "Scale Upperlip Horizontally",
-		"group": "face|mouth details"
+		"group": "face|mouth details",
+		"icon": "mouth-upperlip-width-decr-incr.png",
+		"decr": "mouth/mouth-upperlip-width-decr",
+		"incr": "mouth/mouth-upperlip-width-incr"
 	},
 	"Mouth ULip ScaleVer": {
 		"name": "Scale Upperlip Vertically",
-		"group": "face|mouth details"
+		"group": "face|mouth details",
+		"icon": "mouth-upperlip-height-decr-incr.png",
+		"decr": "mouth/mouth-upperlip-height-decr",
+		"incr": "mouth/mouth-upperlip-height-incr"
 	},
 	"Mouth Dimples": {
 		"name": "Dimples",
-		"group": "face|mouth features"
+		"group": "face|mouth features",
+		"icon": "mouth-dimples-in-out.png",
+		"decr": "mouth/mouth-dimples-in",
+		"incr": "mouth/mouth-dimples-out"
 	},
 	"Mouth Laugh": {
 		"name": "Laugh-lines",
-		"group": "face|mouth features"
+		"group": "face|mouth features",
+		"icon": "mouth-laugh-lines-in-out.png",
+		"decr": "mouth/mouth-laugh-lines-in",
+		"incr": "mouth/mouth-laugh-lines-out"
 	},
 	"Mouth Corner MoveVer": {
 		"name": "Move Corners Vertically",
-		"group": "face|mouth features"
+		"group": "face|mouth features",
+		"icon": "mouth-angles-down-up.png",
+		"decr": "mouth/mouth-angles-down",
+		"incr": "mouth/mouth-angles-up"
 	},
 	"Mouth LLip VScale": {
 		"name": "Scale Lowerlip Volume",
