@@ -156,6 +156,11 @@ class Modelling:
             self.obj.getInitialCopyForSlider(factor, self.decr, self.incr)
 
     def generateAllMacroWeights(self, targetlist, macroname, factor, weights):
+        """
+        recursive function to generate weights.  Since for example 4 different components will change the character,
+        one need to figure out how much each component will be used. Therefore one need to consider the components like a tree
+        for the leaf the value itself is added, otherwise we do an recursion
+        """
         if len(weights) > 0:
             for i in range(0,3):
                 if  weights[0].names[i] is not None:
@@ -215,13 +220,17 @@ class Modelling:
                                 weightarray.append(m)
                                 break
 
-            # all components done
+            # all components done, calculate weights as a product
             #
             targetlist = []
             self.generateAllMacroWeights(targetlist, "", 1.0, weightarray)
 
-            # now the target list is found, last step: use real name and find double targets
-            #
+            # The last step is the optimization: Some weightfiles are not existing.
+            # So they would be a factor of 0. Sometimes targets are identical.
+            # All targets are in memory and there are no duplicates. The calculated
+            # target name will be mapped to the targets (using the value "t")
+            # So it either add them the new targetname to a list or add the second factor if allready exists.
+
             sortedtargets = {}
             l = macros["targetlink"]
 
@@ -450,6 +459,8 @@ class Targets:
                         l["value"] = float(value)
             else:
                 t.value = float(value) * 100.0
+        else:
+            print ("   Target still unknown: " + key)
 
     def modifierPresets(self, presets):
         """
@@ -622,7 +633,7 @@ class TargetCategories:
         #
         targetpath = os.path.join(self.env.path_sysdata, "target", self.basename)
         filename = os.path.join(targetpath, "target_cat.json")
-        targetjson = self.env.readJSON(filename)
+        categoryjson = self.env.readJSON(filename)
 
         # now user
         #
@@ -632,7 +643,7 @@ class TargetCategories:
         #
         if not os.path.isdir(targetpath):
             self.env.logLine(8, "No target folder for " + self.basename + " in user space")
-            return (targetjson)
+            return (categoryjson)
 
         #    check for "target_cat.json" (with date)
         #
@@ -667,9 +678,9 @@ class TargetCategories:
 
         userjson = self.env.readJSON(catfilename)
         if userjson is not None:
-            targetjson["User"] = userjson["User"]
+            categoryjson["User"] = userjson["User"]
 
         # make it globally available
         #
-        self.glob.targetCategories = targetjson
+        self.glob.targetCategories = categoryjson
 

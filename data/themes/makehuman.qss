@@ -35,7 +35,7 @@ QLabel {
 QGroupBox {
     font: bold 12px;
     background-color: #414141;
-    border: 8px solid #8a979b;
+    border: 6px solid #8a979b;
     border-radius: 12px;
     padding: 16px 4px 4px 4px;
 }

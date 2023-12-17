@@ -24,6 +24,7 @@ class QTreeMain(QTreeView):
         self.setHeaderHidden(True)
         self.lastparentindex = None
         self.lastcategory = None
+        self.lastHeadline = ""
         self.callback_redraw = callback_redraw
         self.setSelectionMode(QAbstractItemView.SingleSelection)
         treeModel = QStandardItemModel()
@@ -73,7 +74,8 @@ class QTreeMain(QTreeView):
                                 self.lastparentindex = self.model().indexFromItem(child)
                                 self.setCurrentIndex(cindex)
 
-
+    def getLastHeadline(self):
+        return(self.lastHeadline)
 
     def getValue(self, val):
         """
@@ -93,12 +95,14 @@ class QTreeMain(QTreeView):
 
                 self.lastparentindex = pindex
             if item.cat is not None and self.lastcategory != item.cat:
-                self.callback_redraw(item.cat, newp.text + ", " + item.text)
+                self.lastHeadline = newp.text + ", " + item.text
+                self.callback_redraw(item.cat, self.lastHeadline)
                 self.lastcategory = item.cat
         
 class MHTreeView(QWidget):
     def __init__(self, data, name="Selection", callback_redraw = None, pre=None, autocollapse=True):
         super().__init__()
+        self.start = self._getStartColumn(data)
         layoutout = QVBoxLayout()
         gbox = QGroupBox(name)
         gbox.setObjectName("subwindow")
@@ -117,6 +121,21 @@ class MHTreeView(QWidget):
 
         if pre is not None:
             self.mt.preSelect(pre)
+
+    def _getStartColumn(self, data):
+        if len(data) > 0:
+            name = next(iter(data))
+            elem = data[name]
+            if "items" in elem:
+                line = elem["items"][0]
+                return (elem["group"] + "|" + line["cat"])
+        return ("Unknown")
+
+    def getLastHeadline(self):
+        return(self.mt.getLastHeadline())
+
+    def getStartPattern(self):
+        return (self.start)
 
     def btnstate(self):
         state = self.b1.isChecked()

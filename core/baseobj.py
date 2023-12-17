@@ -24,7 +24,7 @@ class baseClass():
         self.env.logLine(2, "New baseClass: " + name)
         memInfo()
         self.env.basename = name
-        self.name = name
+        self.name = name                # will hold the character name
 
 
     def loadMHMFile(self, filename):
@@ -57,6 +57,8 @@ class baseClass():
 
         fp.close()
 
+        if loaded.name is not None:
+            self.name = loaded.name
         # reset all targets and mesh
         #
         self.glob.Targets.reset()

@@ -853,39 +853,66 @@
 	},
 	"Mouth LLip VScale": {
 		"name": "Scale Lowerlip Volume",
-		"group": "face|mouth features"
+		"group": "face|mouth features",
+		"icon": "mouth-lowerlip-volume-decr-incr.png",
+		"decr": "mouth/mouth-lowerlip-volume-decr",
+		"incr": "mouth/mouth-lowerlip-volume-incr"
 	},
 	"Mouth LLip PScale": {
 		"name": "Scale Philtrum Volume",
-		"group": "face|mouth features"
+		"group": "face|mouth features",
+		"icon": "mouth-philtrum-volume-decr-incr.png",
+		"decr": "mouth/mouth-philtrum-volume-decr",
+                "incr": "mouth/mouth-philtrum-volume-incr"
 	},
 	"Mouth LLip Shape": {
 		"name": "Lowerlip Curved Shape",
-		"group": "face|mouth features"
+		"group": "face|mouth features",
+		"icon": "mouth-lowerlip-ext-down-up.png",
+		"decr": "mouth/mouth-lowerlip-ext-down",
+		"incr": "mouth/mouth-lowerlip-ext-up"
 	},
 	"Mouth LLip MScale": {
 		"name": "Scale middle Lowerlip",
-		"group": "face|mouth features"
+		"group": "face|mouth features",
+		"icon": "mouth-lowerlip-middle-down-up.png",
+		"decr": "mouth/mouth-lowerlip-middle-down",
+		"incr": "mouth/mouth-lowerlip-middle-up"
 	},
 	"Mouth ULip VScale": {
 		"name": "Scale Upperlip Volume",
-		"group": "face|mouth features"
+		"group": "face|mouth features",
+		"icon": "mouth-upperlip-volume-decr-incr.png",
+		"decr": "mouth/mouth-upperlip-volume-decr",
+		"incr": "mouth/mouth-upperlip-volume-incr"
 	},
 	"Mouth ULip Shape": {
 		"name": "Upperlip Curved Shape",
-		"group": "face|mouth features"
+		"group": "face|mouth features",
+		"icon": "mouth-upperlip-ext-down-up.png",
+		"decr": "mouth/mouth-upperlip-ext-down",
+		"incr": "mouth/mouth-upperlip-ext-up"
 	},
 	"Mouth ULip MScale": {
 		"name": "Scale middle Upperlip",
-		"group": "face|mouth features"
+		"group": "face|mouth features",
+		"icon": "mouth-upperlip-middle-down-up.png",
+		"decr": "mouth/mouth-upperlip-middle-down",
+		"incr": "mouth/mouth-upperlip-middle-up"
 	},
 	"Mouth ULip CupidHor": {
 		"name": "Cupid's Bow Width",
-		"group": "face|mouth features"
+		"group": "face|mouth features",
+		"icon": "mouth-cupidsbow-width-decr-incr.png",
+		"decr": "mouth/mouth-cupidsbow-width-decr",
+		"incr": "mouth/mouth-cupidsbow-width-incr"
 	},
 	"Mouth ULip CupidShape": {
 		"name": "Cupid's Bow Shape",
-		"group": "face|mouth features"
+		"group": "face|mouth features",
+		"icon": "mouth-cupidsbow-decr-incr.png",
+		"decr": "mouth/mouth-cupidsbow-decr",
+		"incr": "mouth/mouth-cupidsbow-incr"
 	},
 	"R-EAR Scale": {
 		"name": "Scale Ear",

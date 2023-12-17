@@ -1,4 +1,7 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFrame, QGroupBox, QListWidget, QAbstractItemView, QSizePolicy, QScrollArea, QFileDialog
+from PySide6.QtWidgets import ( 
+        QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFrame, QGroupBox, QListWidget,
+        QAbstractItemView, QSizePolicy, QScrollArea, QFileDialog, QDialogButtonBox
+        )
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize, Qt
 from gui.prefwindow import  MHPrefWindow
@@ -7,6 +10,7 @@ from gui.infowindow import  MHInfoWindow
 from gui.memwindow import  MHMemWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.slider import ScaleComboArray
+from gui.dialogs import DialogBox
 from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
 import os
@@ -27,13 +31,13 @@ class MHMainWindow(QMainWindow):
         self.log_window = None
         self.rightColumn = None
         self.graph = None
+        self.qTree = None
         self.in_close = False
-        self.targetfilter = "main|macro"  # TODO that is certainly not correct here ;)
+        self.selectbase_in_progress = False
+        self.targetfilter = None
         super().__init__()
 
         s = env.session["mainwinsize"]
-        title = env.release_info["name"]
-        self.setWindowTitle(title)
         self.resize (s["w"], s["h"])
 
         menu_bar = self.menuBar()
@@ -61,6 +65,11 @@ class MHMainWindow(QMainWindow):
         log_act.triggered.connect(self.log_call)
 
         self.createCentralWidget()
+        self.setWindowTitle("default character")
+
+    def setWindowTitle(self, text):
+        title = self.env.release_info["name"] + " (" + text + ")"
+        super().setWindowTitle(title)
 
     def fileRequest(self, ftext, pattern, directory, save=None):
         """
@@ -140,6 +149,19 @@ class MHMainWindow(QMainWindow):
         central_widget.setLayout(hLayout)
         self.setCentralWidget(central_widget)
 
+    def baseMeshSelectWidget(self, layout):
+        env = self.env
+        baselist = env.getDataDirList("base.obj", "base")
+        self.basewidget = QListWidget()
+        self.basewidget.setFixedSize(240, 200)
+        self.basewidget.addItems(baselist.keys())
+        self.basewidget.setSelectionMode(QAbstractItemView.SingleSelection)
+        if env.basename is not None:
+            items = self.basewidget.findItems(env.basename,Qt.MatchExactly)
+            if len(items) > 0:
+                self.basewidget.setCurrentItem(items[0])
+        layout.addWidget(self.basewidget)
+
     def drawBasePanel(self):
         """
         draw left panel
@@ -151,29 +173,32 @@ class MHMainWindow(QMainWindow):
 
         bvLayout = QVBoxLayout()
 
-        baselist = env.getDataDirList("base.obj", "base")
-        self.basewidget = QListWidget()
-        self.basewidget.setFixedSize(240, 200)
-        self.basewidget.addItems(baselist.keys())
-        self.basewidget.setSelectionMode(QAbstractItemView.SingleSelection)
-        if env.basename is not None:
-            items = self.basewidget.findItems(env.basename,Qt.MatchExactly)
-            if len(items) > 0:
-                self.basewidget.setCurrentItem(items[0])
+        if env.basename is None or self.selectbase_in_progress is True:
+            self.baseMeshSelectWidget(bvLayout)
+            buttons = QPushButton("Select")
+            buttons.clicked.connect(self.selectmesh_call)
+            self.selectbase_in_progress = False
+        else:
+            buttons = QPushButton("Select different basemesh")
+            buttons.clicked.connect(self.presentbaseselect_call)
 
-        bvLayout.addWidget(self.basewidget)
-
-        buttons = QPushButton("Select")
-        buttons.clicked.connect(self.selectmesh_call)
         bvLayout.addWidget(buttons)
+
+        buttonr = QPushButton("Reset")
+        buttonr.clicked.connect(self.reset_call)
+        bvLayout.addWidget(buttonr)
+        
         bgroupBox.setLayout(bvLayout)
         self.BaseBox.addWidget(bgroupBox)
 
+        # Modelling Box
+        #
         if env.basename is not None:
 
             if self.glob.targetCategories is not None:
-                qtree = MHTreeView(self.glob.targetCategories, "Modelling", self.redrawNewCategory, None)
-                self.BaseBox.addWidget(qtree)
+                self.qTree = MHTreeView(self.glob.targetCategories, "Modelling", self.redrawNewCategory, None)
+                self.targetfilter = self.qTree.getStartPattern()
+                self.BaseBox.addWidget(self.qTree)
             else:
                 env.logLine(1, env.last_error )
 
@@ -240,13 +265,16 @@ class MHMainWindow(QMainWindow):
 
     def loadmhm_call(self):
         if self.glob.baseClass is not None:
-            directory = os.path.join(self.env.path_userdata, "models", self.env.basename)
-            filename = self.fileRequest("Model", "Model files (*.mhm)", directory)
-            if filename is not None:
-                self.glob.baseClass.loadMHMFile(filename)
-                self.graph.view.Tweak()
-                self.targetfilter = "main|macro" # TODO, Need a better reset here
-                self.redrawNewCategory(self.targetfilter, "Toolpanel")
+            dbox = DialogBox("All changes will be lost, okay to load a new character?", QDialogButtonBox.Ok)
+            if dbox.exec():
+                directory = os.path.join(self.env.path_userdata, "models", self.env.basename)
+                filename = self.fileRequest("Model", "Model files (*.mhm)", directory)
+                if filename is not None:
+                    self.glob.baseClass.loadMHMFile(filename)
+                    self.graph.view.Tweak()
+                    self.targetfilter = self.qTree.getStartPattern()
+                    self.redrawNewCategory(self.targetfilter)
+                    self.setWindowTitle(self.glob.baseClass.name)
 
 
     def savemhm_call(self):
@@ -263,6 +291,22 @@ class MHMainWindow(QMainWindow):
         if self.info_window is None:
             self.info_window = MHInfoWindow(self, self.app)
         self.info_window.show()
+
+    def presentbaseselect_call(self):
+        dbox = DialogBox("By changing the base mesh, all current changes are lost. Do you want to apply a new mesh?", QDialogButtonBox.Ok)
+        if dbox.exec():
+            self.selectbase_in_progress = True
+            self.emptyLayout(self.BaseBox)
+            self.drawBasePanel()
+            self.BaseBox.update()
+
+    def reset_call(self):
+        print ("Reset")
+        if self.glob.Targets is not None:
+            self.glob.Targets.reset()
+            self.redrawNewCategory(self.targetfilter)
+            self.glob.baseClass.applyAllTargets()
+            self.graph.view.Tweak()
 
     def selectmesh_call(self):
         sel = self.basewidget.selectedItems()
@@ -286,8 +330,10 @@ class MHMainWindow(QMainWindow):
 
             self.graph.update()
 
-    def redrawNewCategory(self, category, text):
+    def redrawNewCategory(self, category, text=None):
         print (category)
+        if text is None:
+            text =self.qTree.getLastHeadline()
         self.emptyLayout(self.ToolBox)
         self.targetfilter = category
         self.drawToolPanel(category, text)

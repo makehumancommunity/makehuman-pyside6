@@ -60,7 +60,7 @@ class programInfo():
         evaluates system path, platform in ostype and osindex.
         """
         self.release_info = {
-            "name": "MakeHuman [test project]",
+            "name": "MakeHuman [test]",
             "author": "black punkduck, elvaerwyn",
             "version": (2, 0, 1),
             "copyright": "Copyright ... and listed authors",

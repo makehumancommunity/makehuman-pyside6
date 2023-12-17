@@ -235,7 +235,6 @@ class ScaleComboArray(QWidget):
                     continue
 
                 if elem.opposite is False:
-                    print (elem.name)
                     scalecombo = ScaleCombo(elem,  0, 100, 10, parent=self, update=self.comboArrayUpdate)
                 else:
                     scalecombo = ScaleCombo(elem,  -100, 100, 25, parent=self, update=self.comboArrayUpdate)
