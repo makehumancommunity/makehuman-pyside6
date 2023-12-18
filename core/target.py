@@ -136,6 +136,10 @@ class Modelling:
             self.pattern = d + "|convex"
         elif d.endswith("-compress") and i.endswith("-uncompress"):
             self.pattern = d + "|uncompress"
+        elif d.endswith("-pointed") and i.endswith("-triangle"):
+            self.pattern = d + "|triangle"
+        elif d.endswith("-square") and i.endswith("-round"):
+            self.pattern = d + "|round"
         elif i != "None":
             self.pattern = i
             self.opposite = False
@@ -460,7 +464,7 @@ class Targets:
             else:
                 t.value = float(value) * 100.0
         else:
-            print ("   Target still unknown: " + key)
+            self.glob.missingTargets.append(key)
 
     def modifierPresets(self, presets):
         """

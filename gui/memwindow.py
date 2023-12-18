@@ -99,7 +99,7 @@ class MHMemWindow(QWidget):
         self.macroModel.bestFit(self.macroTable)
         layout.addWidget(self.macroTable)
 
-        # imagess
+        # images
         #
         imagepage = QWidget()
         layout = QVBoxLayout()
@@ -113,9 +113,24 @@ class MHMemWindow(QWidget):
         self.textureModel.bestFit(self.textureTable)
         layout.addWidget(self.textureTable)
 
+        # missing targets
+        #
+        misstargetpage = QWidget()
+        layout = QVBoxLayout()
+        misstargetpage.setLayout(layout)
+
+        self.missTargetTable = QTableView()
+        data = self.refreshMissTargetTable()
+
+        self.missTargetModel = MemTableModel(data, ["Name"])
+        self.missTargetTable.setModel(self.missTargetModel)
+        self.missTargetModel.bestFit(self.missTargetTable)
+        layout.addWidget(self.missTargetTable)
+
         tab.addTab(targetpage, "Targets")
         tab.addTab(macropage, "Macro-Targets")
         tab.addTab(imagepage, "Textures")
+        tab.addTab(misstargetpage, "Missing Targets (last load)")
 
         layout = QVBoxLayout()
         layout.addWidget(tab)
@@ -171,6 +186,16 @@ class MHMemWindow(QWidget):
         return (data)
 
 
+    def refreshMissTargetTable(self):
+        data = []
+        targets = self.glob.missingTargets
+        for target in targets:
+            data.append([target])
+        if len(data) == 0:
+            data = [["no missing targets found"]]
+        return (data)
+
+
     def redisplay_call(self):
         """
         refreshes all tabs
@@ -183,6 +208,9 @@ class MHMemWindow(QWidget):
 
         self.textureModel.refreshWithReset(self.refreshTextureTable())
         self.textureTable.viewport().update()
+
+        self.missTargetModel.refreshWithReset(self.refreshMissTargetTable())
+        self.missTargetTable.viewport().update()
 
 
     def close_call(self):

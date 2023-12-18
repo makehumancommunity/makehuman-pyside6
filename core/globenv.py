@@ -21,8 +21,9 @@ class globalObjects():
         self.Targets = None
         self.targetCategories = None        # will contain the category object
         self.targetMacros     = None        # will contain macrodefinitions (JSON structure, if available)
-        self.targetRepo       = {}          # will contain a list of available targets
-        self.macroRepo        = {}          # will contain a list of available macros
+        self.targetRepo       = {}          # will contain a dictionary of available targets
+        self.macroRepo        = {}          # will contain a dictionary of available macros
+        self.missingTargets = []            # will contain a list of missing targets after load
 
     def freeTextures(self):
         if hasattr(self, "textures"):

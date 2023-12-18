@@ -59,10 +59,11 @@ class baseClass():
 
         if loaded.name is not None:
             self.name = loaded.name
-        # reset all targets and mesh
+
+        # reset all targets and mesh, reset missing targets
         #
         self.glob.Targets.reset()
-
+        self.glob.missingTargets = []
         for elem in loaded.modifiers:
             name, value = elem.split()
             self.glob.Targets.setTargetByName(name, value)

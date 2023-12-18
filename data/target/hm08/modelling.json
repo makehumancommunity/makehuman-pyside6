@@ -916,91 +916,157 @@
 	},
 	"R-EAR Scale": {
 		"name": "Scale Ear",
-		"group": "face|right ear"
+		"group": "face|right ear",
+		"icon": "r-ear-scale-decr-incr.png",
+		"decr": "ears/r-ear-scale-decr",
+		"incr": "ears/r-ear-scale-incr"
 	},
 	"R-EAR ScaleHor": {
 		"name": "Scale Width",
-		"group": "face|right ear"
+		"group": "face|right ear",
+		"icon": "r-ear-scale-depth-decr-incr.png",
+		"decr": "ears/r-ear-scale-depth-decr",
+		"incr": "ears/r-ear-scale-depth-incr"
 	},
 	"R-EAR ScaleVer": {
 		"name": "Scale Height",
-		"group": "face|right ear"
+		"group": "face|right ear",
+		"icon": "r-ear-scale-vert-decr-incr.png",
+		"decr": "ears/r-ear-scale-vert-decr",
+		"incr": "ears/r-ear-scale-vert-incr"
 	},
 	"R-EAR MoveVer": {
 		"name": "Move Vertically",
-		"group": "face|right ear"
+		"group": "face|right ear",
+		"icon": "r-ear-trans-down-up.png",
+		"decr": "ears/r-ear-trans-down",
+		"incr": "ears/r-ear-trans-up"
 	},
 	"R-EAR MoveDep": {
 		"name": "Move Depth",
-		"group": "face|right ear"
+		"group": "face|right ear",
+		"icon": "r-ear-trans-backward-forward.png",
+		"decr": "ears/r-ear-trans-backward",
+		"incr": "ears/r-ear-trans-forward"
 	},
 	"R-EAR Lobe Scale": {
 		"name": "Scale Lobe",
-		"group": "face|right ear"
+		"group": "face|right ear",
+		"icon": "r-ear-lobe-decr-incr.png",
+		"decr": "ears/r-ear-lobe-decr",
+		"incr": "ears/r-ear-lobe-incr"
 	},
 	"R-EAR Rot": {
 		"name": "Rotate Ear",
-		"group": "face|right ear"
+		"group": "face|right ear",
+		"icon": "r-ear-rot-backward-forward.png",
+		"decr": "ears/r-ear-rot-backward",
+		"incr": "ears/r-ear-rot-forward"
 	},
 	"R-EAR Shape1": {
 		"name": "Shape (pointed-triangle)",
-		"group": "face|right ear"
+		"group": "face|right ear",
+		"icon": "r-ear-shape-pointed-triangle.png",
+		"decr": "ears/r-ear-shape-pointed",
+		"incr": "ears/r-ear-shape-triangle"
 	},
 	"R-EAR Shape2": {
 		"name": "Shape (squared-round)",
-		"group": "face|right ear"
+		"group": "face|right ear",
+		"icon": "r-ear-shape-square-round.png",
+		"decr": "ears/r-ear-shape-square",
+		"incr": "ears/r-ear-shape-round"
 	},
 	"R-EAR Shape3": {
 		"name": "Ear Wing-shaped",
-		"group": "face|right ear"
+		"group": "face|right ear",
+		"icon": "r-ear-wing-decr-incr.png",
+		"decr": "ears/r-ear-wing-decr",
+		"incr": "ears/r-ear-wing-incr"
 	},
 	"R-EAR Shape4": {
 		"name": "Ear Flapped",
-		"group": "face|right ear"
+		"group": "face|right ear",
+		"icon": "r-ear-flap-decr-incr.png",
+		"decr": "ears/r-ear-flap-decr",
+		"incr": "ears/r-ear-flap-incr"
 	},
 	"L-EAR Scale": {
 		"name": "Scale Ear",
-		"group": "face|left ear"
+		"group": "face|left ear",
+		"icon": "l-ear-scale-decr-incr.png",
+		"decr": "ears/l-ear-scale-decr",
+		"incr": "ears/l-ear-scale-incr"
 	},
 	"L-EAR ScaleHor": {
 		"name": "Scale Width",
-		"group": "face|left ear"
+		"group": "face|left ear",
+		"icon": "l-ear-scale-depth-decr-incr.png",
+		"decr": "ears/l-ear-scale-depth-decr",
+		"incr": "ears/l-ear-scale-depth-incr"
 	},
 	"L-EAR ScaleVer": {
 		"name": "Scale Height",
-		"group": "face|left ear"
+		"group": "face|left ear",
+		"icon": "l-ear-scale-vert-decr-incr.png",
+		"decr": "ears/l-ear-scale-vert-decr",
+		"incr": "ears/l-ear-scale-vert-incr"
 	},
 	"L-EAR MoveVer": {
 		"name": "Move Vertically",
-		"group": "face|left ear"
+		"group": "face|left ear",
+		"icon": "l-ear-trans-down-up.png",
+		"decr": "ears/l-ear-trans-down",
+		"incr": "ears/l-ear-trans-up"
 	},
 	"L-EAR MoveDep": {
 		"name": "Move Depth",
-		"group": "face|left ear"
+		"group": "face|left ear",
+		"icon": "l-ear-trans-backward-forward.png",
+		"decr": "ears/l-ear-trans-backward",
+		"incr": "ears/l-ear-trans-forward"
 	},
 	"L-EAR Lobe Scale": {
 		"name": "Scale Lobe",
-		"group": "face|left ear"
+		"group": "face|left ear",
+		"icon": "l-ear-lobe-decr-incr.png",
+		"decr": "ears/r-ear-lobe-decr",
+		"incr": "ears/r-ear-lobe-incr"
 	},
 	"L-EAR Rot": {
 		"name": "Rotate Ear",
-		"group": "face|left ear"
+		"group": "face|left ear",
+		"icon": "l-ear-rot-backward-forward.png",
+		"decr": "ears/l-ear-rot-backward",
+		"incr": "ears/l-ear-rot-forward"
 	},
 	"L-EAR Shape1": {
 		"name": "Shape (pointed-triangle)",
-		"group": "face|left ear"
+		"group": "face|left ear",
+		"icon": "l-ear-shape-pointed-triangle.png",
+		"decr": "ears/l-ear-shape-pointed",
+		"incr": "ears/l-ear-shape-triangle"
 	},
 	"L-EAR Shape2": {
 		"name": "Shape (squared-round)",
-		"group": "face|left ear"
+		"group": "face|left ear",
+		"icon": "l-ear-shape-square-round.png",
+		"decr": "ears/l-ear-shape-square",
+		"incr": "ears/l-ear-shape-round"
 	},
 	"L-EAR Shape3": {
 		"name": "Ear Wing-shaped",
-		"group": "face|left ear"
+		"group": "face|left ear",
+		"icon": "l-ear-wing-decr-incr.png",
+		"decr": "ears/l-ear-wing-decr",
+		"incr": "ears/l-ear-wing-incr"
 	},
 	"L-EAR Shape4": {
 		"name": "Ear Flapped",
-		"group": "face|left ear"
+		"group": "face|left ear",
+		"icon": "l-ear-flap-decr-incr.png",
+		"decr": "ears/l-ear-flap-decr",
+		"incr": "ears/l-ear-flap-incr"
 	},
 	"Chin ScaleHor": {
 		"name": "Scale Chin Width",
