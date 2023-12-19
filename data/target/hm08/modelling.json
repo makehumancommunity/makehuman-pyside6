@@ -1070,31 +1070,52 @@
 	},
 	"Chin ScaleHor": {
 		"name": "Scale Chin Width",
-		"group": "face|chin"
+		"group": "face|chin",
+		"icon": "chin-width-decr-incr.png",
+		"decr": "chin/chin-width-decr",
+		"incr": "chin/chin-width-incr"
 	},
 	"Chin ScaleVer": {
 		"name": "Scale Chin Height",
-		"group": "face|chin"
+		"group": "face|chin",
+		"icon": "chin-height-decr-incr.png",
+		"decr": "chin/chin-height-decr",
+		"incr": "chin/chin-height-incr"
 	},
 	"Chin ScaleDep": {
 		"name": "Scale Chin Prominence",
-		"group": "face|chin"
+		"group": "face|chin",
+		"icon": "chin-prominent-decr-incr.png",
+		"decr": "chin/chin-prominent-decr",
+		"incr": "chin/chin-prominent-incr"
 	},
 	"Chin Angular": {
 		"name": "Scale Chin Angular",
-		"group": "face|chin"
+		"group": "face|chin",
+		"icon": "chin-jaw-drop-decr-incr.png",
+		"decr": "chin/chin-jaw-drop-decr",
+		"incr": "chin/chin-jaw-drop-incr"
 	},
 	"Chin ToneSide": {
 		"name": "Tone of Side Chin",
-		"group": "face|chin"
+		"group": "face|chin",
+		"icon": "chin-bones-decr-incr.png",
+		"decr": "chin/chin-bones-decr",
+		"incr": "chin/chin-bones-incr"
 	},
 	"Chin Prognathism": {
 		"name": "Scale Chin Prognathism",
-		"group": "face|chin"
+		"group": "face|chin",
+		"icon": "chin-prognathism-decr-incr.png",
+		"decr": "chin/chin-prognathism-decr",
+		"incr": "chin/chin-prognathism-incr"
 	},
 	"Chin Cleft": {
 		"name": "Cleft Chin",
-		"group": "face|chin"
+		"group": "face|chin",
+		"icon": "chin-cleft-decr-incr.png",
+		"decr": "chin/chin-cleft-decr",
+		"incr": "chin/chin-cleft-incr"
 	},
 	"Chin Double": {
 		"name": "Double Chin",

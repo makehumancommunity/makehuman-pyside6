@@ -7,10 +7,9 @@ class MHInfoWindow(QWidget):
     """
     demonstration of an info window, borderless (mouseclick)
     """
-    def __init__(self, parent, app):
+    def __init__(self, glob):
         super().__init__()
-        self.parent = parent
-        env = parent.env
+        env = glob.env
         rel = env.release_info
         version = ".".join(str(l) for l in env.release_info["version"])
         text = " ".join([rel["name"], version, "     Authors:", rel["author"]])
@@ -24,7 +23,7 @@ class MHInfoWindow(QWidget):
         layout.addWidget(title)
         self.setLayout(layout)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-        center = app.getCenter()
+        center = glob.app.getCenter()
         self.move(center - self.frameGeometry().center())   # not really center ;)
 
 

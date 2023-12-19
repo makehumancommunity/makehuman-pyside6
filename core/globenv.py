@@ -12,6 +12,7 @@ from opengl.main import GLVersion
 class globalObjects():
     def __init__(self, env):
         self.env = env
+        self.app = None
         self.graphwindow = None
         self.baseClass = None
         self.reset()
@@ -24,6 +25,9 @@ class globalObjects():
         self.targetRepo       = {}          # will contain a dictionary of available targets
         self.macroRepo        = {}          # will contain a dictionary of available macros
         self.missingTargets = []            # will contain a list of missing targets after load
+
+    def setApplication(self, app):
+        self.app = app
 
     def freeTextures(self):
         if hasattr(self, "textures"):
@@ -55,7 +59,7 @@ class programInfo():
     * converter functions
     * JSON reader/writer + integrity test
     """
-    def __init__(self, frozen: bool, path_sys: str, verbose: int, uselog: bool):
+    def __init__(self, frozen: bool, path_sys: str, verbose: int, uselog: bool, admin: bool):
         """
         init: set all global parameters
         evaluates system path, platform in ostype and osindex.
@@ -73,6 +77,7 @@ class programInfo():
         self.last_error = None
 
         self.verbose = verbose
+        self.admin = admin
         self.uselog  = uselog
         self.frozen  = frozen
         self.path_sys = path_sys

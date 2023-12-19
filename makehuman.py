@@ -27,6 +27,7 @@ def main():
     parser.add_argument("--noshaders", action="store_true", help="disable shaders")
     parser.add_argument("--multisampling", action="store_true", help="enable multisampling (used for anti-aliasing and alpha-to-coverage transparency rendering)")
     parser.add_argument("-l", action="store_true", help="force to write to log file")
+    parser.add_argument("-A", '--admin', action="store_true", help="Support administrative tasks ('Admin'). Command will write into program folder, where makehuman is installed.")
     parser.add_argument("-v", "--verbose",  type=int, default = 1, help= textwrap.dedent('''\
             bitwise verbose option (add values)
             1 low log level (standard)
@@ -46,7 +47,7 @@ def main():
     # get programInfo as environment (only for strings to be printed in JSON)
     # and globalObjects for non-printable objects
 
-    env = programInfo(frozen, syspath, args.verbose, args.l)
+    env = programInfo(frozen, syspath, args.verbose, args.l, args.admin)
     if not env.environment():
         print (env.last_error)
         exit (20)
@@ -59,6 +60,7 @@ def main():
     theme = env.existDataFile("themes", env.config["theme"])
 
     app = MHApplication(glob, sys.argv)
+    glob.setApplication(app)
 
     if app.setStyles(theme) is False:
         env.logLine(1, env.last_error)
@@ -67,7 +69,7 @@ def main():
         base = baseClass(glob, env.basename)
         base.prepareClass()
 
-    mainwin = MHMainWindow(glob, app)
+    mainwin = MHMainWindow(glob)
     mainwin.show()
     app.exec()
     

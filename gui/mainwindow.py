@@ -20,8 +20,7 @@ class MHMainWindow(QMainWindow):
     """
     Main Window class
     """
-    def __init__(self, glob, app):
-        self.app = app
+    def __init__(self, glob):
         self.env = glob.env
         env = glob.env
         self.glob = glob
@@ -61,8 +60,16 @@ class MHMainWindow(QMainWindow):
         set_menu = menu_bar.addMenu("&Settings")
         pref_act = set_menu.addAction("Preferences")
         pref_act.triggered.connect(self.pref_call)
+
         log_act = set_menu.addAction("Messages")
         log_act.triggered.connect(self.log_call)
+
+        if env.admin:
+            csystar_act = set_menu.addAction("Compress System Targets")
+            csystar_act.triggered.connect(self.compress_systargets)
+
+        cusertar_act = set_menu.addAction("Compress User Targets")
+        cusertar_act.triggered.connect(self.compress_usertargets)
 
         self.createCentralWidget()
         self.setWindowTitle("default character")
@@ -289,7 +296,7 @@ class MHMainWindow(QMainWindow):
         show about/information window
         """
         if self.info_window is None:
-            self.info_window = MHInfoWindow(self, self.app)
+            self.info_window = MHInfoWindow(self.glob)
         self.info_window.show()
 
     def presentbaseselect_call(self):
@@ -339,6 +346,15 @@ class MHMainWindow(QMainWindow):
         self.drawToolPanel(category, text)
         self.ToolBox.update()
 
+    def compress_systargets(self):
+        print("Sys-Targets")
+        if self.glob.Targets is not None:
+            self.glob.Targets.saveBinaryTargets(1)
+
+    def compress_usertargets(self):
+        print("User-Targets")
+        if self.glob.Targets is not None:
+            self.glob.Targets.saveBinaryTargets(2)
 
 
     def quit_call(self):
@@ -353,5 +369,5 @@ class MHMainWindow(QMainWindow):
             s["h"] = self.height()
             self.env.saveSession()
             self.env.cleanup()
-            self.app.closeAllWindows()
-            self.app.quit()
+            self.glob.app.closeAllWindows()
+            self.glob.app.quit()

@@ -439,6 +439,46 @@ class Targets:
                     self.glob.targetRepo[m.pattern] = m
             self.modelling_targets.append(m)
 
+    def saveBinaryTargets(self, sys_user = 3):
+        """
+        save targets as compressed binary
+        :param sys_user: 1 = system, 2 = user (3 is both)
+        """
+        # get a content list of all targets and add them to either system content or user content
+        #
+        # TODO; check files ...
+
+        contentsys = {}
+        contentuser = {}
+        for target in self.glob.macroRepo.values():
+            contentsys[target.name] = target.raw
+        for target in self.glob.targetRepo.values():
+            if target.group is not None and target.group.startswith("user|"):
+                if target.incr is not None:
+                    contentuser[target.incr.name] = target.incr.raw
+                if target.decr is not None:
+                    contentuser[target.decr.name] = target.decr.raw
+            else:
+                if target.incr is not None:
+                    contentsys[target.incr.name] = target.incr.raw
+                if target.decr is not None:
+                    contentsys[target.decr.name] = target.decr.raw
+
+        if sys_user & 1:
+            sysbinpath = os.path.join(self.env.path_sysdata, "target", self.env.basename, "compressedtargets.npz")
+            f = open(sysbinpath, "wb")
+            np.savez_compressed(f, **contentsys)
+            f.close()
+
+        if sys_user & 2:
+            userbinpath = os.path.join(self.env.path_userdata, "target", self.env.basename, "compressedtargets.npz")
+            f = open(userbinpath, "wb")
+            np.savez_compressed(f, **contentuser)
+            f.close()
+
+
+
+
     def refreshTargets(self, window):
         """
         refreshes Callbacks
