@@ -293,7 +293,18 @@ class Morphtarget:
     def __str__(self):
         return (self.name)
 
-    def loadTextFile(self, path):
+    def loadTargetData(self, path, bintargets=None):
+        """
+        get Target data either from pre-loaded npz file or from single targets
+        """
+        if bintargets is not None:
+            if self.name in bintargets.files:
+                self.env.logLine(8, "Use Data for " + self.name + " from binary file")
+                self.raw = bintargets[self.name]
+                self.verts = self.raw['index']
+                self.data = self.raw['vector']
+                return
+
         filename = os.path.join(path, self.name) + ".target"
         try:
             fd = open(filename, 'r', encoding='utf-8')
@@ -377,9 +388,15 @@ class Targets:
         return (targetjson)
 
     def loadTargets(self):
+        target_env = [ {
+            "targetpath": os.path.join(self.env.path_sysdata, "target", self.env.basename),
+            "targets": None
+            }, {
+            "targetpath": os.path.join(self.env.path_userdata, "target", self.env.basename),
+            "targets": None
+        }]
+
         default_icon = os.path.join(self.env.path_sysicon, "empty_target.png")
-        targetpath_sys = os.path.join(self.env.path_sysdata, "target", self.env.basename)
-        targetpath_user = os.path.join(self.env.path_userdata, "target", self.env.basename)
         self.collection = self.env.basename
 
         tg = TargetCategories(self.glob)
@@ -389,7 +406,15 @@ class Targets:
         if targetjson is None:
             self.env.logLine(1, self.env.last_error )
             return
-        
+       
+        # load binary targets
+        #
+        for x in target_env:
+            bintargets = os.path.join(x["targetpath"], "compressedtargets.npz")
+            if os.path.exists(bintargets):
+                print (bintargets + " are available")
+                x["targets"] = np.load(bintargets)
+
         # load macrotargets (atm only system path)
         #
         if  self.macrodef is not None:
@@ -397,7 +422,7 @@ class Targets:
                 name = self.macrodef["targetlink"][link]
                 if name is not None and name not in self.glob.macroRepo:
                     mt = Morphtarget(self.env, name)
-                    mt.loadTextFile(targetpath_sys)
+                    mt.loadTargetData(target_env[0]["targetpath"], target_env[0]["targets"])
                     self.glob.macroRepo[name] = mt
 
         # load targets mentioned in modelling.json
@@ -405,18 +430,22 @@ class Targets:
         for name in targetjson:
             t = targetjson[name]
             tip = t["tip"] if "tip" in t else "Select to modify"
-            targetpath = targetpath_user if "user" in t else targetpath_sys
+
+            mode = 1 if "user" in t else 0
+            targetpath = target_env[mode]["targetpath"]
+            bintargets = target_env[mode]["targets"]
+
             iconpath = os.path.join(targetpath, "icons")
             icon = os.path.join(iconpath, t["icon"]) if "icon" in t else default_icon
             m = Modelling(self.glob, name, icon, tip)
 
             if "decr" in t:
                 mt = Morphtarget(self.env, t["decr"])
-                mt.loadTextFile(targetpath)
+                mt.loadTargetData(targetpath, bintargets)
                 m.decr_target(mt)
             if "incr" in t:
                 mt = Morphtarget(self.env, t["incr"])
-                mt.loadTextFile(targetpath)
+                mt.loadTargetData(targetpath, bintargets)
                 m.incr_target(mt)
             if "macro" in t:
                 m.macro_target(t["macro"])

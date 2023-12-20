@@ -1126,35 +1126,59 @@
 	},
 	"R-Cheek MoveVer": {
 		"name": "Move Vertically",
-		"group": "face|right cheek"
+		"group": "face|right cheek",
+		"icon": "r-cheek-trans-down-up.png",
+		"decr": "cheek/r-cheek-trans-down",
+		"incr": "cheek/r-cheek-trans-up"
 	},
 	"R-Cheek OuterVol": {
 		"name": "Outer Volume",
-		"group": "face|right cheek"
+		"group": "face|right cheek",
+		"icon": "r-cheek-volume-decr-incr.png",
+		"decr": "cheek/r-cheek-volume-decr",
+		"incr": "cheek/r-cheek-volume-incr"
 	},
 	"R-Cheek InnerVol": {
 		"name": "Inner Volume",
-		"group": "face|right cheek"
+		"group": "face|right cheek",
+		"icon": "r-cheek-inner-decr-incr.png",
+		"decr": "cheek/r-cheek-inner-decr",
+		"incr": "cheek/r-cheek-inner-incr"
 	},
 	"R-Cheek Prominence": {
 		"name": "Scale Prominence",
-		"group": "face|right cheek"
+		"group": "face|right cheek",
+		"icon": "r-cheek-bones-decr-incr.png",
+		"decr": "cheek/r-cheek-bones-decr",
+		"incr": "cheek/r-cheek-bones-incr"
 	},
 	"L-Cheek MoveVer": {
 		"name": "Move Vertically",
-		"group": "face|left cheek"
+		"group": "face|left cheek",
+		"icon": "l-cheek-trans-down-up.png",
+		"decr": "cheek/l-cheek-trans-down",
+		"incr": "cheek/l-cheek-trans-up"
 	},
 	"L-Cheek OuterVol": {
 		"name": "Outer Volume",
-		"group": "face|left cheek"
+		"group": "face|left cheek",
+		"icon": "l-cheek-volume-decr-incr.png",
+		"decr": "cheek/l-cheek-volume-decr",
+		"incr": "cheek/l-cheek-volume-incr"
 	},
 	"L-Cheek InnerVol": {
 		"name": "Inner Volume",
-		"group": "face|left cheek"
+		"group": "face|left cheek",
+		"icon": "l-cheek-inner-decr-incr.png",
+		"decr": "cheek/l-cheek-inner-decr",
+		"incr": "cheek/l-cheek-inner-incr"
 	},
 	"L-Cheek Prominence": {
 		"name": "Scale Prominence",
-		"group": "face|left cheek"
+		"group": "face|left cheek",
+		"icon": "l-cheek-bones-decr-incr.png",
+		"decr": "cheek/l-cheek-bones-decr",
+		"incr": "cheek/l-cheek-bones-incr"
 	},
 	"Torso ScaleHor": {
 		"name": "Scale Horizontally",
