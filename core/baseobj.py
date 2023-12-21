@@ -162,24 +162,26 @@ class baseClass():
         """
         self.baseMesh.getInitialCopyForSlider(factor, decr, incr)
 
-    def updateByTarget(self, factor, decr, incr):
-        """
-        update all meshes by target
-        """
-        self.baseMesh.updateByTarget(factor, decr, incr)
+    def updateAttachedAssets(self):
         for asset in self.attachedAssets:
             #
             # TODO: could be that the method will be moved to attached_asset
             #
             asset.obj.approxByTarget(asset, self.baseMesh)
 
+    def updateByTarget(self, factor, decr, incr):
+        """
+        update all meshes by target
+        """
+        self.baseMesh.updateByTarget(factor, decr, incr)
+        self.updateAttachedAssets()
+
     def setTarget(self, factor, decr, incr):
         """
-        set all meshe by target
+        set all meshes by target
         """
         self.baseMesh.setTarget(factor, decr, incr)
-        for asset in self.attachedAssets:
-            asset.obj.approxByTarget(asset, self.baseMesh)
+        self.updateAttachedAssets()
 
     def applyAllTargets(self):
         #
@@ -196,8 +198,8 @@ class baseClass():
             
         for target in targets:
             if target.value != 0.0:
-                print ("Set " + target.name)
                 if target.macro is None:
+                    print ("Set " + target.name)
                     self.setTarget(target.value / 100, target.decr, target.incr)
 
     def __del__(self):

@@ -24,17 +24,24 @@ class object3d:
         self.overflow = None # will contain a table for double used vertices [source, dest]
 
         self.gl_coord = []    # will contain flattened gl-Buffer (these are coordinates to be changed)
-        self.gl_coord_o = []  # will contain a copy of unchanged positions
+        self.gl_coord_o = []  # will contain a copy of unchanged positions (TODO base mesh only ?)
+
         self.gl_coord_w = []  # will contain a copy of unchanged positions (working mode with targets)
+        self.gl_coord_m = []  # will contain another buffer for work with macros (base mesh only)
+
         self.gl_uvcoord = []  # will contain flattened gluv-Buffer
         self.gl_norm  = []    # will contain flattended normal buffer
         self.gl_fvert  = []   # will contain vertices per face, [verts, 3] array of uint32 for openGL > 2
         self.n_glverts = 0    # number of vertices for open gl
         self.n_glnorm  = 0    # number of normals for open gl
+
         if baseinfo is not None:
             self.visible = baseinfo["visible groups"]
+            self.is_base = True
+            self.clearMacroBuffer()
         else:
             self.visible = None
+            self.is_base = False
 
     def __str__(self):
         return (self.name + ": Object3d with " + str(self.n_groups) + " group(s)\n" + 
@@ -163,7 +170,9 @@ class object3d:
                 cnt += 1
         self.gl_coord = self.coord.flatten()
         self.gl_coord_o = self.gl_coord.copy()  # create a copy for original values
-        self.gl_coord_w = self.gl_coord.copy()  # create another one for working
+        if self.is_base:
+            self.gl_coord_w = self.gl_coord.copy()          # basemesh: create another one for working
+            self.gl_coord_m = np.zeros_like(self.gl_coord)  # basemesh: create a macrotarget buffer
 
         if self.n_fuvs > 0:
             self.gl_uvcoord = self.uvs.flatten()
@@ -250,14 +259,42 @@ class object3d:
 
         for i in range(0, len(verts)):
             x = verts[i] * 3
-            self.gl_coord[x]   = self.gl_coord[x]   + factor * data[i][0]
-            self.gl_coord[x+1] = self.gl_coord[x+1] + factor * data[i][1]
-            self.gl_coord[x+2] = self.gl_coord[x+2] + factor * data[i][2]
+            self.gl_coord[x]   += factor * data[i][0]
+            self.gl_coord[x+1] += factor * data[i][1]
+            self.gl_coord[x+2] += factor * data[i][2]
 
         # do not forget the overflow vertices
         #
         self.overflowCorrection(self.gl_coord)
 
+    def clearMacroBuffer(self):
+        self.gl_coord_m = np.zeros_like(self.gl_coord)
+
+    def addTargetToMacroBuffer(self, factor, target):
+        """
+        updates a special buffer for a macro target
+        """
+        print ("add macro buffer for " + str(target))
+        verts = target.verts
+        data  = target.data
+
+        for i in range(0, len(verts)):
+            x = verts[i] * 3
+            self.gl_coord_m[x]   += factor * data[i][0]
+            self.gl_coord_m[x+1] += factor * data[i][1]
+            self.gl_coord_m[x+2] += factor * data[i][2]
+
+    def addMacroBuffer(self):
+
+        # make sure to write in same buffer (out will avoid to get a new one)
+        #
+        np.add(self.gl_coord, self.gl_coord_m, out=self.gl_coord)  
+        self.overflowCorrection(self.gl_coord)
+
+    def subtractMacroBuffer(self):
+        # make sure to write in same buffer (out will avoid to get a new one)
+        #
+        np.subtract(self.gl_coord, self.gl_coord_m, out=self.gl_coord)  
 
     def approxByTarget(self, asset, base):
         """

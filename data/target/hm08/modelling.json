@@ -1189,35 +1189,59 @@
 	},
 	"Torso ScaleVer": {
 		"name": "Scale Vertically",
-		"group": "torso|shape"
+		"group": "torso|shape",
+		"icon": "torso-scale-vert-decr-incr.png",
+		"decr": "torso/torso-scale-vert-decr",
+		"incr": "torso/torso-scale-vert-incr"
 	},
 	"Torso ScaleDep": {
 		"name": "Scale Depth",
-		"group": "torso|shape"
+		"group": "torso|shape",
+		"icon": "torso-scale-depth-decr-incr.png",
+		"decr": "torso/torso-scale-depth-decr",
+		"incr": "torso/torso-scale-depth-incr"
 	},
 	"Torso MoveHor": {
 		"name": "Move Horizontally",
-		"group": "torso|shape"
+		"group": "torso|shape",
+		"icon": "torso-trans-in-out.png",
+		"decr": "torso/torso-trans-in",
+		"incr": "torso/torso-trans-out"
 	},
 	"Torso MoveVer": {
 		"name": "Move Vertically",
-		"group": "torso|shape"
+		"group": "torso|shape",
+		"icon": "torso-trans-down-up.png",
+		"decr": "torso/torso-trans-down",
+		"incr": "torso/torso-trans-up"
 	},
 	"Torso MoveDep": {
 		"name": "Move Depth",
-		"group": "torso|shape"
+		"group": "torso|shape",
+		"icon": "torso-trans-backward-forward.png",
+		"decr": "torso/torso-trans-backward",
+		"incr": "torso/torso-trans-forward"
 	},
 	"Torso Coneshape": {
 		"name": "Scale Cone-Shape",
-		"group": "torso|shape"
+		"group": "torso|shape",
+		"icon": "torso-vshape-decr-incr.png",
+		"decr": "torso/torso-vshape-decr",
+		"incr": "torso/torso-vshape-incr"
 	},
 	"Torso Dorsi": {
 		"name": "Dorsi Muscle",
-		"group": "torso|shape"
+		"group": "torso|shape",
+		"icon": "torso-muscle-dorsi-decr-incr.png",
+		"decr": "torso/torso-muscle-dorsi-decr",
+		"incr": "torso/torso-muscle-dorsi-incr"
 	},
 	"Torso Pectoral": {
 		"name": "Pectoral Muscle",
-		"group": "torso|shape"
+		"group": "torso|shape",
+		"icon": "torso-muscle-pectoral-decr-incr.png",
+		"decr": "torso/torso-muscle-pectoral-decr",
+		"incr": "torso/torso-muscle-pectoral-incr"
 	},
 	"Hip ScaleHor": {
 		"name": "Scale Horizontally",

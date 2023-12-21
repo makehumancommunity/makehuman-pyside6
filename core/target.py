@@ -177,6 +177,7 @@ class Modelling:
         macros = self.glob.targetMacros
         macrodef = macros["macrodef"]
         components = macros["components"]
+        targetlist = []
         for l in m_influence:
             print ("   " + macrodef[l]["name"])
             comps = macrodef[l]["comp"]
@@ -224,37 +225,42 @@ class Modelling:
                                 weightarray.append(m)
                                 break
 
-            # all components done, calculate weights as a product
-            #
-            targetlist = []
             self.generateAllMacroWeights(targetlist, "", 1.0, weightarray)
 
-            # The last step is the optimization: Some weightfiles are not existing.
-            # So they would be a factor of 0. Sometimes targets are identical.
-            # All targets are in memory and there are no duplicates. The calculated
-            # target name will be mapped to the targets (using the value "t")
-            # So it either add them the new targetname to a list or add the second factor if allready exists.
+        # all components done, calculate weights as a product
+        #
+        #targetlist = []
 
-            sortedtargets = {}
-            l = macros["targetlink"]
+        # The last step is the optimization: Some weightfiles are not existing.
+        # So they would be a factor of 0. Sometimes targets are identical.
+        # All targets are in memory and there are no duplicates. The calculated
+        # target name will be mapped to the targets (using the value "t")
+        # So it either add them the new targetname to a list or add the second factor if allready exists.
 
-            for elem in targetlist:
-                print (elem)
-                name = elem["name"]
-                if name is not None:
-                    if name in l:
-                        if l[name] in sortedtargets:
-                            sortedtargets[l[name]] += elem["factor"]
-                        else:
-                            sortedtargets[l[name]] = elem["factor"]
+        sortedtargets = {}
+        l = macros["targetlink"]
 
-            # add them to screen first
-            #
-            for elem in sortedtargets:
-                if elem in self.glob.macroRepo:
-                    print (elem, sortedtargets[elem])
-                    #self.obj.updateByTarget(sortedtargets[elem], None, self.glob.macroRepo[elem])
-                    self.obj.setTarget(sortedtargets[elem], None, self.glob.macroRepo[elem])
+        for elem in targetlist:
+            print (elem)
+            name = elem["name"]
+            if name is not None:
+                if name in l:
+                    if l[name] in sortedtargets:
+                        sortedtargets[l[name]] += elem["factor"]
+                    else:
+                        sortedtargets[l[name]] = elem["factor"]
+                else:
+                    pass
+                    #print (name + " not found")
+
+        # add them to screen first
+        #
+        self.obj.baseMesh.clearMacroBuffer()
+        for elem in sortedtargets:
+            if elem in self.glob.macroRepo:
+                print (elem, sortedtargets[elem])
+                self.obj.baseMesh.addTargetToMacroBuffer(sortedtargets[elem], self.glob.macroRepo[elem])
+        self.obj.baseMesh.addMacroBuffer()
 
     def callback(self, param=None):
         factor = self.value / 100
@@ -266,7 +272,9 @@ class Modelling:
             if param is not None:
                 self.set_barycentric(param.getValues())
 
+            self.obj.baseMesh.subtractMacroBuffer()
             self.macroCalculation(self.m_influence)
+            self.obj.updateAttachedAssets()
             self.refresh.Tweak()
 
         elif self.incr is not None or self.decr is not None:
