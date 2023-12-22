@@ -1245,31 +1245,52 @@
 	},
 	"Hip ScaleHor": {
 		"name": "Scale Horizontally",
-		"group": "torso|hip"
+		"group": "torso|hip",
+		"icon": "hip-scale-horiz-decr-incr.png",
+		"decr": "hip/hip-scale-horiz-decr",
+		"incr": "hip/hip-scale-horiz-incr"
 	},
 	"Hip ScaleVer": {
 		"name": "Scale Vertically",
-		"group": "torso|hip"
+		"group": "torso|hip",
+		"icon": "hip-scale-vert-decr-incr.png",
+		"decr": "hip/hip-scale-vert-decr",
+		"incr": "hip/hip-scale-vert-incr"
 	},
 	"Hip ScaleDep": {
 		"name": "Scale Depth",
-		"group": "torso|hip"
+		"group": "torso|hip",
+		"icon": "hip-scale-depth-decr-incr.png",
+		"decr": "hip/hip-scale-depth-decr",
+		"incr": "hip/hip-scale-depth-incr"
 	},
 	"Hip MoveHor": {
 		"name": "Move Horizontally",
-		"group": "torso|hip"
+		"group": "torso|hip",
+		"icon": "hip-trans-in-out.png",
+		"decr": "hip/hip-trans-in",
+		"incr": "hip/hip-trans-out"
 	},
 	"Hip MoveVer": {
 		"name": "Move Vertically",
-		"group": "torso|hip"
+		"group": "torso|hip",
+		"icon": "hip-trans-down-up.png",
+		"decr": "hip/hip-trans-down",
+		"incr": "hip/hip-trans-up"
 	},
 	"Hip MoveDep": {
 		"name": "Move Depth",
-		"group": "torso|hip"
+		"group": "torso|hip",
+		"icon": "hip-trans-backward-forward.png",
+		"decr": "hip/hip-trans-backward",
+		"incr": "hip/hip-trans-forward"
 	},
 	"Hip WaistPos": {
 		"name": "Waist Vertical Position",
-		"group": "torso|hip"
+		"group": "torso|hip",
+		"icon": "hip-waist-down-up.png",
+		"decr": "hip/hip-waist-down",
+		"incr": "hip/hip-waist-up"
 	},
 	"Stomach Tone": {
 		"name": "Muscular Tone",

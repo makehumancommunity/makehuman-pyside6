@@ -1,5 +1,15 @@
 {
 	"visible groups": [ "body"],
+	"target-opposites": {
+		"decr": "incr",
+        	"down": "up",
+        	"in": "out",
+        	"backward":"forward",
+        	"concave": "convex",
+        	"compress": "uncompress",
+        	"pointed": "triangle",
+        	"square": "round"
+	},
 	"modifier-presets": {
 		"macrodetails/Gender": 0.5,
 		"macrodetails/Age": 0.5,

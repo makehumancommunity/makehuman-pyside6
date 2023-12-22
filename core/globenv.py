@@ -18,8 +18,9 @@ class globalObjects():
         self.reset()
 
     def reset(self):
+        self.project_changed = False        # will contain if sth. has changed
         self.freeTextures()
-        self.Targets = None
+        self.Targets = None                 # is a pointer to target objects
         self.targetCategories = None        # will contain the category object
         self.targetMacros     = None        # will contain macrodefinitions (JSON structure, if available)
         self.targetRepo       = {}          # will contain a dictionary of available targets

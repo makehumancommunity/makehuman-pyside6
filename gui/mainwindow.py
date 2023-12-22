@@ -2,7 +2,7 @@ from PySide6.QtWidgets import (
         QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFrame, QGroupBox, QListWidget,
         QAbstractItemView, QSizePolicy, QScrollArea, QFileDialog, QDialogButtonBox
         )
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QCloseEvent
 from PySide6.QtCore import QSize, Qt
 from gui.prefwindow import  MHPrefWindow
 from gui.logwindow import  MHLogWindow
@@ -244,7 +244,7 @@ class MHMainWindow(QMainWindow):
         super().show()
 
     def closeEvent(self, event):
-        self.quit_call()
+        self.quit_call(event)
 
     def pref_call(self):
         """
@@ -272,8 +272,12 @@ class MHMainWindow(QMainWindow):
 
     def loadmhm_call(self):
         if self.glob.baseClass is not None:
-            dbox = DialogBox("All changes will be lost, okay to load a new character?", QDialogButtonBox.Ok)
-            if dbox.exec():
+            confirmed = 1
+            if self.glob.project_changed:
+                dbox = DialogBox("All changes will be lost, okay to load a new character?", QDialogButtonBox.Ok)
+                confirmed = dbox.exec()
+
+            if confirmed:
                 directory = os.path.join(self.env.path_userdata, "models", self.env.basename)
                 filename = self.fileRequest("Model", "Model files (*.mhm)", directory)
                 if filename is not None:
@@ -282,6 +286,7 @@ class MHMainWindow(QMainWindow):
                     self.targetfilter = self.qTree.getStartPattern()
                     self.redrawNewCategory(self.targetfilter)
                     self.setWindowTitle(self.glob.baseClass.name)
+                self.glob.project_changed = False
 
 
     def savemhm_call(self):
@@ -300,20 +305,32 @@ class MHMainWindow(QMainWindow):
         self.info_window.show()
 
     def presentbaseselect_call(self):
-        dbox = DialogBox("By changing the base mesh, all current changes are lost. Do you want to apply a new mesh?", QDialogButtonBox.Ok)
-        if dbox.exec():
+        confirmed = 1
+        if self.glob.project_changed:
+            dbox = DialogBox("By changing the base mesh, all current changes are lost. Do you want to apply a new mesh?", QDialogButtonBox.Ok)
+            confirmed =  dbox.exec()
+
+        if confirmed:
             self.selectbase_in_progress = True
             self.emptyLayout(self.BaseBox)
             self.drawBasePanel()
             self.BaseBox.update()
 
     def reset_call(self):
-        print ("Reset")
         if self.glob.Targets is not None:
-            self.glob.Targets.reset()
-            self.redrawNewCategory(self.targetfilter)
-            self.glob.baseClass.applyAllTargets()
-            self.graph.view.Tweak()
+            confirmed = 1
+            if self.glob.project_changed:
+                dbox = DialogBox("All changes will be lost. Do you want to do a reset?", QDialogButtonBox.Ok)
+                confirmed = dbox.exec()
+
+            if confirmed:
+                print ("Reset")
+                self.glob.Targets.reset()
+                self.glob.project_changed = False
+                self.redrawNewCategory(self.targetfilter)
+                self.glob.baseClass.applyAllTargets()
+                self.glob.baseClass.updateAttachedAssets()
+                self.graph.view.Tweak()
 
     def selectmesh_call(self):
         sel = self.basewidget.selectedItems()
@@ -357,10 +374,22 @@ class MHMainWindow(QMainWindow):
             self.glob.Targets.saveBinaryTargets(2)
 
 
-    def quit_call(self):
+    def quit_call(self, event=None):
         """
         save session (if desired)
+        also make a check, when project was changed
         """
+        if self.in_close is True:
+            return
+
+        if self.glob.project_changed:
+            dbox = DialogBox("All changes will be lost. Do you want to exit?", QDialogButtonBox.Ok)
+            confirmed = dbox.exec()
+            if confirmed == 0:
+                if isinstance(event,QCloseEvent):
+                    event.ignore()
+                    print ("Close event")
+                return
         self.glob.freeTextures()
         if self.in_close is False:
             self.in_close = True                # avoid double call by closeAllWindows

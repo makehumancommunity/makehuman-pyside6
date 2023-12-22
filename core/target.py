@@ -111,7 +111,15 @@ class Modelling:
         self.barycentric[1]["value"] = val[1]
         self.barycentric[2]["value"] = val[2]
 
-    def search_pattern(self):
+    def search_pattern(self, user):
+        """
+        creates a pattern to be found in the target repo,
+        for macros it is of a different type
+        dual targets will be referenced by dual patterns, the opposites are defined in base.json
+        single targets will be referenced by just the name
+        user targets will get a "custom/" in front
+        """
+
         if self.barycentric:
             self.pattern = self.barycentric
             self.opposite = False
@@ -123,26 +131,26 @@ class Modelling:
 
         d = str(self.decr)
         i = str(self.incr)
+
         self.pattern = "None"
-        if d.endswith("-decr") and i.endswith("-incr"):
-            self.pattern = d + "|incr"
-        elif d.endswith("-down") and i.endswith("-up"):
-            self.pattern = d + "|up"
-        elif d.endswith("-in") and i.endswith("-out"):
-            self.pattern = d + "|out"
-        elif d.endswith("-backward") and i.endswith("-forward"):
-            self.pattern = d + "|forward"
-        elif d.endswith("-concave") and i.endswith("-convex"):
-            self.pattern = d + "|convex"
-        elif d.endswith("-compress") and i.endswith("-uncompress"):
-            self.pattern = d + "|uncompress"
-        elif d.endswith("-pointed") and i.endswith("-triangle"):
-            self.pattern = d + "|triangle"
-        elif d.endswith("-square") and i.endswith("-round"):
-            self.pattern = d + "|round"
-        elif i != "None":
+        if i == "None":
+            return
+
+        # use target opposites to find pattern (from base.json)
+        #
+        if "target-opposites" in self.obj.baseInfo:
+            test = self.obj.baseInfo["target-opposites"]
+            for elem in test:
+                if d.endswith("-" + elem) and i.endswith("-" + test[elem]):
+                    self.pattern = d + "|" + test[elem]
+                    break
+
+        if self.pattern == "None":
             self.pattern = i
             self.opposite = False
+
+        if user == 1:
+            self.pattern = "custom/" + self.pattern
 
     def set_refresh(self,refreshwindow):
         self.refresh = refreshwindow
@@ -275,11 +283,13 @@ class Modelling:
             self.obj.baseMesh.subtractMacroBuffer()
             self.macroCalculation(self.m_influence)
             self.obj.updateAttachedAssets()
+            self.glob.project_changed = True
             self.refresh.Tweak()
 
         elif self.incr is not None or self.decr is not None:
             print("change " + self.name)
             self.obj.updateByTarget(factor, self.decr, self.incr)
+            self.glob.project_changed = True
             self.refresh.Tweak()
 
     #def __del__(self):
@@ -467,7 +477,7 @@ class Targets:
                 m.set_group(t["group"])
             if "default" in t:
                 m.setDefault(t["default"] * 100)
-            m.search_pattern()
+            m.search_pattern(mode)
             if m.pattern != "None":
                 if isinstance(m.pattern, list):
                     for l in m.pattern:
