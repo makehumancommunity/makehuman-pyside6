@@ -124,6 +124,8 @@ class baseClass():
             self.glob.reset()
             del self.glob.baseClass
         self.glob.baseClass = self
+
+        self.baseMesh.precalculateDimension()
         target = Targets(self.glob)
         target.loadTargets()
         if "modifier-presets" in self.baseInfo:

@@ -314,18 +314,30 @@ class object3d:
         #
         self.overflowCorrection(self.gl_coord)
 
-    def recalculateDimension(self):
-
+    def precalculateDimension(self):
+        """
+        calculate numbers of vertices, which are on the outside for later use
+        """
         a = self.gl_coord.reshape((int(len(self.gl_coord)/3),3))
-        self.minimum_axis = np.min(a, axis=0)
-        self.maximum_axis = np.max(a, axis=0)
+        self.max_index = np.argmax(a, axis=0)
+        self.min_index  = np.argmin(a, axis=0)
 
-        print ("Dimension left/right: " + str(self.minimum_axis[0]) + " / " + str(self.maximum_axis[0]))
-        print ("Dimension back/front: " + str(self.minimum_axis[2]) + " / " + str(self.maximum_axis[2]))
-        print ("Dimension bottom/top: " + str(self.minimum_axis[1]) + " / " + str(self.maximum_axis[1]))
+    def getCenterWidth(self):
+        return ((self.gl_coord[self.max_index[0]*3]+self.gl_coord[self.min_index[0]*3])/2.0)
+
+    def getCenterHeight(self):
+        return ((self.gl_coord[self.max_index[1]*3+1]+self.gl_coord[self.min_index[1]*3+1])/2.0)
+
+    def getCenterDepth(self):
+        return ((self.gl_coord[self.max_index[2]*3+2]+self.gl_coord[self.min_index[2]*3+2])/2.0)
 
     def getCenter(self):
-        return ((self.maximum_axis+self.minimum_axis) / 2)
+        a =  self.gl_coord
+        n = [ self.getCenterWidth(),  self.getCenterHeight(), self.getCenterDepth() ]
+        return (n)
+
+    def getHeightInUnits(self):
+        return (self.gl_coord[self.max_index[1]*3+1]-self.gl_coord[self.min_index[1]*3+1])
 
     """
     def calculateMaxAttachedFaces(self):

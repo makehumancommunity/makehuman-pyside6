@@ -37,7 +37,7 @@ class GraphWindow(QOpenGLWidget):
         self.objects = []
         self.camera  = None
         # print (env)
-        self.glob.graphwindow = self
+        self.glob.openGLWindow = self
         if glob.Targets is not None:
             glob.Targets.refreshTargets(self)
 
@@ -127,6 +127,10 @@ class GraphWindow(QOpenGLWidget):
         self.paintGL()
         self.update()
 
+    def setCameraCenter(self):
+        baseClass = self.glob.baseClass
+        self.camera.setCenter(baseClass.baseMesh.getCenter())
+
     def newMesh(self):
         baseClass = self.glob.baseClass
         for glbuffer in self.buffers:
@@ -138,7 +142,7 @@ class GraphWindow(QOpenGLWidget):
             for elem in baseClass.attachedAssets:
                 # print ("   " + str(elem))
                 self.createObject(elem.obj, "brown_eye.png")
-            self.camera.setCenter(baseClass.baseMesh.getCenter())
+            self.setCameraCenter()
             self.paintGL()
             self.update()
 

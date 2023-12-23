@@ -13,7 +13,8 @@ class globalObjects():
     def __init__(self, env):
         self.env = env
         self.app = None
-        self.graphwindow = None
+        self.openGLWindow = None
+        self.mhViewport = None
         self.baseClass = None
         self.reset()
 
@@ -209,7 +210,7 @@ class programInfo():
            return False
         with f:
             try:
-                json.dump(json_object, f, indent=4)
+                json.dump(json_object, f, indent=4, sort_keys=True)
             except:
                 self.last_error = "Cannot write JSON " + path
                 return False
@@ -508,6 +509,17 @@ class programInfo():
                 if isinstance(standard[element], dict):
                     changed = self.dictFillGaps(standard[element], testdict[element])
         return (changed)
+
+    def toUnit(self, value):
+        """
+        for metrical, centimeter is used, otherwise feet & inches
+        """
+        if "units" in self.config and self.config["units"] == "imperial":
+            inch = value * (10 / 2.54)
+            ft = inch // 12
+            inch = round(inch - ft*12, 2)
+            return(str(round(ft)) + " ft  "+ str(inch) + " in")
+        return (str(round(value*10, 2)) + " cm")
 
     def logLine(self, level, line):
         """

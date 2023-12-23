@@ -286,6 +286,7 @@ class MHMainWindow(QMainWindow):
                     self.targetfilter = self.qTree.getStartPattern()
                     self.redrawNewCategory(self.targetfilter)
                     self.setWindowTitle(self.glob.baseClass.name)
+                    self.glob.mhViewport.setSizeInfo()
                 self.glob.project_changed = False
 
 

@@ -1,5 +1,5 @@
 from PySide6.QtCore import QSize, Qt, QObject, QEvent
-from PySide6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy
+from PySide6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel
 from PySide6.QtGui import QVector3D, QColor, QIcon
 from core.baseobj import baseClass
 from opengl.main import GraphWindow
@@ -68,6 +68,7 @@ class MHGraphicWindow(QWidget):
         #
         self.eventFilter = NavigationEvent(self)
         self.installEventFilter(self.eventFilter)
+        glob.mhViewport = self
 
 
     def navButtons(self, vlayout):
@@ -102,6 +103,15 @@ class MHGraphicWindow(QWidget):
         self.pers_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         vlayout.addWidget(self.pers_button)
 
+    def setSizeInfo(self):
+        value=self.glob.baseClass.baseMesh.getHeightInUnits()
+        self.sizeInfo.setText("Size: " + self.env.toUnit(value))
+
+    def navInfos(self,vlayout):
+        self.sizeInfo = QLabel()
+        if self.glob.baseClass is not None:
+            self.setSizeInfo()
+        vlayout.addWidget(self.sizeInfo)
 
 
     """
@@ -115,6 +125,7 @@ class MHGraphicWindow(QWidget):
         vlayout = QVBoxLayout()
         self.navButtons(vlayout)
         vlayout.addStretch()
+        self.navInfos(vlayout)
 
         if self.attached is True:
             self.disconnectbutton = QPushButton("Disconnect")

@@ -23,7 +23,7 @@ class Modelling:
     def __init__(self, glob, name, icon, tip):
         self.glob     = glob
         self.obj      = glob.baseClass
-        self.refresh  = glob.graphwindow
+        self.gwindow  = glob.openGLWindow
 
         self.name = name
         self.icon = icon
@@ -153,7 +153,7 @@ class Modelling:
             self.pattern = "custom/" + self.pattern
 
     def set_refresh(self,refreshwindow):
-        self.refresh = refreshwindow
+        self.gwindow = refreshwindow
 
     def set_displayname(self, name):
         self.displayname = name
@@ -284,13 +284,15 @@ class Modelling:
             self.macroCalculation(self.m_influence)
             self.obj.updateAttachedAssets()
             self.glob.project_changed = True
-            self.refresh.Tweak()
+            self.glob.mhViewport.setSizeInfo()
+            self.gwindow.Tweak()
 
         elif self.incr is not None or self.decr is not None:
             print("change " + self.name)
             self.obj.updateByTarget(factor, self.decr, self.incr)
             self.glob.project_changed = True
-            self.refresh.Tweak()
+            self.glob.mhViewport.setSizeInfo()
+            self.gwindow.Tweak()
 
     #def __del__(self):
     #    print (" -- __del__ Modelling: " + self.name)
@@ -363,7 +365,6 @@ class Targets:
         self.collection = None
         self.macrodef = None
         self.baseClass = glob.baseClass
-        self.graphwindow = glob.graphwindow
 
     def __str__(self):
         return ("Target-Collection: " + str(self.collection))
@@ -610,7 +611,6 @@ class TargetCategories:
         :param: filename is target without suffix
         """
         name = filename.replace('-', ' ') # display name
-        print ("Name: " + name)
         if folder is not None:
             fname = os.path.join(folder, filename)
             elem = folder.capitalize() + " " + name.capitalize()
@@ -621,13 +621,15 @@ class TargetCategories:
             elem = "User " + name.capitalize()
             group = "user|unsorted"
             iconname = filename
+
+        dualtarget = False
         if filename.endswith("incr"):
             if folder is not None:
                 opposite = os.path.join(folder, filename.replace("incr", "decr"))
             else:
                 opposite = filename.replace("incr", "decr")
-            print ("Need to check for " + opposite)
             if opposite in cats:
+                print ("Dual target: " + filename + " / "  + opposite)
                 name = name[:-5]
                 elem = elem[:-5]
                 user_mod[elem] = ({"user": 1, "name": name, "group": group,  "incr": fname, "decr": opposite })
@@ -635,19 +637,19 @@ class TargetCategories:
                 iconname = iconname[:-5] + ".png"
                 if iconname in self.icon_repos:
                     user_mod[elem]["icon"] = iconname
+                dualtarget = True
+
         elif filename.endswith("decr"):
             if folder is not None:
                 opposite = os.path.join(folder, filename.replace("decr", "incr"))
             else:
                 opposite = filename.replace("decr", "incr")
 
-            print ("Need to check for " + opposite)
-            if opposite not in cats:
-                user_mod[elem] = ({"user": 1, "name": name, "group": group,  "incr": fname })
-                iconname = iconname + ".png"
-                if iconname in self.icon_repos:
-                    user_mod[elem]["icon"] = iconname
-        else:
+            if opposite in cats:
+                dualtarget = True
+
+        if dualtarget is False:
+            print ("Simple target: " + filename)
             user_mod[elem] = ({"user": 1, "name": name, "group": group,  "incr": fname })
             iconname = iconname + ".png"
             if iconname in self.icon_repos:
@@ -697,7 +699,6 @@ class TargetCategories:
         user_cat = {"User": {"group": "user", "items": [] }}
         items = user_cat["User"]["items"]
         for elem in categories:
-            print (elem)
             if "/" in elem:
                 (d, f) = elem.split("/")
                 if d not in cat_list:

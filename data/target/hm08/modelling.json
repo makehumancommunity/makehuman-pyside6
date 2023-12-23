@@ -1294,31 +1294,52 @@
 	},
 	"Stomach Tone": {
 		"name": "Muscular Tone",
-		"group": "torso|stomach"
+		"group": "torso|stomach",
+		"icon": "stomach-tone-decr-incr.png",
+		"decr": "stomach/stomach-tone-decr",
+		"incr": "stomach/stomach-tone-incr"
 	},
 	"Stomach Pregnant": {
 		"name": "Pregnancy Shape",
-		"group": "torso|stomach"
+		"group": "torso|stomach",
+		"icon": "stomach-pregnant-decr-incr.png",
+		"decr": "stomach/stomach-pregnant-decr",
+		"incr": "stomach/stomach-pregnant-incr"
 	},
 	"Stomach NavelPos": {
 		"name": "Navel Position",
-		"group": "torso|stomach"
+		"group": "torso|stomach",
+		"icon": "stomach-navel-down-up.png",
+		"decr": "stomach/stomach-navel-down",
+		"incr": "stomach/stomach-navel-up"
 	},
 	"Stomach NavelBump": {
 		"name": "Navel Bump",
-		"group": "torso|stomach"
+		"group": "torso|stomach",
+		"icon": "stomach-navel-in-out.png",
+		"decr": "stomach/stomach-navel-in",
+		"incr": "stomach/stomach-navel-out"
 	},
 	"Buttocks Volume": {
 		"name": "Volume",
-		"group": "torso|buttocks"
+		"group": "torso|buttocks",
+		"icon": "buttocks-volume-decr-incr.png",
+		"decr": "buttocks/buttocks-volume-decr",
+		"incr": "buttocks/buttocks-volume-incr"
 	},
 	"Pelvis Muscular": {
 		"name": "Mucscular Tone",
-		"group": "torso|pelvis"
+		"group": "torso|pelvis",
+		"icon": "pelvis-tone-decr-incr.png",
+		"decr": "pelvis/pelvis-tone-decr",
+		"incr": "pelvis/pelvis-tone-incr"
 	},
 	"Pelvis Genital": {
 		"name": "Genital Volume",
-		"group": "torso|pelvis"
+		"group": "torso|pelvis",
+		"icon": "bulge-decr-incr.png",
+		"decr": "pelvis/bulge-decr",
+		"incr": "pelvis/bulge-incr"
 	},
 	"R-Shoulder Muscle": {
 		"name": "Muscle Mass",
