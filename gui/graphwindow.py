@@ -63,12 +63,13 @@ class MHGraphicWindow(QWidget):
         self.attached =self.env.g_attach
         print ("Attach " + str(self.attached))
         super().__init__()
+        glob.mhViewport = self
+        self.textSlot = [None, None, None, None, None]
         #
         # keyboard actions
         #
         self.eventFilter = NavigationEvent(self)
         self.installEventFilter(self.eventFilter)
-        glob.mhViewport = self
 
 
     def navButtons(self, vlayout):
@@ -106,13 +107,15 @@ class MHGraphicWindow(QWidget):
     def setSizeInfo(self):
         value=self.glob.baseClass.baseMesh.getHeightInUnits()
         self.sizeInfo.setText("Size: " + self.env.toUnit(value))
+        for idx,slot in enumerate(self.glob.textSlot):
+            if slot is not None:
+                print(slot())
 
     def navInfos(self,vlayout):
         self.sizeInfo = QLabel()
         if self.glob.baseClass is not None:
             self.setSizeInfo()
         vlayout.addWidget(self.sizeInfo)
-
 
     """
     creates layout for 3d window

@@ -27,9 +27,15 @@ class globalObjects():
         self.targetRepo       = {}          # will contain a dictionary of available targets
         self.macroRepo        = {}          # will contain a dictionary of available macros
         self.missingTargets = []            # will contain a list of missing targets after load
+        self.textSlot = [None, None, None, None, None] # text slots for graphical window
 
     def setApplication(self, app):
         self.app = app
+
+    
+    def setTextSlot(self, num, target):
+        if 0 < num <=5:
+            self.textSlot[num-1] = target
 
     def freeTextures(self):
         if hasattr(self, "textures"):

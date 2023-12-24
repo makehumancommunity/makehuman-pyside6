@@ -111,6 +111,18 @@ class Modelling:
         self.barycentric[1]["value"] = val[1]
         self.barycentric[2]["value"] = val[2]
 
+    def printSlot(self):
+        val =self.value / 100
+        x =eval(self.formula)
+        l = self.formatText.format(x)
+        return(l)
+
+    def textSlot(self, descr):
+        num = descr["slot"]
+        self.formatText = descr["text"]
+        self.formula = descr["formula"]
+        self.glob.setTextSlot(num, self.printSlot)
+
     def search_pattern(self, user):
         """
         creates a pattern to be found in the target repo,
@@ -476,6 +488,8 @@ class Targets:
                 m.set_displayname(t["name"])
             if "group" in t:
                 m.set_group(t["group"])
+            if "display" in t:
+                m.textSlot(t["display"])
             if "default" in t:
                 m.setDefault(t["default"] * 100)
             m.search_pattern(mode)
