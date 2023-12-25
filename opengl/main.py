@@ -27,7 +27,7 @@ def GLVersion(initialized):
     #
     return(glversion)
 
-class GraphWindow(QOpenGLWidget):
+class OpenGLView(QOpenGLWidget):
     def __init__(self, glob):
         self.glob = glob
         self.env = glob.env
@@ -63,9 +63,10 @@ class GraphWindow(QOpenGLWidget):
     def initializeGL(self):
 
         self.env.GL_Info = GLVersion(True)
-        self.camera = Camera()
-        self.camera.resizeViewPort(self.width(), self.height())
         baseClass = self.glob.baseClass
+        o_size = baseClass.baseMesh.getHeightInUnits() if baseClass is not None else 100
+        self.camera = Camera(o_size)
+        self.camera.resizeViewPort(self.width(), self.height())
         glfunc = self.context().functions()
 
         glfunc.glClearColor(0.2, 0.2, 0.2, 1)
@@ -108,6 +109,11 @@ class GraphWindow(QOpenGLWidget):
 
     def panning(self, x, y):
         self.camera.panning(x,y)
+        self.paintGL()
+        self.update()
+
+    def modifyFov(self, value):
+        self.camera.setFocalLength(value)
         self.paintGL()
         self.update()
 

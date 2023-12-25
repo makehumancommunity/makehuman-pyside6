@@ -1,8 +1,8 @@
 from PySide6.QtCore import QSize, Qt, QObject, QEvent
-from PySide6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel
+from PySide6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QSlider
 from PySide6.QtGui import QVector3D, QColor, QIcon
 from core.baseobj import baseClass
-from opengl.main import GraphWindow
+from opengl.main import OpenGLView
 import os
 
 class NavigationEvent(QObject):
@@ -64,7 +64,6 @@ class MHGraphicWindow(QWidget):
         print ("Attach " + str(self.attached))
         super().__init__()
         glob.mhViewport = self
-        self.textSlot = [None, None, None, None, None]
         #
         # keyboard actions
         #
@@ -104,15 +103,33 @@ class MHGraphicWindow(QWidget):
         self.pers_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         vlayout.addWidget(self.pers_button)
 
+        self.fovLabel = QLabel("Focal Length: 50")
+        vlayout.addWidget(self.fovLabel)
+        self.fovSlider=QSlider(Qt.Horizontal, self)
+        self.fovSlider.setMinimum(15)
+        self.fovSlider.setMaximum(200)
+        self.fovSlider.setMinimumWidth(150)
+        self.fovSlider.setValue(50)
+        self.fovSlider.setTickPosition(QSlider.TicksBelow)
+        self.fovSlider.setTickInterval(10)
+        self.fovSlider.valueChanged.connect(self.fovChanged)
+
+        vlayout.addWidget(self.fovSlider)
+
+
     def setSizeInfo(self):
         value=self.glob.baseClass.baseMesh.getHeightInUnits()
-        self.sizeInfo.setText("Size: " + self.env.toUnit(value))
+        text = ""
         for idx,slot in enumerate(self.glob.textSlot):
             if slot is not None:
-                print(slot())
+                text += slot() + "\n"
+        text += "Size: " + self.env.toUnit(value)
+        self.sizeInfo.setText(text)
 
     def navInfos(self,vlayout):
         self.sizeInfo = QLabel()
+        self.sizeInfo.setMinimumSize(150, 20)
+        self.sizeInfo.setWordWrap(True)
         if self.glob.baseClass is not None:
             self.setSizeInfo()
         vlayout.addWidget(self.sizeInfo)
@@ -121,7 +138,8 @@ class MHGraphicWindow(QWidget):
     creates layout for 3d window
     """
     def createLayout(self):
-        self.view = GraphWindow(self.glob)          # must be saved in self!
+        self.view = OpenGLView(self.glob)          # must be saved in self!
+        self.view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
         hlayout = QHBoxLayout()
         hlayout.addWidget(self.view)
 
@@ -148,6 +166,11 @@ class MHGraphicWindow(QWidget):
             self.resize (750, 650)
 
         return (hlayout)
+
+    def fovChanged(self):
+        value = self.fovSlider.value()
+        self.fovLabel.setText("Focal Length: " + str(round(value)))
+        self.view.modifyFov(value)
 
     def connect_button(self):
         """
@@ -229,8 +252,10 @@ class MHGraphicWindow(QWidget):
     def toggle_perspective(self):
         if self.pers_button.isChecked():
             self.pers_button.setStyleSheet("background-color : orange")
+            self.fovSlider.setEnabled(True)
         else:
             self.pers_button.setStyleSheet("background-color : lightgrey")
+            self.fovSlider.setEnabled(False)
         self.view.togglePerspective(self.pers_button.isChecked())
 
     def show(self):

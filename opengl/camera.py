@@ -1,16 +1,19 @@
 from PySide6.QtGui import QMatrix4x4, QVector3D, QOpenGLContext
 import OpenGL
 from OpenGL import GL as gl
-from math import pi as M_PI
+from math import pi as M_PI, atan, degrees
 
 class Camera():
     """
     should always calculate view matrix and projection matrix
     """
-    def __init__(self):
+    def __init__(self, o_size):
         """
         all parameters connected with camera
         """
+        self.o_height =  o_size
+        self.focal_length = 50.0                # start with a norm focal length
+        self.ortho_magnification =4.8
         self.view_width = 0
         self.view_height = 0
         self.last_mousex = 0
@@ -27,6 +30,14 @@ class Camera():
         self.lookAt = QVector3D()               # the position to focus
         self.resetCamera()
         self.updateViewMatrix()
+
+    def calculateVerticalAngle(self):
+        height = self.o_height
+        return(2 * degrees(atan(height/(2*self.focal_length))))
+
+    def setFocalLength(self, value):
+        self.focal_length = value
+        self.calculateProjMatrix()
 
     def getViewMatrix(self):
         return self.view_matrix
@@ -52,9 +63,16 @@ class Camera():
         self.view_matrix.lookAt( self.cameraPos, self.lookAt, self.cameraDir)
         self.proj_view_matrix = self.proj_matrix * self.view_matrix
 
+    def calculateOrthoMatrix(self):
+        self.proj_matrix.setToIdentity()
+        factor = self.o_height* self.ortho_magnification
+        w_o = float(self.view_width) / factor
+        h_o = float(self.view_height) / factor
+        self.proj_matrix.ortho(-w_o, w_o, -h_o, h_o, 0.1, 100)
+        
     def resetCamera(self):
         self.cameraPers = True
-        self.cameraDist = 20
+        self.cameraDist = 55        # calculate distance by trigonometric fuctions later
         self.cameraHeight = 0
         self.cameraPos =  QVector3D(0, self.cameraHeight, self.cameraDist)
         self.lookAt =  QVector3D(0, 0, 0)
@@ -86,10 +104,18 @@ class Camera():
         """
         move one unit on vector (zoom by vector length)
         """
-        v = self.cameraPos - self.lookAt
-        l = v.length() * distance
-        self.cameraPos += ( v / l)
-        self.updateViewMatrix()
+        if self.cameraPers:
+            v = self.cameraPos - self.lookAt
+            l = v.length() * distance
+            self.cameraPos += ( v / l)
+            self.updateViewMatrix()
+        else:
+            if distance > 0 and self.ortho_magnification < 1.1 or \
+                distance < 0 and self.ortho_magnification > 100:
+                return
+            self.ortho_magnification -= (self.ortho_magnification / 20 ) * distance
+            self.calculateOrthoMatrix()
+            self.updateViewMatrix()
 
     def togglePerspective(self, mode):
         self.cameraPers = mode
@@ -155,13 +181,13 @@ class Camera():
         w = float(self.view_width)
         h = float(self.view_height)
 
-        self.proj_matrix.setToIdentity()
         if self.cameraPers:
-            self.proj_matrix.perspective(50, w / h, 0.1, 100)
+            va = self.calculateVerticalAngle()
+            print (va)
+            self.proj_matrix.setToIdentity()
+            self.proj_matrix.perspective(va, w / h, 0.1, 100)
         else:
-            w_o = w / 100
-            h_o = h / 100
-            self.proj_matrix.ortho(-w_o, w_o, -h_o, h_o, 0.1, 100)
+            self.calculateOrthoMatrix()
         self.proj_view_matrix = self.proj_matrix * self.view_matrix
 
 

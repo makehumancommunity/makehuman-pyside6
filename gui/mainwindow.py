@@ -331,6 +331,7 @@ class MHMainWindow(QMainWindow):
                 self.redrawNewCategory(self.targetfilter)
                 self.glob.baseClass.applyAllTargets()
                 self.glob.baseClass.updateAttachedAssets()
+                self.graph.setSizeInfo()
                 self.graph.view.Tweak()
 
     def selectmesh_call(self):
@@ -352,6 +353,7 @@ class MHMainWindow(QMainWindow):
             self.emptyLayout(self.BaseBox)
             self.drawBasePanel()
             self.BaseBox.update()
+            self.graph.setSizeInfo()
 
             self.graph.update()
 

@@ -6,7 +6,7 @@
 		"macro_influence": [0, 1, 2, 3, 4],
 		"default": 0.5,
 		"display": {
-			"slot": 1, "text": "%s", "formula": "'male' if val < .5 else 'female'"
+			"slot": 1, "text": "{}", "formula":"'neutral' if 0.49 < val < 0.51 else 'male' if val > 0.99 else 'female' if val < 0.01 else str(round (100.0 - val*100.0)) + '% female, ' + str(round(val*100.0)) + '% male'"
 		}
 	},
 	"Age": {
@@ -1404,23 +1404,38 @@
 	},
 	"R-LArm THor": {
 		"name": "Lowerarm Length",
-		"group": "arms|right arm"
+		"group": "arms|right arm",
+		"icon": "r-lowerarm-scale-horiz-decr-incr.png",
+		"decr": "armslegs/r-lowerarm-scale-horiz-decr",
+		"incr": "armslegs/r-lowerarm-scale-horiz-incr"
 	},
 	"R-LArm TVer": {
 		"name": "Lowerarm Height",
-		"group": "arms|right arm"
+		"group": "arms|right arm",
+		"icon": "r-lowerarm-scale-vert-decr-incr.png",
+		"decr": "armslegs/r-lowerarm-scale-vert-decr",
+		"incr": "armslegs/r-lowerarm-scale-vert-incr"
 	},
 	"R-LArm TDep": {
 		"name": "Lowerarm Width",
-		"group": "arms|right arm"
+		"group": "arms|right arm",
+		"icon": "r-lowerarm-scale-depth-decr-incr.png",
+		"decr": "armslegs/r-lowerarm-scale-depth-decr",
+		"incr": "armslegs/r-lowerarm-scale-depth-incr"
 	},
 	"R-LArm Fat": {
 		"name": "Lowerarm Skinny-Fat",
-		"group": "arms|right arm"
+		"group": "arms|right arm",
+		"icon": "r-lowerarm-fat-decr-incr.png",
+		"decr": "armslegs/r-lowerarm-fat-decr",
+		"incr": "armslegs/r-lowerarm-fat-incr"
 	},
 	"R-LArm Muscles": {
 		"name": "Lowerarm Muscles",
-		"group": "arms|right arm"
+		"group": "arms|right arm",
+		"icon": "r-lowerarm-muscle-decr-incr.png",
+		"decr": "armslegs/r-lowerarm-muscle-decr",
+		"incr": "armslegs/r-lowerarm-muscle-incr"
 	},
 	"L-UArm THor": {
 		"name": "Upperarm Length",
@@ -1459,23 +1474,38 @@
 	},
 	"L-LArm THor": {
 		"name": "Lowerarm Length",
-		"group": "arms|left arm"
+		"group": "arms|left arm",
+		"icon": "l-lowerarm-scale-horiz-decr-incr.png",
+		"decr": "armslegs/l-lowerarm-scale-horiz-decr",
+		"incr": "armslegs/l-lowerarm-scale-horiz-incr"
 	},
 	"L-LArm TVer": {
 		"name": "Lowerarm Height",
-		"group": "arms|left arm"
+		"group": "arms|left arm",
+		"icon": "l-lowerarm-scale-vert-decr-incr.png",
+		"decr": "armslegs/l-lowerarm-scale-vert-decr",
+		"incr": "armslegs/l-lowerarm-scale-vert-incr"
 	},
 	"L-LArm TDep": {
 		"name": "Lowerarm Width",
-		"group": "arms|left arm"
+		"group": "arms|left arm",
+		"icon": "l-lowerarm-scale-depth-decr-incr.png",
+		"decr": "armslegs/l-lowerarm-scale-depth-decr",
+		"incr": "armslegs/l-lowerarm-scale-depth-incr"
 	},
 	"L-LArm Fat": {
 		"name": "Lowerarm Skinny-Fat",
-		"group": "arms|left arm"
+		"group": "arms|left arm",
+		"icon": "l-lowerarm-fat-decr-incr.png",
+		"decr": "armslegs/l-lowerarm-fat-decr",
+		"incr": "armslegs/l-lowerarm-fat-incr"
 	},
 	"L-LArm Muscles": {
 		"name": "Lowerarm Muscles",
-		"group": "arms|left arm"
+		"group": "arms|left arm",
+		"icon": "l-lowerarm-muscle-decr-incr.png",
+		"decr": "armslegs/l-lowerarm-muscle-decr",
+		"incr": "armslegs/l-lowerarm-muscle-incr"
 	},
 	"R-Hand Scale": {
 		"name": "Scale",
