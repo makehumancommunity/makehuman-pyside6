@@ -13,6 +13,7 @@ class Camera():
         """
         self.o_height =  o_size
         self.focal_length = 50.0                # start with a norm focal length
+        self.start_dist = 50.0                  # initial camera distance
         self.ortho_magnification =4.8
         self.view_width = 0
         self.view_height = 0
@@ -32,11 +33,23 @@ class Camera():
         self.updateViewMatrix()
 
     def calculateVerticalAngle(self):
-        height = self.o_height
+        height = self.o_height * 1.05
         return(2 * degrees(atan(height/(2*self.focal_length))))
+
+    def getFocalLength(self):
+        return(self.focal_length)
 
     def setFocalLength(self, value):
         self.focal_length = value
+        #
+        v = self.cameraPos - self.lookAt
+        print(self.cameraPos)
+        print(self.lookAt)
+        print ("Vlen: " + str(v.length()))
+        l = v.length() /value
+        self.cameraPos =  v / l
+        #
+        self.updateViewMatrix()
         self.calculateProjMatrix()
 
     def getViewMatrix(self):
@@ -72,8 +85,9 @@ class Camera():
         
     def resetCamera(self):
         self.cameraPers = True
-        self.cameraDist = 55        # calculate distance by trigonometric fuctions later
+        self.cameraDist = self.start_dist       # calculate distance by trigonometric functions later
         self.cameraHeight = 0
+        self.focal_length = 50.0                # start with a norm focal length
         self.cameraPos =  QVector3D(0, self.cameraHeight, self.cameraDist)
         self.lookAt =  QVector3D(0, 0, 0)
         self.cameraDir =  QVector3D(0, 1, 0)
@@ -185,7 +199,7 @@ class Camera():
             va = self.calculateVerticalAngle()
             print (va)
             self.proj_matrix.setToIdentity()
-            self.proj_matrix.perspective(va, w / h, 0.1, 100)
+            self.proj_matrix.perspective(va, w / h, 0.1, 500)
         else:
             self.calculateOrthoMatrix()
         self.proj_view_matrix = self.proj_matrix * self.view_matrix

@@ -297,6 +297,9 @@ class MHMainWindow(QMainWindow):
             if filename is not None:
                 self.glob.baseClass.saveMHMFile(filename)
 
+    def initParams(self):
+        self.graph.getFocusText()
+
     def info_call(self):
         """
         show about/information window

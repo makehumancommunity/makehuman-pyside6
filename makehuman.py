@@ -71,6 +71,10 @@ def main():
 
     mainwin = MHMainWindow(glob)
     mainwin.show()
+    #
+    # all we need from openGL is now existent (get initial values)
+    #
+    mainwin.initParams()
     app.exec()
     
 

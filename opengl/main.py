@@ -89,6 +89,9 @@ class OpenGLView(QOpenGLWidget):
         self.paintGL()
         self.update()
 
+    def getCamera(self):
+        return(self.camera)
+
     def modifyDistance(self, distance):
         self.camera.modifyDistance(distance)
         self.paintGL()

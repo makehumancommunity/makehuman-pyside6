@@ -103,19 +103,32 @@ class MHGraphicWindow(QWidget):
         self.pers_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         vlayout.addWidget(self.pers_button)
 
-        self.fovLabel = QLabel("Focal Length: 50")
+        self.fovLabel = QLabel("")
         vlayout.addWidget(self.fovLabel)
         self.fovSlider=QSlider(Qt.Horizontal, self)
         self.fovSlider.setMinimum(15)
         self.fovSlider.setMaximum(200)
         self.fovSlider.setMinimumWidth(150)
-        self.fovSlider.setValue(50)
         self.fovSlider.setTickPosition(QSlider.TicksBelow)
         self.fovSlider.setTickInterval(10)
+        self.fovSlider.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
         self.fovSlider.valueChanged.connect(self.fovChanged)
 
         vlayout.addWidget(self.fovSlider)
 
+
+    def setFocusText(self, value):
+        self.fovLabel.setText("Focal Length: " + str(round(value)))
+
+    def getFocusText(self):
+        focalLength = self.view.getCamera().getFocalLength()
+        self.setFocusText(focalLength)
+        self.fovSlider.setValue(focalLength)
+
+    def fovChanged(self):
+        value = self.fovSlider.value()
+        self.setFocusText(value)
+        self.view.modifyFov(value)
 
     def setSizeInfo(self):
         value=self.glob.baseClass.baseMesh.getHeightInUnits()
@@ -166,11 +179,6 @@ class MHGraphicWindow(QWidget):
             self.resize (750, 650)
 
         return (hlayout)
-
-    def fovChanged(self):
-        value = self.fovSlider.value()
-        self.fovLabel.setText("Focal Length: " + str(round(value)))
-        self.view.modifyFov(value)
 
     def connect_button(self):
         """
