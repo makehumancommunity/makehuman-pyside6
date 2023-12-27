@@ -61,6 +61,7 @@ class MHGraphicWindow(QWidget):
         self.glob = glob
         self.env = glob.env
         self.attached =self.env.g_attach
+        self.debug = False
         print ("Attach " + str(self.attached))
         super().__init__()
         glob.mhViewport = self
@@ -129,6 +130,8 @@ class MHGraphicWindow(QWidget):
         value = self.fovSlider.value()
         self.setFocusText(value)
         self.view.modifyFov(value)
+        if self.debug:
+            self.camChanged()
 
     def setSizeInfo(self):
         value=self.glob.baseClass.baseMesh.getHeightInUnits()
@@ -139,7 +142,26 @@ class MHGraphicWindow(QWidget):
         text += "Size: " + self.env.toUnit(value)
         self.sizeInfo.setText(text)
 
-    def navInfos(self,vlayout):
+    def setDebug(self,val):
+        self.debug = val
+        if val:
+            self.camChanged()
+        else:
+            self.infoDebug.setText("")
+
+    def debugInfos(self,vlayout):
+        self.infoDebug = QLabel()
+        vlayout.addWidget(self.infoDebug)
+
+    def camChanged(self):
+        cam = self.view.getCamera()
+        if cam is not None:
+            text = str(cam)
+        else:
+            text = "Camera unknown"
+        self.infoDebug.setText(text)
+
+    def objInfos(self,vlayout):
         self.sizeInfo = QLabel()
         self.sizeInfo.setMinimumSize(150, 20)
         self.sizeInfo.setWordWrap(True)
@@ -158,8 +180,9 @@ class MHGraphicWindow(QWidget):
 
         vlayout = QVBoxLayout()
         self.navButtons(vlayout)
+        self.debugInfos(vlayout)
         vlayout.addStretch()
-        self.navInfos(vlayout)
+        self.objInfos(vlayout)
 
         if self.attached is True:
             self.disconnectbutton = QPushButton("Disconnect")
@@ -202,24 +225,38 @@ class MHGraphicWindow(QWidget):
 
     def back_button(self):
         self.view.customView(QVector3D(0, 0, -1))
+        if self.debug:
+            self.camChanged()
 
     def front_button(self):
         self.view.customView(QVector3D(0, 0, 1))
+        if self.debug:
+            self.camChanged()
 
     def left_button(self):
         self.view.customView(QVector3D(1, 0, 0))
+        if self.debug:
+            self.camChanged()
 
     def right_button(self):
         self.view.customView(QVector3D(-1, 0, 0))
+        if self.debug:
+            self.camChanged()
 
     def top_button(self):
         self.view.customView(QVector3D(0, 1, 0))
+        if self.debug:
+            self.camChanged()
 
     def bottom_button(self):
         self.view.customView(QVector3D(0, -1, 0))
+        if self.debug:
+            self.camChanged()
 
     def zoom(self, direction):
         self.view.modifyDistance(direction)
+        if self.debug:
+            self.camChanged()
 
     def mouseInView(self, pos):
         window= self.view.mapToGlobal(self.view.pos())
@@ -241,6 +278,8 @@ class MHGraphicWindow(QWidget):
         (b, x, y) = self.mouseInView(pos)
         if b:
             self.view.arcBallCamera(float(x), float(y))
+            if self.debug:
+                self.camChanged()
 
     def screenPosPan(self, pos):
         """
@@ -249,6 +288,8 @@ class MHGraphicWindow(QWidget):
         (b, x, y) = self.mouseInView(pos)
         if b:
             self.view.panning(float(x), float(y))
+            if self.debug:
+                self.camChanged()
 
 
     def setPos(self, pos):

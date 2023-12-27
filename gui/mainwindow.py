@@ -2,7 +2,7 @@ from PySide6.QtWidgets import (
         QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFrame, QGroupBox, QListWidget,
         QAbstractItemView, QSizePolicy, QScrollArea, QFileDialog, QDialogButtonBox
         )
-from PySide6.QtGui import QIcon, QCloseEvent
+from PySide6.QtGui import QIcon, QCloseEvent, QAction
 from PySide6.QtCore import QSize, Qt
 from gui.prefwindow import  MHPrefWindow
 from gui.logwindow import  MHLogWindow
@@ -63,6 +63,10 @@ class MHMainWindow(QMainWindow):
 
         log_act = set_menu.addAction("Messages")
         log_act.triggered.connect(self.log_call)
+
+        self.deb_act = QAction('Debug Camera', set_menu, checkable=True)
+        set_menu.addAction(self.deb_act)
+        self.deb_act.triggered.connect(self.deb_cam)
 
         if env.admin:
             csystar_act = set_menu.addAction("Compress System Targets")
@@ -242,6 +246,9 @@ class MHMainWindow(QMainWindow):
         """
         self.graph.show()
         super().show()
+
+    def deb_cam(self):
+        self.graph.setDebug(self.deb_act.isChecked())
 
     def closeEvent(self, event):
         self.quit_call(event)

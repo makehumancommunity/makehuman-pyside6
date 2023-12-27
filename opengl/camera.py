@@ -12,7 +12,8 @@ class Camera():
         all parameters connected with camera
         """
         self.o_height =  o_size
-        self.focal_length = 50.0                # start with a norm focal length
+        self.focalLength = 50.0                # start with a norm focal length
+        self.verticalAngle = 0.0                # vertical angle
         self.start_dist = 50.0                  # initial camera distance
         self.ortho_magnification =4.8
         self.view_width = 0
@@ -26,28 +27,38 @@ class Camera():
         self.view_matrix = QMatrix4x4()
         self.proj_matrix = QMatrix4x4()
         self.proj_view_matrix = QMatrix4x4()    # needed outside to draw
+
         self.cameraPos =  QVector3D()           # the position of the camera
         self.cameraDir =  QVector3D()           # direction of the camera (what is up, x is usually not changed)
         self.lookAt = QVector3D()               # the position to focus
+        self.center = QVector3D()               # the center of the object to focus on
         self.resetCamera()
         self.updateViewMatrix()
 
+    def __str__(self):
+        x   = self.cameraPos.toTuple()
+        pos = list(map(lambda x: round(x,2), x))
+
+        x   = self.lookAt.toTuple()
+        lookat = list(map(lambda x: round(x,2), x))
+
+        direct = self.cameraDir.toTuple()
+        return ("Pos: " + str(pos) + "\nAim: " + str(lookat) + "\nDir: " +  str(direct) + "\nAng: " + str(round(self.verticalAngle,2)))
+
     def calculateVerticalAngle(self):
         height = self.o_height * 1.05
-        return(2 * degrees(atan(height/(2*self.focal_length))))
+        self.verticalAngle = 2 * degrees(atan(height/(2*self.focalLength)))
+        return(self.verticalAngle)
 
     def getFocalLength(self):
-        return(self.focal_length)
+        return(self.focalLength)
 
     def setFocalLength(self, value):
-        self.focal_length = value
+        self.focalLength = value
         #
         v = self.cameraPos - self.lookAt
-        print(self.cameraPos)
-        print(self.lookAt)
-        print ("Vlen: " + str(v.length()))
         l = v.length() /value
-        self.cameraPos =  v / l
+        self.cameraPos =  (v / l) + self.center
         #
         self.updateViewMatrix()
         self.calculateProjMatrix()
@@ -71,7 +82,6 @@ class Camera():
         """
         new position of camera
         """
-        # print (self.cameraPos)
         self.view_matrix.setToIdentity()
         self.view_matrix.lookAt( self.cameraPos, self.lookAt, self.cameraDir)
         self.proj_view_matrix = self.proj_matrix * self.view_matrix
@@ -85,34 +95,36 @@ class Camera():
         
     def resetCamera(self):
         self.cameraPers = True
-        self.cameraDist = self.start_dist       # calculate distance by trigonometric functions later
         self.cameraHeight = 0
-        self.focal_length = 50.0                # start with a norm focal length
+        self.focalLength = 50.0                # start with a norm focal length
+        self.cameraDist = self.start_dist       # calculate distance by trigonometric functions later
         self.cameraPos =  QVector3D(0, self.cameraHeight, self.cameraDist)
-        self.lookAt =  QVector3D(0, 0, 0)
+        self.lookAt =  self.center
         self.cameraDir =  QVector3D(0, 1, 0)
+        print ("Reset:")
+        print (self)
 
     def setCenter(self, center):
-        # print ("Center: " + str(center))
-        self.lookAt = QVector3D(center[0], center[1], center[2])
+        self.center = self.lookAt = QVector3D(center[0], center[1], center[2])
         self.cameraHeight = center[1]
+        self.cameraDist = center[2] + self.start_dist
         self.cameraPos =  QVector3D(0, self.cameraHeight, self.cameraDist)
-        # print (self.lookAt)
         self.updateViewMatrix()
+        print ("Set Center: " + str(center))
+        print (self)
 
     def customView(self, direction):
         """
         the axis 6 views
         """
-        self.cameraPos =  direction * self.cameraDist
+        self.cameraPos =  self.center + direction * self.cameraDist
         if direction.y()== 0:
             self.cameraPos.setY(self.cameraHeight)
             self.cameraDir =  QVector3D(0, 1, 0)
         else:
             self.cameraDir =  QVector3D(0, 0, 1)
-        self.lookAt =  QVector3D(0, 0, 0)
+        self.lookAt =  self.center
         self.updateViewMatrix()
-
 
     def modifyDistance(self, distance):
         """
@@ -181,6 +193,8 @@ class Camera():
         diffy = (self.last_mousey - y) * self.deltaMoveY
         self.lookAt.setX(self.lookAt.x() + diffx)
         self.lookAt.setY(self.lookAt.y() - diffy)
+        self.cameraPos.setX(self.cameraPos.x() + diffx)
+        self.cameraPos.setY(self.cameraPos.y() - diffy)
         self.updateViewMatrix()
 
     def resizeViewPort(self, w, h):
@@ -197,7 +211,6 @@ class Camera():
 
         if self.cameraPers:
             va = self.calculateVerticalAngle()
-            print (va)
             self.proj_matrix.setToIdentity()
             self.proj_matrix.perspective(va, w / h, 0.1, 500)
         else:

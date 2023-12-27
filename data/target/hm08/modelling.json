@@ -1591,6 +1591,13 @@
 		"decr": "armslegs/lowerlegs-height-decr",
 		"incr": "armslegs/lowerlegs-height-incr"
 	},
+	"R-Leg Knee MoveHor": {
+		"name": "Move Knee Horizintally",
+		"group": "legs|right leg",
+		"icon": "r-leg-valgus-decr-incr.png",
+		"decr": "armslegs/r-leg-valgus-decr",
+		"incr": "armslegs/r-leg-valgus-incr"
+	},
 	"R-Leg Knee MoveVer": {
 		"name": "Move Knee Vertically",
 		"group": "legs|right leg",
@@ -1628,19 +1635,45 @@
 	},
 	"R-LLeg ScaleHor": {
 		"name": "Lowerleg Scale Horizontally",
-		"group": "legs|right leg"
+		"group": "legs|right leg",
+		"icon": "r-lowerleg-scale-horiz-decr-incr.png",
+		"decr": "armslegs/r-lowerleg-scale-horiz-decr",
+		"incr": "armslegs/r-lowerleg-scale-horiz-incr"
+	},
+	"R-LLeg ScaleVer": {
+		"name": "Lowerleg Scale Vertically",
+		"group": "legs|right leg",
+		"icon": "r-lowerleg-scale-vert-decr-incr.png",
+		"decr": "armslegs/r-lowerleg-scale-vert-decr",
+		"incr": "armslegs/r-lowerleg-scale-vert-incr"
 	},
 	"R-LLeg ScaleDep": {
 		"name": "Lowerleg Scale Depth",
-		"group": "legs|right leg"
+		"group": "legs|right leg",
+		"icon": "r-lowerleg-scale-depth-decr-incr.png",
+		"decr": "armslegs/r-lowerleg-scale-depth-decr",
+		"incr": "armslegs/r-lowerleg-scale-depth-incr"
 	},
 	"R-LLeg Fat": {
 		"name": "Lowerleg Skinny-Fat",
-		"group": "legs|right leg"
+		"group": "legs|right leg",
+		"icon": "r-lowerleg-fat-decr-incr.png",
+		"decr": "armslegs/r-lowerleg-fat-decr",
+		"incr": "armslegs/r-lowerleg-fat-incr"
 	},
 	"R-LLeg Muscle": {
 		"name": "Lowerleg Muscle",
-		"group": "legs|right leg"
+		"group": "legs|right leg",
+		"icon": "r-lowerleg-muscle-decr-incr.png",
+		"decr": "armslegs/r-lowerleg-muscle-decr",
+		"incr": "armslegs/r-lowerleg-muscle-incr"
+	},
+	"L-Leg Knee MoveHor": {
+		"name": "Move Knee Horizintally",
+		"group": "legs|left leg",
+		"icon": "l-leg-valgus-decr-incr.png",
+		"decr": "armslegs/l-leg-valgus-decr",
+		"incr": "armslegs/l-leg-valgus-incr"
 	},
 	"L-Leg Knee MoveVer": {
 		"name": "Move Knee Vertically",
@@ -1679,19 +1712,38 @@
 	},
 	"L-LLeg ScaleHor": {
 		"name": "Lowerleg Scale Horizontally",
-		"group": "legs|left leg"
+		"group": "legs|left leg",
+		"icon": "l-lowerleg-scale-horiz-decr-incr.png",
+		"decr": "armslegs/l-lowerleg-scale-horiz-decr",
+		"incr": "armslegs/l-lowerleg-scale-horiz-incr"
+	},
+	"L-LLeg ScaleVer": {
+		"name": "Lowerleg Scale Vertically",
+		"group": "legs|left leg",
+		"icon": "l-lowerleg-scale-vert-decr-incr.png",
+		"decr": "armslegs/l-lowerleg-scale-vert-decr",
+		"incr": "armslegs/l-lowerleg-scale-vert-incr"
 	},
 	"L-LLeg ScaleDep": {
 		"name": "Lowerleg Scale Depth",
-		"group": "legs|left leg"
+		"group": "legs|left leg",
+		"icon": "l-lowerleg-scale-depth-decr-incr.png",
+		"decr": "armslegs/l-lowerleg-scale-depth-decr",
+		"incr": "armslegs/l-lowerleg-scale-depth-incr"
 	},
 	"L-LLeg Fat": {
 		"name": "Lowerleg Skinny-Fat",
-		"group": "legs|left leg"
+		"group": "legs|left leg",
+		"icon": "l-lowerleg-fat-decr-incr.png",
+		"decr": "armslegs/l-lowerleg-fat-decr",
+		"incr": "armslegs/l-lowerleg-fat-incr"
 	},
 	"L-LLeg Muscle": {
 		"name": "Lowerleg Muscle",
-		"group": "legs|left leg"
+		"group": "legs|left leg",
+		"icon": "l-lowerleg-muscle-decr-incr.png",
+		"decr": "armslegs/l-lowerleg-muscle-decr",
+		"incr": "armslegs/l-lowerleg-muscle-incr"
 	},
 	"R-Foot Scale": {
 		"name": "Scale",
