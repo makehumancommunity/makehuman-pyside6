@@ -1,7 +1,7 @@
 from PySide6.QtGui import QMatrix4x4, QVector3D, QOpenGLContext
 import OpenGL
 from OpenGL import GL as gl
-from math import pi as M_PI, atan, degrees
+from math import pi as M_PI, atan, degrees, sqrt
 
 class Camera():
     """
@@ -99,13 +99,14 @@ class Camera():
         self.focalLength = 50.0                # start with a norm focal length
         self.cameraDist = self.start_dist       # calculate distance by trigonometric functions later
         self.cameraPos =  QVector3D(0, self.cameraHeight, self.cameraDist)
-        self.lookAt =  self.center
+        self.lookAt =  self.center.__copy__()
         self.cameraDir =  QVector3D(0, 1, 0)
         print ("Reset:")
         print (self)
 
     def setCenter(self, center):
-        self.center = self.lookAt = QVector3D(center[0], center[1], center[2])
+        self.lookAt = QVector3D(center[0], center[1], center[2])
+        self.center = self.lookAt.__copy__()
         self.cameraHeight = center[1]
         self.cameraDist = center[2] + self.start_dist
         self.cameraPos =  QVector3D(0, self.cameraHeight, self.cameraDist)
@@ -117,13 +118,14 @@ class Camera():
         """
         the axis 6 views
         """
+        self.cameraDist = self.center.z() + self.start_dist
         self.cameraPos =  self.center + direction * self.cameraDist
         if direction.y()== 0:
             self.cameraPos.setY(self.cameraHeight)
             self.cameraDir =  QVector3D(0, 1, 0)
         else:
             self.cameraDir =  QVector3D(0, 0, 1)
-        self.lookAt =  self.center
+        self.lookAt =  self.center.__copy__()
         self.updateViewMatrix()
 
     def modifyDistance(self, distance):
@@ -187,14 +189,56 @@ class Camera():
 
     def panning(self, x, y):
         #
-        # first try atm lookat is changed
+        # works kinda, but there is a better way for sure
         #
         diffx = (self.last_mousex - x) * self.deltaMoveX
         diffy = (self.last_mousey - y) * self.deltaMoveY
+        self.setLastMousePosition(x, y)
+
+        direct = self.cameraPos - self.center
+        xv = direct.x()
+        zv = direct.z()
+        lenx = abs(xv)
+        lenz = abs(zv)
+
+        if lenx > lenz:
+            if lenz > 10.0:
+                if zv > 10.0:
+                    diffz = diffx *  (xv/zv)
+                else:
+                    diffz = -diffx * (xv/zv)
+                diffx = diffx *  (lenx/zv)
+            else:
+                if xv > 0:
+                    diffz = diffx
+                else:
+                    diffz = -diffx
+                diffx = 0
+
+        else:
+            if lenx > 10.0:
+                diffz = diffx *  (lenz/xv)
+                if xv > 10.0:
+                    diffx = diffx *  (zv/xv)
+                else:
+                    diffx = -diffx *  (zv/xv)
+            else:
+                if zv < 0:
+                    diffx = -diffx
+                diffz = 0
+
+
+        diffx *= 10.0
+        diffy *= 10.0
+        diffz *= 10.0
+
         self.lookAt.setX(self.lookAt.x() + diffx)
+        self.lookAt.setZ(self.lookAt.z() - diffz)
         self.lookAt.setY(self.lookAt.y() - diffy)
         self.cameraPos.setX(self.cameraPos.x() + diffx)
+        self.cameraPos.setZ(self.cameraPos.z() - diffz)
         self.cameraPos.setY(self.cameraPos.y() - diffy)
+
         self.updateViewMatrix()
 
     def resizeViewPort(self, w, h):

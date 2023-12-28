@@ -45,12 +45,12 @@
 		]
 	},
 	"Arms": {"group": "arms", "items": [
-		{"title": "Right shoulder",  "cat": "right shoulder", "param2": 2 },
-		{"title": "Left shoulder",  "cat": "left shoulder", "param2": 2 },
-		{"title": "Right arm",  "cat": "right arm", "param2": 2 },
-		{"title": "Left arm",  "cat": "left arm", "param2": 2 },
-		{"title": "Right hand",  "cat": "right hand", "param2": 2 },
-		{"title": "Left hand",  "cat": "left hand", "param2": 2 }
+		{"title": "Right shoulder",  "cat": "right shoulder" },
+		{"title": "Left shoulder",  "cat": "left shoulder" },
+		{"title": "Right arm",  "cat": "right arm" },
+		{"title": "Left arm",  "cat": "left arm" },
+		{"title": "Right hand",  "cat": "right hand" },
+		{"title": "Left hand",  "cat": "left hand" }
 		]
 	},
 	"Legs": {"group": "legs", "items": [
@@ -59,6 +59,18 @@
 		{"title": "Left leg",   "cat": "left leg" },
 		{"title": "Right foot",   "cat": "right foot" },
 		{"title": "Left foot",   "cat": "left foot" }
+		]
+	},
+	"Measure": {"group": "measure", "items": [
+		{"title": "Neck",  "cat": "neck" },
+		{"title": "Upper arm",  "cat": "upper arm" },
+		{"title": "Forearm",  "cat": "forearm" },
+		{"title": "Torso",  "cat": "torso" },
+		{"title": "Hips",  "cat": "hips" },
+		{"title": "Thigh",  "cat": "thigh" },
+		{"title": "Knee",  "cat": "knee" },
+		{"title": "Lower leg",  "cat": "lower leg" },
+		{"title": "Ankle",  "cat": "ankle" }
 		]
 	}
 }
