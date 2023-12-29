@@ -274,7 +274,7 @@ class object3d:
         """
         updates a special buffer for a macro target
         """
-        print ("add macro buffer for " + str(target))
+        # print ("add macro buffer for " + str(target))
         verts = target.verts
         data  = target.data
 

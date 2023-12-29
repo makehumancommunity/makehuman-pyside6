@@ -5,8 +5,8 @@
 		"age":       {"values": ["baby", "child", "young", "old"], "steps": [0.0, 0.1875, 0.5, 1.0], "pattern": "macrodetails/Age" },
 		"muscle":    {"values": ["minmuscle", "averagemuscle", "maxmuscle"], "steps": [0.0, 0.5, 1.0], "pattern": "macrodetails-universal/Muscle" },
 		"weight":    {"values": ["minweight", "averageweight", "maxweight"], "steps": [0.0, 0.5, 1.0], "pattern": "macrodetails-universal/Weight" },
-		"proportion":{"values": ["uncommon", "ideal"], "steps": [0.0, 1.0], "pattern": "macrodetails-proportions/BodyProportions" },
-		"height":    {"values": ["minheight", "maxheight"], "steps": [0.0, 1.0], "pattern": "macrodetails-height/Height" },
+		"proportion":{"values": ["uncommon", "none", "ideal"], "steps": [0.0, 0.5, 1.0], "pattern": "macrodetails-proportions/BodyProportions" },
+		"height":    {"values": ["minheight", "none", "maxheight"], "steps": [0.0, 0.5, 1.0], "pattern": "macrodetails-height/Height" },
 		"cupsize":   {"values": ["mincup", "averagecup", "maxcup"], "steps": [0.0, 0.5, 1.0], "pattern": "breast/BreastSize" },
 		"firmness":  {"values": ["minfirmness", "averagefirmness", "maxfirmness"], "steps": [0.0, 0.5, 1.0], "pattern": "breast/BreastFirmness" }
 	},
@@ -541,7 +541,7 @@
 			{ "name": "female-old-minmuscle-minweight-averagecup-maxfirmness",		"t": "old-minmuscle-minweight-averagecup-maxfirmness" },
 			{ "name": "female-old-minmuscle-minweight-averagecup-minfirmness",		"t": "old-minmuscle-minweight-averagecup-minfirmness" },
 
-			{ "name": "female-old-minmuscle-minweight-maxcup-averagefirmness",		"t": null },
+			{ "name": "female-old-minmuscle-minweight-maxcup-averagefirmness",		"t": "old-minmuscle-minweight-maxcup-averagefirmness" },
 			{ "name": "female-old-minmuscle-minweight-maxcup-maxfirmness",			"t": "old-minmuscle-minweight-maxcup-maxfirmness" },
 			{ "name": "female-old-minmuscle-minweight-maxcup-minfirmness",			"t": "old-minmuscle-minweight-maxcup-minfirmness" },
 			{ "name": "female-old-minmuscle-minweight-mincup-averagefirmness",		"t": "old-minmuscle-minweight-mincup-allfirmness" },

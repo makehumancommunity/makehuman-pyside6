@@ -61,25 +61,39 @@
 		"incr": "bodyshapes/bodyshapes-elvs-fem-apple"
 	},
 	"Female Diamond": {
-		"group": "shapes|female shapes"
+		"group": "shapes|female shapes",
+		"icon": "bodyshapes-elvs-fem-diamond.png",
+		"incr": "bodyshapes/bodyshapes-elvs-fem-diamond"
 	},
 	"Female Full Hourglass": {
-		"group": "shapes|female shapes"
+		"group": "shapes|female shapes",
+		"icon": "bodyshapes-elvs-fem-full-hourglass.png",
+		"incr": "bodyshapes/bodyshapes-elvs-fem-full-hourglass"
 	},
 	"Female Neat Hourglass": {
-		"group": "shapes|female shapes"
+		"group": "shapes|female shapes",
+		"icon": "bodyshapes-elvs-fem-neat-hourglass.png",
+		"incr": "bodyshapes/bodyshapes-elvs-fem-neat-hourglass"
 	},
 	"Female Inverted Triangle": {
-		"group": "shapes|female shapes"
+		"group": "shapes|female shapes",
+		"icon": "bodyshapes-elvs-fem-invert-triangle.png",
+		"incr": "bodyshapes/bodyshapes-elvs-fem-invert-triangle"
 	},
 	"Female Lean Column": {
-		"group": "shapes|female shapes"
+		"group": "shapes|female shapes",
+		"icon": "bodyshapes-elvs-fem-lean-column.png",
+		"incr": "bodyshapes/bodyshapes-elvs-fem-lean-column"
 	},
 	"Female Rectangle": {
-		"group": "shapes|female shapes"
+		"group": "shapes|female shapes",
+		"icon": "bodyshapes-elvs-fem-rectangle.png",
+		"incr": "bodyshapes/bodyshapes-elvs-fem-rectangle"
 	},
 	"Female Triangle": {
-		"group": "shapes|female shapes"
+		"group": "shapes|female shapes",
+		"icon": "bodyshapes-elvs-fem-triangle.png",
+		"incr": "bodyshapes/bodyshapes-elvs-fem-triangle"
 	},
 	"Female Adrenal": {
 		"group": "shapes|female hormonal"
@@ -1857,75 +1871,111 @@
 	},
 	"ME-UArm Circ": {
 		"name": "Upper Arm Circum",
-		"group": "measure|upper arm"
+		"group": "measure|upper arm",
+		"decr": "measure/measure-upperarm-circ-decr",
+		"incr": "measure/measure-upperarm-circ-incr"
 	},
 	"ME-UArm Length": {
 		"name": "Upper Arm Length",
-		"group": "measure|upper arm"
+		"group": "measure|upper arm",
+		"decr": "measure/measure-upperarm-length-decr",
+		"incr": "measure/measure-upperarm-length-incr"
 	},
 	"ME-LArm Circ": {
 		"name": "Wrist Circum",
-		"group": "measure|forearm"
+		"group": "measure|forearm",
+		"decr": "measure/measure-wrist-circ-decr",
+		"incr": "measure/measure-wrist-circ-incr"
 	},
 	"ME-LArm Length": {
 		"name": "Forearm Length",
-		"group": "measure|forearm"
+		"group": "measure|forearm",
+		"decr": "measure/measure-lowerarm-length-decr",
+		"incr": "measure/measure-lowerarm-length-incr"
 	},
 	"ME-Torso ShoulderDist": {
 		"name": "Shoulder Distance",
-		"group": "measure|torso"
+		"group": "measure|torso",
+		"decr": "measure/measure-shoulder-dist-decr",
+		"incr": "measure/measure-shoulder-dist-incr"
 	},
 	"ME-Torso ChestDist": {
 		"name": "Front Chest Distance",
-		"group": "measure|torso"
+		"group": "measure|torso",
+		"decr": "measure/measure-frontchest-dist-decr",
+		"incr": "measure/measure-frontchest-dist-incr"
 	},
 	"ME-Torso BustCirc": {
 		"name": "Bust Circum",
-		"group": "measure|torso"
+		"group": "measure|torso",
+		"decr": "measure/measure-bust-circ-decr",
+		"incr": "measure/measure-bust-circ-incr"
 	},
 	"ME-Torso UBustCirc": {
 		"name": "Band Size",
-		"group": "measure|torso"
+		"group": "measure|torso",
+		"decr": "measure/measure-underbust-circ-decr",
+		"incr": "measure/measure-underbust-circ-incr"
 	},
 	"ME-Torso WaistCirc": {
 		"name": "Waist Circum",
-		"group": "measure|torso"
+		"group": "measure|torso",
+		"decr": "measure/measure-waist-circ-decr",
+		"incr": "measure/measure-waist-circ-incr"
 	},
 	"ME-Torso NapeWaist": {
 		"name": "Nape to Waist",
-		"group": "measure|torso"
+		"group": "measure|torso",
+		"decr": "measure/measure-napetowaist-dist-decr",
+		"incr": "measure/measure-napetowaist-dist-incr"
 	},
 	"ME-Torso WaistHip": {
 		"name": "Waist to Hip",
-		"group": "measure|torso"
+		"group": "measure|torso",
+		"decr": "measure/measure-waisttohip-dist-decr",
+		"incr": "measure/measure-waisttohip-dist-incr"
 	},
 	"ME-Hips Circ": {
 		"name": "Hips Circum",
-		"group": "measure|hips"
+		"group": "measure|hips",
+		"decr": "measure/measure-hips-circ-decr",
+		"incr": "measure/measure-hips-circ-incr"
 	},
 	"ME-ULeg Circ": {
 		"name": "Thigh Circum",
-		"group": "measure|thigh"
+		"group": "measure|thigh",
+		"decr": "measure/measure-thigh-circ-decr",
+		"incr": "measure/measure-thigh-circ-incr"
 	},
 	"ME-ULeg Height": {
 		"name": "Thigh Height",
-		"group": "measure|thigh"
+		"group": "measure|thigh",
+		"decr": "measure/measure-upperleg-height-decr",
+		"incr": "measure/measure-upperleg-height-incr"
 	},
 	"ME-Knee Circ": {
 		"name": "Knee Circum",
-		"group": "measure|knee"
+		"group": "measure|knee",
+		"decr": "measure/measure-knee-circ-decr",
+		"incr": "measure/measure-knee-circ-incr"
 	},
 	"ME-LLeg Circ": {
 		"name": "Lower Leg Circum",
-		"group": "measure|lower leg"
+		"group": "measure|lower leg",
+		"decr": "measure/measure-calf-circ-decr",
+		"incr": "measure/measure-calf-circ-incr"
 	},
 	"ME-LLeg Height": {
 		"name": "Lower Leg Height",
-		"group": "measure|lower leg"
+		"group": "measure|lower leg",
+		"decr": "measure/measure-lowerleg-height-decr",
+		"incr": "measure/measure-lowerleg-height-incr"
 	},
 	"ME-Ankle Circ": {
 		"name": "Ankle Circum",
-		"group": "measure|ankle"
+		"group": "measure|ankle",
+		"decr": "measure/measure-ankle-circ-decr",
+		"incr": "measure/measure-ankle-circ-incr"
 	}
 }
 

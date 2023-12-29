@@ -247,10 +247,6 @@ class Modelling:
 
             self.generateAllMacroWeights(targetlist, "", 1.0, weightarray)
 
-        # all components done, calculate weights as a product
-        #
-        #targetlist = []
-
         # The last step is the optimization: Some weightfiles are not existing.
         # So they would be a factor of 0. Sometimes targets are identical.
         # All targets are in memory and there are no duplicates. The calculated
@@ -261,15 +257,17 @@ class Modelling:
         l = macros["targetlink"]
 
         for elem in targetlist:
-            print (elem)
             name = elem["name"]
             if name is not None:
-                if name in l:
+                if name in l and l[name] is not None:
                     if l[name] in sortedtargets:
                         sortedtargets[l[name]] += elem["factor"]
+                        print(name + " add to existent factor")
                     else:
                         sortedtargets[l[name]] = elem["factor"]
+                        print(name + " is new")
                 else:
+                    print(name + " does not exist")
                     pass
                     #print (name + " not found")
 
@@ -278,7 +276,7 @@ class Modelling:
         self.obj.baseMesh.clearMacroBuffer()
         for elem in sortedtargets:
             if elem in self.glob.macroRepo:
-                print (elem, sortedtargets[elem])
+                print (elem, round(sortedtargets[elem],2))
                 self.obj.baseMesh.addTargetToMacroBuffer(sortedtargets[elem], self.glob.macroRepo[elem])
         self.obj.baseMesh.addMacroBuffer()
 
