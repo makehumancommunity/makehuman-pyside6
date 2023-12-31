@@ -96,19 +96,29 @@
 		"incr": "bodyshapes/bodyshapes-elvs-fem-triangle"
 	},
 	"Female Adrenal": {
-		"group": "shapes|female hormonal"
+		"group": "shapes|female hormonal",
+		"icon": "bodyshapes-elvs-fem-adrenal.png",
+		"incr": "bodyshapes/bodyshapes-elvs-fem-adrenal"
 	},
 	"Female Liver": {
-		"group": "shapes|female hormonal"
+		"group": "shapes|female hormonal",
+		"icon": "bodyshapes-elvs-fem-liver.png",
+		"incr": "bodyshapes/bodyshapes-elvs-fem-liver"
 	},
 	"Female Ovary": {
-		"group": "shapes|female hormonal"
+		"group": "shapes|female hormonal",
+		"icon": "bodyshapes-elvs-fem-ovary.png",
+		"incr": "bodyshapes/bodyshapes-elvs-fem-ovary"
 	},
 	"Female Thyroid": {
-		"group": "shapes|female hormonal"
+		"group": "shapes|female hormonal",
+		"icon": "bodyshapes-elvs-fem-thyroid.png",
+		"incr": "bodyshapes/bodyshapes-elvs-fem-thyroid"
 	},
 	"Male Rectangle": {
-		"group": "shapes|male shapes"
+		"group": "shapes|male shapes",
+		"icon": "bodyshapes-elvs-man-rectangle.png",
+		"incr": "bodyshapes/bodyshapes-elvs-man-rectangle"
 	},
 	"Male Apple": {
 		"group": "shapes|male shapes",
@@ -116,28 +126,44 @@
 		"incr": "bodyshapes/bodyshapes-elvs-man-apple"
 	},
 	"Male Lean Column": {
-		"group": "shapes|male shapes"
+		"group": "shapes|male shapes",
+		"icon": "bodyshapes-elvs-man-lean-column.png",
+		"incr": "bodyshapes/bodyshapes-elvs-man-lean-column"
 	},
 	"Male Triangle": {
-		"group": "shapes|male shapes"
+		"group": "shapes|male shapes",
+		"icon": "bodyshapes-elvs-man-triangle.png",
+		"incr": "bodyshapes/bodyshapes-elvs-man-triangle"
 	},
 	"Male Inverted Triangle": {
-		"group": "shapes|male shapes"
+		"group": "shapes|male shapes",
+		"icon": "bodyshapes-elvs-man-invert-triangle.png",
+		"incr": "bodyshapes/bodyshapes-elvs-man-invert-triangle"
 	},
 	"Male Trapezoid": {
-		"group": "shapes|male shapes"
+		"group": "shapes|male shapes",
+		"icon": "bodyshapes-elvs-man-trapezoid.png",
+		"incr": "bodyshapes/bodyshapes-elvs-man-trapezoid"
 	},
 	"Male Adrenal": {
-		"group": "shapes|male hormonal"
+		"group": "shapes|male hormonal",
+		"icon": "bodyshapes-elvs-man-adrenal.png",
+		"incr": "bodyshapes/bodyshapes-elvs-man-adrenal"
 	},
 	"Male Liver": {
-		"group": "shapes|male hormonal"
+		"group": "shapes|male hormonal",
+		"icon": "bodyshapes-elvs-man-liver.png",
+		"incr": "bodyshapes/bodyshapes-elvs-man-liver"
 	},
 	"Male Gonadal": {
-		"group": "shapes|male hormonal"
+		"group": "shapes|male hormonal",
+		"icon": "bodyshapes-elvs-man-gonadal.png",
+		"incr": "bodyshapes/bodyshapes-elvs-man-gonadal"
 	},
 	"Male Thyroid": {
-		"group": "shapes|male hormonal"
+		"group": "shapes|male hormonal",
+		"icon": "bodyshapes-elvs-man-thyroid.png",
+		"incr": "bodyshapes/bodyshapes-elvs-man-thyroid"
 	},
 	"Breast Firmness": {
 		"group": "gender|breast",
@@ -190,13 +216,22 @@
 		"incr": "breast/nipple-point-incr"
 	},
 	"Penis Length": {
-		"group": "gender|genitals"
+		"group": "gender|genitals",
+		"icon": "penis-length-decr-incr.png",
+		"decr": "genitals/penis-length-decr",
+		"incr": "genitals/penis-length-incr"
 	},
 	"Penis Circumference": {
-		"group": "gender|genitals"
+		"group": "gender|genitals",
+		"icon": "penis-circ-decr-incr.png",
+		"decr": "genitals/penis-circ-decr",
+		"incr": "genitals/penis-circ-incr"
 	},
 	"Testicles Size": {
-		"group": "gender|genitals"
+		"group": "gender|genitals",
+		"icon": "penis-testicles-decr-incr.png",
+		"decr": "genitals/penis-testicles-decr",
+		"incr": "genitals/penis-testicles-incr"
 	},
 	"Head Age": {
 		"name": "Age",
