@@ -1,4 +1,5 @@
 import numpy as np 
+from obj3d.fops_wavefront import importWaveFront
 # from timeit import default_timer as timer
 
 class object3d:
@@ -6,7 +7,7 @@ class object3d:
  
         self.env  = env     # needed for globals
         self.name = None    # will contain object name derived from loaded file
-        self.grpNames = []  # order list of groupnames
+        self.npGrpNames = []  # ordered list of groupnames numpy format
 
         self.prim    = 0    # will contain number primitives (tris)
         self.maxAttachedFaces  = 0 # will contain "maxpole"
@@ -50,6 +51,13 @@ class object3d:
                 str(self.prim) + "\nOpenGL DrawElements: " + str(self.n_verts)) 
                 #+ "\nMaximum attached faces for one vertex: " + str(self.maxAttachedFaces))
 
+    def load(self, name):
+        """
+        TODO: should contain other pathes/binary format later
+        """
+        self.env.logLine(8, "Load: " + name)
+        return(importWaveFront(name, self))
+
     def setName(self, name):
         if name is None:
             self.name = "generic"
@@ -57,8 +65,16 @@ class object3d:
             self.name = name
 
     def setGroupNames(self, names):
-        self.grpNames = names
-        self.n_groups = len(self.grpNames)
+        """
+        group names in numpy format (usable for binary export)
+        """
+        nlen = 0
+        for name in names:
+            l = len(name)
+            if l > nlen:
+                nlen = l
+        self.npGrpNames = np.array(names, dtype='|S'+str(nlen))
+        self.n_groups = len(names)
 
     def createGLVertPos(self, pos, uvs, overflow, orig):
         self.n_origverts = orig
@@ -67,7 +83,6 @@ class object3d:
         self.n_uvs = len(uvs)
         self.uvs = np.asarray(uvs, dtype=np.float32)        # positions converted to array of floats
         self.overflow = overflow
-
 
     def overflowCorrection(self, arr):
         """
@@ -142,7 +157,8 @@ class object3d:
         # ( array of numbers per face determining the group-number )
 
         cnt = 0
-        for num, elem in enumerate (self.grpNames):
+        for num, npelem in enumerate (self.npGrpNames):
+            elem = npelem.decode("utf-8")
             if self.visible is not None and elem not in self.visible:
                 continue
             faces = groups[elem]["v"]

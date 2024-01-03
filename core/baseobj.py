@@ -1,7 +1,6 @@
 import os
 from core.target import Targets
 from core.attached_asset import attachedAsset
-from obj3d.fops_wavefront import importWaveFront
 from obj3d.object3d import object3d
 from core.debug import memInfo
 from core.target import Modelling
@@ -109,8 +108,7 @@ class baseClass():
         name = os.path.join(basepath, "base.obj")
 
         self.baseMesh = object3d(self.env, self.baseInfo)
-        self.env.logLine(8, "Load: " + name)
-        (res, err) = importWaveFront(name, self.baseMesh)
+        (res, err) = self.baseMesh.load(name)
         if res is False:
             del self.baseMesh
             self.baseMesh = None
@@ -143,10 +141,8 @@ class baseClass():
                 (res, text) = attach.textLoad(name)
                 if res is True:
                     name = os.path.join(self.env.path_sysdata, elem["cat"], self.env.basename, attach.obj_file)
-                    self.env.logLine(8, "Load: " + name)
-                
                     obj = object3d(self.env, None)
-                    (res, err) = importWaveFront(name, obj)
+                    (res, err) = obj.load(name)
                     if res is False:
                         self.env.logLine(1, err )
                     else:
