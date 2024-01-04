@@ -1,11 +1,15 @@
 import numpy as np 
+import os
 from obj3d.fops_wavefront import importWaveFront
+from obj3d.fops_binary import exportObj3dBinary
 # from timeit import default_timer as timer
 
 class object3d:
     def __init__(self, env, baseinfo ):
  
         self.env  = env     # needed for globals
+        self.name_loaded = None  # original name from file
+        self.dir_loaded  = None  # original folder
         self.name = None    # will contain object name derived from loaded file
         self.npGrpNames = []  # ordered list of groupnames numpy format
 
@@ -20,6 +24,7 @@ class object3d:
         self.coord = []     # will contain positions of vertices, array of float32 for openGL
         self.uvs   = []     # will contain coordinates for uvs
         self.fuvs  = None   # will contain UV buffer or will stay none (TODO: is that needed?)
+        self.loadedgroups = None # will contain the group after loading from file (also for hidden geometry)
         self.group = []     # will contain pointer to group per face
 
         self.overflow = None # will contain a table for double used vertices [source, dest]
@@ -51,12 +56,19 @@ class object3d:
                 str(self.prim) + "\nOpenGL DrawElements: " + str(self.n_verts)) 
                 #+ "\nMaximum attached faces for one vertex: " + str(self.maxAttachedFaces))
 
-    def load(self, name):
+    def load(self, path):
         """
         TODO: should contain other pathes/binary format later
         """
-        self.env.logLine(8, "Load: " + name)
-        return(importWaveFront(name, self))
+        self.name_loaded = os.path.basename(path)
+        self.dir_loaded  = os.path.dirname(path)
+
+        self.env.logLine(8, "Load: " + path)
+        res = importWaveFront(path, self)
+        return(res)
+
+    def exportBin(self):
+        exportObj3dBinary(self.name_loaded, "/tmp", self)
 
     def setName(self, name):
         if name is None:
@@ -147,6 +159,7 @@ class object3d:
         self.gl_norm = self.gi_norm.flatten()
 
     def createGLFaces(self, nfaces, ufaces, prim, groups):
+        self.loadedgroups = groups
         self.prim = prim
         self.n_faces = nfaces
         self.n_fuvs =  ufaces

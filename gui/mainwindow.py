@@ -69,6 +69,9 @@ class MHMainWindow(QMainWindow):
         self.deb_act.triggered.connect(self.deb_cam)
 
         if env.admin:
+            csysobj_act = set_menu.addAction("Compress System 3d Objects")
+            csysobj_act.triggered.connect(self.compress_sys3dobjs)
+
             csystar_act = set_menu.addAction("Compress System Targets")
             csystar_act.triggered.connect(self.compress_systargets)
 
@@ -386,6 +389,17 @@ class MHMainWindow(QMainWindow):
         if self.glob.Targets is not None:
             self.glob.Targets.saveBinaryTargets(2)
 
+    def compress_objs(self, system):
+        print ("compress")
+        if self.glob.baseClass is not None:
+            cl = self.glob.baseClass
+            cl.baseMesh.exportBin()
+            for asset in cl.attachedAssets:
+                asset.obj.exportBin()
+                
+    def compress_sys3dobjs(self):
+        print("Sys-Objects")
+        self.compress_objs(True)
 
     def quit_call(self, event=None):
         """
