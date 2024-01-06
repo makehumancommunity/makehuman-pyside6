@@ -1,7 +1,5 @@
 import numpy as np 
-import os
-from obj3d.fops_wavefront import importWaveFront
-from obj3d.fops_binary import exportObj3dBinary
+from obj3d.fops_binary import exportObj3dBinary, importObjFromFile
 # from timeit import default_timer as timer
 
 class object3d:
@@ -58,17 +56,12 @@ class object3d:
 
     def load(self, path):
         """
-        TODO: should contain other pathes/binary format later
+        TODO: should contain other pathes later
         """
-        self.name_loaded = os.path.basename(path)
-        self.dir_loaded  = os.path.dirname(path)
-
-        self.env.logLine(8, "Load: " + path)
-        res = importWaveFront(path, self)
-        return(res)
+        return (importObjFromFile(path, self))
 
     def exportBin(self):
-        exportObj3dBinary(self.name_loaded, "/tmp", self)
+        return(exportObj3dBinary(self.name_loaded, self.dir_loaded, self))
 
     def setName(self, name):
         if name is None:

@@ -10,7 +10,7 @@ from gui.infowindow import  MHInfoWindow
 from gui.memwindow import  MHMemWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.slider import ScaleComboArray
-from gui.dialogs import DialogBox
+from gui.dialogs import DialogBox, ErrorBox
 from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
 import os
@@ -118,7 +118,7 @@ class MHMainWindow(QMainWindow):
         create central widget, shown by default or by using connect/disconnect button from graphics window
         """
         env = self.env
-        central_widget = QWidget()
+        self.central_widget = QWidget()
         hLayout = QHBoxLayout()
 
         # left side, BasePanel
@@ -160,8 +160,8 @@ class MHMainWindow(QMainWindow):
         hLayout.addWidget(self.rightColumn)
 
         #
-        central_widget.setLayout(hLayout)
-        self.setCentralWidget(central_widget)
+        self.central_widget.setLayout(hLayout)
+        self.setCentralWidget(self.central_widget)
 
     def baseMeshSelectWidget(self, layout):
         env = self.env
@@ -393,9 +393,15 @@ class MHMainWindow(QMainWindow):
         print ("compress")
         if self.glob.baseClass is not None:
             cl = self.glob.baseClass
-            cl.baseMesh.exportBin()
+            (okay, text) = cl.baseMesh.exportBin()
+            if not okay:
+                ErrorBox(self.central_widget, text)
+                return
             for asset in cl.attachedAssets:
-                asset.obj.exportBin()
+                (okay, text) = asset.obj.exportBin()
+                if not okay:
+                    ErrorBox(self.central_widget, text)
+                    return
                 
     def compress_sys3dobjs(self):
         print("Sys-Objects")

@@ -1,5 +1,9 @@
-from PySide6.QtWidgets import QLabel, QDialogButtonBox, QVBoxLayout, QDialog, QProgressDialog, QWidget, QApplication
+from PySide6.QtWidgets import QLabel, QDialogButtonBox, QVBoxLayout, QDialog, QProgressDialog, QWidget, QApplication, QMessageBox
 from PySide6.QtCore import Qt
+
+def ErrorBox(qw, text):
+    button = QMessageBox.critical(qw, "An error occured!", text, buttons=QMessageBox.Close)
+    dlg = QMessageBox()
 
 
 class DialogBox(QDialog):
@@ -19,7 +23,6 @@ class DialogBox(QDialog):
         self.layout.addWidget(message)
         self.layout.addWidget(self.buttonBox)
         self.setLayout(self.layout)
-
 
 class MHProgWindow():
     """

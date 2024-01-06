@@ -4,6 +4,7 @@ binary file operations on object3d
 
 import numpy as np
 import os
+from obj3d.fops_wavefront import importWaveFront
 
 def exportObj3dBinary(filename, path, obj):
 
@@ -77,11 +78,107 @@ def exportObj3dBinary(filename, path, obj):
         filename = filename[:-3] + "npz"
     else:
         filename += ".npz"
- 
-    outfile = os.path.join(path, filename)
-    obj.env.logLine(8, "Save compressed: " + outfile)
-    f = open(outfile, "wb")
-    np.savez_compressed(f, **content)
-    f.close()
 
+    # check if npzip directory exists, if not create it
+    # if not possible no zip file + message
+    #
+    outdir = os.path.join(path, "npzip")
+    if not os.path.isdir(outdir):
+        print ("Need to create " + outdir)
+        obj.env.logLine(8, "Create directory: " + outdir)
+        outerr = None
+        try:
+            os.mkdir(outdir)
+        except OSError as error:
+            return (False, str(error))
+
+    outfile = os.path.join(outdir, filename)
+    obj.env.logLine(8, "Save compressed: " + outfile)
+    try:
+        f = open(outfile, "wb")
+        np.savez_compressed(f, **content)
+    except OSError as error:
+        return (False, str(error))
+    finally:
+        f.close()
+
+    return(True, None)
+
+
+def importObj3dBinary(path, obj):
+    print ("read binary " + path)
+    npzfile = np.load(path)
+    for elem in ['header', 'grpNames', 'coord', 'uvs', 'overflow', 'groupinfo', 'facestart', 'faceverts']:
+        if elem not in npzfile:
+            error =  "Malformed file, missing component " + elem
+            return (False, error)
+
+    # now get data from binary, header
+    #
+    header = list(npzfile['header'][0])
+    obj.name        = header[0].decode("utf-8")
+    (obj.n_origverts, prim, fcnt, ucnt) = header[1:]
+
+    # next stuff is identical to npz file, number of elements is mostly added
+    #
+    obj.npGrpNames = npzfile['grpNames']
+    obj.n_groups = len(obj.npGrpNames)
+
+    # xyz coordinates of vertices, uvs and OpenGL overflow buffer
+    #
+    obj.coord    = npzfile["coord"]
+    obj.n_verts = len(obj.coord)
+    obj.uvs      = npzfile["uvs"]
+    obj.n_uvs   = len(obj.uvs)
+    obj.overflow = npzfile["overflow"]
+
+    # regenerate groups from groupinfo, facestart, faceverts
+    # index-buffer groups (Start, NumFaces, bool)
+    #
+    verts = npzfile["faceverts"]
+    fstart= npzfile["facestart"]
+    groups = {}
+    j = 0
+    for num, elem in enumerate(npzfile["groupinfo"]):
+        start = elem[0]
+        faces = elem[1]
+        f = []
+        for i in range(faces):
+            fs = start + fstart[j]
+            j += 1
+            if i < faces-1:
+                fe = start + fstart[j]
+            else:
+                if num < obj.n_groups-1:
+                    fe = npzfile["groupinfo"][num+1][0]
+                else:
+                    fe = len(verts)
+            vpf = fe - fs
+            v = []
+            for k in range(0, vpf):
+                v.append(verts[fs+k])
+            f.append(v)
+        group =  obj.npGrpNames[num].decode("utf-8")
+        groups[group] = { "v": f, "uv": elem[2] }
+
+    obj.createGLFaces(fcnt, ucnt, prim, groups)
+
+    return (True, None)
+
+def importObjFromFile(path, obj):
+    """
+    check if binary file exists, directory in inside subdirectory named npzip
+    """
+    obj.dir_loaded  = os.path.dirname(path)
+    obj.name_loaded = os.path.basename(path)
+
+    if obj.name_loaded.endswith(".obj"):
+        binfile = os.path.join(obj.dir_loaded, "npzip", obj.name_loaded[:-3] + "npz")
+        if os.path.isfile(binfile):
+            return(importObj3dBinary(binfile, obj))
+
+    # only ASCII
+    #
+    obj.env.logLine(8, "Load: " + path)
+    return(importWaveFront(path, obj))
 
