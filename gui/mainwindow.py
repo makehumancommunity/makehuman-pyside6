@@ -165,10 +165,10 @@ class MHMainWindow(QMainWindow):
 
     def baseMeshSelectWidget(self, layout):
         env = self.env
-        baselist = env.getDataDirList("base.obj", "base")
+        self.baseResultList = env.getDataDirList("base.obj", "base")
         self.basewidget = QListWidget()
         self.basewidget.setFixedSize(240, 200)
-        self.basewidget.addItems(baselist.keys())
+        self.basewidget.addItems(self.baseResultList.keys())
         self.basewidget.setSelectionMode(QAbstractItemView.SingleSelection)
         if env.basename is not None:
             items = self.basewidget.findItems(env.basename,Qt.MatchExactly)
@@ -356,8 +356,13 @@ class MHMainWindow(QMainWindow):
             #
             if base == self.env.basename:
                 return
-            base = baseClass(self.glob, base)
-            base.prepareClass()
+            dirname = os.path.dirname(self.baseResultList[base])
+            base = baseClass(self.glob, base, dirname)
+            okay = base.prepareClass()
+            if not okay:
+                ErrorBox(self.central_widget, self.env.last_error)
+                return
+
             self.graph.view.newMesh()
             self.emptyLayout(self.ToolBox)
             self.drawToolPanel(self.targetfilter)

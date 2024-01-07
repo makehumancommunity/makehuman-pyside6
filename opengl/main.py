@@ -52,8 +52,10 @@ class OpenGLView(QOpenGLWidget):
         # for test purpose
         #
         self.material = Material(self.glob)
+        default = self.env.existDataFile("skins", self.env.basename, "textures", "default.png")
         if texture is None:
-            self.texture = self.material.loadTexture(os.path.join (self.env.path_sysdata, "skins", self.env.basename, "textures", "default.png"))
+            if default is not None:
+                self.texture = self.material.loadTexture(default)
         else:
             self.texture = self.material.loadTexture(os.path.join (self.env.path_sysdata, "eyes", self.env.basename, "textures", texture))
 

@@ -53,7 +53,7 @@ def exportObj3dBinary(filename, path, obj):
     # relative positions where the faces start
     # and flat array for the vertnumbers itself
     #
-    facestart = np.zeros(allfaces, dtype=np.dtype('i4'))
+    vertsperface = np.zeros(allfaces, dtype=np.dtype('i4'))
     faceverts = np.zeros(allvertnums, dtype=np.dtype('i4'))
     finfocnt = 0
     fvertcnt = 0
@@ -63,15 +63,15 @@ def exportObj3dBinary(filename, path, obj):
         group = obj.loadedgroups[elem]
         faces = group["v"]
         for face in faces:
-            facestart[finfocnt] = pos
             for vert in face:
                 faceverts[fvertcnt] = vert
                 fvertcnt += 1
+            vertsperface[finfocnt] = len(face)
             pos += len(face)
             finfocnt += 1
 
     content["groupinfo"] = groupinfo
-    content["facestart"] = facestart
+    content["vertsperface"] = vertsperface
     content["faceverts"] = faceverts
 
     if filename.endswith(".obj"):
@@ -108,7 +108,7 @@ def exportObj3dBinary(filename, path, obj):
 def importObj3dBinary(path, obj):
     print ("read binary " + path)
     npzfile = np.load(path)
-    for elem in ['header', 'grpNames', 'coord', 'uvs', 'overflow', 'groupinfo', 'facestart', 'faceverts']:
+    for elem in ['header', 'grpNames', 'coord', 'uvs', 'overflow', 'groupinfo', 'vertsperface', 'faceverts']:
         if elem not in npzfile:
             error =  "Malformed file, missing component " + elem
             return (False, error)
@@ -132,32 +132,26 @@ def importObj3dBinary(path, obj):
     obj.n_uvs   = len(obj.uvs)
     obj.overflow = npzfile["overflow"]
 
-    # regenerate groups from groupinfo, facestart, faceverts
+    # regenerate groups from groupinfo, vertsperface, faceverts
     # index-buffer groups (Start, NumFaces, bool)
     #
     verts = npzfile["faceverts"]
-    fstart= npzfile["facestart"]
+    fsize = npzfile["vertsperface"]
     groups = {}
     j = 0
     for num, elem in enumerate(npzfile["groupinfo"]):
         start = elem[0]
         faces = elem[1]
         f = []
+        fs = start
         for i in range(faces):
-            fs = start + fstart[j]
-            j += 1
-            if i < faces-1:
-                fe = start + fstart[j]
-            else:
-                if num < obj.n_groups-1:
-                    fe = npzfile["groupinfo"][num+1][0]
-                else:
-                    fe = len(verts)
-            vpf = fe - fs
             v = []
-            for k in range(0, vpf):
+            for k in range(0, fsize[j]):
                 v.append(verts[fs+k])
             f.append(v)
+            fs += fsize[j]
+            j += 1
+
         group =  obj.npGrpNames[num].decode("utf-8")
         groups[group] = { "v": f, "uv": elem[2] }
 

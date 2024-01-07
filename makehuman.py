@@ -66,7 +66,8 @@ def main():
         env.logLine(1, env.last_error)
 
     if env.basename is not None:
-        base = baseClass(glob, env.basename)
+        dirname  = env.existDataDir("base", env.basename)
+        base = baseClass(glob, env.basename, dirname)
         base.prepareClass()
 
     mainwin = MHMainWindow(glob)

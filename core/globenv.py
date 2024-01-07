@@ -53,8 +53,8 @@ class globalObjects():
             if not os.path.isdir(folder):
                 try:
                     os.mkdir(folder)
-                except:
-                    self.last_error = "cannot create folder " + folder
+                except OSError as error:
+                    self.env.last_error = str(error)
                     return (False)
 
         return (True)
@@ -498,6 +498,18 @@ class programInfo():
         for path in [self.path_userdata, self.path_sysdata]:
             test = os.path.join(path, *[name for name in names])
             if os.path.isfile(test):
+                return(test)
+        self.last_error = "/".join([name for name in names]) + " not found"
+        return None
+
+    def existDataDir(self, *names):
+        """
+        check in both datapaths, if a directory  exists, first personal one is used
+        in case it is not found last_error will mention the directory name 
+        """
+        for path in [self.path_userdata, self.path_sysdata]:
+            test = os.path.join(path, *[name for name in names])
+            if os.path.isdir(test):
                 return(test)
         self.last_error = "/".join([name for name in names]) + " not found"
         return None

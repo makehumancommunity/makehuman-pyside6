@@ -14,9 +14,10 @@ class baseClass():
     """
     get the environment for a base
     """
-    def __init__(self, glob, name):
+    def __init__(self, glob, name, dirname):
         self.env = glob.env
         self.glob = glob
+        self.dirname = dirname        # contains dirname of the obj (to determine user or system space)
         self.baseMesh = None
         self.baseInfo = None
         self.attachedAssets = []
@@ -96,23 +97,27 @@ class baseClass():
     def prepareClass(self):
         self.env.logLine(2, "Prepare class called with: " + self.env.basename)
 
-        basepath = os.path.join(self.env.path_sysdata, "base", self.env.basename)
-        filename = os.path.join(basepath, "base.json")
+        filename = os.path.join(self.dirname, "base.json")
 
-        self.glob.generateBaseSubDirs(self.env.basename)
+        okay = self.glob.generateBaseSubDirs(self.env.basename)
+        if not okay:
+            return (False)
 
         self.baseInfo = self.env.readJSON(filename)
         if self.baseInfo is None:
             self.env.logLine(1, self.env.last_error )
+            return (False)
 
-        name = os.path.join(basepath, "base.obj")
+        name = os.path.join(self.dirname, "base.obj")
 
         self.baseMesh = object3d(self.env, self.baseInfo)
         (res, err) = self.baseMesh.load(name)
         if res is False:
             del self.baseMesh
             self.baseMesh = None
+            self.env.last_error = err
             self.env.logLine(1, err )
+            return (False)
 
         if self.glob.Targets is not None:
             self.glob.Targets.destroyTargets()
@@ -153,6 +158,7 @@ class baseClass():
         else:
             self.attachedAssets = []
         memInfo()
+        return (True)
 
     def getInitialCopyForSlider(self, factor, decr, incr):
         """

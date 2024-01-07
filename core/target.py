@@ -733,7 +733,7 @@ class TargetCategories:
 
     def readFiles(self):
         #
-        # system first (TODO: what about user only meshes?)
+        # system first, categoryjson would be None if not available
         #
         targetpath = os.path.join(self.env.path_sysdata, "target", self.basename)
         filename = os.path.join(targetpath, "target_cat.json")
@@ -782,7 +782,10 @@ class TargetCategories:
 
         userjson = self.env.readJSON(catfilename)
         if userjson is not None:
-            categoryjson["User"] = userjson["User"]
+            if categoryjson is not None:
+                categoryjson["User"] = userjson["User"]
+            else:
+                categoryjson = userjson         # only user targets
 
         # make it globally available
         #
