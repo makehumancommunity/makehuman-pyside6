@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import ( 
         QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFrame, QGroupBox, QListWidget,
-        QAbstractItemView, QSizePolicy, QScrollArea, QFileDialog, QDialogButtonBox
+        QAbstractItemView, QSizePolicy, QScrollArea, QFileDialog, QDialogButtonBox, QMessageBox
         )
 from PySide6.QtGui import QIcon, QCloseEvent, QAction
 from PySide6.QtCore import QSize, Qt
@@ -10,7 +10,7 @@ from gui.infowindow import  MHInfoWindow
 from gui.memwindow import  MHMemWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.slider import ScaleComboArray
-from gui.dialogs import DialogBox, ErrorBox
+from gui.dialogs import DialogBox, ErrorBox, WorkerThread, MHBusyWindow
 from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
 import os
@@ -34,6 +34,8 @@ class MHMainWindow(QMainWindow):
         self.in_close = False
         self.selectbase_in_progress = False
         self.targetfilter = None
+        self.bckproc = None         # background process is running
+        self.prog_window = None     # will hold the progress window
         super().__init__()
 
         s = env.session["mainwinsize"]
@@ -384,15 +386,30 @@ class MHMainWindow(QMainWindow):
         self.drawToolPanel(category, text)
         self.ToolBox.update()
 
+    def finished_bckproc(self):
+        if self.prog_window is not None:
+            self.prog_window.progress.close()
+            self.prog_window = None
+        QMessageBox.information(self, "Done!", self.bckproc.finishmsg)
+        self.bckproc = None
+
     def compress_systargets(self):
-        print("Sys-Targets")
-        if self.glob.Targets is not None:
-            self.glob.Targets.saveBinaryTargets(1)
+        if self.glob.Targets is not None and self.bckproc is None:
+            self.prog_window = MHBusyWindow("System targets", "compressing ...")
+            self.prog_window.progress.forceShow()
+            self.bckproc = WorkerThread(self.glob.Targets.saveBinaryTargets, 1)
+            self.bckproc.finishmsg = "System targets had been compressed"
+            self.bckproc.start()
+            self.bckproc.finished.connect(self.finished_bckproc)
 
     def compress_usertargets(self):
-        print("User-Targets")
-        if self.glob.Targets is not None:
-            self.glob.Targets.saveBinaryTargets(2)
+        if self.glob.Targets is not None and self.bckproc is None:
+            self.prog_window = MHBusyWindow("User targets", "compressing ...")
+            self.prog_window.progress.forceShow()
+            self.bckproc = WorkerThread(self.glob.Targets.saveBinaryTargets, 2)
+            self.bckproc.finishmsg = "User targets had been compressed"
+            self.bckproc.start()
+            self.bckproc.finished.connect(self.finished_bckproc)
 
     def compress_objs(self, system):
         print ("compress")

@@ -1,10 +1,22 @@
 from PySide6.QtWidgets import QLabel, QDialogButtonBox, QVBoxLayout, QDialog, QProgressDialog, QWidget, QApplication, QMessageBox
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QThread, Signal
 
 def ErrorBox(qw, text):
     button = QMessageBox.critical(qw, "An error occured!", text, buttons=QMessageBox.Close)
     dlg = QMessageBox()
 
+
+class WorkerThread(QThread):
+    update_progress = Signal(int)
+
+    def __init__(self, function, *args):
+        super().__init__()
+        self.mh_function = function
+        self.mh_args = args
+        self.finishmsg = "Background process completed"
+
+    def run(self):
+        self.mh_function(self, self.mh_args)
 
 class DialogBox(QDialog):
     def __init__(self, question, button):
@@ -35,6 +47,7 @@ class MHProgWindow():
         self.progress.setMinimumWidth(600)
         self.progress.setMinimumDuration(500)
         self.progress.setWindowModality(Qt.WindowModal)
+        self.progress.setAttribute(Qt.WA_DeleteOnClose, True)
 
     def setValueAndText(self, l, text):
         self.progress.setValue(l)
@@ -50,24 +63,19 @@ class MHProgWindow():
         self.progress.setMaximum(l)
 
 
-
-
 class MHBusyWindow(QWidget):
     """
     a small busy window
     """
-    def __init__(self, glob, text):
-        super().__init__()
-        env = glob.env
-        title = QLabel(text)
-        layout =QVBoxLayout(self)
-        layout.addWidget(title)
-        self.setLayout(layout)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-        center = glob.app.getCenter()
-        self.move(center - self.frameGeometry().center())
+    def __init__(self, title, text):
+        self.progress = QProgressDialog(text, None, 0, 0, None)
+        self.progress.setWindowTitle(title)
+        self.progress.setMinimumWidth(600)
+        self.progress.setMinimumDuration(200)
+        self.progress.setWindowModality(Qt.WindowModal)
+        self.progress.setAttribute(Qt.WA_DeleteOnClose, True)
 
-
-
+    def setValue(self, l):
+        self.progress.setValue(l)
 
 

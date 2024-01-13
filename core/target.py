@@ -499,15 +499,17 @@ class Targets:
                     self.glob.targetRepo[m.pattern] = m
             self.modelling_targets.append(m)
 
-    def saveBinaryTargets(self, sys_user = 3):
+    def saveBinaryTargets(self, bckproc, *args):
         """
-        save targets as compressed binary
-        :param sys_user: 1 = system, 2 = user (3 is both)
+        save targets as compressed binary (running as background command)
+        :parm bck_proc: unused pointer to background process
+        :param args: [0][0] 1 = system, 2 = user (3 is both)
         """
         # get a content list of all targets and add them to either system content or user content
         #
         # TODO; check files ...
-
+    
+        sys_user = args[0][0]
         contentsys = {}
         contentuser = {}
         for target in self.glob.macroRepo.values():
