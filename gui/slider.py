@@ -229,8 +229,9 @@ class ScaleComboArray(QWidget):
                     texts = [d['text'] for d in elem.barycentric]
                     values = [d['value'] for d in elem.barycentric]
 
-                    mapBary = MapBaryCentricCombo(values, texts, elem.callback)
-                    self.layout.addWidget(mapBary)
+                    mapCombo = MapBaryCentricCombo(values, texts, elem.callback)
+                    elem.mapSlider = mapCombo.mapBary
+                    self.layout.addWidget(mapCombo)
                     cnt +=1 
                     continue
 

@@ -1,3 +1,4 @@
+from gui.dialogs import WorkerThread
 import os
 import sys
 import json
@@ -37,6 +38,7 @@ class Modelling:
         self.m_influence = []   # all influences
         self.barycentric = None # map slider
         self.opposite = True # two.directional slider
+        self.mapSlider = None # filled from mapslider function
         self.displayname = name
         self.group = None
         self.pattern = "None"
@@ -106,10 +108,15 @@ class Modelling:
             self.barycentric[1]["value"] = 0.33
             self.barycentric[2]["value"] = 0.34
 
-    def set_barycentric(self, val):
+    def set_barycentricFromMapSlider(self):
+        val = self.mapSlider.getValues()
         self.barycentric[0]["value"] = val[0]
         self.barycentric[1]["value"] = val[1]
         self.barycentric[2]["value"] = val[2]
+        #
+        # this is a dummy value for comparison when using parallel processing
+        #
+        self.value = int(val[0] * 100) * int(val[1] * 100) * int(val[2] * 100)
 
     def printSlot(self):
         val =self.value / 100
@@ -280,22 +287,51 @@ class Modelling:
                 self.obj.baseMesh.addTargetToMacroBuffer(sortedtargets[elem], self.glob.macroRepo[elem])
         self.obj.baseMesh.addMacroBuffer()
 
-    def callback(self, param=None):
+    def changeMacroTarget(self, bckproc, args):
+        """
+        change macros will run as a background process
+        """
+        self.last_value = self.value
+
+        self.obj.baseMesh.subtractMacroBuffer()
+        self.macroCalculation(self.m_influence)
+        self.obj.updateAttachedAssets()
+
+    def finished_bckproc(self):
+        print ("done")
+        self.gwindow.Tweak()
+        self.glob.target_changing = None
+        #
+        # when still a difference exists, callback should start again
+
+        if self.barycentric is not None:
+            self.set_barycentricFromMapSlider()
+        if self.value != self.last_value:
+            self.callback()
+        else:
+            self.glob.mhViewport.setSizeInfo()
+            self.glob.project_changed = True
+
+    def callback(self):
+        """
+        callback function, works different for macros (as a thread) and 
+        """
         factor = self.value / 100
         if len(self.m_influence) > 0:
             print ("Macro change " +  str(self.m_influence))
 
-            # extra parameter to get value from non-standard sliders
-            # 
-            if param is not None:
-                self.set_barycentric(param.getValues())
+            #
+            # make sure background process runs only once
 
-            self.obj.baseMesh.subtractMacroBuffer()
-            self.macroCalculation(self.m_influence)
-            self.obj.updateAttachedAssets()
-            self.glob.project_changed = True
-            self.glob.mhViewport.setSizeInfo()
-            self.gwindow.Tweak()
+            if self.glob.target_changing is None:
+                #
+                # special case barycentric, values will be fetched
+
+                if self.barycentric is not None:
+                    self.set_barycentricFromMapSlider()
+                self.glob.target_changing = WorkerThread(self.changeMacroTarget, None)
+                self.glob.target_changing.start()
+                self.glob.target_changing.finished.connect(self.finished_bckproc)
 
         elif self.incr is not None or self.decr is not None:
             print("change " + self.name)

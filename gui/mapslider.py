@@ -85,7 +85,7 @@ class MapInputWidget(QFrame):
         if self.info is not None:
             self.displayInfo()
         if self.callback is not None:
-           self.callback(self)
+           self.callback()
         self.update()
 
 
