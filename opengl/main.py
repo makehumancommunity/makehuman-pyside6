@@ -48,16 +48,15 @@ class OpenGLView(QOpenGLWidget):
         glbuffer.TexCoordBuffer(obj.gl_uvcoord)
         self.buffers.append(glbuffer)
 
-        # TODO: material not yet correct, will be connect to object later and of course not with predefined path name
-        # for test purpose
+        # TODO: material from mhmat file but not yet correct, these thing will be done in the shader
         #
-        self.material = Material(self.glob)
         default = self.env.existDataFile("skins", self.env.basename, "textures", "default.png")
         if texture is None:
             if default is not None:
-                self.texture = self.material.loadTexture(default)
+                self.texture = obj.material.loadTexture(default)
         else:
-            self.texture = self.material.loadTexture(os.path.join (self.env.path_sysdata, "eyes", self.env.basename, "textures", texture))
+            if hasattr(obj.material, 'diffuseTexture'):
+                self.texture = obj.material.loadTexture(obj.material.diffuseTexture)
 
         obj = RenderedObject(self.context(), glbuffer, self.mh_shaders, self.texture, pos=QVector3D(0, 0, 0))
         self.objects.append(obj)
@@ -77,6 +76,9 @@ class OpenGLView(QOpenGLWidget):
         self.mh_shaders = ShaderRepository(self.env)
         self.mh_shaders.loadFragShader("testshader")
         self.mh_shaders.loadVertShader("testshader")
+        #
+        # get positions of valiables
+        #
         self.mh_shaders.attribVertShader()
         self.mh_shaders.getVertLocations()
 

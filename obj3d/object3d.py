@@ -1,11 +1,14 @@
 import numpy as np 
 from obj3d.fops_binary import exportObj3dBinary, importObjFromFile
+from opengl.material import Material
+
 # from timeit import default_timer as timer
 
 class object3d:
-    def __init__(self, env, baseinfo ):
+    def __init__(self, glob, baseinfo ):
  
-        self.env  = env     # needed for globals
+        self.glob = glob
+        self.env  = glob.env     # needed for globals
         self.name_loaded = None  # original name from file
         self.dir_loaded  = None  # original folder
         self.name = None    # will contain object name derived from loaded file
@@ -39,6 +42,8 @@ class object3d:
         self.n_glverts = 0    # number of vertices for open gl
         self.n_glnorm  = 0    # number of normals for open gl
 
+        self.material = None    # will contain a material
+
         if baseinfo is not None:
             self.visible = baseinfo["visible groups"]
             self.is_base = True
@@ -59,6 +64,16 @@ class object3d:
         TODO: should contain other pathes later
         """
         return (importObjFromFile(path, self))
+
+    def loadMaterial(self, pathname):
+        """
+        use a relative path to self.dir_loaded
+        """
+        self.material = Material(self.glob, self.dir_loaded)
+        if pathname is not None:
+            return(self.material.loadMatFile(pathname))
+        else:
+            return True
 
     def exportBin(self):
         return(exportObj3dBinary(self.name_loaded, self.dir_loaded, self))

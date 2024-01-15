@@ -1,8 +1,8 @@
 #version 330
 
 attribute vec4 aPosition;
-in vec4 aNormal;
-in vec2 aTexCoord;
+attribute vec4 aNormal;
+attribute vec2 aTexCoord;
 
 uniform mat4 uMvpMatrix;
 uniform mat4 uModelMatrix;

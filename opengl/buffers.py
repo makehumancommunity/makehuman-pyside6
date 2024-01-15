@@ -90,7 +90,8 @@ class RenderedObject:
         shaderprog.bind()
         functions = self.context.functions()
 
-        # VAO
+        # VAO, bind the position-buffer, normal-buffer and texture-coordinates to attribute 0, 1, 2
+        # these are the values changed per vertex
         #
         self.vert_pos_buffer.bind()
         shaderprog.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3)     # OpenGL glVertexAttribPointer
@@ -111,6 +112,8 @@ class RenderedObject:
 
         self.normal_matrix = self.model_matrix.inverted()
         self.normal_matrix = self.normal_matrix[0].transposed()
+
+        # now set uMvpMatrix, uModelMatrix, uNormalMatrix
 
         shaderprog.bind()
         shaderprog.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)

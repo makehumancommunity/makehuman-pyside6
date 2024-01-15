@@ -110,7 +110,7 @@ class baseClass():
 
         name = os.path.join(self.dirname, "base.obj")
 
-        self.baseMesh = object3d(self.env, self.baseInfo)
+        self.baseMesh = object3d(self.glob, self.baseInfo)
         (res, err) = self.baseMesh.load(name)
         if res is False:
             del self.baseMesh
@@ -118,6 +118,8 @@ class baseClass():
             self.env.last_error = err
             self.env.logLine(1, err )
             return (False)
+
+        self.baseMesh.loadMaterial(None)
 
         if self.glob.Targets is not None:
             self.glob.Targets.destroyTargets()
@@ -134,7 +136,7 @@ class baseClass():
         if "modifier-presets" in self.baseInfo:
             target.modifierPresets (self.baseInfo["modifier-presets"])
         #
-        # attach the assets to the basemesh
+        # attach the assets to the basemesh. TODO works only with system space!!!
         #
         if "meshes" in self.baseInfo:
             attach = attachedAsset(self.glob)
@@ -146,11 +148,15 @@ class baseClass():
                 (res, text) = attach.textLoad(name)
                 if res is True:
                     name = os.path.join(self.env.path_sysdata, elem["cat"], self.env.basename, attach.obj_file)
-                    obj = object3d(self.env, None)
+                    obj = object3d(self.glob, None)
                     (res, err) = obj.load(name)
                     if res is False:
                         self.env.logLine(1, err )
+                        # TODO: error handling? Generate a list of errors?
                     else:
+                        if attach.material is not None:
+                            # TODO: error handling
+                            obj.loadMaterial(attach.material)
                         attach.obj = obj
                         self.attachedAssets.append(attach)
                 else:

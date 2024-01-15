@@ -24,7 +24,7 @@ x_scale 5399 11998 1.7412
 z_scale 962 5320 2.2613
 y_scale 791 881 2.7409
 z_depth 50
-material ../materials/brown.mhmat
+material materials/brown.mhmat
 verts 0
 14666
 14665

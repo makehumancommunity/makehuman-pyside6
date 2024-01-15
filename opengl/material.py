@@ -1,6 +1,8 @@
 from PySide6.QtOpenGL import QOpenGLTexture
 from PySide6.QtGui import QImage
 
+import os
+
 """
     try to put all Texture and Material Stuff here
 """
@@ -20,9 +22,69 @@ class MH_Image(QImage):
         
 
 class Material:
-    def __init__(self, glob):
+    def __init__(self, glob, objdir):
         self.glob = glob
         self.env = glob.env
+        self.objdir = objdir
+        self.tags = []
+
+    def __str__(self):
+        text = ""
+        for attr in dir(self):
+            if not attr.startswith("__"):
+                m = getattr(self, attr)
+                if isinstance(m, int) or isinstance(m, str) or  isinstance(m, list):
+                    text += (" %s = %r\n" % (attr, m))
+        return(text)
+
+    def isExistent(self, filename):
+        path = os.path.join(self.objdir, filename)
+        if os.path.isfile(path):
+            return (path)
+        else:
+            return None
+
+    def loadMatFile(self, filename):
+        """
+        mhmat file loader, TODO, still a subset
+        """
+        path = os.path.join(self.objdir, filename)
+        self.env.logLine(8, "Loading material " + path)
+        try:
+            f = open(path, "r", encoding="utf-8", errors="ignore")
+        except OSError as error:
+            self.env.last_error = str(error)
+            return (False)
+
+        for line in f:
+            words = line.split()
+            if len(words) == 0:
+                continue
+            key = words[0]
+            if key in ["#", "//"]:
+                continue
+
+            # if commands make no sense, they will be skipped ... 
+            #
+            if key in ["diffuseTexture", "normalmapTexture", "displacementmapTexture", "specularmapTexture", "transparencymapTexture",
+                    "aomapTexture" ]:
+                abspath = self.isExistent(words[1])
+                if abspath is not None:
+                    setattr (self, key, abspath)
+
+            elif key in ["name", "description"]:
+                setattr (self, key, " ".join(words[1:]))
+            elif key == "tag":
+                self.tags.append( " ".join(words[1:]).lower() )
+
+            # shaderparam will be prefixed
+            #
+            elif key == "shaderParam":
+                setattr (self, "sp_" + words[1], words[2])
+
+        print(self)
+
+        return (True)
 
     def loadTexture(self, path):
         texture = QOpenGLTexture(QOpenGLTexture.Target2D)
