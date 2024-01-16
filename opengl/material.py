@@ -77,10 +77,39 @@ class Material:
             elif key == "tag":
                 self.tags.append( " ".join(words[1:]).lower() )
 
-            # shaderparam will be prefixed
+            # simple bools:
+            #
+            elif key in [ "shadeless", "wireframe", "transparent", "alphaToCoverage", "backfaceCull", 
+                    "depthless", "castShadows", "receiveShadows", "autoBlendSkin", "sssEnabled" ]:
+                setattr (self, key, words[1].lower() in ["yes", "enabled", "true"])
+
+            # colors
+            #
+            elif key in ["ambientColor", "diffuseColor", "emissiveColor", "viewPortColor" ]:
+                setattr (self, key, [float(w) for w in words[1:4]])
+
+            # intensities (all kind of floats)
+            #
+            elif key in ["shininess", "viewPortAlpha", "opacity", "translucency", "bumpmapIntensity",
+                "normalmapIntensity", "displacementmapIntensity", "specularmapIntensity",
+                "transparencymapIntensity", "aomapIntensity" ]:
+                setattr (self, key, max(0.0, min(1.0, float(words[1]))))
+
+            elif key in ["sssRScale", "sssGScale", "sssBScale"]:
+                setattr (self, key, max(0.0, float(words[1])))
+
+            # shaderparam will be prefixed by sp_
             #
             elif key == "shaderParam":
                 setattr (self, "sp_" + words[1], words[2])
+
+            # shaderconfig will be prefixed by sc_
+            #
+            elif key == "shaderConfig":
+                if words[1] in ["diffuse", "bump", "normal", "displacement", "spec", "vertexColors", "transparency",
+                        "ambientOcclusion"]:
+                    setattr (self, "sc_" + words[1], words[2].lower() in ["yes", "enabled", "true"])
+
 
         print(self)
 

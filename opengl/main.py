@@ -41,7 +41,7 @@ class OpenGLView(QOpenGLWidget):
         if glob.Targets is not None:
             glob.Targets.refreshTargets(self)
 
-    def createObject(self, obj, texture=None):
+    def createObject(self, obj, texture=False):
         glbuffer = OpenGlBuffers()
         glbuffer.VertexBuffer(obj.gl_coord, obj.gl_icoord, obj.n_glverts)
         glbuffer.NormalBuffer(obj.gl_norm)
@@ -51,7 +51,7 @@ class OpenGLView(QOpenGLWidget):
         # TODO: material from mhmat file but not yet correct, these thing will be done in the shader
         #
         default = self.env.existDataFile("skins", self.env.basename, "textures", "default.png")
-        if texture is None:
+        if texture is False:
             if default is not None:
                 self.texture = obj.material.loadTexture(default)
         else:
@@ -154,7 +154,7 @@ class OpenGLView(QOpenGLWidget):
             self.createObject(baseClass.baseMesh)
             for elem in baseClass.attachedAssets:
                 # print ("   " + str(elem))
-                self.createObject(elem.obj, "brown_eye.png")
+                self.createObject(elem.obj, True)
             self.setCameraCenter()
             self.paintGL()
             self.update()
