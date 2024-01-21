@@ -38,17 +38,31 @@ class Material:
         return(text)
 
     def isExistent(self, filename):
+        """
+        concatenate / check same folder (objdir ends with the start of filename)
+        """
         path = os.path.join(self.objdir, filename)
         if os.path.isfile(path):
             return (path)
-        else:
-            return None
 
-    def loadMatFile(self, filename):
+        # try to get rid of first directory of filename
+        if "/" in filename:
+            filename = "/".join (filename.split("/")[1:])
+            path = os.path.join(self.objdir, filename)
+            if os.path.isfile(path):
+                return (path)
+            
+        return None
+
+    def loadMatFile(self, filename, folder=None):
         """
         mhmat file loader, TODO, still a subset
         """
-        path = os.path.join(self.objdir, filename)
+        if folder is not None:
+            self.objdir = folder
+            path = filename
+        else:
+            path = os.path.join(self.objdir, filename)
         self.env.logLine(8, "Loading material " + path)
         try:
             f = open(path, "r", encoding="utf-8", errors="ignore")

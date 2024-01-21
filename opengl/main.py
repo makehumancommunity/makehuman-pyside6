@@ -10,7 +10,7 @@ from OpenGL import GL as gl
 from opengl.shaders import ShaderRepository
 from opengl.material import Material
 from opengl.buffers import OpenGlBuffers, RenderedObject
-from opengl.camera import Camera
+from opengl.camera import Camera, Light
 
 def GLVersion(initialized):
     glversion = {}
@@ -50,10 +50,13 @@ class OpenGLView(QOpenGLWidget):
 
         # TODO: material from mhmat file but not yet correct, these thing will be done in the shader
         #
-        default = self.env.existDataFile("skins", self.env.basename, "textures", "default.png")
         if texture is False:
-            if default is not None:
-                self.texture = obj.material.loadTexture(default)
+            if hasattr(obj.material, 'diffuseTexture'):
+                self.texture = obj.material.loadTexture(obj.material.diffuseTexture)
+            else:
+                default = self.env.existDataFile("skins", self.env.basename, "textures", "default.png")
+                if default is not None:
+                    self.texture = obj.material.loadTexture(default)
         else:
             if hasattr(obj.material, 'diffuseTexture'):
                 self.texture = obj.material.loadTexture(obj.material.diffuseTexture)
@@ -61,26 +64,37 @@ class OpenGLView(QOpenGLWidget):
         obj = RenderedObject(self.context(), glbuffer, self.mh_shaders, self.texture, pos=QVector3D(0, 0, 0))
         self.objects.append(obj)
 
+    def newTexture(self, obj):
+        print ("in new texture")
+        
+        if hasattr(obj.material, 'diffuseTexture'):
+            self.texture = obj.material.loadTexture(obj.material.diffuseTexture)
+            print (obj.material.diffuseTexture)
+            self.objects[0].setTexture(self.texture)
+
     def initializeGL(self):
 
         self.env.GL_Info = GLVersion(True)
         baseClass = self.glob.baseClass
         o_size = baseClass.baseMesh.getHeightInUnits() if baseClass is not None else 100
-        self.camera = Camera(o_size)
-        self.camera.resizeViewPort(self.width(), self.height())
         glfunc = self.context().functions()
 
         glfunc.glClearColor(0.2, 0.2, 0.2, 1)
         glfunc.glEnable(gl.GL_DEPTH_TEST)
 
         self.mh_shaders = ShaderRepository(self.env)
-        self.mh_shaders.loadFragShader("testshader")
-        self.mh_shaders.loadVertShader("testshader")
+        self.mh_shaders.loadFragShader("phong3l")
+        self.mh_shaders.loadVertShader("phong3l")
         #
-        # get positions of valiables
+        # get positions of variables
         #
         self.mh_shaders.attribVertShader()
-        self.mh_shaders.getVertLocations()
+        self.mh_shaders.getUniforms()
+
+        self.light = Light(self.mh_shaders)
+        self.light.setShader()
+        self.camera = Camera(self.mh_shaders, o_size)
+        self.camera.resizeViewPort(self.width(), self.height())
 
         if baseClass is not None:
             self.newMesh()
@@ -151,7 +165,7 @@ class OpenGLView(QOpenGLWidget):
         self.objects = []
 
         if baseClass is not None:
-            self.createObject(baseClass.baseMesh)
+            self.createObject(baseClass.baseMesh, False)
             for elem in baseClass.attachedAssets:
                 # print ("   " + str(elem))
                 self.createObject(elem.obj, True)

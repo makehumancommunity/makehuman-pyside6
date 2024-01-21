@@ -8,6 +8,7 @@ from gui.prefwindow import  MHPrefWindow
 from gui.logwindow import  MHLogWindow
 from gui.infowindow import  MHInfoWindow
 from gui.memwindow import  MHMemWindow
+from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.slider import ScaleComboArray
 from gui.dialogs import DialogBox, ErrorBox, WorkerThread, MHBusyWindow
@@ -26,6 +27,7 @@ class MHMainWindow(QMainWindow):
         self.glob = glob
         self.pref_window = None
         self.mem_window = None
+        self.scene_window = None
         self.info_window = None
         self.log_window = None
         self.rightColumn = None
@@ -62,6 +64,9 @@ class MHMainWindow(QMainWindow):
         set_menu = menu_bar.addMenu("&Settings")
         pref_act = set_menu.addAction("Preferences")
         pref_act.triggered.connect(self.pref_call)
+
+        pref_act = set_menu.addAction("Lights and Scene")
+        pref_act.triggered.connect(self.scene_call)
 
         log_act = set_menu.addAction("Messages")
         log_act.triggered.connect(self.log_call)
@@ -282,6 +287,14 @@ class MHMainWindow(QMainWindow):
             self.mem_window = MHMemWindow(self)
         self.mem_window.show()
 
+    def scene_call(self):
+        """
+        show scene window
+        """
+        if self.scene_window is None:
+            self.scene_window = MHSceneWindow(self, self.graph.view)
+        self.scene_window.show()
+
     def loadmhm_call(self):
         if self.glob.baseClass is not None:
             confirmed = 1
@@ -294,6 +307,7 @@ class MHMainWindow(QMainWindow):
                 filename = self.fileRequest("Model", "Model files (*.mhm)", directory)
                 if filename is not None:
                     self.glob.baseClass.loadMHMFile(filename)
+                    self.graph.view.newTexture(self.glob.baseClass.baseMesh)
                     self.graph.view.Tweak()
                     self.targetfilter = self.qTree.getStartPattern()
                     self.redrawNewCategory(self.targetfilter)

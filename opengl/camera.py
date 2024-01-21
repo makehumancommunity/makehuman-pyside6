@@ -1,4 +1,4 @@
-from PySide6.QtGui import QMatrix4x4, QVector3D, QOpenGLContext
+from PySide6.QtGui import QMatrix4x4, QVector3D, QVector4D, QOpenGLContext
 import OpenGL
 from OpenGL import GL as gl
 from math import pi as M_PI, atan, degrees, sqrt
@@ -7,10 +7,11 @@ class Camera():
     """
     should always calculate view matrix and projection matrix
     """
-    def __init__(self, o_size):
+    def __init__(self, shaders, o_size):
         """
         all parameters connected with camera
         """
+        self.shaders = shaders
         self.o_height =  o_size
         self.focalLength = 50.0                # start with a norm focal length
         self.verticalAngle = 0.0                # vertical angle
@@ -85,6 +86,7 @@ class Camera():
         self.view_matrix.setToIdentity()
         self.view_matrix.lookAt( self.cameraPos, self.lookAt, self.cameraDir)
         self.proj_view_matrix = self.proj_matrix * self.view_matrix
+        self.shaders.setUniform("viewPos", self.view_matrix)
 
     def calculateOrthoMatrix(self):
         self.proj_matrix.setToIdentity()
@@ -262,4 +264,41 @@ class Camera():
         self.proj_view_matrix = self.proj_matrix * self.view_matrix
 
 
-    
+class Light():
+    """
+    can be used to manipulate light in scene, used for up to 3 lights
+    """
+
+    def __init__(self, shaders):
+        self.shaders = shaders
+        self.lights = [ 
+                { "namepos": "lightPos1", "pos": QVector3D(12.0, 3.0, 6.0),
+                    "namevol": "lightVol1", "vol": QVector4D(1.0, 1.0, 1.0, 10.0) }, 
+                { "namepos": "lightPos2", "pos": QVector3D(-5.0, 5.0, 5.0),
+                    "namevol": "lightVol2", "vol": QVector4D(1.0, 1.0, 1.0, 6.0) },
+                { "namepos": "lightPos3", "pos": QVector3D(-0.4, 3.0, -10.0),
+                    "namevol": "lightVol3", "vol": QVector4D(1.0, 1.0, 1.0, 5.0) },
+                ]
+        self.ambientLight = QVector4D(1.0, 1.0, 1.0, 0.25)
+        self.lightWeight = QVector3D(0.3, 8.0, 0.0)
+        self.blinn = False
+
+    def setShader(self):
+        for elem in self.lights:
+            self.shaders.setUniform(elem["namepos"], elem["pos"])
+            self.shaders.setUniform(elem["namevol"], elem["vol"])
+        self.shaders.setUniform("ambientLight", self.ambientLight)
+        self.shaders.setUniform("lightWeight", self.lightWeight)
+        self.shaders.setUniform("blinn", self.blinn)
+
+    def setAmbientVolume(self, value):
+        self.shaders.bind()
+        self.ambientLight.setW(value)
+        self.setShader()
+
+    def setAmbientColor(self, value):
+        self.shaders.bind()
+        self.ambientLight.setX(value.redF())
+        self.ambientLight.setY(value.greenF())
+        self.ambientLight.setZ(value.blueF())
+        self.setShader()

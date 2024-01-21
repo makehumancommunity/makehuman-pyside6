@@ -65,15 +65,18 @@ class object3d:
         """
         return (importObjFromFile(path, self))
 
-    def loadMaterial(self, pathname):
+    def loadMaterial(self, pathname, dirname=None):
         """
         use a relative path to self.dir_loaded
         """
         self.material = Material(self.glob, self.dir_loaded)
         if pathname is not None:
-            return(self.material.loadMatFile(pathname))
+            return(self.material.loadMatFile(pathname, dirname))
         else:
             return True
+
+    def newTexture(self):
+        pass
 
     def exportBin(self):
         return(exportObj3dBinary(self.name_loaded, self.dir_loaded, self))

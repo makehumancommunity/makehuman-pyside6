@@ -8,6 +8,7 @@ from core.target import Modelling
 class loadedMHM():
     def __init__(self):
         self.name = None
+        self.skinMaterial = None
         self.modifiers = []
 
 class baseClass():
@@ -47,8 +48,8 @@ class baseClass():
                 continue
 
             key = words[0]
-            if key in ["version"]:
-                setattr (loadedMHM, key, words[1])
+            if key in ["version", "skinMaterial"]:
+                setattr (loaded, key, words[1])
             elif key == "name":
                 loaded.name = " ".join(words[1:])
             elif key == "modifier":
@@ -59,6 +60,11 @@ class baseClass():
 
         if loaded.name is not None:
             self.name = loaded.name
+
+        if loaded.skinMaterial is not None:
+            filename = self.env.existDataFile("skins", self.env.basename, os.path.basename(loaded.skinMaterial))
+            if filename is not None:
+                self.baseMesh.loadMaterial(filename, os.path.dirname(filename))
 
         # reset all targets and mesh, reset missing targets
         #

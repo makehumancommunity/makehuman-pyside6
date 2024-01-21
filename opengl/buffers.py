@@ -60,7 +60,7 @@ class OpenGlBuffers():
         self.amount_of_vertices = 0
 
 class RenderedObject:
-    def __init__(self, context, vert_buffers, locations, texture, pos):
+    def __init__(self, context, vert_buffers, shaders, texture, pos):
         self.context = context
         self.position = QVector3D(0, 0, 0)
         self.rotation = QVector3D(0, 0, 0)
@@ -75,13 +75,17 @@ class RenderedObject:
         self.tex_coord_buffer = vert_buffers.tex_coord_buffer
         self.amount_of_vertices = vert_buffers.amount_of_vertices
 
-        self.mvp_matrix_location = locations.mvp_matrix_location
-        self.model_matrix_location = locations.model_matrix_location
-        self.normal_matrix_location = locations.normal_matrix_location
+        self.mvp_matrix_location = shaders.uniforms["uMvpMatrix" ]
+        self.model_matrix_location = shaders.uniforms["uModelMatrix"]
+        self.normal_matrix_location = shaders.uniforms["uNormalMatrix"]
 
         self.texture = texture
 
         self.position = pos
+
+    def setTexture(self, texture):
+        self.texture = texture
+        self.texture.bind()
 
     def draw(self, shaderprog, proj_view_matrix):
         """
