@@ -2,6 +2,7 @@ from PySide6.QtCore import QSize, Qt, QObject, QEvent
 from PySide6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QSlider
 from PySide6.QtGui import QVector3D, QColor, QIcon
 from core.baseobj import baseClass
+from gui.slider import SimpleSlider
 from opengl.main import OpenGLView
 import os
 
@@ -104,35 +105,18 @@ class MHGraphicWindow(QWidget):
         self.pers_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         vlayout.addWidget(self.pers_button)
 
-        self.fovLabel = QLabel("")
-        vlayout.addWidget(self.fovLabel)
-        self.fovSlider=QSlider(Qt.Horizontal, self)
-        self.fovSlider.setMinimum(15)
-        self.fovSlider.setMaximum(200)
-        self.fovSlider.setMinimumWidth(150)
-        self.fovSlider.setTickPosition(QSlider.TicksBelow)
-        self.fovSlider.setTickInterval(10)
-        self.fovSlider.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
-        self.fovSlider.valueChanged.connect(self.fovChanged)
-
-        vlayout.addWidget(self.fovSlider)
-
-
-    def setFocusText(self, value):
-        self.fovLabel.setText("Focal Length: " + str(round(value)))
+        self.focusSlider = SimpleSlider("Focal Length: ", 15, 200, self.focusChanged)
+        vlayout.addWidget(self.focusSlider )
 
     def getFocusText(self):
         focalLength = self.view.getCamera().getFocalLength()
-        self.setFocusText(focalLength)
-        self.fovSlider.setValue(focalLength)
+        self.focusSlider.setSliderValue(focalLength)
 
-    def fovChanged(self):
-        value = self.fovSlider.value()
-        self.setFocusText(value)
+    def focusChanged(self, value):
         self.view.modifyFov(value)
         if self.debug:
             self.camChanged()
-
+        
     def setSizeInfo(self):
         value=self.glob.baseClass.baseMesh.getHeightInUnits()
         text = ""
@@ -301,10 +285,10 @@ class MHGraphicWindow(QWidget):
     def toggle_perspective(self):
         if self.pers_button.isChecked():
             self.pers_button.setStyleSheet("background-color : orange")
-            self.fovSlider.setEnabled(True)
+            self.focusSlider.setEnabled(True)
         else:
             self.pers_button.setStyleSheet("background-color : lightgrey")
-            self.fovSlider.setEnabled(False)
+            self.focusSlider.setEnabled(False)
         self.view.togglePerspective(self.pers_button.isChecked())
 
     def show(self):

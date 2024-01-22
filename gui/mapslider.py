@@ -62,6 +62,14 @@ class MapInputWidget(QFrame):
         self.values[1] = y / self.dimension
         return (x,y)
 
+    def drawValues(self, x,y):
+        self.maskAndSetValues(x,y)
+        self.x = x
+        self.y = y
+        if self.info is not None:
+            self.displayInfo()
+        self.update()
+
     def displayInfo(self):
         x = self.values[0]
         y = self.values[1]
@@ -93,7 +101,7 @@ class MapInputWidgetXY(MapInputWidget):
     def __init__(self, size, framewidth, info=None, initialValue=None, callback=None):
         if initialValue is None:
             initialValue = [ 0.5, 0.5 ]
-        super().__init__(size, framewidth, info, initialValue)
+        super().__init__(size, framewidth, info, initialValue, callback)
 
 class MapInputWidgetBaryCentric(MapInputWidget):
     def __init__(self, size, framewidth, info=None, initialValue=None, texts=None, callback=None):

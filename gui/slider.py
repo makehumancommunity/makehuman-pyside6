@@ -3,7 +3,7 @@ import sys
 from PySide6.QtCore import Qt, QRect, QPoint
 from PySide6.QtGui import QPainter, QPixmap, QPen
 
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QSlider, QStyle, QStyleOptionSlider, QLabel, QPushButton, QSizePolicy, QDoubleSpinBox, QProgressBar, QFrame
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QSlider, QStyle, QStyleOptionSlider, QLabel, QPushButton, QSizePolicy, QDoubleSpinBox, QProgressBar, QFrame, QColorDialog
 from gui.mapslider import MapBaryCentricCombo
 
 
@@ -261,4 +261,63 @@ class ScaleComboArray(QWidget):
                 if scalecombo.expanded:
                     scalecombo.comboUpdate(False)
             elem.comboUpdate(True)
+
+class SimpleSlider(QWidget):
+    def __init__(self, labeltext, minimum, maximum, callback, parent=None):
+        super().__init__()
+        vLayout = QVBoxLayout()
+        self.labeltext = labeltext
+        self.callback = callback
+        self.info = QLabel(self)
+        vLayout.addWidget(self.info)
+        self.slider=QSlider(Qt.Horizontal, self)
+        self.slider.setMinimum(minimum)
+        self.slider.setMaximum(maximum)
+        self.slider.setMinimumWidth(150)
+        self.slider.setTickPosition(QSlider.TicksBelow)
+        self.slider.setTickInterval(10)
+        self.slider.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
+        self.slider.valueChanged.connect(self.sliderChanged)
+        vLayout.addWidget(self.slider)
+        self.setLayout(vLayout)
+
+    def setEnable(self, value):
+        self.slider.setEnabled(value)
+
+    def setInfoText(self, value):
+        self.info.setText(self.labeltext + str(round(value)))
+
+    def sliderChanged(self):
+        value = self.slider.value()
+        self.setInfoText(value)
+        self.callback(value)
+
+    def setSliderValue(self, value):
+        self.setInfoText(value)
+        self.slider.setValue(value)
+
+class ColorButton(QWidget):
+    def __init__(self, labeltext, callback, parent=None):
+        super().__init__()
+        self.labeltext = labeltext
+        self.callback = callback
+        layout = QVBoxLayout()
+        self.info = QLabel(self)
+        self.button = QPushButton()
+        self.button.clicked.connect(self.getColor)
+        layout.addWidget(self.info)
+        layout.addWidget(self.button)
+        self.setLayout(layout)
+
+    def setInfoText(self, color):
+        self.info.setText(self.labeltext + color.name())
+
+    def setColorValue(self, color):
+        self.setInfoText(color)
+        self.button.setStyleSheet("background-color : " + color.name())
+
+    def getColor(self):
+        color = QColorDialog.getColor()
+        self.setColorValue(color)
+        self.callback(color)
 

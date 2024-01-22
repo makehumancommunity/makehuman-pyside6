@@ -302,3 +302,24 @@ class Light():
         self.ambientLight.setY(value.greenF())
         self.ambientLight.setZ(value.blueF())
         self.setShader()
+
+    def setLPos(self, num, x, z):
+        self.shaders.bind()
+        m =  self.lights[num]["pos"]
+        m.setX(x)
+        m.setZ(z)
+        self.setShader()
+
+    def setLVolume(self, num, value):
+        self.shaders.bind()
+        self.lights[num]["vol"].setW(value)
+        self.setShader()
+
+    def setLColor(self, num, value):
+        self.shaders.bind()
+        m =  self.lights[num]["vol"]
+        m.setX(value.redF())
+        m.setY(value.greenF())
+        m.setZ(value.blueF())
+        self.setShader()
+
