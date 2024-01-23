@@ -263,23 +263,34 @@ class ScaleComboArray(QWidget):
             elem.comboUpdate(True)
 
 class SimpleSlider(QWidget):
-    def __init__(self, labeltext, minimum, maximum, callback, parent=None):
+    def __init__(self, labeltext, minimum, maximum, callback, parent=None, vertical=False):
         super().__init__()
-        vLayout = QVBoxLayout()
         self.labeltext = labeltext
         self.callback = callback
         self.info = QLabel(self)
-        vLayout.addWidget(self.info)
-        self.slider=QSlider(Qt.Horizontal, self)
+        if vertical:
+            layout = QHBoxLayout()
+            self.slider=QSlider(Qt.Vertical, self)
+            layout.addWidget(self.slider)
+            layout.addWidget(self.info)
+            self.slider.setTickPosition(QSlider.TicksRight)
+            self.slider.setTickInterval(10)
+            self.slider.setMinimumHeight(120)
+        else:
+            layout = QVBoxLayout()
+            layout.addWidget(self.info)
+            self.slider=QSlider(Qt.Horizontal, self)
+            layout.addWidget(self.slider)
+            self.slider.setTickPosition(QSlider.TicksBelow)
+            self.slider.setTickInterval(10)
+            self.slider.setMinimumWidth(150)
+            
         self.slider.setMinimum(minimum)
         self.slider.setMaximum(maximum)
-        self.slider.setMinimumWidth(150)
-        self.slider.setTickPosition(QSlider.TicksBelow)
-        self.slider.setTickInterval(10)
         self.slider.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
         self.slider.valueChanged.connect(self.sliderChanged)
-        vLayout.addWidget(self.slider)
-        self.setLayout(vLayout)
+        layout.addStretch()
+        self.setLayout(layout)
 
     def setEnable(self, value):
         self.slider.setEnabled(value)
@@ -304,9 +315,11 @@ class ColorButton(QWidget):
         layout = QVBoxLayout()
         self.info = QLabel(self)
         self.button = QPushButton()
+        self.button.setFixedSize(80,20)
         self.button.clicked.connect(self.getColor)
         layout.addWidget(self.info)
         layout.addWidget(self.button)
+        layout.addStretch()
         self.setLayout(layout)
 
     def setInfoText(self, color):

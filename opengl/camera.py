@@ -271,6 +271,9 @@ class Light():
 
     def __init__(self, shaders):
         self.shaders = shaders
+        self.min_coords = [-25.0, -10.0, -25.0 ]
+        self.max_coords = [25.0, 10.0, 25.0 ]
+
         self.lights = [ 
                 { "namepos": "lightPos1", "pos": QVector3D(12.0, 3.0, 6.0),
                     "namevol": "lightVol1", "vol": QVector4D(1.0, 1.0, 1.0, 10.0) }, 
@@ -301,6 +304,12 @@ class Light():
         self.ambientLight.setX(value.redF())
         self.ambientLight.setY(value.greenF())
         self.ambientLight.setZ(value.blueF())
+        self.setShader()
+
+    def setHPos(self, num, y):
+        self.shaders.bind()
+        m =  self.lights[num]["pos"]
+        m.setY(y)
         self.setShader()
 
     def setLPos(self, num, x, z):

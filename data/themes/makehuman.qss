@@ -151,15 +151,15 @@ QToolTip
      opacity: 255;
 }
 
-QSlider {
+QSlider::horizontal {
     color: black;
     background-color:#a3a3a3;
     padding-top: -3px;
     padding-bottom: -3px;
     border: 2px solid #a3a3a3;
     border-radius: 5px;
-
 }
+
 QSlider::groove:horizontal {
      border: 1px solid #999999;
      background: #000000;
@@ -170,7 +170,7 @@ QSlider::handle:horizontal {
 
     width: 24px;
     margin: -4px 0;
-    height: 20; image: url('data/icons/slider.png');
+    height: 20px; image: url('data/icons/slider.png');
 }
 
 QSlider::add-page:horizontal {
@@ -204,6 +204,40 @@ QSlider::sub-page:disabled {
     border-radius: 4px;
     height: 10px;
     padding: 5px 5px;
+}
+
+QSlider::vertical {
+    color: black;
+    background-color:#a3a3a3;
+    padding-left: -3px;
+    padding-right: -3px;
+    border: 2px solid #a3a3a3;
+    border-radius: 5px;
+}
+
+
+QSlider::groove:vertical {
+     border: 1px solid #999999;
+     background: #000000;
+     width: 14px;
+     border-radius: 3px;
+}
+
+QSlider::handle:vertical {
+
+    width: 20px;
+    margin: 0 -4px;
+    height: 24px; image: url('data/icons/vslider.png');
+}
+
+QSlider::add-page:vertical {
+    background: #d7801a;
+    border: 2px solid #a3a3a3;
+    border-radius: 4px;
+    width: 10px;
+    padding: 5px 5px;
+}
+QSlider::sub-page:vertical {
 }
 
 QProgressBar
