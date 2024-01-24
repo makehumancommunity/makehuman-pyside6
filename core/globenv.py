@@ -49,7 +49,7 @@ class globalObjects():
         self.textures[path] = texture
 
     def generateBaseSubDirs(self, basename):
-        for name in [ "base", "models", "skin", "target" ]:
+        for name in [ "models", "skins", "target" ]:
             folder = os.path.join(self.env.path_userdata, name, basename)
             if not os.path.isdir(folder):
                 try:
