@@ -271,8 +271,13 @@ class Light():
 
     def __init__(self, shaders):
         self.shaders = shaders
+        #
+        # volume of scene in units
+        #
         self.min_coords = [-25.0, -10.0, -25.0 ]
         self.max_coords = [25.0, 10.0, 25.0 ]
+
+        self.glclearcolor = QVector4D(0.2, 0.2, 0.2, 1)
 
         self.lights = [ 
                 { "namepos": "lightPos1", "pos": QVector3D(12.0, 3.0, 6.0),
@@ -294,10 +299,31 @@ class Light():
         self.shaders.setUniform("lightWeight", self.lightWeight)
         self.shaders.setUniform("blinn", self.blinn)
 
-    def setAmbientVolume(self, value):
+    def useBlinn(self, value):
+        if value != self.blinn:
+            self.shaders.bind()
+            self.blinn = value
+            self.setShader()
+
+    def setAmbientLuminance(self, value):
         self.shaders.bind()
         self.ambientLight.setW(value)
         self.setShader()
+
+    def setSpecularLuminance(self, value):
+        self.shaders.bind()
+        self.lightWeight.setX(value)
+        self.setShader()
+
+    def setSpecularFocus(self, value):
+        self.shaders.bind()
+        self.lightWeight.setY(value)
+        self.setShader()
+
+    def setClearColor(self, value):
+        self.glclearcolor.setX(value.redF())
+        self.glclearcolor.setY(value.greenF())
+        self.glclearcolor.setZ(value.blueF())
 
     def setAmbientColor(self, value):
         self.shaders.bind()
@@ -319,7 +345,7 @@ class Light():
         m.setZ(z)
         self.setShader()
 
-    def setLVolume(self, num, value):
+    def setLLuminance(self, num, value):
         self.shaders.bind()
         self.lights[num]["vol"].setW(value)
         self.setShader()

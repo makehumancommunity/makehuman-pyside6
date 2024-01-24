@@ -88,6 +88,14 @@ class MHMainWindow(QMainWindow):
         self.createCentralWidget()
         self.setWindowTitle("default character")
 
+    def updateScene(self):
+        if self.scene_window:
+            self.scene_window.destroy()
+            del self.scene_window
+            self.scene_window = None
+            #self.scene_window.newView(self.graph.view)
+            #print ("Scene Window open")
+
     def setWindowTitle(self, text):
         title = self.env.release_info["name"] + " (" + text + ")"
         super().setWindowTitle(title)
@@ -141,6 +149,7 @@ class MHMainWindow(QMainWindow):
         # create window for internal or external use
         #
         self.graph = MHGraphicWindow(self, self.glob)
+
         gLayout = self.graph.createLayout()
         #
         # keyboard

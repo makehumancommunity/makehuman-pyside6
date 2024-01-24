@@ -79,7 +79,6 @@ class OpenGLView(QOpenGLWidget):
         o_size = baseClass.baseMesh.getHeightInUnits() if baseClass is not None else 100
         glfunc = self.context().functions()
 
-        glfunc.glClearColor(0.2, 0.2, 0.2, 1)
         glfunc.glEnable(gl.GL_DEPTH_TEST)
 
         self.mh_shaders = ShaderRepository(self.env)
@@ -93,6 +92,7 @@ class OpenGLView(QOpenGLWidget):
 
         self.light = Light(self.mh_shaders)
         self.light.setShader()
+
         self.camera = Camera(self.mh_shaders, o_size)
         self.camera.resizeViewPort(self.width(), self.height())
 
@@ -140,7 +140,8 @@ class OpenGLView(QOpenGLWidget):
 
     def paintGL(self):
         glfunc = self.context().functions()
-
+        c = self.light.glclearcolor
+        glfunc.glClearColor(c.x(), c.y(), c.z(), c.w())
         glfunc.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
         proj_view_matrix = self.camera.getProjViewMatrix()
         baseClass = self.glob.baseClass

@@ -196,6 +196,7 @@ class MHGraphicWindow(QWidget):
         self.parent.createCentralWidget()
         self.close()
         self.destroy()
+        self.parent.updateScene()
 
     def disconnect_button(self):
         """
@@ -206,6 +207,7 @@ class MHGraphicWindow(QWidget):
         self.parent.createCentralWidget()
         self.parent.show()
         self.destroy()
+        self.parent.updateScene()
 
     def back_button(self):
         self.view.customView(QVector3D(0, 0, -1))

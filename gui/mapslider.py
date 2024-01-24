@@ -4,11 +4,12 @@ from PySide6.QtCore import Qt, QObject, QEvent, QPointF
 from PySide6.QtGui import QPainter, QPainterPath, QPixmap, QPaintEvent, QPen, QBrush, QColor, QColor, QFont, QFontMetrics
 
 class MapInputWidget(QFrame):
-    def __init__(self, size, framewidth, info, initialValue, callback, displayfunc=None):
+    def __init__(self, size, framewidth, info, initialValue, callback, displayfunc=None, drawcenter=False):
         super().__init__()
         self.dimension = size
         self.info = info
         self.displayfunc = displayfunc
+        self.drawcenter = drawcenter
         self.callback = callback
         self.framewidth = framewidth
         self.canvassize = size + framewidth * 2
@@ -27,7 +28,8 @@ class MapInputWidget(QFrame):
 
         self.pixmap = QPixmap(self.size())
         self.pixmap.fill(colback)
-        self.pen_c = QPen(colpen, 10, Qt.SolidLine, Qt.RoundCap)
+        self.pen_c   = QPen(colpen, 10, Qt.SolidLine, Qt.RoundCap)
+        self.pen_mid = QPen(self.colmask, 10, Qt.SolidLine, Qt.RoundCap)
         self.pen_m = QPen(self.colmask, self.framewidth, Qt.SolidLine, Qt.SquareCap, Qt.MiterJoin)
         if info:
             self.displayInfo()
@@ -49,6 +51,11 @@ class MapInputWidget(QFrame):
         painter.drawRect(f/2 , f/2, d+f, d+f)
 
         self.DrawMask(painter)
+
+        if self.drawcenter:
+            painter.setPen(self.pen_mid)
+            center = d / 2 +f
+            painter.drawPoint(center, center)
 
         painter.setPen(self.pen_c)
         painter.drawPoint(self.x + f, self.y + f)
@@ -79,7 +86,7 @@ class MapInputWidget(QFrame):
         else:
             self.info.setText(f"X: {x:.2f}\nY: {y:.2f}")
 
-    def mousePressEvent(self,event):
+    def mouseMoveEvent(self,event):
         f = self.framewidth
         d = self.dimension
 
@@ -102,10 +109,10 @@ class MapInputWidget(QFrame):
 
 
 class MapInputWidgetXY(MapInputWidget):
-    def __init__(self, size, framewidth, info=None, initialValue=None, callback=None, displayfunc=None):
+    def __init__(self, size, framewidth, info=None, initialValue=None, callback=None, displayfunc=None, drawcenter=False):
         if initialValue is None:
             initialValue = [ 0.5, 0.5 ]
-        super().__init__(size, framewidth, info, initialValue, callback, displayfunc)
+        super().__init__(size, framewidth, info, initialValue, callback, displayfunc, drawcenter)
 
 class MapInputWidgetBaryCentric(MapInputWidget):
     def __init__(self, size, framewidth, info=None, initialValue=None, texts=None, callback=None):
@@ -226,7 +233,7 @@ class MapBaryCentricCombo(QWidget):
         self.setLayout(hLayout)
 
 class MapXYCombo(QWidget):
-    def __init__(self, initial, callback, parent=None, displayfunc=None):
+    def __init__(self, initial, callback, parent=None, displayfunc=None, drawcenter=False):
         super(MapXYCombo, self).__init__(parent=parent)
 
         self.info = QLabel(self)
@@ -234,7 +241,7 @@ class MapXYCombo(QWidget):
         self.info.setAlignment(Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         hLayout = QHBoxLayout()
-        self.mapInput = MapInputWidgetXY(100, 20, info=self.info, initialValue=initial, callback=callback, displayfunc=displayfunc)
+        self.mapInput = MapInputWidgetXY(100, 20, info=self.info, initialValue=initial, callback=callback, displayfunc=displayfunc, drawcenter=drawcenter)
         hLayout.addWidget(self.mapInput)
         hLayout.addWidget(self.info)
         self.setLayout(hLayout)
