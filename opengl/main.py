@@ -90,7 +90,7 @@ class OpenGLView(QOpenGLWidget):
         self.mh_shaders.attribVertShader()
         self.mh_shaders.getUniforms()
 
-        self.light = Light(self.mh_shaders)
+        self.light = Light(self.mh_shaders, self.glob)
         self.light.setShader()
 
         self.camera = Camera(self.mh_shaders, o_size)

@@ -269,7 +269,9 @@ class Light():
     can be used to manipulate light in scene, used for up to 3 lights
     """
 
-    def __init__(self, shaders):
+    def __init__(self, shaders, glob):
+        self.glob = glob
+        self.shaderInit = glob.shaderInit
         self.shaders = shaders
         #
         # volume of scene in units
@@ -277,19 +279,65 @@ class Light():
         self.min_coords = [-25.0, -10.0, -25.0 ]
         self.max_coords = [25.0, 10.0, 25.0 ]
 
-        self.glclearcolor = QVector4D(0.2, 0.2, 0.2, 1)
+        self.glclearcolor = QVector4D()
+        self.ambientLight = QVector4D()
+        self.lightWeight = QVector3D()
+        self.blinn = False
 
         self.lights = [ 
-                { "namepos": "lightPos1", "pos": QVector3D(12.0, 3.0, 6.0),
-                    "namevol": "lightVol1", "vol": QVector4D(1.0, 1.0, 1.0, 10.0) }, 
-                { "namepos": "lightPos2", "pos": QVector3D(-5.0, 5.0, 5.0),
-                    "namevol": "lightVol2", "vol": QVector4D(1.0, 1.0, 1.0, 6.0) },
-                { "namepos": "lightPos3", "pos": QVector3D(-0.4, 3.0, -10.0),
-                    "namevol": "lightVol3", "vol": QVector4D(1.0, 1.0, 1.0, 5.0) },
+                { "namepos": "lightPos1", "pos": QVector3D(),
+                    "namevol": "lightVol1", "vol": QVector4D() }, 
+                { "namepos": "lightPos2", "pos": QVector3D(),
+                    "namevol": "lightVol2", "vol": QVector4D() },
+                { "namepos": "lightPos3", "pos": QVector3D(),
+                    "namevol": "lightVol3", "vol": QVector4D() },
                 ]
-        self.ambientLight = QVector4D(1.0, 1.0, 1.0, 0.25)
-        self.lightWeight = QVector3D(0.3, 8.0, 0.0)
-        self.blinn = False
+        self.fromGlobal(False)
+    
+    def listTo3D(self, v, elems):
+        v.setX(elems[0])
+        v.setY(elems[1])
+        v.setZ(elems[2])
+
+    def listTo4D(self, v, elems):
+        v.setX(elems[0])
+        v.setY(elems[1])
+        v.setZ(elems[2])
+        v.setW(elems[3])
+
+    def q3ToList(self, v):
+        return (v.x(), v.y(), v.z())
+
+    def q4ToList(self, v):
+        return (v.x(), v.y(), v.z(), v.w())
+
+    def fromGlobal(self, load_json):
+        if load_json:
+            self.shaderInit = self.glob.readShaderInitJSON()
+        self.shaders.bind()
+        self.blinn = self.shaderInit["blinn"]
+        self.listTo4D(self.glclearcolor, self.shaderInit["glclearcolor"])
+        self.listTo4D(self.ambientLight, self.shaderInit["ambientcolor"])
+        self.lightWeight.setX(self.shaderInit["specularluminance"])
+        self.lightWeight.setY(self.shaderInit["specularfocus"])
+        for i in range (0,3):
+            d = self.lights[i]
+            s = self.shaderInit["lamps"][i]
+            self.listTo3D(d["pos"], s["position"])
+            self.listTo4D(d["vol"], s["color"])
+        self.setShader()
+
+    def toGlobal(self):
+        self.shaderInit["blinn"] = self.blinn
+        self.shaderInit["glclearcolor"] = self.q4ToList(self.glclearcolor)
+        self.shaderInit["ambientcolor"] = self.q4ToList(self.ambientLight)
+        self.shaderInit["specularluminance"] =  self.lightWeight.x()
+        self.shaderInit["specularfocus"] =  self.lightWeight.y()
+        for i in range (0,3):
+            d = self.shaderInit["lamps"][i]
+            s = self.lights[i]
+            d["position"] = self.q3ToList(s["pos"])
+            d["color"]    = self.q4ToList(s["vol"])
 
     def setShader(self):
         for elem in self.lights:
@@ -324,6 +372,7 @@ class Light():
         self.glclearcolor.setX(value.redF())
         self.glclearcolor.setY(value.greenF())
         self.glclearcolor.setZ(value.blueF())
+        self.glclearcolor.setW(1.0)
 
     def setAmbientColor(self, value):
         self.shaders.bind()

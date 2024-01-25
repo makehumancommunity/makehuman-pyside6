@@ -126,9 +126,20 @@ class MHSceneWindow(QWidget):
         l3.setLayout(hlayout)
         layout.addWidget(l3)
 
-        button1 = QPushButton("Use")
-        button1.clicked.connect(self.use_call)
-        layout.addWidget(button1)
+        hlayout = QHBoxLayout()
+        button1 = QPushButton("Cancel")
+        button1.clicked.connect(self.cancel_call)
+        button2 = QPushButton("Default")
+        button2.clicked.connect(self.default_call)
+        button3 = QPushButton("Reset")
+        button3.clicked.connect(self.reset_call)
+        button4 = QPushButton("Use")
+        button4.clicked.connect(self.use_call)
+        hlayout.addWidget(button1)
+        hlayout.addWidget(button2)
+        hlayout.addWidget(button3)
+        hlayout.addWidget(button4)
+        layout.addLayout(hlayout)
         self.setLayout(layout)
         self.getValues()
 
@@ -260,7 +271,22 @@ class MHSceneWindow(QWidget):
         self.light.setHPos(2, value)
         self.view.Tweak()
 
+    def reset_call(self):
+        self.light.fromGlobal(False)
+        self.getValues()
+        self.view.Tweak()
+
+    def default_call(self):
+        self.light.fromGlobal(True)
+        self.getValues()
+        self.view.Tweak()
+
     def use_call(self):
+        self.light.toGlobal()
+        self.close()
+
+    def cancel_call(self):
+        self.reset_call()
         self.close()
 
 

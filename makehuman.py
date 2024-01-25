@@ -53,6 +53,9 @@ def main():
         exit (20)
 
     glob = globalObjects(env)
+    if not glob.readShaderInitJSON():
+        print (env.last_error)
+        exit (21)
 
     if args.verbose & 2:
         print (env)

@@ -13,6 +13,7 @@ class globalObjects():
     def __init__(self, env):
         self.env = env
         self.app = None
+        self.shaderInit = None
         self.openGLWindow = None
         self.mhViewport = None
         self.baseClass = None
@@ -29,6 +30,12 @@ class globalObjects():
         self.missingTargets = []            # will contain a list of missing targets after load
         self.target_changing = None         # for parallel processing
         self.textSlot = [None, None, None, None, None] # text slots for graphical window
+
+
+    def readShaderInitJSON(self):
+        shaderfile = os.path.join(self.env.path_sysdata, "shaders", "phong3l.json")
+        self.shaderInit = self.env.readJSON(shaderfile)
+        return (self.shaderInit)
 
     def setApplication(self, app):
         self.app = app
