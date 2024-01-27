@@ -64,6 +64,9 @@ class OpenGLView(QOpenGLWidget):
         obj = RenderedObject(self.context(), glbuffer, self.mh_shaders, self.texture, pos=QVector3D(0, 0, 0))
         self.objects.append(obj)
 
+    def deleteObject(self,obj):
+        pass
+
     def newTexture(self, obj):
         print ("in new texture")
         
@@ -158,6 +161,16 @@ class OpenGLView(QOpenGLWidget):
     def setCameraCenter(self):
         baseClass = self.glob.baseClass
         self.camera.setCenter(baseClass.baseMesh.getCenter())
+
+    def noAssets(self):
+        for glbuffer in self.buffers[1:]:
+            glbuffer.Delete()
+        self.objects = self.objects[:1]
+
+    def addAssets(self):
+        for elem in self.glob.baseClass.attachedAssets:
+            # print ("   " + str(elem))
+            self.createObject(elem.obj, True)
 
     def newMesh(self):
         baseClass = self.glob.baseClass

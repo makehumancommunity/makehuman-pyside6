@@ -19,6 +19,41 @@ class referenceVerts:
             vertWeights[v0] = [(vnum,1)]
         return self
 
+    def fromTriple(self, words, vnum, vertWeights):
+        v0 = int(words[0])
+        v1 = int(words[1])
+        v2 = int(words[2])
+        w0 = float(words[3])
+        w1 = float(words[4])
+        w2 = float(words[5])
+        if len(words) > 6:
+            d0 = float(words[6])
+            d1 = float(words[7])
+            d2 = float(words[8])
+        else:
+            (d0,d1,d2) = (0,0,0)
+
+        self._verts = (v0,v1,v2)
+        self._weights = (w0,w1,w2)
+        self._offset = np.array((d0,d1,d2), float)
+
+        if v0 in vertWeights:
+            vertWeights[v0].append((vnum, w0))
+        else:
+            vertWeights[v0] = [(vnum,w0)]
+
+        if v1 in vertWeights:
+            vertWeights[v1].append((vnum, w1))
+        else:
+            vertWeights[v1] = [(vnum,w1)]
+
+        if v2 in vertWeights:
+            vertWeights[v2].append((vnum, w2))
+        else:
+            vertWeights[v2] = [(vnum,w2)]
+
+        return self
+
 
 class attachedAsset:
     def __init__(self, glob):
@@ -34,6 +69,7 @@ class attachedAsset:
         self.ref_vIdxs = None       # (Vidx1,Vidx2,Vidx3) list with references to human vertex indices, indexed by reference vert
         self.weights = None         # (w1,w2,w3) list, with weights per human vertex (mapped by ref_vIdxs), indexed by reference vert
         self.offsets = None         # (x,y,z) list of vertex offsets, indexed by reference vert
+        self.material = None
 
 
     def __str__(self):
@@ -51,7 +87,6 @@ class attachedAsset:
         structure is a key/value system + rows of verts in the end
         """
         self.env.logLine(8, "Load: " + filename)
-
 
         try:
             fp = open(filename, "r", encoding="utf-8", errors='ignore')
@@ -90,8 +125,8 @@ class attachedAsset:
                 refVerts.append(refVert)
                 if len(words) == 1:
                     value = refVert.identicalValue(words, vnum, self.vertWeights)
-                #else:
-                    #refVert.fromTriple(words, vnum, proxy.vertWeights)
+                else:
+                    refVert.fromTriple(words, vnum, proxy.vertWeights)
                 vnum += 1
 
             if len(words) < 2 or status > 0:
@@ -124,6 +159,11 @@ class attachedAsset:
         if self.obj_file is None:
             return(False, "Obj-File is missing")
 
+        self.obj_file = os.path.join(os.path.dirname(filename), self.obj_file)
+        if self.material is not None:
+            self.material = os.path.normpath(os.path.join(os.path.dirname(filename), self.material))
+        print(self.obj_file)
+        print(self.material)
         # finally create the numpy arrays here
         #
         self.weights = np.asarray([v._weights for v in refVerts], dtype=np.float32)

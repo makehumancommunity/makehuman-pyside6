@@ -54,15 +54,12 @@ class Material:
             
         return None
 
-    def loadMatFile(self, filename, folder=None):
+    def loadMatFile(self, path):
         """
         mhmat file loader, TODO, still a subset
         """
-        if folder is not None:
-            self.objdir = folder
-            path = filename
-        else:
-            path = os.path.join(self.objdir, filename)
+        self.objdir = os.path.dirname(path)
+
         self.env.logLine(8, "Loading material " + path)
         try:
             f = open(path, "r", encoding="utf-8", errors="ignore")

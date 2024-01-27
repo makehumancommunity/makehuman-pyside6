@@ -315,7 +315,9 @@ class MHMainWindow(QMainWindow):
                 directory = os.path.join(self.env.path_userdata, "models", self.env.basename)
                 filename = self.fileRequest("Model", "Model files (*.mhm)", directory)
                 if filename is not None:
+                    self.graph.view.noAssets()
                     self.glob.baseClass.loadMHMFile(filename)
+                    self.graph.view.addAssets()
                     self.graph.view.newTexture(self.glob.baseClass.baseMesh)
                     self.graph.view.Tweak()
                     self.targetfilter = self.qTree.getStartPattern()

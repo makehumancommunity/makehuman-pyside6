@@ -24,6 +24,6 @@
 		"breast/BreastFirmness": 0.5
 	},
 	"meshes": [
-		{"cat": "eyes", "name": "low-poly.mhclo" }
+		{"cat": "eyes", "name": "low-poly/low-poly.mhclo" }
 	]
 }

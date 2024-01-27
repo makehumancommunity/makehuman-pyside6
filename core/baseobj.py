@@ -5,11 +5,24 @@ from obj3d.object3d import object3d
 from core.debug import memInfo
 from core.target import Modelling
 
-class loadedMHM():
+class MakeHumanModel():
     def __init__(self):
         self.name = None
+        self.version = None
         self.skinMaterial = None
         self.modifiers = []
+        self.attached = []
+        self.materials = []
+
+    def __str__(self):
+        text = ""
+        for attr in dir(self):
+            if not attr.startswith("__"):
+                m = getattr(self, attr)
+                if isinstance(m, int) or isinstance(m, str) or  isinstance(m, list):
+                    text += (" %s = %r\n" % (attr, m))
+        return(text)
+
 
 class baseClass():
     """
@@ -21,16 +34,17 @@ class baseClass():
         self.dirname = dirname        # contains dirname of the obj (to determine user or system space)
         self.baseMesh = None
         self.baseInfo = None
+        self.mhclo_namemap = None
         self.attachedAssets = []
         self.env.logLine(2, "New baseClass: " + name)
         memInfo()
         self.env.basename = name
         self.name = name                # will hold the character name
 
-
     def loadMHMFile(self, filename):
         """
         will usually load an mhm-file
+        after load all filenames are absolute paths
         """
         self.env.logLine(8, "Load: " + filename)
         try:
@@ -38,7 +52,9 @@ class baseClass():
         except IOError as err:
             return (False, str(err))
 
-        loaded = loadedMHM()
+        self.attachedAssets = []
+
+        loaded = MakeHumanModel()
         for line in fp:
             words = line.split()
 
@@ -54,9 +70,40 @@ class baseClass():
                 loaded.name = " ".join(words[1:])
             elif key == "modifier":
                 loaded.modifiers.append(" ".join(words[1:]))
+            elif key == "material":
+                loaded.materials.append([words[1],  words[2], words[3]])
+            elif key in ["clothes", "eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue"]:
 
+                # attached assets consists of name, type and uuid (material)
+                #
+                loaded.attached.append([words[1], key, words[2], None, None])
+            else:
+                print (key + " is still unknown")
 
         fp.close()
+
+        # get filename via mapping and connect relative material path to attached assets
+        #
+        for elem in loaded.attached:
+            name = elem[0]
+            uuid = elem[2]
+            for mapping in self.mhclo_namemap:
+                if name == mapping[0] and uuid == mapping[1]:
+                    elem[4] = mapping[2]
+            for mat in loaded.materials:
+                if mat[0] == name and mat[1] == uuid:
+                    elem[3] = mat[2]
+                    break
+
+        del loaded.materials
+
+        # replace relative material path by absolute path
+        #
+        for elem in loaded.attached:
+            print (elem)
+            filename = self.env.existFileInBaseFolder(self.env.basename, elem[1], elem[0], elem[3])
+            if filename is not None:
+                elem[3] = filename
 
         if loaded.name is not None:
             self.name = loaded.name
@@ -65,6 +112,14 @@ class baseClass():
             filename = self.env.existDataFile("skins", self.env.basename, os.path.basename(loaded.skinMaterial))
             if filename is not None:
                 self.baseMesh.loadMaterial(filename, os.path.dirname(filename))
+
+        print(loaded)
+
+        # now load attached meshes
+        #
+        for elem in loaded.attached:
+            if elem[4] is not None:
+                self.addAsset(elem[4], elem[3])
 
         # reset all targets and mesh, reset missing targets
         #
@@ -100,6 +155,23 @@ class baseClass():
 
         fp.close()
 
+    def addAsset(self, path, material):
+        print ("Attach: " + path)
+        attach = attachedAsset(self.glob)
+        (res, text) = attach.textLoad(path)
+        if res is True:
+            print ("Object is:" + attach.obj_file)
+            obj = object3d(self.glob, None)
+            (res, err) = obj.load(attach.obj_file)
+            if res is False:
+                self.env.logLine(1, err )
+            else:
+                attach.obj = obj
+                attach.material = material
+                print ("Material: " + material)
+                obj.loadMaterial(material)
+                self.attachedAssets.append(attach)
+
     def prepareClass(self):
         self.env.logLine(2, "Prepare class called with: " + self.env.basename)
 
@@ -113,6 +185,8 @@ class baseClass():
         if self.baseInfo is None:
             self.env.logLine(1, self.env.last_error )
             return (False)
+
+        self.mhclo_namemap = self.env.fileScanBaseFolder(".mhclo")
 
         name = os.path.join(self.dirname, "base.obj")
 
@@ -151,6 +225,7 @@ class baseClass():
             for elem in m:
                 attach = attachedAsset(self.glob)
                 name = os.path.join(self.env.path_sysdata, elem["cat"], self.env.basename, elem["name"])
+                print ("Load: " + name)
                 (res, text) = attach.textLoad(name)
                 if res is True:
                     name = os.path.join(self.env.path_sysdata, elem["cat"], self.env.basename, attach.obj_file)

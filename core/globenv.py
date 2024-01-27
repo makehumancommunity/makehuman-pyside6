@@ -56,7 +56,7 @@ class globalObjects():
         self.textures[path] = texture
 
     def generateBaseSubDirs(self, basename):
-        for name in [ "models", "skins", "target" ]:
+        for name in self.env.basefolders + ["skins", "models", "target"]:
             folder = os.path.join(self.env.path_userdata, name, basename)
             if not os.path.isdir(folder):
                 try:
@@ -88,6 +88,10 @@ class programInfo():
             "maintainer": "black punkduck",
             "status": "only development"
         }
+
+        # all folders that belong to a basemesh
+        #
+        self.basefolders = [ "clothes", "eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue" ]
 
         self.basename = None
         self.last_error = None
@@ -430,9 +434,9 @@ class programInfo():
 
         userdata = self.path_userdata
 
-        # subfolder inside userdata
+        # subfolder inside userdata, so usually base folder + special ones
         #
-        for name in [ "models", "target", "themes" ]:
+        for name in self.basefolders + ["themes", "skins", "models", "target" ]:
             folder = os.path.join(userdata, name)
             if not os.path.isdir(folder):
                 try:
@@ -503,12 +507,25 @@ class programInfo():
         check in both datapaths, if a file exists, first personal one is used
         in case it is not found last_error will mention the file name 
         """
+        self.last_error = None
         for path in [self.path_userdata, self.path_sysdata]:
             test = os.path.join(path, *[name for name in names])
+            # print ("Test: " +  test)
             if os.path.isfile(test):
                 return(test)
         self.last_error = "/".join([name for name in names]) + " not found"
         return None
+
+    def existFileInBaseFolder(self, base, subfolder, objname, filename):
+        """
+        special check for assets
+        """
+        abspath = self.existDataFile(subfolder, base, objname.lower(), filename)
+        if abspath is None:
+            if "/" in filename:
+                filename = "/".join (filename.split("/")[1:])
+            abspath = self.existDataFile(subfolder, base, filename)
+        return (abspath)
 
     def existDataDir(self, *names):
         """
@@ -521,6 +538,52 @@ class programInfo():
                 return(test)
         self.last_error = "/".join([name for name in names]) + " not found"
         return None
+
+    def subDirsBaseFolder(self, pattern):
+        """
+        classical all folders for objects may have 2 levels
+        """
+        filenames = []
+        for path in [self.path_userdata, self.path_sysdata]:
+            for folder in self.basefolders:
+                test = os.path.join(path, folder, self.basename)
+                if os.path.isdir(test):
+                    files = os.listdir(test)
+                    for fname1 in files:
+                        aname1 = os.path.join(test, fname1)
+                        if os.path.isdir(aname1):
+                            files2 = os.listdir(os.path.join(test,aname1))
+                            for fname2 in files2:
+                                if fname2.endswith(pattern):
+                                    filenames.append(os.path.join(aname1, fname2))
+                        if fname1.endswith(pattern):
+                            filenames.append(aname1)
+        return(filenames)
+
+    def fileScanBaseFolder(self, pattern):
+        """
+        scanner e.g. for mhclo files checks in all basefolders + subdirs (only 1 level)
+        """
+        namematch = []
+        files = self.subDirsBaseFolder(pattern)
+        print (files)
+        for fname in files:
+            with open(fname, 'r') as fp:
+                m = 0
+                uuid = 0
+                name = ""
+                for line in fp:
+                    if "name" in line:
+                        name =line.split()[-1]
+                        m+=1
+                    elif "uuid" in line:
+                        uuid = line.split()[-1]
+                        m+=1
+                    if m==2:
+                        break
+                namematch.append([name, uuid, fname])
+
+        return (namematch)
 
     def dictFillGaps(self, standard, testdict):
         """

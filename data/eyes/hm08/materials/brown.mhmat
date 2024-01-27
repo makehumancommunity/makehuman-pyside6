@@ -35,7 +35,7 @@ castShadows True
 
 receiveShadows True
 
-diffuseTexture textures/brown_eye.png
+diffuseTexture brown_eye.png
 
 shader data/shaders/glsl/litsphere
 

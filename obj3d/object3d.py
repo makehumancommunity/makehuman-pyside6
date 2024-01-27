@@ -69,9 +69,11 @@ class object3d:
         """
         use a relative path to self.dir_loaded
         """
+        print ("Loading material")
+        print (pathname)
         self.material = Material(self.glob, self.dir_loaded)
         if pathname is not None:
-            return(self.material.loadMatFile(pathname, dirname))
+            return(self.material.loadMatFile(pathname))
         else:
             return True
 
