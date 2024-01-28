@@ -126,7 +126,7 @@ class attachedAsset:
                 if len(words) == 1:
                     value = refVert.identicalValue(words, vnum, self.vertWeights)
                 else:
-                    refVert.fromTriple(words, vnum, proxy.vertWeights)
+                    refVert.fromTriple(words, vnum, self.vertWeights)
                 vnum += 1
 
             if len(words) < 2 or status > 0:

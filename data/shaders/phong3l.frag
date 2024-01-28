@@ -23,6 +23,7 @@ uniform bool blinn;
 void main()
 {
 	vec3 color = texture(Texture, fs_in.TexCoords).rgb;
+	float transp = texture(Texture, fs_in.TexCoords).a;
 	// ambient
 	vec3 ambient = ambientLight[3] * color * vec3(ambientLight);
 
@@ -61,6 +62,6 @@ void main()
 		spec3 = pow(max(dot(viewDir, reflectDir), 0.0), lightWeight[1]) / l3;
 	}
 	vec3 specular = specw * vec3(lightVol1) * spec1 + specw * vec3(lightVol2) * spec2 + specw * vec3(lightVol3) * spec3;
-	FragColor = vec4(ambient + diffuse + specular, 1.0);
+	FragColor = vec4(ambient + diffuse + specular, transp);
 }
 

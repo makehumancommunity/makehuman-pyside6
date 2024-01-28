@@ -316,6 +316,7 @@ class MHMainWindow(QMainWindow):
                 filename = self.fileRequest("Model", "Model files (*.mhm)", directory)
                 if filename is not None:
                     self.graph.view.noAssets()
+                    self.glob.freeTextures()
                     self.glob.baseClass.loadMHMFile(filename)
                     self.graph.view.addAssets()
                     self.graph.view.newTexture(self.glob.baseClass.baseMesh)

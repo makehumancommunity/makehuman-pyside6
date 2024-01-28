@@ -71,6 +71,20 @@ class MHMemWindow(QWidget):
 
         tab = QTabWidget()
 
+        # assets
+        #
+        assetpage = QWidget()
+        layout = QVBoxLayout()
+        assetpage.setLayout(layout)
+
+        self.assetTable = QTableView()
+        data = self.refreshAssetTable()
+
+        self.assetModel = MemTableModel(data, ["Group", "Name", "UUID",  "File Name"])
+        self.assetTable.setModel(self.assetModel)
+        self.assetModel.bestFit(self.assetTable)
+        layout.addWidget(self.assetTable)
+
         # targets
         #
         targetpage = QWidget()
@@ -98,6 +112,34 @@ class MHMemWindow(QWidget):
         self.macroTable.setModel(self.macroModel)
         self.macroModel.bestFit(self.macroTable)
         layout.addWidget(self.macroTable)
+
+        # objects
+        #
+        objectpage = QWidget()
+        layout = QVBoxLayout()
+        objectpage.setLayout(layout)
+
+        self.objectTable = QTableView()
+        data = self.refreshObjectTable()
+
+        self.objectModel = MemTableModel(data, ["Name", "UUID", "File Name"])
+        self.objectTable.setModel(self.objectModel)
+        self.objectModel.bestFit(self.objectTable)
+        layout.addWidget(self.objectTable)
+
+        # materials
+        #
+        materialpage = QWidget()
+        layout = QVBoxLayout()
+        materialpage.setLayout(layout)
+
+        self.materialTable = QTableView()
+        data = self.refreshMaterialTable()
+
+        self.materialModel = MemTableModel(data, ["Name", "File Name"])
+        self.materialTable.setModel(self.materialModel)
+        self.materialModel.bestFit(self.materialTable)
+        layout.addWidget(self.materialTable)
 
         # images
         #
@@ -127,8 +169,11 @@ class MHMemWindow(QWidget):
         self.missTargetModel.bestFit(self.missTargetTable)
         layout.addWidget(self.missTargetTable)
 
+        tab.addTab(assetpage, "Asset Repository")
         tab.addTab(targetpage, "Targets")
         tab.addTab(macropage, "Macro-Targets")
+        tab.addTab(objectpage, "Meshes")
+        tab.addTab(materialpage, "Materials")
         tab.addTab(imagepage, "Textures")
         tab.addTab(misstargetpage, "Missing Targets (last load)")
 
@@ -154,6 +199,16 @@ class MHMemWindow(QWidget):
         """
         super().show()
 
+    def refreshAssetTable(self):
+        data = []
+        if self.glob.baseClass is not None:
+            base = self.glob.baseClass
+            for elem in base.mhclo_namemap:
+                data.append([elem[3], elem[0], elem[1], elem[2]])
+        if len(data) == 0:
+            data = [["no assets discovered"]]
+        return (data)
+
     def refreshTargetTable(self):
         data = []
         targets = self.glob.Targets
@@ -173,6 +228,26 @@ class MHMemWindow(QWidget):
                 data.append([str(macro), len(m.verts)])
         if len(data) == 0:
             data = [["no macros loaded"]]
+        return (data)
+
+    def refreshObjectTable(self):
+        data = []
+        if self.glob.baseClass is not None:
+            base = self.glob.baseClass
+            for elem in base.attachedAssets:
+                data.append([elem.name, elem.uuid, elem.obj_file])
+        if len(data) == 0:
+            data = [["no objects loaded"]]
+        return (data)
+
+    def refreshMaterialTable(self):
+        data = []
+        if self.glob.baseClass is not None:
+            base = self.glob.baseClass
+            for elem in base.attachedAssets:
+                data.append([elem.name, elem.material])
+        if len(data) == 0:
+            data = [["no material loaded"]]
         return (data)
 
     def refreshTextureTable(self):
@@ -200,11 +275,20 @@ class MHMemWindow(QWidget):
         """
         refreshes all tabs
         """
+        self.assetModel.refreshWithReset(self.refreshAssetTable())
+        self.assetTable.viewport().update()
+
         self.targetModel.refreshWithReset(self.refreshTargetTable())
         self.targetTable.viewport().update()
 
         self.macroModel.refreshWithReset(self.refreshMacroTable())
         self.macroTable.viewport().update()
+
+        self.objectModel.refreshWithReset(self.refreshObjectTable())
+        self.objectTable.viewport().update()
+
+        self.materialModel.refreshWithReset(self.refreshMaterialTable())
+        self.materialTable.viewport().update()
 
         self.textureModel.refreshWithReset(self.refreshTextureTable())
         self.textureTable.viewport().update()

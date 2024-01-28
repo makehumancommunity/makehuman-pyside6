@@ -344,12 +344,28 @@ class object3d:
         """
 
         # TODO: only handles simple case
+        """
         i = 0
         for vnum in asset.ref_vIdxs:
             x =  vnum[0] * 3
             self.gl_coord[i] = base.gl_coord[x]
             self.gl_coord[i+1] = base.gl_coord[x+1]
             self.gl_coord[i+2] = base.gl_coord[x+2]
+            i += 3
+        """
+        i = 0
+        b = base.gl_coord
+        w = asset.weights
+        o = asset.offsets
+        for j, vnum in enumerate(asset.ref_vIdxs):
+            v0 =  vnum[0] * 3
+            v1 =  vnum[1] * 3
+            v2 =  vnum[2] * 3
+            (w0, w1, w2) = w[j]
+            (o0, o1, o2) = o[j]
+            self.gl_coord[i] = w0*b[v0] + w1*b[v1] +  w2*b[v2] + o0
+            self.gl_coord[i+1] = w0*b[v0+1] + w1*b[v1+1] + w2*b[v2+1] + o1
+            self.gl_coord[i+2] = w0*b[v0+2] + w1*b[v1+2] + w2*b[v2+2] + o2
             i += 3
 
         # do not forget the overflow vertices

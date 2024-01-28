@@ -555,9 +555,9 @@ class programInfo():
                             files2 = os.listdir(os.path.join(test,aname1))
                             for fname2 in files2:
                                 if fname2.endswith(pattern):
-                                    filenames.append(os.path.join(aname1, fname2))
+                                    filenames.append([folder, os.path.join(aname1, fname2)])
                         if fname1.endswith(pattern):
-                            filenames.append(aname1)
+                            filenames.append([folder, aname1])
         return(filenames)
 
     def fileScanBaseFolder(self, pattern):
@@ -567,7 +567,7 @@ class programInfo():
         namematch = []
         files = self.subDirsBaseFolder(pattern)
         print (files)
-        for fname in files:
+        for (folder, fname) in files:
             with open(fname, 'r') as fp:
                 m = 0
                 uuid = 0
@@ -581,7 +581,7 @@ class programInfo():
                         m+=1
                     if m==2:
                         break
-                namematch.append([name, uuid, fname])
+                namematch.append([name, uuid, fname, folder])
 
         return (namematch)
 

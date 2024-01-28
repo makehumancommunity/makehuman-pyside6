@@ -36,12 +36,11 @@ class OpenGLView(QOpenGLWidget):
         self.buffers = []
         self.objects = []
         self.camera  = None
-        # print (env)
         self.glob.openGLWindow = self
         if glob.Targets is not None:
             glob.Targets.refreshTargets(self)
 
-    def createObject(self, obj, texture=False):
+    def createObject(self, obj, needtexture=False):
         glbuffer = OpenGlBuffers()
         glbuffer.VertexBuffer(obj.gl_coord, obj.gl_icoord, obj.n_glverts)
         glbuffer.NormalBuffer(obj.gl_norm)
@@ -50,18 +49,17 @@ class OpenGLView(QOpenGLWidget):
 
         # TODO: material from mhmat file but not yet correct, these thing will be done in the shader
         #
-        if texture is False:
+        if needtexture is False:
             if hasattr(obj.material, 'diffuseTexture'):
-                self.texture = obj.material.loadTexture(obj.material.diffuseTexture)
+                texture = obj.material.loadTexture(obj.material.diffuseTexture)
             else:
                 default = self.env.existDataFile("skins", self.env.basename, "textures", "default.png")
                 if default is not None:
-                    self.texture = obj.material.loadTexture(default)
+                    texture = obj.material.loadTexture(default)
         else:
             if hasattr(obj.material, 'diffuseTexture'):
-                self.texture = obj.material.loadTexture(obj.material.diffuseTexture)
-
-        obj = RenderedObject(self.context(), glbuffer, self.mh_shaders, self.texture, pos=QVector3D(0, 0, 0))
+                texture = obj.material.loadTexture(obj.material.diffuseTexture)
+        obj = RenderedObject(self.context(), glbuffer, self.mh_shaders, texture, pos=QVector3D(0, 0, 0))
         self.objects.append(obj)
 
     def deleteObject(self,obj):
@@ -83,6 +81,9 @@ class OpenGLView(QOpenGLWidget):
         glfunc = self.context().functions()
 
         glfunc.glEnable(gl.GL_DEPTH_TEST)
+        glfunc.glEnable(gl.GL_BLEND)
+        #glfunc.glDisable(gl.GL_CULL_FACE)
+        glfunc.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
         self.mh_shaders = ShaderRepository(self.env)
         self.mh_shaders.loadFragShader("phong3l")
@@ -166,6 +167,7 @@ class OpenGLView(QOpenGLWidget):
         for glbuffer in self.buffers[1:]:
             glbuffer.Delete()
         self.objects = self.objects[:1]
+        self.buffers = self.buffers[:1]
 
     def addAssets(self):
         for elem in self.glob.baseClass.attachedAssets:
@@ -177,6 +179,7 @@ class OpenGLView(QOpenGLWidget):
         for glbuffer in self.buffers:
             glbuffer.Delete()
         self.objects = []
+        self.buffers = []
 
         if baseClass is not None:
             self.createObject(baseClass.baseMesh, False)

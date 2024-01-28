@@ -134,5 +134,4 @@ class Material:
         #texture.setData(MH_Image(path, self.env))
         texture.setMinMagFilters(QOpenGLTexture.Linear, QOpenGLTexture.Linear)
         texture.setWrapMode(QOpenGLTexture.ClampToEdge)
-        #print (texture.target())
         return (texture)

@@ -291,7 +291,8 @@ class baseClass():
             if target.value != 0.0:
                 if target.macro is None:
                     print ("Set " + target.name)
-                    self.setTarget(target.value / 100, target.decr, target.incr)
+                    self.baseMesh.setTarget(target.value / 100, target.decr, target.incr)
+        self.updateAttachedAssets()
 
     def __del__(self):
         self.env.logLine (4, " -- __del__ baseClass " + self.name)
