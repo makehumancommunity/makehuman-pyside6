@@ -283,6 +283,7 @@ class Light():
         self.ambientLight = QVector4D()
         self.lightWeight = QVector3D()
         self.blinn = False
+        self.skybox = True
 
         self.lights = [ 
                 { "namepos": "lightPos1", "pos": QVector3D(),
@@ -316,6 +317,7 @@ class Light():
             self.shaderInit = self.glob.readShaderInitJSON()
         self.shaders.bind()
         self.blinn = self.shaderInit["blinn"]
+        self.skybox = self.shaderInit["skybox"]
         self.listTo4D(self.glclearcolor, self.shaderInit["glclearcolor"])
         self.listTo4D(self.ambientLight, self.shaderInit["ambientcolor"])
         self.lightWeight.setX(self.shaderInit["specularluminance"])
@@ -352,6 +354,9 @@ class Light():
             self.shaders.bind()
             self.blinn = value
             self.setShader()
+
+    def useSkyBox(self, value):
+        self.skybox = value
 
     def setAmbientLuminance(self, value):
         self.shaders.bind()

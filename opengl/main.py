@@ -11,6 +11,7 @@ from opengl.shaders import ShaderRepository
 from opengl.material import Material
 from opengl.buffers import OpenGlBuffers, RenderedObject
 from opengl.camera import Camera, Light
+from opengl.skybox import OpenGLSkyBox
 
 def GLVersion(initialized):
     glversion = {}
@@ -36,6 +37,7 @@ class OpenGLView(QOpenGLWidget):
         self.buffers = []
         self.objects = []
         self.camera  = None
+        self.skybox = None
         self.glob.openGLWindow = self
         if glob.Targets is not None:
             glob.Targets.refreshTargets(self)
@@ -59,7 +61,7 @@ class OpenGLView(QOpenGLWidget):
         else:
             if hasattr(obj.material, 'diffuseTexture'):
                 texture = obj.material.loadTexture(obj.material.diffuseTexture)
-        obj = RenderedObject(self.context(), glbuffer, self.mh_shaders, texture, pos=QVector3D(0, 0, 0))
+        obj = RenderedObject(self.context(), glbuffer, self.mh_shaders._shaders[0], texture, pos=QVector3D(0, 0, 0))
         self.objects.append(obj)
 
     def deleteObject(self,obj):
@@ -86,11 +88,15 @@ class OpenGLView(QOpenGLWidget):
         glfunc.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
         self.mh_shaders = ShaderRepository(self.env)
-        self.mh_shaders.loadFragShader("phong3l")
-        self.mh_shaders.loadVertShader("phong3l")
+        id1 = self.mh_shaders.loadShaders("phong3l")
+        print(id1)
+        self.skyshader = self.mh_shaders.loadShaders("skybox")
+        print(self.skyshader)
+
         #
         # get positions of variables
         #
+        glfunc.glUseProgram( id1)
         self.mh_shaders.attribVertShader()
         self.mh_shaders.getUniforms()
 
@@ -105,6 +111,9 @@ class OpenGLView(QOpenGLWidget):
             #obj = baseClass.baseMesh
             #self.createObject(obj)
             #self.camera.setCenter(obj.getCenter())
+
+        self.skybox = OpenGLSkyBox(self.env, self.mh_shaders._shaders[1], glfunc)
+        self.skybox.create()
 
     def customView(self, direction):
         self.camera.customView(direction)
@@ -151,7 +160,12 @@ class OpenGLView(QOpenGLWidget):
         baseClass = self.glob.baseClass
         if baseClass is not None:
             for obj in self.objects:
-                obj.draw(self.mh_shaders, proj_view_matrix)
+                obj.draw(self.mh_shaders._shaders[0], proj_view_matrix)
+
+        if self.light.skybox and self.skybox:
+            glfunc.glUseProgram(self.skyshader)
+            self.skybox.setData(proj_view_matrix)
+            self.skybox.draw()
 
     def Tweak(self):
         for glbuffer in self.buffers:

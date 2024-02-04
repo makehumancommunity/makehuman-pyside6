@@ -62,6 +62,11 @@ class MHSceneWindow(QWidget):
         self.clearColor = ColorButton("Background color: ", self.clearColorChanged)
         vlayout.addWidget(self.clearColor)
 
+        self.skybox = QPushButton("Skybox")
+        self.skybox.setCheckable(True)
+        self.skybox.clicked.connect(self.setSkybox)
+        vlayout.addWidget(self.skybox)
+
         l03.setLayout(vlayout)
         l2layout.addWidget(l03)
         layout.addLayout(l2layout)
@@ -156,11 +161,21 @@ class MHSceneWindow(QWidget):
         color = QColor.fromRgbF(vec4.x(), vec4.y(), vec4.z())
         return(color)
 
+    def getSkyBox(self):
+        if self.light.skybox:
+            self.skybox.setStyleSheet("background-color : orange")
+            self.skybox.setChecked(True)
+        else:
+            self.skybox.setStyleSheet("background-color : lightgrey")
+            self.skybox.setChecked(False)
+
     def getValues(self):
         if self.light.blinn:
             self.blinn.setChecked(True)
         else:
             self.phong.setChecked(True)
+
+        self.getSkyBox()
 
         self.ambLuminance.setSliderValue(self.light.ambientLight.w() * 100)
         self.specLuminance.setSliderValue(self.light.lightWeight.x() * 100)
@@ -269,6 +284,11 @@ class MHSceneWindow(QWidget):
 
     def l3posh(self, value):
         self.light.setHPos(2, value)
+        self.view.Tweak()
+
+    def setSkybox(self):
+        self.light.useSkyBox(self.skybox.isChecked())
+        self.getSkyBox()
         self.view.Tweak()
 
     def reset_call(self):
