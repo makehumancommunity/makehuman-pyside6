@@ -193,6 +193,7 @@ class MHGraphicWindow(QWidget):
         """
         print ("connect pressed")
         self.env.g_attach = True
+        self.cleanUp()
         self.parent.createCentralWidget()
         self.close()
         self.destroy()
@@ -204,6 +205,7 @@ class MHGraphicWindow(QWidget):
         """
         print ("disconnect pressed")
         self.env.g_attach = False
+        self.cleanUp()
         self.parent.createCentralWidget()
         self.parent.show()
         self.destroy()
@@ -300,3 +302,7 @@ class MHGraphicWindow(QWidget):
         if self.attached is False:
             super().show()
 
+    def cleanUp(self):
+        self.glob.freeTextures()
+        if self.view is not None:
+            self.view.cleanUp()

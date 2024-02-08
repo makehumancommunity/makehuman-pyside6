@@ -84,6 +84,8 @@ class RenderedObject:
         self.position = pos
 
     def setTexture(self, texture):
+        functions = self.context.functions()
+        functions.glActiveTexture(gl.GL_TEXTURE0)
         self.texture = texture
         self.texture.bind()
 
@@ -123,7 +125,8 @@ class RenderedObject:
         shaderprog.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)
         shaderprog.setUniformValue(self.model_matrix_location, self.model_matrix)
         shaderprog.setUniformValue(self.normal_matrix_location, self.normal_matrix)
-
+        
+        functions.glActiveTexture(gl.GL_TEXTURE0)
         self.texture.bind()
 
         functions.glDrawElements(gl.GL_TRIANGLES, self.amount_of_vertices, gl.GL_UNSIGNED_INT, self.indices)

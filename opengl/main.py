@@ -87,7 +87,7 @@ class OpenGLView(QOpenGLWidget):
         #glfunc.glDisable(gl.GL_CULL_FACE)
         glfunc.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
-        self.mh_shaders = ShaderRepository(self.env)
+        self.mh_shaders = ShaderRepository(self.glob)
         id1 = self.mh_shaders.loadShaders("phong3l")
         print(id1)
         self.skyshader = self.mh_shaders.loadShaders("skybox")
@@ -210,3 +210,8 @@ class OpenGLView(QOpenGLWidget):
         self.camera.resizeViewPort(w, h)
         self.camera.calculateProjMatrix()
 
+    def cleanUp(self):
+        print ("cleanup openGL")
+        if self.skybox is not None:
+            self.skybox.delete()
+            self.skybox = None

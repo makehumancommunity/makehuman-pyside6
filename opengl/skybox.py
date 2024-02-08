@@ -9,6 +9,7 @@ class OpenGLSkyBox:
         self.env  = env
         self.prog = glprog
         self.func = glfunc
+        self.texture = None
         self.vbuffer = None
 
     def create(self):
@@ -59,6 +60,8 @@ class OpenGLSkyBox:
     def delete(self):
         if self.vbuffer is not None:
             self.vbuffer.destroy()
+        if self.texture is not None:
+            self.texture.destroy()
 
 
     def draw(self):

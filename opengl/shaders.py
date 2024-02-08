@@ -7,7 +7,7 @@ from PySide6.QtOpenGL import QOpenGLBuffer, QOpenGLShader, QOpenGLShaderProgram
 """
 
 class ShaderPair(QOpenGLShaderProgram):
-    def __init__(self, env, filename):
+    def __init__(self, env, path):
         self.uniforms = { "uMvpMatrix": -1, "uModelMatrix": -1, "uNormalMatrix": -1,
                 "lightPos1": -1, "lightPos2": -1, "lightPos3": -1,
                 "lightVol1": -1, "lightVol2": -1, "lightVol3": -1,
@@ -15,7 +15,7 @@ class ShaderPair(QOpenGLShaderProgram):
         self.env = env
         self.frag_id = None
         self.vert_id = None
-        self.path = os.path.join (self.env.path_sysdata, "shaders", filename)
+        self.path = path
         super().__init__()
 
     def loadFragShader(self):
@@ -34,12 +34,18 @@ class ShaderPair(QOpenGLShaderProgram):
 
 class ShaderRepository():
 
-    def __init__(self, env):
-        self.env = env
+    def __init__(self, glob):
+        self.glob = glob
+        self.env = glob.env
         self._shaders = []
 
     def loadShaders(self, filename):
-        pair = ShaderPair(self.env, filename)
+        path = os.path.join (self.env.path_sysdata, "shaders", filename)
+        for elem in self._shaders:
+            if elem.path == path:
+                return(elem.vert_id)
+
+        pair = ShaderPair(self.env, path)
         pair.loadFragShader()
         pair.loadVertShader()
         self._shaders.append(pair)

@@ -463,6 +463,9 @@ class MHMainWindow(QMainWindow):
         if self.in_close is True:
             return
 
+        if self.graph is not None:
+            self.graph.cleanUp()
+
         if self.glob.project_changed:
             dbox = DialogBox("All changes will be lost. Do you want to exit?", QDialogButtonBox.Ok)
             confirmed = dbox.exec()
