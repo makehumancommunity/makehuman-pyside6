@@ -11,6 +11,7 @@ from gui.memwindow import  MHMemWindow
 from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.slider import ScaleComboArray
+from gui.imageselector import Equipment
 from gui.dialogs import DialogBox, ErrorBox, WorkerThread, MHBusyWindow
 from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
@@ -38,6 +39,8 @@ class MHMainWindow(QMainWindow):
         self.targetfilter = None
         self.bckproc = None         # background process is running
         self.prog_window = None     # will hold the progress window
+        self.tool_mode = 0          # 0 = nothing, 1 = morph, 2 = assets
+        self.equipment = None
         super().__init__()
 
         s = env.session["mainwinsize"]
@@ -84,6 +87,12 @@ class MHMainWindow(QMainWindow):
 
         cusertar_act = set_menu.addAction("Compress User Targets")
         cusertar_act.triggered.connect(self.compress_usertargets)
+
+        tools_menu = menu_bar.addMenu("&Tools")
+        morph_act = tools_menu.addAction("Change Character")
+        morph_act.triggered.connect(self.morph_call)
+        equip_act = tools_menu.addAction("Character Equipment")
+        equip_act.triggered.connect(self.equip_call)
 
         self.createCentralWidget()
         self.setWindowTitle("default character")
@@ -133,12 +142,14 @@ class MHMainWindow(QMainWindow):
         create central widget, shown by default or by using connect/disconnect button from graphics window
         """
         env = self.env
+        self.equipment = Equipment(self.glob, "clothes")
         self.central_widget = QWidget()
         hLayout = QHBoxLayout()
 
         # left side, BasePanel
         #
         groupBase = QGroupBox("Basic Operations")
+        groupBase.setMinimumWidth(300)
         self.BaseBox = QVBoxLayout()
 
         self.drawBasePanel()
@@ -169,7 +180,7 @@ class MHMainWindow(QMainWindow):
         self.rightColumn = QGroupBox("Toolpanel")
         self.ToolBox = QVBoxLayout()
 
-        self.drawToolPanel(self.targetfilter)
+        self.drawToolPanel()
         self.rightColumn.setMinimumWidth(500)
         self.rightColumn.setMaximumWidth(500)
         self.rightColumn.setLayout(self.ToolBox)
@@ -191,6 +202,21 @@ class MHMainWindow(QMainWindow):
             if len(items) > 0:
                 self.basewidget.setCurrentItem(items[0])
         layout.addWidget(self.basewidget)
+
+    def contextBaseWidgets(self):
+        if self.env.basename is not None:
+            if self.tool_mode == 1:
+                if self.glob.targetCategories is not None:
+                    self.qTree = MHTreeView(self.glob.targetCategories, "Modelling", self.redrawNewCategory, None)
+                    self.targetfilter = self.qTree.getStartPattern()
+                    self.BaseBox.addWidget(self.qTree)
+                else:
+                    self.env.logLine(1, self.env.last_error )
+            elif self.tool_mode == 2:
+                self.equipment.prepare()
+                widget = self.equipment.leftPanel()
+                self.BaseBox.addWidget(widget)
+
 
     def drawBasePanel(self):
         """
@@ -221,33 +247,40 @@ class MHMainWindow(QMainWindow):
         bgroupBox.setLayout(bvLayout)
         self.BaseBox.addWidget(bgroupBox)
 
-        # Modelling Box
+        # now the context based elements on left side
         #
-        if env.basename is not None:
-
-            if self.glob.targetCategories is not None:
-                self.qTree = MHTreeView(self.glob.targetCategories, "Modelling", self.redrawNewCategory, None)
-                self.targetfilter = self.qTree.getStartPattern()
-                self.BaseBox.addWidget(self.qTree)
-            else:
-                env.logLine(1, env.last_error )
+        self.contextBaseWidgets()
 
         self.BaseBox.addStretch()
 
-    def drawToolPanel(self, filterparam, text="Toolpanel"):
-        #
-        # will work according to mode later
-        #
+    def drawMorphPanel(self, text=""):
+        self.rightColumn.setTitle("Modify character, category: " + text)
         if self.glob.Targets is not None:
             widget = QWidget()
-            scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets, filterparam)
+            scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets, self.targetfilter)
             widget.setLayout(scalerArray.layout)
             scrollArea = QScrollArea()
             scrollArea.setWidget(widget)
             scrollArea.setWidgetResizable(True)
 
             self.ToolBox.addWidget(scrollArea)
-            self.rightColumn.setTitle("Modify character, category: " + text)
+
+    def drawEquipPanel(self, text=""):
+        self.rightColumn.setTitle("Character equipment, category: " + text)
+        layout = self.equipment.rightPanel()
+        widget = QWidget()
+        widget.setLayout(layout)
+        self.ToolBox.addWidget(widget)
+
+    def drawToolPanel(self, text="None"):
+        #
+        # works according to tool_mode
+        #
+        print (self.tool_mode)
+        if self.tool_mode == 1:
+            self.drawMorphPanel(text)
+        elif self.tool_mode == 2:
+            self.drawEquipPanel(text)
 
     def emptyLayout(self, layout):
         if layout is not None:
@@ -258,6 +291,14 @@ class MHMainWindow(QMainWindow):
                     widget.deleteLater()
                 #else:
                 #    self.clearLayout(item.layout())
+
+    def setToolModeAndPanel(self,newmode):
+        if self.tool_mode != newmode:
+            self.emptyLayout(self.BaseBox)
+            self.emptyLayout(self.ToolBox)
+            self.tool_mode = newmode
+            self.drawBasePanel()
+            self.drawToolPanel()
 
     def show(self):
         """
@@ -271,6 +312,12 @@ class MHMainWindow(QMainWindow):
 
     def closeEvent(self, event):
         self.quit_call(event)
+
+    def morph_call(self):
+        self.setToolModeAndPanel(1)
+
+    def equip_call(self):
+        self.setToolModeAndPanel(2)
 
     def pref_call(self):
         """
@@ -393,7 +440,7 @@ class MHMainWindow(QMainWindow):
 
             self.graph.view.newMesh()
             self.emptyLayout(self.ToolBox)
-            self.drawToolPanel(self.targetfilter)
+            self.drawToolPanel()
             self.ToolBox.update()
 
             self.emptyLayout(self.BaseBox)
@@ -409,7 +456,7 @@ class MHMainWindow(QMainWindow):
             text =self.qTree.getLastHeadline()
         self.emptyLayout(self.ToolBox)
         self.targetfilter = category
-        self.drawToolPanel(category, text)
+        self.drawMorphPanel(text)
         self.ToolBox.update()
 
     def finished_bckproc(self):

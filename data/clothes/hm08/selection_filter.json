@@ -1,0 +1,30 @@
+{
+	"Gender": ["Male", "Female"],
+	"Epoch": ["Contemporary", "Future", "Past"],
+	"Slot": {
+		"Headgear": {
+			"Layer1": [ "Mask" ],
+			"Layer2": [ "Hair-Band", "Barette"],
+			"Layer3": ["Hat", "Cap", "Helmet"]
+		},
+		"Neck": ["Necklace", "Scarf"],
+		"Top": {
+			"Layer1": ["Bra", "Tanktop", "Swimwear"],
+			"Layer2": ["Shirt", "Sweater", "Pullover", "Blouse"],
+			"Layer3": ["Jacket", "Suit"]
+		},
+		"Bottom": {
+			"Layer1": ["Panties", "Tights"],
+			"Layer2": ["Pants", "Skirt"]
+		},
+		"Hands": {
+			"Layer1": ["Gloves", "Rings"],
+			"Layer1": ["Weapons", "Miscellaneous"]
+		},
+		"Feet" : {
+			"Layer1": ["Socks"],
+			"Layer2": ["Shoes", "Sandals", "Boots"]
+		},
+		"Back": ["Backpack", "Wings"]
+	}
+}
