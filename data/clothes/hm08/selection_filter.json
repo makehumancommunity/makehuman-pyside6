@@ -3,14 +3,14 @@
 	"Epoch": ["Contemporary", "Future", "Past"],
 	"Slot": {
 		"Headgear": {
-			"Layer1": [ "Mask" ],
+			"Layer1": [ "Glasses", "Mask" ],
 			"Layer2": [ "Hair-Band", "Barette"],
 			"Layer3": ["Hat", "Cap", "Helmet"]
 		},
 		"Neck": ["Necklace", "Scarf"],
 		"Top": {
 			"Layer1": ["Bra", "Tanktop", "Swimwear"],
-			"Layer2": ["Shirt", "Sweater", "Pullover", "Blouse"],
+			"Layer2": ["Shirt", "Sweater", "Pullover", "Blouse", "Top"],
 			"Layer3": ["Jacket", "Suit"]
 		},
 		"Bottom": {
@@ -26,5 +26,9 @@
 			"Layer2": ["Shoes", "Sandals", "Boots"]
 		},
 		"Back": ["Backpack", "Wings"]
+	},
+	"Translate": {
+		"unisex": null,
+		"vintage": "=epoch:past"
 	}
 }

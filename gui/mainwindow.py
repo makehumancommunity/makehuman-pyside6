@@ -143,6 +143,9 @@ class MHMainWindow(QMainWindow):
         """
         env = self.env
         self.equipment = Equipment(self.glob, "clothes")
+        if self.glob.baseClass is not None:
+            self.equipment.prepare(self.glob.baseClass.mhclo_namemap)
+
         self.central_widget = QWidget()
         hLayout = QHBoxLayout()
 
@@ -213,7 +216,6 @@ class MHMainWindow(QMainWindow):
                 else:
                     self.env.logLine(1, self.env.last_error )
             elif self.tool_mode == 2:
-                self.equipment.prepare()
                 widget = self.equipment.leftPanel()
                 self.BaseBox.addWidget(widget)
 
@@ -266,10 +268,15 @@ class MHMainWindow(QMainWindow):
             self.ToolBox.addWidget(scrollArea)
 
     def drawEquipPanel(self, text=""):
+        text = "clothes"
         self.rightColumn.setTitle("Character equipment, category: " + text)
-        layout = self.equipment.rightPanel()
         widget = QWidget()
-        widget.setLayout(layout)
+        picwidget = self.equipment.rightPanel()
+        widget.setLayout(picwidget.layout)
+        scrollArea = QScrollArea()
+        scrollArea.setWidget(widget)
+        scrollArea.setWidgetResizable(True)
+        scrollArea.setHorizontalScrollBarPolicy( Qt.ScrollBarAlwaysOff )
         self.ToolBox.addWidget(widget)
 
     def drawToolPanel(self, text="None"):
@@ -277,7 +284,9 @@ class MHMainWindow(QMainWindow):
         # works according to tool_mode
         #
         print (self.tool_mode)
-        if self.tool_mode == 1:
+        if self.tool_mode == 0:
+            self.rightColumn.setTitle("Toolpannel")
+        elif self.tool_mode == 1:
             self.drawMorphPanel(text)
         elif self.tool_mode == 2:
             self.drawEquipPanel(text)
@@ -362,14 +371,13 @@ class MHMainWindow(QMainWindow):
                 directory = os.path.join(self.env.path_userdata, "models", self.env.basename)
                 filename = self.fileRequest("Model", "Model files (*.mhm)", directory)
                 if filename is not None:
+                    self.setToolModeAndPanel(0)
                     self.graph.view.noAssets()
                     self.glob.freeTextures()
                     self.glob.baseClass.loadMHMFile(filename)
                     self.graph.view.addAssets()
                     self.graph.view.newTexture(self.glob.baseClass.baseMesh)
                     self.graph.view.Tweak()
-                    self.targetfilter = self.qTree.getStartPattern()
-                    self.redrawNewCategory(self.targetfilter)
                     self.setWindowTitle(self.glob.baseClass.name)
                     self.glob.mhViewport.setSizeInfo()
                 self.glob.project_changed = False

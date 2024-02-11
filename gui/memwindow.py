@@ -80,7 +80,7 @@ class MHMemWindow(QWidget):
         self.assetTable = QTableView()
         data = self.refreshAssetTable()
 
-        self.assetModel = MemTableModel(data, ["Group", "Name", "UUID",  "File Name"])
+        self.assetModel = MemTableModel(data, ["Group", "Name", "UUID",  "Author", "File Name", "Tags"])
         self.assetTable.setModel(self.assetModel)
         self.assetModel.bestFit(self.assetTable)
         layout.addWidget(self.assetTable)
@@ -204,7 +204,8 @@ class MHMemWindow(QWidget):
         if self.glob.baseClass is not None:
             base = self.glob.baseClass
             for elem in base.mhclo_namemap:
-                data.append([elem[3], elem[0], elem[1], elem[2]])
+                tags = " ".join(elem[6]) if len(elem[6]) > 0 else ""
+                data.append([elem[3], elem[0], elem[1], elem[5], elem[2], tags])
         if len(data) == 0:
             data = [["no assets discovered"]]
         return (data)

@@ -18,7 +18,7 @@ class MHPictSelectable:
         # append filename, author and  name as tags as well
         #
         self.tags.append(name.lower())
-        self.tags.append(filename.lower())
+        self.tags.append(os.path.split(filename)[1].lower())    # only name, not path
         self.tags.append(author.lower())
         self.status = 0
 
@@ -38,14 +38,16 @@ class PictureButton(QPushButton):
         self.asset = asset
         self.parent_update = parent_update
         self.information_update = information_update
+        self.icon = None
 
         super().__init__(asset.name)
         if asset.icon is None:                 # will not be constant
-            asset.icon = "data/icons/empty_clothes.png"
+            self.icon = "data/icons/empty_clothes.png"
             self.picture_added = False
         else:
             self.picture_added = True
-        self.setPicture(QPixmap(asset.icon))
+            self.icon = asset.icon
+        self.setPicture(QPixmap(self.icon))
         self.setCheckable(True)
         self.framecol  = (Qt.black, Qt.yellow, Qt.green)
         self.setToolTip(asset.name)
@@ -291,19 +293,9 @@ class PicSelectWidget(QWidget):
     :param name: headline (default selection)
     :param multiSel: multiple selection 
     """
-    def __init__(self, parent_layout, name="Selection", multiSel=False):
-        groupbox = QGroupBox(name)
-        groupbox.setObjectName("subwindow")
-        scrollArea = QScrollArea()
+    def __init__(self, name="Selection", multiSel=False):
         self.multiSel =  multiSel
         self.layout = PicFlowLayout(multiSel=multiSel)
-
-        groupbox.setLayout(self.layout)
-        scrollArea.setWidget(groupbox)
-        scrollArea.setWidgetResizable(True)
-        scrollArea.setHorizontalScrollBarPolicy( Qt.ScrollBarAlwaysOff )
-
-        parent_layout.addWidget(scrollArea)
         super().__init__()
 
     def refreshAllWidgets(self, current):
@@ -316,26 +308,22 @@ class PicSelectWidget(QWidget):
         self.layout.addWidget (button)
 
 class InformationBox(QWidget):
-    def __init__(self):
+    def __init__(self, layout):
         super().__init__()
-        self.layout = QVBoxLayout()
-        self.selectedName = QLabel("Name: ")
-        self.selectedAuthor = QLabel("Author: ")
-
-        self.layout.addWidget(QLabel("Information:"))
+        self.layout = layout
+        #self.layout = QVBoxLayout()
+        self.selectedName = QLabel("Name:\nAuthor:")
         self.layout.addWidget(self.selectedName)
-        self.layout.addWidget(self.selectedAuthor)
         self.layout.addWidget(QLabel("Tags:"))
         self.tagbox = QPlainTextEdit()
         self.tagbox.setPlainText("")
         self.tagbox.setReadOnly(True)
         self.tagbox.setFixedHeight(120)
         self.layout.addWidget(self.tagbox)
-        self.setLayout(self.layout)
+        #self.setLayout(self.layout)
 
     def setInformation(self, asset):
-        self.selectedName.setText("Name: " + asset.name)
-        self.selectedAuthor.setText("Author: " + asset.author)
+        self.selectedName.setText("Name: " + asset.name + "\n" + "Author: " + asset.author)
         self.tagbox.setPlainText("\n".join(l.replace(":", " >> ") for l in asset.tags))
 
 class FilterTree(QTreeView):
@@ -371,8 +359,9 @@ class FilterTree(QTreeView):
         for elem in subtree:
             #
             # set base when layer is None, otherwise keep old one and create substring by appending layer
-
             find = elem.lower()
+            if find == "translate":
+                continue
             if base == "":
                 substring = ""
                 nbase = find
@@ -434,71 +423,75 @@ class editBox(QLineEdit):
         if self.changeFilter is not None:
             self.changeFilter()
 
-
-# --- image this in a dateabase
-#
-
-
-assets = [
-        {"name": "Gumby glasses", "author": "punkduck", "file": "gumby_glasses.mhclo", "icon": "/data/punkduck/Dokumente/makehuman2/data/clothes/hm08/gumby_glasses/gumby_glasses.thumb", 
-            "tags": ["gumby", "slot:headgear", "epoch:contemporary"] },
-        {"name": "Gumby boots", "author": "elvaerwyn", "file": "gumby_boots.mhclo", "icon": "/data/punkduck/Dokumente/makehuman2/data/clothes/hm08/gumby_boots/gumby_boots.thumb" ,
-            "tags": ["gumby", "slot:feet:layer2:boots", "epoch:contemporary"] },
-        {"name": "Gumby shirt", "author": "elvaerwyn", "file": "gumby_shirt.mhclo", "icon": "/data/punkduck/Dokumente/makehuman2/data/clothes/hm08/gumby_shirt/gumby_shirt.thumb",
-            "tags": ["gumby", "slot:top:layer2:shirt", "epoch:contemporary", "gender:male"] },
-        {"name": "Gumby vest", "author": "elvaerwyn", "file": "gumby_vest.mhclo", "icon": "/data/punkduck/Dokumente/makehuman2/data/clothes/hm08/gumby_vest/gumby_vest.thumb",
-            "tags": ["gumby", "slot:top:layer2", "epoch:contemporary", "gender:male"] },
-        {"name": "Gumby trousers", "author": "elvaerwyn", "file": "gumby_trousers.mhclo", "icon": "/data/punkduck/Dokumente/makehuman2/data/clothes/hm08/gumby_trousers/gumby_trousers.thumb",
-            "tags": ["gumby", "slot:bottom:layer2:pants", "epoch:contemporary", "gender:male"] },
-        {"name": "Sleeveless crop top", "author": "punkduck", "file": "sleevelesscroptop.mhclo", "icon": "/data/punkduck/Dokumente/makehuman2/data/clothes/hm08/sleevelesscroptop/sleevelesscroptop.thumb",
-            "tags": ["slot:top:layer2:shirt", "epoch:contemporary", "gender:female"] },
-        {"name": "Short bodysuit", "author": "punkduck", "file": "shortbodysuit.mhclo", "icon": "/data/punkduck/Dokumente/makehuman2/data/clothes/hm08/shortbodysuit/shortbodysuit.thumb",
-            "tags": ["slot:top:layer2:suit", "epoch:contemporary", "gender:female"] },
-        {"name": "French bra", "author": "punkduck", "file": "frenchbra.mhclo", "icon": "/data/punkduck/Dokumente/makehuman2/data/clothes/hm08/frenchbra/frenchbra.thumb",
-            "tags": ["slot:top:layer1:bra", "epoch:contemporary", "gender:female"] },
-        {"name": "French bottom", "author": "punkduck", "file": "frenchbottom.mhclo", "icon": "/data/punkduck/Dokumente/makehuman2/data/clothes/hm08/frenchbottom/frenchbottom.thumb",
-            "tags": ["slot:bottom:layer1:panties", "epoch:contemporary", "gender:female"] },
-        {"name": "assetwithoutimage", "author": "punkduck", "file": "noidea.mhclo", "icon": None, 
-            "tags": ["epoch:future", "slot:bottom" ] },
-        ]
-
-
 class Equipment():
     def __init__(self, glob, eqtype):
         self.glob = glob
         self.env = glob.env
         self.type = eqtype
+        self.tagreplace = {}
         self.filterjson = None
         self.picwidget = None
         self.filterview = None
         self.asset_category = []
-        for elem in assets:
-            self.asset_category.append(MHPictSelectable(elem["name"], elem["icon"], elem["file"],  elem["author"], elem["tags"]))
 
-    def prepare(self):
+    def createTagGroups(self, subtree, path):
+        """
+        create texts to prepend certain tags, can also translate tags
+        """
+        for elem in subtree:
+            if isinstance(elem, str):
+                if isinstance(subtree[elem], dict):
+                    self.createTagGroups(subtree[elem], path + ":" + elem.lower())
+                elif isinstance(subtree[elem], list):
+                    for l in subtree[elem]:
+                        repl = path + ":" + elem.lower()
+                        self.tagreplace[l.lower()] = repl[1:]       # get rid of first ":"
+                if elem == "Translate":                             # extra, change by word
+                    for l in subtree[elem]:
+                        self.tagreplace[l.lower()] = subtree[elem][l]
+
+    def completeTags(self, tags):
+        """
+        replace tags by tags with prepended strings
+        """
+        newtags = []
+        for tag in tags:
+            ltag = tag.lower()
+            if ltag in self.tagreplace:
+                elem = self.tagreplace[ltag]
+                if elem is not None:
+                    if elem.startswith("="):        # complete replacement
+                        newtags.append(elem[1:])
+                    else:
+                        newtags.append(elem+":"+ltag)
+            else:
+                newtags.append(tag)
+        return (newtags)
+
+    def prepare(self, assetinput):
         # load filter from file according to base mesh
         #
         path = os.path.join(self.env.path_sysdata, self.type, self.env.basename, "selection_filter.json")
         with open(path, 'r') as f:
             self.filterjson = json.load(f)
+        self.createTagGroups(self.filterjson, "")
 
+        for elem in assetinput:
+            if elem[3] == self.type:
+                elem[6] = self.completeTags(elem[6])
+                self.asset_category.append(MHPictSelectable(elem[0], elem[4], elem[2],  elem[5], elem[6]))
 
     def leftPanel(self):
         """
         done first
         """
-        self.infobox = InformationBox()
-        slayout = QHBoxLayout()  # layout for textbox + empty button
         v1layout = QVBoxLayout()    # this is for searching
+        self.infobox = InformationBox(v1layout)
         gbox = QGroupBox("Filtering")
         gbox.setObjectName("subwindow")
 
-
         widget = QWidget()
-        widget.setStyleSheet("""background-color: #323232;
-            color: #ffffff;
-            """)
-
+        slayout = QHBoxLayout()  # layout for textbox + empty button
         filteredit = editBox(slayout, widget)
         self.filterview = FilterTree(self.asset_category, filteredit, self.infobox.setInformation)
         self.filterview.addTree(self.filterjson)
@@ -509,7 +502,7 @@ class Equipment():
         v1layout.addWidget(QLabel("Filter:"))
         v1layout.addLayout(slayout)
 
-        v1layout.addWidget(self.infobox)
+        #v1layout.addWidget(self.infobox)
         gbox.setLayout(v1layout)
         return(gbox)
 
@@ -517,9 +510,8 @@ class Equipment():
         """
         draw tools Panel
         """
-        self.v2layout = QVBoxLayout()    # and this to display data
-        self.picwidget = PicSelectWidget(self.v2layout, "Clothes", multiSel=True)
+        self.picwidget = PicSelectWidget("Clothes", multiSel=True)
         self.filterview.setPicLayout(self.picwidget.layout)
         self.picwidget.populate(self.asset_category, None, None, self.infobox.setInformation)
-        return(self.v2layout)
+        return(self.picwidget)
 

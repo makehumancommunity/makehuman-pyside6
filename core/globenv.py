@@ -567,22 +567,36 @@ class programInfo():
         """
         namematch = []
         files = self.subDirsBaseFolder(pattern)
-        print (files)
-        for (folder, fname) in files:
-            with open(fname, 'r') as fp:
-                m = 0
+        for (folder, path) in files:
+            print (path)
+            (filename, extension) = os.path.splitext(path)
+            thumbfile = filename + ".thumb"
+            if not os.path.isfile(thumbfile):
+                thumbfile = None
+            
+            with open(path, 'r') as fp:
                 uuid = 0
                 name = ""
+                author = "unknown"
+                tag = []
                 for line in fp:
-                    if "name" in line:
-                        name =line.split()[-1]
-                        m+=1
-                    elif "uuid" in line:
-                        uuid = line.split()[-1]
-                        m+=1
-                    if m==2:
+                    if line.startswith("verts"):
                         break
-                namematch.append([name, uuid, fname, folder])
+
+                    if "name" in line:          # always last word, one word
+                        name =line.split()[-1]
+                    elif "uuid" in line:        # always last word, one word
+                        uuid = line.split()[-1]
+                    elif "author" in line:      # part of the comment, can be author
+                        words = line.split()
+                        if words[1].startswith("author"):
+                            author = " ".join(words[2:])
+
+                    elif "tag" in line:         # allow tags with blanks
+                        words = line.split()
+                        tag.append(" ".join(words[1:]))
+
+                namematch.append([name, uuid, path, folder, thumbfile, author, tag])
 
         return (namematch)
 
