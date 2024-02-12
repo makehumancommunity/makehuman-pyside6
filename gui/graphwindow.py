@@ -194,6 +194,7 @@ class MHGraphicWindow(QWidget):
         print ("connect pressed")
         self.env.g_attach = True
         self.cleanUp()
+        self.parent.base_call()
         self.parent.createCentralWidget()
         self.close()
         self.destroy()
@@ -206,6 +207,7 @@ class MHGraphicWindow(QWidget):
         print ("disconnect pressed")
         self.env.g_attach = False
         self.cleanUp()
+        self.parent.base_call()
         self.parent.createCentralWidget()
         self.parent.show()
         self.destroy()

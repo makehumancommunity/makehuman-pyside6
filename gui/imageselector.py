@@ -424,10 +424,11 @@ class editBox(QLineEdit):
             self.changeFilter()
 
 class Equipment():
-    def __init__(self, glob, eqtype):
+    def __init__(self, glob, eqtype, multisel):
         self.glob = glob
         self.env = glob.env
         self.type = eqtype
+        self.multisel = multisel
         self.tagreplace = {}
         self.filterjson = None
         self.picwidget = None
@@ -461,11 +462,14 @@ class Equipment():
                 elem = self.tagreplace[ltag]
                 if elem is not None:
                     if elem.startswith("="):        # complete replacement
-                        newtags.append(elem[1:])
+                        ntag = elem[1:]
                     else:
-                        newtags.append(elem+":"+ltag)
+                        ntag = elem+":"+ltag
+                    if ntag not in newtags:
+                        newtags.append(ntag)
             else:
-                newtags.append(tag)
+                if tag not in newtags:
+                    newtags.append(tag)
         return (newtags)
 
     def prepare(self, assetinput):
@@ -510,7 +514,7 @@ class Equipment():
         """
         draw tools Panel
         """
-        self.picwidget = PicSelectWidget("Clothes", multiSel=True)
+        self.picwidget = PicSelectWidget("Clothes", multiSel=self.multisel)
         self.filterview.setPicLayout(self.picwidget.layout)
         self.picwidget.populate(self.asset_category, None, None, self.infobox.setInformation)
         return(self.picwidget)

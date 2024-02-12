@@ -35,12 +35,14 @@ class MHMainWindow(QMainWindow):
         self.graph = None
         self.qTree = None
         self.in_close = False
-        self.selectbase_in_progress = False
         self.targetfilter = None
         self.bckproc = None         # background process is running
         self.prog_window = None     # will hold the progress window
         self.tool_mode = 0          # 0 = nothing, 1 = morph, 2 = assets
-        self.equipment = None
+
+        self.clothes = None         # TODO make that flexible
+        self.hair = None
+        self.eyes = None
         super().__init__()
 
         s = env.session["mainwinsize"]
@@ -89,10 +91,25 @@ class MHMainWindow(QMainWindow):
         cusertar_act.triggered.connect(self.compress_usertargets)
 
         tools_menu = menu_bar.addMenu("&Tools")
+        base_act = tools_menu.addAction("Change Base")
+        base_act.triggered.connect(self.base_call)
         morph_act = tools_menu.addAction("Change Character")
         morph_act.triggered.connect(self.morph_call)
-        equip_act = tools_menu.addAction("Character Equipment")
+        equip_act = tools_menu.addAction("Character Clothes")
         equip_act.triggered.connect(self.equip_call)
+        equip_act2 = tools_menu.addAction("Character Hair")
+        equip_act2.triggered.connect(self.equip_call2)
+        equip_act3 = tools_menu.addAction("Character Eyes")
+        equip_act3.triggered.connect(self.equip_call3)
+
+
+        self.clothes = Equipment(self.glob, "clothes", True)
+        self.hair = Equipment(self.glob, "hair", False)
+        self.eyes = Equipment(self.glob, "eyes", False)
+        if self.glob.baseClass is not None:
+            self.clothes.prepare(self.glob.baseClass.mhclo_namemap)
+            self.hair.prepare(self.glob.baseClass.mhclo_namemap)
+            self.eyes.prepare(self.glob.baseClass.mhclo_namemap)
 
         self.createCentralWidget()
         self.setWindowTitle("default character")
@@ -142,10 +159,6 @@ class MHMainWindow(QMainWindow):
         create central widget, shown by default or by using connect/disconnect button from graphics window
         """
         env = self.env
-        self.equipment = Equipment(self.glob, "clothes")
-        if self.glob.baseClass is not None:
-            self.equipment.prepare(self.glob.baseClass.mhclo_namemap)
-
         self.central_widget = QWidget()
         hLayout = QHBoxLayout()
 
@@ -206,54 +219,46 @@ class MHMainWindow(QMainWindow):
                 self.basewidget.setCurrentItem(items[0])
         layout.addWidget(self.basewidget)
 
-    def contextBaseWidgets(self):
-        if self.env.basename is not None:
-            if self.tool_mode == 1:
-                if self.glob.targetCategories is not None:
-                    self.qTree = MHTreeView(self.glob.targetCategories, "Modelling", self.redrawNewCategory, None)
-                    self.targetfilter = self.qTree.getStartPattern()
-                    self.BaseBox.addWidget(self.qTree)
-                else:
-                    self.env.logLine(1, self.env.last_error )
-            elif self.tool_mode == 2:
-                widget = self.equipment.leftPanel()
-                self.BaseBox.addWidget(widget)
-
-
     def drawBasePanel(self):
         """
         draw left panel
         """
         env = self.env
 
-        bgroupBox = QGroupBox("base mesh")
-        bgroupBox.setObjectName("subwindow")
-
-        bvLayout = QVBoxLayout()
-
-        if env.basename is None or self.selectbase_in_progress is True:
+        if self.tool_mode == 0 or env.basename is None:
+            bgroupBox = QGroupBox("base mesh")
+            bgroupBox.setObjectName("subwindow")
+            bvLayout = QVBoxLayout()
             self.baseMeshSelectWidget(bvLayout)
             buttons = QPushButton("Select")
             buttons.clicked.connect(self.selectmesh_call)
-            self.selectbase_in_progress = False
-        else:
-            buttons = QPushButton("Select different basemesh")
-            buttons.clicked.connect(self.presentbaseselect_call)
+            bvLayout.addWidget(buttons)
+            bgroupBox.setLayout(bvLayout)
+            self.BaseBox.addWidget(bgroupBox)
+            self.BaseBox.addStretch()
+            return
 
-        bvLayout.addWidget(buttons)
-
-        buttonr = QPushButton("Reset")
-        buttonr.clicked.connect(self.reset_call)
-        bvLayout.addWidget(buttonr)
-        
-        bgroupBox.setLayout(bvLayout)
-        self.BaseBox.addWidget(bgroupBox)
-
-        # now the context based elements on left side
-        #
-        self.contextBaseWidgets()
-
+        if self.tool_mode == 1:
+            if self.glob.targetCategories is not None:
+                buttonr = QPushButton("Reset all Targets")
+                buttonr.clicked.connect(self.reset_call)
+                self.BaseBox.addWidget(buttonr)
+                self.qTree = MHTreeView(self.glob.targetCategories, "Modelling", self.redrawNewCategory, None)
+                self.targetfilter = self.qTree.getStartPattern()
+                self.BaseBox.addWidget(self.qTree)
+            else:
+                self.env.logLine(1, self.env.last_error )
+        elif self.tool_mode == 2:
+            widget = self.clothes.leftPanel()
+            self.BaseBox.addWidget(widget)
+        elif self.tool_mode == 3:
+            widget = self.hair.leftPanel()
+            self.BaseBox.addWidget(widget)
+        elif self.tool_mode == 4:
+            widget = self.eyes.leftPanel()
+            self.BaseBox.addWidget(widget)
         self.BaseBox.addStretch()
+
 
     def drawMorphPanel(self, text=""):
         self.rightColumn.setTitle("Modify character, category: " + text)
@@ -267,17 +272,17 @@ class MHMainWindow(QMainWindow):
 
             self.ToolBox.addWidget(scrollArea)
 
-    def drawEquipPanel(self, text=""):
-        text = "clothes"
+    def drawEquipPanel(self, category, text):
         self.rightColumn.setTitle("Character equipment, category: " + text)
         widget = QWidget()
-        picwidget = self.equipment.rightPanel()
+        picwidget = category.rightPanel()
         widget.setLayout(picwidget.layout)
         scrollArea = QScrollArea()
         scrollArea.setWidget(widget)
         scrollArea.setWidgetResizable(True)
         scrollArea.setHorizontalScrollBarPolicy( Qt.ScrollBarAlwaysOff )
-        self.ToolBox.addWidget(widget)
+        #self.ToolBox.addWidget(widget)
+        self.ToolBox.addWidget(scrollArea)
 
     def drawToolPanel(self, text="None"):
         #
@@ -289,7 +294,11 @@ class MHMainWindow(QMainWindow):
         elif self.tool_mode == 1:
             self.drawMorphPanel(text)
         elif self.tool_mode == 2:
-            self.drawEquipPanel(text)
+            self.drawEquipPanel(self.clothes, "clothes")
+        elif self.tool_mode == 3:
+            self.drawEquipPanel(self.hair, "hair")
+        elif self.tool_mode == 4:
+            self.drawEquipPanel(self.eyes, "eyes")
 
     def emptyLayout(self, layout):
         if layout is not None:
@@ -322,11 +331,20 @@ class MHMainWindow(QMainWindow):
     def closeEvent(self, event):
         self.quit_call(event)
 
+    def base_call(self):
+        self.setToolModeAndPanel(0)
+
     def morph_call(self):
         self.setToolModeAndPanel(1)
 
     def equip_call(self):
         self.setToolModeAndPanel(2)
+
+    def equip_call2(self):
+        self.setToolModeAndPanel(3)
+
+    def equip_call3(self):
+        self.setToolModeAndPanel(4)
 
     def pref_call(self):
         """
@@ -408,7 +426,6 @@ class MHMainWindow(QMainWindow):
             confirmed =  dbox.exec()
 
         if confirmed:
-            self.selectbase_in_progress = True
             self.emptyLayout(self.BaseBox)
             self.drawBasePanel()
             self.BaseBox.update()
