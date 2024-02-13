@@ -1,5 +1,4 @@
 import sys
-import json
 import typing
 import os
 from PySide6.QtCore import Qt, QPoint, QRect, QSize
@@ -33,7 +32,7 @@ class PictureButton(QPushButton):
     :param parent_update:      refresh function for widget where this button is contained
     :param information_update: refresh function for widget where information will be written
     """
-    def __init__(self, asset: MHPictSelectable, parent_update, information_update):
+    def __init__(self, asset: MHPictSelectable, emptyicon,  parent_update, information_update):
 
         self.asset = asset
         self.parent_update = parent_update
@@ -42,12 +41,13 @@ class PictureButton(QPushButton):
 
         super().__init__(asset.name)
         if asset.icon is None:                 # will not be constant
-            self.icon = "data/icons/empty_clothes.png"
+            self.icon = emptyicon
             self.picture_added = False
         else:
             self.picture_added = True
             self.icon = asset.icon
-        self.setPicture(QPixmap(self.icon))
+        #self.setPicture(QPixmap(self.icon))
+        self.setPicture(QPixmap(self.icon).scaled(96,96, Qt.AspectRatioMode.KeepAspectRatio))
         self.setCheckable(True)
         self.framecol  = (Qt.black, Qt.yellow, Qt.green)
         self.setToolTip(asset.name)
@@ -95,7 +95,7 @@ class PicFlowLayout(QLayout):
     """
     multiSel: multiple selection, will change refresh method
     """
-    def __init__(self, multiSel: False, parent: QWidget=None, margin: int=-1, hSpacing: int=-1, vSpacing: int=-1):
+    def __init__(self, multiSel: False, emptyIcon: str="", parent: QWidget=None, margin: int=-1, hSpacing: int=-1, vSpacing: int=-1):
 
         super().__init__(parent)
 
@@ -104,6 +104,7 @@ class PicFlowLayout(QLayout):
         self.m_hSpace = hSpacing
         self.m_vSpace = vSpacing
         self.multiSel = multiSel
+        self.empty = emptyIcon
         self.setContentsMargins(margin, margin, margin, margin)
 
     def __del__(self):
@@ -282,7 +283,7 @@ class PicFlowLayout(QLayout):
                 display = fdisplay & display
 
             if display:
-                button1 = PictureButton(asset, self.refreshAllWidgets, displayInfo)
+                button1 = PictureButton(asset, self.empty, self.refreshAllWidgets, displayInfo)
                 button1.pressed.connect(button1.btnstate)
                 self.addWidget (button1)
 
@@ -293,9 +294,9 @@ class PicSelectWidget(QWidget):
     :param name: headline (default selection)
     :param multiSel: multiple selection 
     """
-    def __init__(self, name="Selection", multiSel=False):
+    def __init__(self, name="Selection", multiSel=False, emptyIcon=""):
         self.multiSel =  multiSel
-        self.layout = PicFlowLayout(multiSel=multiSel)
+        self.layout = PicFlowLayout(multiSel=multiSel,  emptyIcon=emptyIcon)
         super().__init__()
 
     def refreshAllWidgets(self, current):
@@ -424,9 +425,10 @@ class editBox(QLineEdit):
             self.changeFilter()
 
 class Equipment():
-    def __init__(self, glob, eqtype, multisel):
+    def __init__(self, glob, assetrepo, eqtype, multisel):
         self.glob = glob
         self.env = glob.env
+        self.assetrepo = assetrepo
         self.type = eqtype
         self.multisel = multisel
         self.tagreplace = {}
@@ -434,6 +436,9 @@ class Equipment():
         self.picwidget = None
         self.filterview = None
         self.asset_category = []
+        self.emptyIcon = os.path.join(self.env.path_sysdata, "icons", "empty_" + self.type + ".png")
+        if not os.path.isfile(self.emptyIcon):
+            self.emptyIcon = os.path.join(self.env.path_sysdata, "icons", "noidea.png")
 
     def createTagGroups(self, subtree, path):
         """
@@ -472,18 +477,28 @@ class Equipment():
                     newtags.append(tag)
         return (newtags)
 
-    def prepare(self, assetinput):
+    def prepare(self):
         # load filter from file according to base mesh
         #
         path = os.path.join(self.env.path_sysdata, self.type, self.env.basename, "selection_filter.json")
-        with open(path, 'r') as f:
-            self.filterjson = json.load(f)
+        self.filterjson = self.env.readJSON(path)
+        if self.filterjson is None:
+            self.filterjson = {}
         self.createTagGroups(self.filterjson, "")
 
-        for elem in assetinput:
-            if elem[3] == self.type:
-                elem[6] = self.completeTags(elem[6])
-                self.asset_category.append(MHPictSelectable(elem[0], elem[4], elem[2],  elem[5], elem[6]))
+        for elem in self.assetrepo:
+            if elem.folder == self.type:
+                elem.tag = self.completeTags(elem.tag)
+                self.asset_category.append(MHPictSelectable(elem.name, elem.thumbfile, elem.path,  elem.author, elem.tag))
+
+    def changeStatus(self):
+        checked = []
+        for elem in self.assetrepo:
+            if elem.folder == self.type and elem.used is True:
+                checked.append(elem.path)
+
+        for elem in self.asset_category:
+            elem.status = 1 if elem.filename in checked else 0
 
     def leftPanel(self):
         """
@@ -506,7 +521,6 @@ class Equipment():
         v1layout.addWidget(QLabel("Filter:"))
         v1layout.addLayout(slayout)
 
-        #v1layout.addWidget(self.infobox)
         gbox.setLayout(v1layout)
         return(gbox)
 
@@ -514,8 +528,9 @@ class Equipment():
         """
         draw tools Panel
         """
-        self.picwidget = PicSelectWidget("Clothes", multiSel=self.multisel)
+        self.picwidget = PicSelectWidget("Clothes", multiSel=self.multisel, emptyIcon=self.emptyIcon)
         self.filterview.setPicLayout(self.picwidget.layout)
         self.picwidget.populate(self.asset_category, None, None, self.infobox.setInformation)
+        self.changeStatus()
         return(self.picwidget)
 

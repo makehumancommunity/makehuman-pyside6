@@ -8,6 +8,7 @@ import json
 import glob
 from gui.application import QTVersion
 from opengl.main import GLVersion
+from core.baseobj import mhcloElem
 
 class globalObjects():
     def __init__(self, env):
@@ -22,7 +23,6 @@ class globalObjects():
     def reset(self):
         self.project_changed = False        # will contain if sth. has changed
         self.freeTextures()
-        self.Equipment = None               # points to EquipmentClass
         self.Targets = None                 # is a pointer to target objects
         self.targetCategories = None        # will contain the category object
         self.targetMacros     = None        # will contain macrodefinitions (JSON structure, if available)
@@ -595,8 +595,8 @@ class programInfo():
                     elif "tag" in line:         # allow tags with blanks
                         words = line.split()
                         tag.append(" ".join(words[1:]))
-
-                namematch.append([name, uuid, path, folder, thumbfile, author, tag])
+        
+                namematch.append(mhcloElem(name, uuid, path, folder, thumbfile, author, tag))
 
         return (namematch)
 

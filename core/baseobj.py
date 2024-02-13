@@ -23,6 +23,25 @@ class MakeHumanModel():
                     text += (" %s = %r\n" % (attr, m))
         return(text)
 
+class mhcloElem():
+    def __init__(self, name, uuid, path, folder, thumbfile, author, tag):
+        self.name = name
+        self.uuid = uuid
+        self.folder = folder
+        self.path = path
+        self.thumbfile = thumbfile
+        self.author = author
+        self.tag = tag
+        self.used = False
+
+    def __str__(self):
+        text = ""
+        for attr in dir(self):
+            if not attr.startswith("__"):
+                m = getattr(self, attr)
+                if isinstance(m, int) or isinstance(m, str) or  isinstance(m, list):
+                    text += (" %s = %r\n" % (attr, m))
+        return(text)
 
 class baseClass():
     """
@@ -34,12 +53,16 @@ class baseClass():
         self.dirname = dirname        # contains dirname of the obj (to determine user or system space)
         self.baseMesh = None
         self.baseInfo = None
-        self.mhclo_namemap = None
+        self.mhclo_namemap = []
         self.attachedAssets = []
         self.env.logLine(2, "New baseClass: " + name)
         memInfo()
         self.env.basename = name
         self.name = name                # will hold the character name
+
+    def noAssetsUsed(self):
+        for elem in self.mhclo_namemap:
+            elem.used = False
 
     def loadMHMFile(self, filename):
         """
@@ -83,13 +106,16 @@ class baseClass():
         fp.close()
 
         # get filename via mapping and connect relative material path to attached assets
+        # set used assets in mapping
         #
+        self.noAssetsUsed()
         for elem in loaded.attached:
             name = elem[0]
             uuid = elem[2]
             for mapping in self.mhclo_namemap:
-                if name == mapping[0] and uuid == mapping[1]:
-                    elem[4] = mapping[2]
+                if name == mapping.name and uuid == mapping.uuid:
+                    elem[4] = mapping.path
+                    mapping.used = True
             for mat in loaded.materials:
                 if mat[0] == name and mat[1] == uuid:
                     elem[3] = mat[2]
@@ -187,6 +213,8 @@ class baseClass():
             return (False)
 
         self.mhclo_namemap = self.env.fileScanBaseFolder(".mhclo")
+        for elem in self.mhclo_namemap:
+            print (elem)
 
         name = os.path.join(self.dirname, "base.obj")
 
@@ -216,7 +244,8 @@ class baseClass():
         if "modifier-presets" in self.baseInfo:
             target.modifierPresets (self.baseInfo["modifier-presets"])
         #
-        # attach the assets to the basemesh. TODO works only with system space!!!
+        # TODO: attach the assets to the basemesh. works only with system space!!!
+        # it is possible to change that to a default mhm later because a lot must be solved the same way
         #
         if "meshes" in self.baseInfo:
             attach = attachedAsset(self.glob)
@@ -227,6 +256,9 @@ class baseClass():
                 name = os.path.join(self.env.path_sysdata, elem["cat"], self.env.basename, elem["name"])
                 print ("Load: " + name)
                 (res, text) = attach.textLoad(name)
+                for mapping in self.mhclo_namemap:
+                    if mapping.path == name:
+                        mapping.used = True
                 if res is True:
                     name = os.path.join(self.env.path_sysdata, elem["cat"], self.env.basename, attach.obj_file)
                     obj = object3d(self.glob, None)

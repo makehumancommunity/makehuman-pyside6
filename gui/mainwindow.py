@@ -103,13 +103,13 @@ class MHMainWindow(QMainWindow):
         equip_act3.triggered.connect(self.equip_call3)
 
 
-        self.clothes = Equipment(self.glob, "clothes", True)
-        self.hair = Equipment(self.glob, "hair", False)
-        self.eyes = Equipment(self.glob, "eyes", False)
         if self.glob.baseClass is not None:
-            self.clothes.prepare(self.glob.baseClass.mhclo_namemap)
-            self.hair.prepare(self.glob.baseClass.mhclo_namemap)
-            self.eyes.prepare(self.glob.baseClass.mhclo_namemap)
+            self.clothes = Equipment(self.glob, self.glob.baseClass.mhclo_namemap, "clothes", True)
+            self.hair =    Equipment(self.glob, self.glob.baseClass.mhclo_namemap, "hair", False)
+            self.eyes =    Equipment(self.glob, self.glob.baseClass.mhclo_namemap, "eyes", False)
+            self.clothes.prepare()
+            self.hair.prepare()
+            self.eyes.prepare()
 
         self.createCentralWidget()
         self.setWindowTitle("default character")
