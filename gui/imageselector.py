@@ -325,7 +325,7 @@ class InformationBox(QWidget):
 
     def setInformation(self, asset):
         self.selectedName.setText("Name: " + asset.name + "\n" + "Author: " + asset.author)
-        self.tagbox.setPlainText("\n".join(l.replace(":", " >> ") for l in asset.tags))
+        self.tagbox.setPlainText("\n".join(l.replace(":", " \u23f5 ") for l in asset.tags)) # triangle as arrow
 
 class FilterTree(QTreeView):
     """

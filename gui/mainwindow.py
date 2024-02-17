@@ -17,6 +17,25 @@ from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
 import os
 
+class IconButton(QPushButton):
+    def __init__(self, funcid, path, tip, func):
+        self._funcid = funcid
+        icon  = QIcon(path)
+        super().__init__()
+        self.setIcon(icon)
+        self.setIconSize(QSize(36,36))
+        self.setCheckable(True)
+        self.setFixedSize(40,40)
+        self.setToolTip(tip)
+        if func is not None:
+            self.clicked.connect(func)
+
+
+class ActionID(QAction):
+    def __init__(self, text, funcid, parent):
+        self._funcid = funcid
+        super().__init__(text, parent)
+
 
 class MHMainWindow(QMainWindow):
     """
@@ -34,15 +53,70 @@ class MHMainWindow(QMainWindow):
         self.rightColumn = None
         self.graph = None
         self.qTree = None
+
+        self.BaseBox = None         # layouts to fill
+        self.ToolBox = None
+        self.ButtonBox = None
+        self.CategoryBox = None
+
         self.in_close = False
         self.targetfilter = None
         self.bckproc = None         # background process is running
         self.prog_window = None     # will hold the progress window
-        self.tool_mode = 0          # 0 = nothing, 1 = morph, 2 = assets
 
-        self.clothes = None         # TODO make that flexible
-        self.hair = None
-        self.eyes = None
+        self.tool_mode = 0          # 0 = files, 1 = modelling, 2 = equipment, 3 = pose, 4 render
+        self.category_mode = 0      # the categories according to tool_mode
+
+        self.equipment = [
+                { "func": None, "menu": None, "name": "clothes", "mult": True },
+                { "func": None, "menu": None, "name": "hair", "mult": False },
+                { "func": None, "menu": None, "name": "eyes", "mult": False },
+                { "func": None, "menu": None, "name": "eyebrows", "mult": False },
+                { "func": None, "menu": None, "name": "eyelashes", "mult": False },
+                { "func": None, "menu": None, "name": "tongue", "mult": False },
+                { "func": None, "menu": None, "name": "topology", "mult": False }
+        ]
+
+        self.model_buttons = [ 
+                { "button": None, "icon": "reset.png", "tip": "Reset all targets", "func": self.reset_call},
+                { "button": None, "icon": "symm1.png", "tip": "Symmetry, left to right", "func": None },
+                { "button": None, "icon": "symm2.png", "tip": "Symmetry, right to left", "func": None },
+                { "button": None, "icon": "symm.png", "tip": "Symmetry applied always", "func": None }
+        ]
+
+        self.tool_buttons = [ 
+                { "button": None, "icon": "empty_button.png", "tip": "Files", "func": self.setCategoryIcons},
+                { "button": None, "icon": "empty_button.png", "tip": "Modelling, Change character", "func": self.setCategoryIcons},
+                { "button": None, "icon": "empty_button.png", "tip": "Add equipment", "func": self.setCategoryIcons },
+                { "button": None, "icon": "empty_button.png", "tip": "Pose", "func": self.setCategoryIcons },
+                { "button": None, "icon": "empty_button.png", "tip": "Render", "func": self.setCategoryIcons }
+        ]
+        self.category_buttons = [
+            [ 
+                { "button": None, "icon": "empty_button.png", "tip": "new basemesh", "func": self.callCategory},
+                { "button": None, "icon": "empty_button.png", "tip": "load character", "func": self.callCategory},
+                { "button": None, "icon": "empty_button.png", "tip": "save character", "func": self.callCategory},
+                { "button": None, "icon": "empty_button.png", "tip": "export character", "func": self.callCategory},
+                { "button": None, "icon": "empty_button.png", "tip": "download assets", "func": self.callCategory}
+            ], [ 
+            ], [
+                { "button": None, "icon": "eq_clothes.png", "tip": "Clothes", "func": self.callCategory },
+                { "button": None, "icon": "eq_hair.png", "tip": "Hair", "func": self.callCategory },
+                { "button": None, "icon": "eq_eyes.png", "tip": "Eyes", "func": self.callCategory },
+                { "button": None, "icon": "eq_eyebrows.png", "tip": "Eyebrows", "func": self.callCategory },
+                { "button": None, "icon": "eq_eyelashes.png", "tip": "Eyelashes", "func": self.callCategory },
+                { "button": None, "icon": "empty_button.png", "tip": "Tongue", "func": self.callCategory },
+                { "button": None, "icon": "empty_button.png", "tip": "Topology, Proxies", "func": self.callCategory }
+            ], [
+                { "button": None, "icon": "empty_button.png", "tip": "skeleton", "func": self.callCategory},
+                { "button": None, "icon": "empty_button.png", "tip": "pose", "func": self.callCategory},
+                { "button": None, "icon": "empty_button.png", "tip": "animation", "func": self.callCategory},
+                { "button": None, "icon": "empty_button.png", "tip": "expressions", "func": self.callCategory},
+                { "button": None, "icon": "empty_button.png", "tip": "expression editor", "func": self.callCategory}
+            ], [
+            ]
+        ]
+
         super().__init__()
 
         s = env.session["mainwinsize"]
@@ -95,21 +169,28 @@ class MHMainWindow(QMainWindow):
         base_act.triggered.connect(self.base_call)
         morph_act = tools_menu.addAction("Change Character")
         morph_act.triggered.connect(self.morph_call)
-        equip_act = tools_menu.addAction("Character Clothes")
-        equip_act.triggered.connect(self.equip_call)
-        equip_act2 = tools_menu.addAction("Character Hair")
-        equip_act2.triggered.connect(self.equip_call2)
-        equip_act3 = tools_menu.addAction("Character Eyes")
-        equip_act3.triggered.connect(self.equip_call3)
 
+        equip = tools_menu.addMenu("Equipment")
 
         if self.glob.baseClass is not None:
-            self.clothes = Equipment(self.glob, self.glob.baseClass.mhclo_namemap, "clothes", True)
-            self.hair =    Equipment(self.glob, self.glob.baseClass.mhclo_namemap, "hair", False)
-            self.eyes =    Equipment(self.glob, self.glob.baseClass.mhclo_namemap, "eyes", False)
-            self.clothes.prepare()
-            self.hair.prepare()
-            self.eyes.prepare()
+            for elem in self.equipment:
+                elem["func"] = Equipment(self.glob, self.glob.baseClass.mhclo_namemap, elem["name"], elem["mult"])
+                elem["func"].prepare()
+                elem["menu"] = equip.addAction(elem["name"])
+                elem["menu"].triggered.connect(self.equip_call)
+
+        # generate tool buttons, model_buttons (save ressources)
+        #
+        for elem in (self.tool_buttons, self.model_buttons):
+            for n, b in enumerate(elem):
+                b["button"] = IconButton(n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"])
+
+        # generate category buttons
+        #
+        for m, tool in enumerate(self.category_buttons):
+            offset = (m + 1) * 100
+            for n, b in enumerate(tool):
+                b["button"] = IconButton(offset+n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"])
 
         self.createCentralWidget()
         self.setWindowTitle("default character")
@@ -154,16 +235,54 @@ class MHMainWindow(QMainWindow):
         return (None)
 
 
+    def buttonRow(self, subtool):
+        if len(subtool) == 0:
+            return (None)
+        row=QHBoxLayout()
+        for n, b in enumerate(subtool):
+            row.addWidget(b["button"])
+        row.addStretch()
+        return(row)
+
+    def markSelectedButtons(self, row, button):
+        sel = button["button"]
+        for elem in row:
+            b = elem["button"]
+            if b == sel:
+                b.setChecked(True)
+                b.setStyleSheet("background-color : orange")
+            else:
+                b.setChecked(False)
+                b.setStyleSheet("background-color : lightgrey")
+
+    def setCategoryIcons(self):
+        s = self.sender()
+        self.setToolModeAndPanel(s._funcid, 0)
+
+    def callCategory(self):
+        s = self.sender()
+        m = s._funcid -100
+        self.setToolModeAndPanel(m // 100, m % 100)
+
     def createCentralWidget(self):
         """
         create central widget, shown by default or by using connect/disconnect button from graphics window
         """
         env = self.env
         self.central_widget = QWidget()
-        hLayout = QHBoxLayout()
 
-        # left side, BasePanel
+        hLayout = QHBoxLayout()         # 3 columns
+
+        # left side, first button box, then base panel
         #
+        self.ButtonBox = QVBoxLayout()
+
+        row = self.buttonRow(self.tool_buttons)
+        self.ButtonBox.addLayout(row)
+
+        self.CategoryBox= self.buttonRow(self.category_buttons[0])
+        self.ButtonBox.addLayout(self.CategoryBox)
+
         groupBase = QGroupBox("Basic Operations")
         groupBase.setMinimumWidth(300)
         self.BaseBox = QVBoxLayout()
@@ -171,7 +290,8 @@ class MHMainWindow(QMainWindow):
         self.drawBasePanel()
         groupBase.setMaximumWidth(400)
         groupBase.setLayout(self.BaseBox)
-        hLayout.addWidget(groupBase)
+        self.ButtonBox.addWidget(groupBase)
+        hLayout.addLayout(self.ButtonBox)
 
         # create window for internal or external use
         #
@@ -219,11 +339,16 @@ class MHMainWindow(QMainWindow):
                 self.basewidget.setCurrentItem(items[0])
         layout.addWidget(self.basewidget)
 
+
     def drawBasePanel(self):
         """
         draw left panel
         """
         env = self.env
+
+        # extra code for no basemesh selected
+        #
+
 
         if self.tool_mode == 0 or env.basename is None:
             bgroupBox = QGroupBox("base mesh")
@@ -237,25 +362,18 @@ class MHMainWindow(QMainWindow):
             self.BaseBox.addWidget(bgroupBox)
             self.BaseBox.addStretch()
             return
-
+        
         if self.tool_mode == 1:
             if self.glob.targetCategories is not None:
-                buttonr = QPushButton("Reset all Targets")
-                buttonr.clicked.connect(self.reset_call)
-                self.BaseBox.addWidget(buttonr)
                 self.qTree = MHTreeView(self.glob.targetCategories, "Modelling", self.redrawNewCategory, None)
                 self.targetfilter = self.qTree.getStartPattern()
                 self.BaseBox.addWidget(self.qTree)
+                row = self.buttonRow(self.model_buttons)
+                self.BaseBox.addLayout(row)
             else:
                 self.env.logLine(1, self.env.last_error )
         elif self.tool_mode == 2:
-            widget = self.clothes.leftPanel()
-            self.BaseBox.addWidget(widget)
-        elif self.tool_mode == 3:
-            widget = self.hair.leftPanel()
-            self.BaseBox.addWidget(widget)
-        elif self.tool_mode == 4:
-            widget = self.eyes.leftPanel()
+            widget = self.equipment[self.category_mode]["func"].leftPanel()
             self.BaseBox.addWidget(widget)
         self.BaseBox.addStretch()
 
@@ -281,40 +399,51 @@ class MHMainWindow(QMainWindow):
         scrollArea.setWidget(widget)
         scrollArea.setWidgetResizable(True)
         scrollArea.setHorizontalScrollBarPolicy( Qt.ScrollBarAlwaysOff )
-        #self.ToolBox.addWidget(widget)
         self.ToolBox.addWidget(scrollArea)
 
     def drawToolPanel(self, text="None"):
         #
-        # works according to tool_mode
+        # works according to tool_mode and category_mode
         #
-        print (self.tool_mode)
+        print (self.tool_mode, self.category_mode)
         if self.tool_mode == 0:
             self.rightColumn.setTitle("Toolpannel")
         elif self.tool_mode == 1:
             self.drawMorphPanel(text)
         elif self.tool_mode == 2:
-            self.drawEquipPanel(self.clothes, "clothes")
-        elif self.tool_mode == 3:
-            self.drawEquipPanel(self.hair, "hair")
-        elif self.tool_mode == 4:
-            self.drawEquipPanel(self.eyes, "eyes")
+            equip = self.equipment[self.category_mode]
+            self.drawEquipPanel(equip["func"], equip["name"])
+
 
     def emptyLayout(self, layout):
         if layout is not None:
-            while layout.count():
-                item = layout.takeAt(0)
-                widget = item.widget()
-                if widget is not None:
-                    widget.deleteLater()
-                #else:
-                #    self.clearLayout(item.layout())
+            #print("-- -- input layout: "+str(layout))
+            for i in reversed(range(layout.count())):
+                layoutItem = layout.itemAt(i)
+                if layoutItem.widget() is not None:
+                    widgetToRemove = layoutItem.widget()
+                    widgetToRemove.setParent(None)
+                    layout.removeWidget(widgetToRemove)
+                    #print("found widget: " + str(widgetToRemove))
+                elif layoutItem.spacerItem() is not None:
+                    layout.removeItem(layoutItem)
+                else:
+                    layoutToRemove = layout.itemAt(i)
+                    self.emptyLayout(layoutToRemove)
 
-    def setToolModeAndPanel(self,newmode):
-        if self.tool_mode != newmode:
+    def setToolModeAndPanel(self, tool, category):
+        if self.tool_mode != tool or self.category_mode != category:
             self.emptyLayout(self.BaseBox)
             self.emptyLayout(self.ToolBox)
-            self.tool_mode = newmode
+            self.emptyLayout(self.CategoryBox)
+            self.tool_mode = tool
+            self.category_mode = category
+            self.markSelectedButtons(self.tool_buttons, self.tool_buttons[tool])
+            buttons = self.category_buttons[tool]
+            self.CategoryBox= self.buttonRow(buttons)
+            if self.CategoryBox is not None:
+                self.ButtonBox.insertLayout(1, self.CategoryBox)
+                self.markSelectedButtons(buttons, buttons[category])
             self.drawBasePanel()
             self.drawToolPanel()
 
@@ -332,19 +461,17 @@ class MHMainWindow(QMainWindow):
         self.quit_call(event)
 
     def base_call(self):
-        self.setToolModeAndPanel(0)
+        self.setToolModeAndPanel(0, 0)
 
     def morph_call(self):
-        self.setToolModeAndPanel(1)
+        self.setToolModeAndPanel(1, 0)
 
     def equip_call(self):
-        self.setToolModeAndPanel(2)
-
-    def equip_call2(self):
-        self.setToolModeAndPanel(3)
-
-    def equip_call3(self):
-        self.setToolModeAndPanel(4)
+        s = self.sender()
+        for n, elem in enumerate(self.equipment):
+            if elem["menu"] == s:
+                self.setToolModeAndPanel(2, n)
+                break
 
     def pref_call(self):
         """
@@ -389,7 +516,7 @@ class MHMainWindow(QMainWindow):
                 directory = os.path.join(self.env.path_userdata, "models", self.env.basename)
                 filename = self.fileRequest("Model", "Model files (*.mhm)", directory)
                 if filename is not None:
-                    self.setToolModeAndPanel(0)
+                    self.setToolModeAndPanel(0, 0)
                     self.graph.view.noAssets()
                     self.glob.freeTextures()
                     self.glob.baseClass.loadMHMFile(filename)
