@@ -95,7 +95,7 @@ class PicFlowLayout(QLayout):
     """
     multiSel: multiple selection, will change refresh method
     """
-    def __init__(self, multiSel: False, emptyIcon: str="", parent: QWidget=None, margin: int=-1, hSpacing: int=-1, vSpacing: int=-1):
+    def __init__(self, multiSel: False, callback, emptyIcon: str="", parent: QWidget=None, margin: int=-1, hSpacing: int=-1, vSpacing: int=-1):
 
         super().__init__(parent)
 
@@ -105,6 +105,7 @@ class PicFlowLayout(QLayout):
         self.m_vSpace = vSpacing
         self.multiSel = multiSel
         self.empty = emptyIcon
+        self.callback = callback
         self.setContentsMargins(margin, margin, margin, margin)
 
     def __del__(self):
@@ -233,6 +234,10 @@ class PicFlowLayout(QLayout):
 
         return y + lineHeight - rect.y() + bottom
 
+    def updateAsset(self, current):
+        self.callback(current.asset)
+        self.refreshAllWidgets(current)
+
     def populate(self, assetlist, ruleset, filtertext, displayInfo):
         """
         :assetlist: complete asset list to be considered
@@ -283,7 +288,7 @@ class PicFlowLayout(QLayout):
                 display = fdisplay & display
 
             if display:
-                button1 = PictureButton(asset, self.empty, self.refreshAllWidgets, displayInfo)
+                button1 = PictureButton(asset, self.empty, self.updateAsset, displayInfo)
                 button1.pressed.connect(button1.btnstate)
                 self.addWidget (button1)
 
@@ -294,9 +299,9 @@ class PicSelectWidget(QWidget):
     :param name: headline (default selection)
     :param multiSel: multiple selection 
     """
-    def __init__(self, name="Selection", multiSel=False, emptyIcon=""):
+    def __init__(self, name="Selection", callback=None, multiSel=False, emptyIcon=""):
         self.multiSel =  multiSel
-        self.layout = PicFlowLayout(multiSel=multiSel,  emptyIcon=emptyIcon)
+        self.layout = PicFlowLayout(multiSel=multiSel, callback=callback,  emptyIcon=emptyIcon)
         super().__init__()
 
     def refreshAllWidgets(self, current):
@@ -500,6 +505,14 @@ class Equipment():
         for elem in self.asset_category:
             elem.status = 1 if elem.filename in checked else 0
 
+    def equipAsset(self, asset):
+        print (asset)
+        if asset.status == 0:
+            self.glob.baseClass.delAsset(asset.filename)
+        elif asset.status == 1:
+            print ("add: " + asset.filename)
+            #self.glob.baseClass.addAsset(asset.filename, None)
+
     def leftPanel(self):
         """
         done first
@@ -528,7 +541,7 @@ class Equipment():
         """
         draw tools Panel
         """
-        self.picwidget = PicSelectWidget("Clothes", multiSel=self.multisel, emptyIcon=self.emptyIcon)
+        self.picwidget = PicSelectWidget("Clothes", multiSel=self.multisel, callback=self.equipAsset, emptyIcon=self.emptyIcon)
         self.filterview.setPicLayout(self.picwidget.layout)
         self.picwidget.populate(self.asset_category, None, None, self.infobox.setInformation)
         self.changeStatus()

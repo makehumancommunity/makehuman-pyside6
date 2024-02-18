@@ -68,6 +68,7 @@ class RenderedObject:
         self.mvp_matrix = QMatrix4x4()
         self.model_matrix = QMatrix4x4()
         self.normal_matrix = QMatrix4x4()
+        self.vert_buffers = vert_buffers
 
         self.vert_pos_buffer = vert_buffers.vert_pos_buffer
         self.indices = vert_buffers.indices
@@ -82,6 +83,9 @@ class RenderedObject:
         self.texture = texture
 
         self.position = pos
+
+    def delete(self):
+        self.vert_buffers.Delete()
 
     def setTexture(self, texture):
         functions = self.context.functions()

@@ -181,6 +181,15 @@ class baseClass():
 
         fp.close()
 
+    def delAsset(self, filename):
+        for elem in self.attachedAssets:
+            if elem.filename == filename:
+                self.glob.openGLWindow.deleteObject(elem.obj)
+                self.attachedAssets.remove(elem)
+                break
+
+        # TODO used count, check memory
+
     def addAsset(self, path, material):
         print ("Attach: " + path)
         attach = attachedAsset(self.glob)

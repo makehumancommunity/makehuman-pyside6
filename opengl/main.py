@@ -61,11 +61,13 @@ class OpenGLView(QOpenGLWidget):
         else:
             if hasattr(obj.material, 'diffuseTexture'):
                 texture = obj.material.loadTexture(obj.material.diffuseTexture)
-        obj = RenderedObject(self.context(), glbuffer, self.mh_shaders._shaders[0], texture, pos=QVector3D(0, 0, 0))
-        self.objects.append(obj)
+        obj.openGL = RenderedObject(self.context(), glbuffer, self.mh_shaders._shaders[0], texture, pos=QVector3D(0, 0, 0))
+        self.objects.append(obj.openGL)
 
     def deleteObject(self,obj):
-        pass
+        obj.openGL.delete()
+        self.objects.remove(obj.openGL)
+        self.Tweak()
 
     def newTexture(self, obj):
         print ("in new texture")

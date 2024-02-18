@@ -31,12 +31,6 @@ class IconButton(QPushButton):
             self.clicked.connect(func)
 
 
-class ActionID(QAction):
-    def __init__(self, text, funcid, parent):
-        self._funcid = funcid
-        super().__init__(text, parent)
-
-
 class MHMainWindow(QMainWindow):
     """
     Main Window class
@@ -73,6 +67,7 @@ class MHMainWindow(QMainWindow):
                 { "func": None, "menu": None, "name": "eyes", "mult": False },
                 { "func": None, "menu": None, "name": "eyebrows", "mult": False },
                 { "func": None, "menu": None, "name": "eyelashes", "mult": False },
+                { "func": None, "menu": None, "name": "teeth", "mult": False },
                 { "func": None, "menu": None, "name": "tongue", "mult": False },
                 { "func": None, "menu": None, "name": "topology", "mult": False }
         ]
@@ -105,6 +100,7 @@ class MHMainWindow(QMainWindow):
                 { "button": None, "icon": "eq_eyes.png", "tip": "Eyes", "func": self.callCategory },
                 { "button": None, "icon": "eq_eyebrows.png", "tip": "Eyebrows", "func": self.callCategory },
                 { "button": None, "icon": "eq_eyelashes.png", "tip": "Eyelashes", "func": self.callCategory },
+                { "button": None, "icon": "empty_button.png", "tip": "Teeth", "func": self.callCategory },
                 { "button": None, "icon": "empty_button.png", "tip": "Tongue", "func": self.callCategory },
                 { "button": None, "icon": "empty_button.png", "tip": "Topology, Proxies", "func": self.callCategory }
             ], [

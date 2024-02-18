@@ -93,6 +93,7 @@ class attachedAsset:
         except IOError as err:
             return (False, str(err))
 
+        self.filename = filename
         #
         # status = 0, read normal
         #          1, read vertices
