@@ -64,6 +64,12 @@ class baseClass():
         for elem in self.mhclo_namemap:
             elem.used = False
 
+    def markAssetByFileName(self, path, value):
+        for elem in self.mhclo_namemap:
+            if elem.path == path:
+                elem.used = value
+                return
+
     def loadMHMFile(self, filename):
         """
         will usually load an mhm-file
@@ -186,11 +192,12 @@ class baseClass():
             if elem.filename == filename:
                 self.glob.openGLWindow.deleteObject(elem.obj)
                 self.attachedAssets.remove(elem)
+                self.markAssetByFileName(filename, False)
                 break
 
-        # TODO used count, check memory
+        # TODO check memory
 
-    def addAsset(self, path, material):
+    def addAsset(self, path, material=None):
         print ("Attach: " + path)
         attach = attachedAsset(self.glob)
         (res, text) = attach.textLoad(path)
@@ -201,11 +208,26 @@ class baseClass():
             if res is False:
                 self.env.logLine(1, err )
             else:
+                if material is not None:
+                    attach.material = material
                 attach.obj = obj
-                attach.material = material
-                print ("Material: " + material)
-                obj.loadMaterial(material)
-                self.attachedAssets.append(attach)
+                if attach.material is not None:
+                    print ("Material: " + attach.material)
+                    obj.loadMaterial(attach.material)
+                    self.attachedAssets.append(attach)
+                return(attach)
+        return (None)
+
+    def addAndDisplayAsset(self, path):
+        """
+        attach an asset and propagate to OpenGL
+        """
+        asset = self.addAsset(path)
+        if asset is not None:
+            self.markAssetByFileName(path, True)
+            asset.obj.approxByTarget(asset, self.baseMesh)
+            self.glob.openGLWindow.createObject(asset.obj)
+            self.glob.openGLWindow.Tweak()
 
     def prepareClass(self):
         self.env.logLine(2, "Prepare class called with: " + self.env.basename)

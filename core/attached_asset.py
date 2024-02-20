@@ -97,6 +97,8 @@ class attachedAsset:
         #
         # status = 0, read normal
         #          1, read vertices
+        #          2, read weights
+        #          3, read delete_verts
         #
         status = 0
         refVerts = [] # local reference for vertices
@@ -117,8 +119,10 @@ class attachedAsset:
                 status = 1
                 continue
             if key == "weights":
+                status = 2
                 continue
             elif key == "delete_verts":
+                status = 3
                 continue
 
             if status == 1:
@@ -129,6 +133,18 @@ class attachedAsset:
                 else:
                     refVert.fromTriple(words, vnum, self.vertWeights)
                 vnum += 1
+
+            elif status == 2:
+                #
+                # to do representation of weights
+                #
+                continue
+
+            elif status == 3:
+                #
+                # to do representation of vertices
+                #
+                continue
 
             if len(words) < 2 or status > 0:
                 continue

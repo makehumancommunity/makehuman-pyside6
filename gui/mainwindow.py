@@ -80,15 +80,15 @@ class MHMainWindow(QMainWindow):
         ]
 
         self.tool_buttons = [ 
-                { "button": None, "icon": "empty_button.png", "tip": "Files", "func": self.setCategoryIcons},
+                { "button": None, "icon": "home.png", "tip": "Files", "func": self.setCategoryIcons},
                 { "button": None, "icon": "empty_button.png", "tip": "Modelling, Change character", "func": self.setCategoryIcons},
                 { "button": None, "icon": "empty_button.png", "tip": "Add equipment", "func": self.setCategoryIcons },
                 { "button": None, "icon": "empty_button.png", "tip": "Pose", "func": self.setCategoryIcons },
-                { "button": None, "icon": "empty_button.png", "tip": "Render", "func": self.setCategoryIcons }
+                { "button": None, "icon": "render.png", "tip": "Render", "func": self.setCategoryIcons }
         ]
         self.category_buttons = [
             [ 
-                { "button": None, "icon": "empty_button.png", "tip": "new basemesh", "func": self.callCategory},
+                { "button": None, "icon": "f_newbase.png", "tip": "new basemesh", "func": self.callCategory},
                 { "button": None, "icon": "empty_button.png", "tip": "load character", "func": self.callCategory},
                 { "button": None, "icon": "empty_button.png", "tip": "save character", "func": self.callCategory},
                 { "button": None, "icon": "empty_button.png", "tip": "export character", "func": self.callCategory},
@@ -100,13 +100,13 @@ class MHMainWindow(QMainWindow):
                 { "button": None, "icon": "eq_eyes.png", "tip": "Eyes", "func": self.callCategory },
                 { "button": None, "icon": "eq_eyebrows.png", "tip": "Eyebrows", "func": self.callCategory },
                 { "button": None, "icon": "eq_eyelashes.png", "tip": "Eyelashes", "func": self.callCategory },
-                { "button": None, "icon": "empty_button.png", "tip": "Teeth", "func": self.callCategory },
-                { "button": None, "icon": "empty_button.png", "tip": "Tongue", "func": self.callCategory },
-                { "button": None, "icon": "empty_button.png", "tip": "Topology, Proxies", "func": self.callCategory }
+                { "button": None, "icon": "eq_teeth.png", "tip": "Teeth", "func": self.callCategory },
+                { "button": None, "icon": "eq_tongue.png", "tip": "Tongue", "func": self.callCategory },
+                { "button": None, "icon": "eq_proxy.png", "tip": "Topology, Proxies", "func": self.callCategory }
             ], [
-                { "button": None, "icon": "empty_button.png", "tip": "skeleton", "func": self.callCategory},
+                { "button": None, "icon": "an_skeleton.png", "tip": "skeleton", "func": self.callCategory},
                 { "button": None, "icon": "empty_button.png", "tip": "pose", "func": self.callCategory},
-                { "button": None, "icon": "empty_button.png", "tip": "animation", "func": self.callCategory},
+                { "button": None, "icon": "an_animation.png", "tip": "animation", "func": self.callCategory},
                 { "button": None, "icon": "empty_button.png", "tip": "expressions", "func": self.callCategory},
                 { "button": None, "icon": "empty_button.png", "tip": "expression editor", "func": self.callCategory}
             ], [
