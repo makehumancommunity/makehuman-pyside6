@@ -46,11 +46,20 @@ class globalObjects():
         if 0 < num <=5:
             self.textSlot[num-1] = target
 
-    def freeTextures(self):
+    def freeTextures(self, name=None):
+        """
+        central location to delete textures
+        """
         if hasattr(self, "textures"):
             t = self.textures
-            for elem in t:
-                t[elem].destroy()
+            if name is None:
+                for elem in t:
+                    t[elem].destroy()
+            else:
+                if name in t:
+                    t[name].destroy()
+                    del t[name]
+                    return
         self.textures = {}
 
     def addTexture(self, path, texture):

@@ -151,7 +151,7 @@ class baseClass():
         #
         for elem in loaded.attached:
             if elem[4] is not None:
-                self.addAsset(elem[4], elem[3])
+                self.addAsset(elem[4], elem[1], elem[3])
 
         # reset all targets and mesh, reset missing targets
         #
@@ -197,9 +197,10 @@ class baseClass():
 
         # TODO check memory
 
-    def addAsset(self, path, material=None):
+    def addAsset(self, path, eqtype, material=None):
         print ("Attach: " + path)
-        attach = attachedAsset(self.glob)
+        print ("Type: " + eqtype)
+        attach = attachedAsset(self.glob, eqtype)
         (res, text) = attach.textLoad(path)
         if res is True:
             print ("Object is:" + attach.obj_file)
@@ -218,11 +219,24 @@ class baseClass():
                 return(attach)
         return (None)
 
-    def addAndDisplayAsset(self, path):
+    def addAndDisplayAsset(self, path, eqtype, multi):
         """
         attach an asset and propagate to OpenGL
         """
-        asset = self.addAsset(path)
+
+        # avoid same asset (should not happen)
+        #
+        for elem in  self.attachedAssets:
+            if elem.filename == path:
+                return
+
+        if multi is False:
+            for elem in self.attachedAssets:
+                if elem.type == eqtype:
+                    print ("Need to delete: " + elem.filename)
+                    self.delAsset(elem.filename)
+
+        asset = self.addAsset(path, eqtype)
         if asset is not None:
             self.markAssetByFileName(path, True)
             asset.obj.approxByTarget(asset, self.baseMesh)
@@ -279,19 +293,19 @@ class baseClass():
         # it is possible to change that to a default mhm later because a lot must be solved the same way
         #
         if "meshes" in self.baseInfo:
-            attach = attachedAsset(self.glob)
 
             m = self.baseInfo["meshes"]
             for elem in m:
-                attach = attachedAsset(self.glob)
-                name = os.path.join(self.env.path_sysdata, elem["cat"], self.env.basename, elem["name"])
+                eqtype = elem["cat"]
+                attach = attachedAsset(self.glob, eqtype)
+                name = os.path.join(self.env.path_sysdata, eqtype, self.env.basename, elem["name"])
                 print ("Load: " + name)
                 (res, text) = attach.textLoad(name)
                 for mapping in self.mhclo_namemap:
                     if mapping.path == name:
                         mapping.used = True
                 if res is True:
-                    name = os.path.join(self.env.path_sysdata, elem["cat"], self.env.basename, attach.obj_file)
+                    name = os.path.join(self.env.path_sysdata, eqtype, self.env.basename, attach.obj_file)
                     obj = object3d(self.glob, None)
                     (res, err) = obj.load(name)
                     if res is False:

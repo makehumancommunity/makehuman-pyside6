@@ -510,7 +510,7 @@ class Equipment():
         if asset.status == 0:
             self.glob.baseClass.delAsset(asset.filename)
         elif asset.status == 1:
-            self.glob.baseClass.addAndDisplayAsset(asset.filename)
+            self.glob.baseClass.addAndDisplayAsset(asset.filename, self.type, self.multisel)
 
     def leftPanel(self):
         """

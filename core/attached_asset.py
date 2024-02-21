@@ -56,9 +56,10 @@ class referenceVerts:
 
 
 class attachedAsset:
-    def __init__(self, glob):
+    def __init__(self, glob, eqtype):
         self.glob = glob
         self.env = glob.env
+        self.type = eqtype          # asset type
         self.tags = []
         self.version = 110
         self.z_depth = 50

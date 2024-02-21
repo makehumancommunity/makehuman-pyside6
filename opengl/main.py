@@ -66,11 +66,12 @@ class OpenGLView(QOpenGLWidget):
 
     def deleteObject(self,obj):
         obj.openGL.delete()
+        if hasattr(obj.material, 'diffuseTexture'):
+            self.glob.freeTextures(obj.material.diffuseTexture)
         self.objects.remove(obj.openGL)
         self.Tweak()
 
     def newTexture(self, obj):
-        print ("in new texture")
         
         if hasattr(obj.material, 'diffuseTexture'):
             self.texture = obj.material.loadTexture(obj.material.diffuseTexture)

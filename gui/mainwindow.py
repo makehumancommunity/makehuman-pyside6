@@ -80,18 +80,18 @@ class MHMainWindow(QMainWindow):
         ]
 
         self.tool_buttons = [ 
-                { "button": None, "icon": "home.png", "tip": "Files", "func": self.setCategoryIcons},
-                { "button": None, "icon": "empty_button.png", "tip": "Modelling, Change character", "func": self.setCategoryIcons},
-                { "button": None, "icon": "empty_button.png", "tip": "Add equipment", "func": self.setCategoryIcons },
-                { "button": None, "icon": "empty_button.png", "tip": "Pose", "func": self.setCategoryIcons },
+                { "button": None, "icon": "files.png", "tip": "Files", "func": self.setCategoryIcons},
+                { "button": None, "icon": "sculpt.png", "tip": "Modelling, Change character", "func": self.setCategoryIcons},
+                { "button": None, "icon": "equip.png", "tip": "Add equipment", "func": self.setCategoryIcons },
+                { "button": None, "icon": "pose.png", "tip": "Pose", "func": self.setCategoryIcons },
                 { "button": None, "icon": "render.png", "tip": "Render", "func": self.setCategoryIcons }
         ]
         self.category_buttons = [
             [ 
                 { "button": None, "icon": "f_newbase.png", "tip": "new basemesh", "func": self.callCategory},
-                { "button": None, "icon": "empty_button.png", "tip": "load character", "func": self.callCategory},
-                { "button": None, "icon": "empty_button.png", "tip": "save character", "func": self.callCategory},
-                { "button": None, "icon": "empty_button.png", "tip": "export character", "func": self.callCategory},
+                { "button": None, "icon": "f_load.png", "tip": "load character", "func": self.callCategory},
+                { "button": None, "icon": "f_save.png", "tip": "save character", "func": self.callCategory},
+                { "button": None, "icon": "f_export.png", "tip": "export character", "func": self.callCategory},
                 { "button": None, "icon": "empty_button.png", "tip": "download assets", "func": self.callCategory}
             ], [ 
             ], [
@@ -104,11 +104,11 @@ class MHMainWindow(QMainWindow):
                 { "button": None, "icon": "eq_tongue.png", "tip": "Tongue", "func": self.callCategory },
                 { "button": None, "icon": "eq_proxy.png", "tip": "Topology, Proxies", "func": self.callCategory }
             ], [
-                { "button": None, "icon": "an_skeleton.png", "tip": "skeleton", "func": self.callCategory},
-                { "button": None, "icon": "empty_button.png", "tip": "pose", "func": self.callCategory},
-                { "button": None, "icon": "an_animation.png", "tip": "animation", "func": self.callCategory},
-                { "button": None, "icon": "empty_button.png", "tip": "expressions", "func": self.callCategory},
-                { "button": None, "icon": "empty_button.png", "tip": "expression editor", "func": self.callCategory}
+                { "button": None, "icon": "an_skeleton.png", "tip": "Skeleton", "func": self.callCategory},
+                { "button": None, "icon": "empty_button.png", "tip": "Single pose", "func": self.callCategory},
+                { "button": None, "icon": "empty_button.png", "tip": "Animation", "func": self.callCategory},
+                { "button": None, "icon": "an_expression.png", "tip": "Expressions", "func": self.callCategory},
+                { "button": None, "icon": "empty_button.png", "tip": "Expression editor", "func": self.callCategory}
             ], [
             ]
         ]
