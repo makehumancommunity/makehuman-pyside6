@@ -1,4 +1,5 @@
 import os
+from core.debug import dumper
 from core.target import Targets
 from core.attached_asset import attachedAsset
 from obj3d.object3d import object3d
@@ -15,13 +16,7 @@ class MakeHumanModel():
         self.materials = []
 
     def __str__(self):
-        text = ""
-        for attr in dir(self):
-            if not attr.startswith("__"):
-                m = getattr(self, attr)
-                if isinstance(m, int) or isinstance(m, str) or  isinstance(m, list):
-                    text += (" %s = %r\n" % (attr, m))
-        return(text)
+        return(dumper(self))
 
 class mhcloElem():
     def __init__(self, name, uuid, path, folder, thumbfile, author, tag):
@@ -35,13 +30,19 @@ class mhcloElem():
         self.used = False
 
     def __str__(self):
-        text = ""
-        for attr in dir(self):
-            if not attr.startswith("__"):
-                m = getattr(self, attr)
-                if isinstance(m, int) or isinstance(m, str) or  isinstance(m, list):
-                    text += (" %s = %r\n" % (attr, m))
-        return(text)
+        return(dumper(self))
+
+class loadEquipment():
+    """
+    class to hold equipment while loading mhm to calculate absolute pathes and materials
+    """
+    def __init__(self, eqtype, name, uuid, path, materialpath, relmaterial):
+        self.type =  eqtype
+        self.name =  name
+        self.uuid =  uuid
+        self.path =  path
+        self.material =  materialpath
+        self.relmaterial =  relmaterial
 
 class baseClass():
     """
@@ -55,6 +56,7 @@ class baseClass():
         self.baseInfo = None
         self.mhclo_namemap = []
         self.attachedAssets = []
+        self.skinMaterial = None
         self.env.logLine(2, "New baseClass: " + name)
         memInfo()
         self.env.basename = name
@@ -105,7 +107,7 @@ class baseClass():
 
                 # attached assets consists of name, type and uuid (material)
                 #
-                loaded.attached.append([words[1], key, words[2], None, None])
+                loaded.attached.append(loadEquipment(key, words[1], words[2], None, None, None))
             else:
                 print (key + " is still unknown")
 
@@ -116,31 +118,29 @@ class baseClass():
         #
         self.noAssetsUsed()
         for elem in loaded.attached:
-            name = elem[0]
-            uuid = elem[2]
             for mapping in self.mhclo_namemap:
-                if name == mapping.name and uuid == mapping.uuid:
-                    elem[4] = mapping.path
+                if elem.name == mapping.name and elem.uuid == mapping.uuid:
+                    elem.path = mapping.path
                     mapping.used = True
             for mat in loaded.materials:
-                if mat[0] == name and mat[1] == uuid:
-                    elem[3] = mat[2]
+                if mat[0] == elem.name and mat[1] == elem.uuid:
+                    elem.relmaterial = mat[2]
                     break
 
         del loaded.materials
 
-        # replace relative material path by absolute path
+        # set absolute path for material
         #
         for elem in loaded.attached:
-            print (elem)
-            filename = self.env.existFileInBaseFolder(self.env.basename, elem[1], elem[0], elem[3])
+            filename = self.env.existFileInBaseFolder(self.env.basename, elem.type, elem.name, elem.relmaterial)
             if filename is not None:
-                elem[3] = filename
+                elem.material = filename
 
         if loaded.name is not None:
             self.name = loaded.name
 
         if loaded.skinMaterial is not None:
+            self.skinMaterial = loaded.skinMaterial
             filename = self.env.existDataFile("skins", self.env.basename, os.path.basename(loaded.skinMaterial))
             if filename is not None:
                 self.baseMesh.loadMaterial(filename, os.path.dirname(filename))
@@ -150,8 +150,8 @@ class baseClass():
         # now load attached meshes
         #
         for elem in loaded.attached:
-            if elem[4] is not None:
-                self.addAsset(elem[4], elem[1], elem[3])
+            if elem.path is not None:
+                self.addAsset(elem.path, elem.type, elem.material, elem.relmaterial)
 
         # reset all targets and mesh, reset missing targets
         #
@@ -185,6 +185,21 @@ class baseClass():
                 if target.value != 0.0 and target.pattern != "None":
                     fp.write ("modifier " + target.pattern + " " + str(target.value / 100) + "\n")
 
+        # assets
+        #
+        for elem in self.attachedAssets:
+            fp.write (elem.type + " " + elem.name + " " +  elem.uuid + "\n")
+
+        # skinmaterial
+        if self.skinMaterial:
+            fp.write ("skinMaterial " + self.skinMaterial + "\n")
+
+        # materials (elem.materialsource is None if material is unchanged, so no save)
+        #
+        for elem in self.attachedAssets:
+            if  elem.materialsource is not None:
+                fp.write ("material " + elem.name + " " +  elem.uuid + " " + elem.materialsource + "\n")
+        
         fp.close()
 
     def delAsset(self, filename):
@@ -197,7 +212,7 @@ class baseClass():
 
         # TODO check memory
 
-    def addAsset(self, path, eqtype, material=None):
+    def addAsset(self, path, eqtype, materialpath=None, materialsource=None):
         print ("Attach: " + path)
         print ("Type: " + eqtype)
         attach = attachedAsset(self.glob, eqtype)
@@ -209,8 +224,9 @@ class baseClass():
             if res is False:
                 self.env.logLine(1, err )
             else:
-                if material is not None:
-                    attach.material = material
+                if materialpath is not None:
+                    attach.material = materialpath
+                    attach.materialsource = materialsource
                 attach.obj = obj
                 if attach.material is not None:
                     print ("Material: " + attach.material)

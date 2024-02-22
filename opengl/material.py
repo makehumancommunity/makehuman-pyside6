@@ -2,6 +2,8 @@ from PySide6.QtOpenGL import QOpenGLTexture
 from PySide6.QtGui import QImage
 
 import os
+from core.debug import dumper
+
 
 """
     try to put all Texture and Material Stuff here
@@ -29,13 +31,7 @@ class Material:
         self.tags = []
 
     def __str__(self):
-        text = ""
-        for attr in dir(self):
-            if not attr.startswith("__"):
-                m = getattr(self, attr)
-                if isinstance(m, int) or isinstance(m, str) or  isinstance(m, list):
-                    text += (" %s = %r\n" % (attr, m))
-        return(text)
+        return(dumper(self))
 
     def isExistent(self, filename):
         """

@@ -1,5 +1,6 @@
 import os
 import numpy as np
+from core.debug import dumper
 
 class referenceVerts:
     def __init__(self):
@@ -70,17 +71,12 @@ class attachedAsset:
         self.ref_vIdxs = None       # (Vidx1,Vidx2,Vidx3) list with references to human vertex indices, indexed by reference vert
         self.weights = None         # (w1,w2,w3) list, with weights per human vertex (mapped by ref_vIdxs), indexed by reference vert
         self.offsets = None         # (x,y,z) list of vertex offsets, indexed by reference vert
-        self.material = None
+        self.material = None        # path material, fully qualified
+        self.materialsource = None    # path material, relative
 
 
     def __str__(self):
-        text = ""
-        for attr in dir(self):
-            if not attr.startswith("__"):
-                m = getattr(self, attr)
-                if isinstance(m, int) or isinstance(m, str) or  isinstance(m, list):
-                    text += (" %s = %r\n" % (attr, m))
-        return(text)
+        return(dumper(self))
 
     def textLoad(self, filename):
         """
