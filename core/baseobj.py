@@ -202,6 +202,23 @@ class baseClass():
         
         fp.close()
 
+    def loadMHCLO(self, filename, eqtype):
+        """
+        loads mhclo + object
+        """
+        attach = attachedAsset(self.glob, eqtype)
+        (res, err) = attach.textLoad(filename)
+        if res is True:
+            print ("Object is:" + attach.obj_file)
+            obj = object3d(self.glob, None)
+            (res, err) = obj.load(attach.obj_file)
+            if res is True:
+                attach.obj = obj
+                return (attach, None)
+
+        self.env.logLine(1, err )
+        return (None, err)
+
     def delAsset(self, filename):
         for elem in self.attachedAssets:
             if elem.filename == filename:
@@ -215,25 +232,18 @@ class baseClass():
     def addAsset(self, path, eqtype, materialpath=None, materialsource=None):
         print ("Attach: " + path)
         print ("Type: " + eqtype)
-        attach = attachedAsset(self.glob, eqtype)
-        (res, text) = attach.textLoad(path)
-        if res is True:
-            print ("Object is:" + attach.obj_file)
-            obj = object3d(self.glob, None)
-            (res, err) = obj.load(attach.obj_file)
-            if res is False:
-                self.env.logLine(1, err )
-            else:
-                if materialpath is not None:
-                    attach.material = materialpath
-                    attach.materialsource = materialsource
-                attach.obj = obj
-                if attach.material is not None:
-                    print ("Material: " + attach.material)
-                    obj.loadMaterial(attach.material)
-                    self.attachedAssets.append(attach)
-                return(attach)
-        return (None)
+        (attach, err) = self.loadMHCLO(path, eqtype)
+        if attach is None:
+            return (None)
+        if materialpath is not None:
+            attach.material = materialpath
+            attach.materialsource = materialsource
+        if attach.material is not None:
+            print ("Material: " + attach.material)
+            attach.obj.loadMaterial(attach.material)
+            self.attachedAssets.append(attach)
+        return(attach)
+
 
     def addAndDisplayAsset(self, path, eqtype, multi):
         """

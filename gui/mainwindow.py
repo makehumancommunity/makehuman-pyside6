@@ -15,6 +15,7 @@ from gui.imageselector import Equipment
 from gui.dialogs import DialogBox, ErrorBox, WorkerThread, MHBusyWindow
 from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
+
 import os
 
 class IconButton(QPushButton):
@@ -106,7 +107,7 @@ class MHMainWindow(QMainWindow):
             ], [
                 { "button": None, "icon": "an_skeleton.png", "tip": "Skeleton", "func": self.callCategory},
                 { "button": None, "icon": "an_pose.png", "tip": "Single pose", "func": self.callCategory},
-                { "button": None, "icon": "empty_button.png", "tip": "Animation", "func": self.callCategory},
+                { "button": None, "icon": "an_movie.png", "tip": "Animation", "func": self.callCategory},
                 { "button": None, "icon": "an_expression.png", "tip": "Expressions", "func": self.callCategory},
                 { "button": None, "icon": "an_expressedit.png", "tip": "Expression editor", "func": self.callCategory}
             ], [
@@ -156,6 +157,9 @@ class MHMainWindow(QMainWindow):
 
             csystar_act = set_menu.addAction("Compress System Targets")
             csystar_act.triggered.connect(self.compress_systargets)
+
+        cuserobj_act = set_menu.addAction("Compress User 3d Objects")
+        cuserobj_act.triggered.connect(self.compress_user3dobjs)
 
         cusertar_act = set_menu.addAction("Compress User Targets")
         cusertar_act.triggered.connect(self.compress_usertargets)
@@ -632,23 +636,49 @@ class MHMainWindow(QMainWindow):
             self.bckproc.start()
             self.bckproc.finished.connect(self.finished_bckproc)
 
-    def compress_objs(self, system):
-        print ("compress")
-        if self.glob.baseClass is not None:
-            cl = self.glob.baseClass
-            (okay, text) = cl.baseMesh.exportBin()
+    def compress_objs(self, bckproc, *args):
+        """
+        compresses assets (atm obj files)
+        :param bck_proc: unused pointer to background process
+        :param args: [0][0] True = system, Fals user
+        """
+        system = args[0][0]
+        bc = self.glob.baseClass
+        if system:
+            (okay, err) = bc.baseMesh.exportBin()
             if not okay:
-                ErrorBox(self.central_widget, text)
+                bckproc.finishmsg = err
                 return
-            for asset in cl.attachedAssets:
-                (okay, text) = asset.obj.exportBin()
+
+        for elem in bc.mhclo_namemap:
+            syspath = elem.path.startswith(self.env.path_sysdata)
+            if syspath == system:
+                okay = False
+                (attach, err) = bc.loadMHCLO(elem.path, elem.folder)
+                if attach is not None:
+                    (okay, err) =attach.obj.exportBin()
                 if not okay:
-                    ErrorBox(self.central_widget, text)
+                    bckproc.finishmsg = err
                     return
+        return
                 
     def compress_sys3dobjs(self):
-        print("Sys-Objects")
-        self.compress_objs(True)
+        if self.glob.baseClass is not None and self.bckproc is None:
+            self.prog_window = MHBusyWindow("System Objects", "compressing ...")
+            self.prog_window.progress.forceShow()
+            self.bckproc = WorkerThread(self.compress_objs, True)
+            self.bckproc.finishmsg = "System objects had been compressed"
+            self.bckproc.start()
+            self.bckproc.finished.connect(self.finished_bckproc)
+
+    def compress_user3dobjs(self):
+        if self.glob.baseClass is not None and self.bckproc is None:
+            self.prog_window = MHBusyWindow("User Objects", "compressing ...")
+            self.prog_window.progress.forceShow()
+            self.bckproc = WorkerThread(self.compress_objs, False)
+            self.bckproc.finishmsg = "User objects had been compressed"
+            self.bckproc.start()
+            self.bckproc.finished.connect(self.finished_bckproc)
 
     def quit_call(self, event=None):
         """
