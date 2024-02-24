@@ -471,6 +471,17 @@ class programInfo():
             self.path_stdout= None
             self.path_stderr= None
 
+    def isSourceFileNewer(self, destination, source):
+        """
+        should return true when: destination is not there
+        destination is older
+        """
+        if not os.path.isfile(destination):
+            return (True)
+        sourcedate = int(os.stat(source).st_mtime)
+        destdate   = int(os.stat(destination).st_mtime)
+        return (sourcedate > destdate)
+
     def getFileList(self, dirname, pattern):
         """
         get a file list with an extension
@@ -586,6 +597,7 @@ class programInfo():
             with open(path, 'r') as fp:
                 uuid = 0
                 name = ""
+                obj_file = None
                 author = "unknown"
                 tag = []
                 for line in fp:
@@ -596,6 +608,8 @@ class programInfo():
                         name =line.split()[-1]
                     elif "uuid" in line:        # always last word, one word
                         uuid = line.split()[-1]
+                    elif "obj_file" in line:        # always last word, one word
+                        obj_file = line.split()[-1]
                     elif "author" in line:      # part of the comment, can be author
                         words = line.split()
                         if words[1].startswith("author"):
@@ -605,7 +619,7 @@ class programInfo():
                         words = line.split()
                         tag.append(" ".join(words[1:]))
         
-                namematch.append(mhcloElem(name, uuid, path, folder, thumbfile, author, tag))
+                namematch.append(mhcloElem(name, uuid, path, folder, obj_file, thumbfile, author, tag))
 
         return (namematch)
 

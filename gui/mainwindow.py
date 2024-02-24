@@ -151,18 +151,28 @@ class MHMainWindow(QMainWindow):
         set_menu.addAction(self.deb_act)
         self.deb_act.triggered.connect(self.deb_cam)
 
-        if env.admin:
-            csysobj_act = set_menu.addAction("Compress System 3d Objects")
-            csysobj_act.triggered.connect(self.compress_sys3dobjs)
-
-            csystar_act = set_menu.addAction("Compress System Targets")
-            csystar_act.triggered.connect(self.compress_systargets)
-
-        cuserobj_act = set_menu.addAction("Compress User 3d Objects")
+        binaries = set_menu.addMenu("Create Binaries")
+        cuserobj_act = binaries.addAction("User 3d Objects")
         cuserobj_act.triggered.connect(self.compress_user3dobjs)
 
-        cusertar_act = set_menu.addAction("Compress User Targets")
+        cusertar_act = binaries.addAction("User Targets")
         cusertar_act.triggered.connect(self.compress_usertargets)
+
+        if env.admin:
+            csysobj_act = binaries.addAction("System 3d Objects")
+            csysobj_act.triggered.connect(self.compress_sys3dobjs)
+
+            csystar_act = binaries.addAction("System Targets")
+            csystar_act.triggered.connect(self.compress_systargets)
+
+        set_menu.addSeparator()
+        regenerate = set_menu.addMenu("Regenerate Binaries")
+        ruserobj_act = regenerate.addAction("User 3d Objects")
+        ruserobj_act.triggered.connect(self.regenerate_user3dobjs)
+
+        if env.admin:
+            rsystar_act = regenerate.addAction("System 3d Objects")
+            rsystar_act.triggered.connect(self.regenerate_sys3dobjs)
 
         tools_menu = menu_bar.addMenu("&Tools")
         base_act = tools_menu.addAction("Change Base")
@@ -636,13 +646,14 @@ class MHMainWindow(QMainWindow):
             self.bckproc.start()
             self.bckproc.finished.connect(self.finished_bckproc)
 
-    def compress_objs(self, bckproc, *args):
+    def compressObjs(self, bckproc, *args):
         """
         compresses assets (atm obj files)
         :param bck_proc: unused pointer to background process
-        :param args: [0][0] True = system, Fals user
+        :param args: [0][0] True = system, False user
         """
         system = args[0][0]
+        force = args[0][1]
         bc = self.glob.baseClass
         if system:
             (okay, err) = bc.baseMesh.exportBin()
@@ -650,35 +661,47 @@ class MHMainWindow(QMainWindow):
                 bckproc.finishmsg = err
                 return
 
+        elems_compressed = 0
+        elems_untouched = 0
         for elem in bc.mhclo_namemap:
             syspath = elem.path.startswith(self.env.path_sysdata)
             if syspath == system:
                 okay = False
-                (attach, err) = bc.loadMHCLO(elem.path, elem.folder)
-                if attach is not None:
-                    (okay, err) =attach.obj.exportBin()
-                if not okay:
-                    bckproc.finishmsg = err
-                    return
+                if force or self.env.isSourceFileNewer(elem.npz_file, elem.obj_file):
+                    self.prog_window.setLabelText(elem.folder + ": create binary " + os.path.split(elem.path)[1])
+                    (attach, err) = bc.loadMHCLO(elem.path, elem.folder)
+                    if attach is not None:
+                        (okay, err) =attach.obj.exportBin()
+                    if not okay:
+                        bckproc.finishmsg = err
+                        return
+                    elems_compressed += 1
+                else:
+                    elems_untouched += 1
+
+        bckproc.finishmsg = "Binaries created: " + str(elems_compressed) + "\nEntries up-to-date before: " + str(elems_untouched)
         return
-                
-    def compress_sys3dobjs(self):
+
+    def compressObjsWorker(self, system, force):
         if self.glob.baseClass is not None and self.bckproc is None:
-            self.prog_window = MHBusyWindow("System Objects", "compressing ...")
+            objects = "System Objects" if system else "User Objects"
+            self.prog_window = MHBusyWindow(objects, "creating binaries ...")
             self.prog_window.progress.forceShow()
-            self.bckproc = WorkerThread(self.compress_objs, True)
-            self.bckproc.finishmsg = "System objects had been compressed"
+            self.bckproc = WorkerThread(self.compressObjs, system, force)
             self.bckproc.start()
             self.bckproc.finished.connect(self.finished_bckproc)
 
+    def compress_sys3dobjs(self):
+        self.compressObjsWorker(True, False)
+
     def compress_user3dobjs(self):
-        if self.glob.baseClass is not None and self.bckproc is None:
-            self.prog_window = MHBusyWindow("User Objects", "compressing ...")
-            self.prog_window.progress.forceShow()
-            self.bckproc = WorkerThread(self.compress_objs, False)
-            self.bckproc.finishmsg = "User objects had been compressed"
-            self.bckproc.start()
-            self.bckproc.finished.connect(self.finished_bckproc)
+        self.compressObjsWorker(False, False)
+
+    def regenerate_sys3dobjs(self):
+        self.compressObjsWorker(True, True)
+
+    def regenerate_user3dobjs(self):
+        self.compressObjsWorker(False, True)
 
     def quit_call(self, event=None):
         """

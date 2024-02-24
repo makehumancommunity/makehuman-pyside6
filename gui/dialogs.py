@@ -75,6 +75,9 @@ class MHBusyWindow(QWidget):
         self.progress.setWindowModality(Qt.WindowModal)
         self.progress.setAttribute(Qt.WA_DeleteOnClose, True)
 
+    def setLabelText(self, text):
+        self.progress.setLabelText(text)
+
     def setValue(self, l):
         self.progress.setValue(l)
 

@@ -19,15 +19,24 @@ class MakeHumanModel():
         return(dumper(self))
 
 class mhcloElem():
-    def __init__(self, name, uuid, path, folder, thumbfile, author, tag):
+    def __init__(self, name, uuid, path, folder, obj_file, thumbfile, author, tag):
         self.name = name
         self.uuid = uuid
         self.folder = folder
         self.path = path
+        self.obj_file = os.path.join(os.path.dirname(path), obj_file)
         self.thumbfile = thumbfile
         self.author = author
         self.tag = tag
         self.used = False
+        #
+        # calculate expected npzfile
+        #
+        if obj_file.endswith(".obj"):
+            obj_file = obj_file[:-3] + "npz"
+        else:
+            obj_file += ".npz"
+        self.npz_file = os.path.join(os.path.dirname(path), "npzip", obj_file)
 
     def __str__(self):
         return(dumper(self))
