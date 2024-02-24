@@ -39,7 +39,7 @@ class PictureButton(QPushButton):
         self.information_update = information_update
         self.icon = None
 
-        super().__init__(asset.name)
+        super().__init__()
         if asset.icon is None:                 # will not be constant
             self.icon = emptyicon
             self.picture_added = False
@@ -51,6 +51,9 @@ class PictureButton(QPushButton):
         self.setCheckable(True)
         self.framecol  = (Qt.black, Qt.yellow, Qt.green)
         self.setToolTip(asset.name)
+
+    #def __del__(self):
+    #    print (self.asset.name + " deleted")
 
     def setPicture(self, icon):
         self.picture = icon
@@ -98,7 +101,6 @@ class PicFlowLayout(QLayout):
     def __init__(self, multiSel: False, callback, emptyIcon: str="", parent: QWidget=None, margin: int=-1, hSpacing: int=-1, vSpacing: int=-1):
 
         super().__init__(parent)
-
         self.itemList = list()
         self.wList = list()
         self.m_hSpace = hSpacing
@@ -123,7 +125,8 @@ class PicFlowLayout(QLayout):
 
     def removeAllWidgets(self):
         while ((child := self.takeAt(0)) != None):
-            child.widget().deleteLater()
+            if child.widget() is not None:
+                child.widget().deleteLater()
         self.itemList = list()
         self.wList = list()
 
@@ -303,6 +306,12 @@ class PicSelectWidget(QWidget):
         self.multiSel =  multiSel
         self.layout = PicFlowLayout(multiSel=multiSel, callback=callback,  emptyIcon=emptyIcon)
         super().__init__()
+
+    def __del__(self):
+        """
+        this is a must, otherwise the widgets will use up complete memory
+        """
+        self.layout.removeAllWidgets()
 
     def refreshAllWidgets(self, current):
         self.layout.refreshAllWidgets(current)
@@ -485,7 +494,7 @@ class Equipment():
     def prepare(self):
         # load filter from file according to base mesh
         #
-        path = os.path.join(self.env.path_sysdata, self.type, self.env.basename, "selection_filter.json")
+        path = self.env.stdSysPath(self.type, "selection_filter.json")
         self.filterjson = self.env.readJSON(path)
         if self.filterjson is None:
             self.filterjson = {}

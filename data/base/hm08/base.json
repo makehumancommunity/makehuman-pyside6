@@ -10,6 +10,7 @@
         	"pointed": "triangle",
         	"square": "round"
 	},
+	"mhm": "base.mhm",
 	"modifier-presets": {
 		"macrodetails/Gender": 0.5,
 		"macrodetails/Age": 0.5,

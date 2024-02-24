@@ -166,7 +166,7 @@ class MHMainWindow(QMainWindow):
             csystar_act.triggered.connect(self.compress_systargets)
 
         set_menu.addSeparator()
-        regenerate = set_menu.addMenu("Regenerate Binaries")
+        regenerate = set_menu.addMenu("Regenerate all Binaries")
         ruserobj_act = regenerate.addAction("User 3d Objects")
         ruserobj_act.triggered.connect(self.regenerate_user3dobjs)
 
@@ -523,7 +523,7 @@ class MHMainWindow(QMainWindow):
                 confirmed = dbox.exec()
 
             if confirmed:
-                directory = os.path.join(self.env.path_userdata, "models", self.env.basename)
+                directory = self.env.stdUserPath("models")
                 filename = self.fileRequest("Model", "Model files (*.mhm)", directory)
                 if filename is not None:
                     self.setToolModeAndPanel(0, 0)
@@ -540,7 +540,7 @@ class MHMainWindow(QMainWindow):
 
     def savemhm_call(self):
         if self.glob.baseClass is not None:
-            directory = os.path.join(self.env.path_userdata, "models", self.env.basename)
+            directory = self.env.stdUserPath("models")
             filename = self.fileRequest("Model", "Model files (*.mhm)", directory, save=".mhm")
             if filename is not None:
                 self.glob.baseClass.saveMHMFile(filename)

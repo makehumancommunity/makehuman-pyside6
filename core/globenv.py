@@ -471,6 +471,22 @@ class programInfo():
             self.path_stdout= None
             self.path_stderr= None
 
+    def stdSysPath(self, category, filename=None):
+        if self.basename is not None:
+            if filename:
+                return(os.path.join(self.path_sysdata, category, self.basename, filename))
+            else:
+                return(os.path.join(self.path_sysdata, category, self.basename))
+        return None
+
+    def stdUserPath(self, category, filename=None):
+        if self.basename is not None:
+            if filename:
+                return(os.path.join(self.path_userdata, category, self.basename, filename))
+            else:
+                return(os.path.join(self.path_userdata, category, self.basename))
+        return None
+
     def isSourceFileNewer(self, destination, source):
         """
         should return true when: destination is not there

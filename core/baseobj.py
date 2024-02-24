@@ -141,6 +141,7 @@ class baseClass():
         # set absolute path for material
         #
         for elem in loaded.attached:
+            print (self.env.basename, elem.type, elem.name, elem.relmaterial)
             filename = self.env.existFileInBaseFolder(self.env.basename, elem.type, elem.name, elem.relmaterial)
             if filename is not None:
                 elem.material = filename
@@ -307,8 +308,6 @@ class baseClass():
             self.env.logLine(1, err )
             return (False)
 
-        self.baseMesh.loadMaterial(None)
-
         if self.glob.Targets is not None:
             self.glob.Targets.destroyTargets()
 
@@ -321,41 +320,18 @@ class baseClass():
         self.baseMesh.precalculateDimension()
         target = Targets(self.glob)
         target.loadTargets()
+        self.attachedAssets = []
+
+        # set here or/and in mhm
+        #
         if "modifier-presets" in self.baseInfo:
             target.modifierPresets (self.baseInfo["modifier-presets"])
-        #
-        # TODO: attach the assets to the basemesh. works only with system space!!!
-        # it is possible to change that to a default mhm later because a lot must be solved the same way
-        #
-        if "meshes" in self.baseInfo:
 
-            m = self.baseInfo["meshes"]
-            for elem in m:
-                eqtype = elem["cat"]
-                attach = attachedAsset(self.glob, eqtype)
-                name = os.path.join(self.env.path_sysdata, eqtype, self.env.basename, elem["name"])
-                print ("Load: " + name)
-                (res, text) = attach.textLoad(name)
-                for mapping in self.mhclo_namemap:
-                    if mapping.path == name:
-                        mapping.used = True
-                if res is True:
-                    name = os.path.join(self.env.path_sysdata, eqtype, self.env.basename, attach.obj_file)
-                    obj = object3d(self.glob, None)
-                    (res, err) = obj.load(name)
-                    if res is False:
-                        self.env.logLine(1, err )
-                        # TODO: error handling? Generate a list of errors?
-                    else:
-                        if attach.material is not None:
-                            # TODO: error handling
-                            obj.loadMaterial(attach.material)
-                        attach.obj = obj
-                        self.attachedAssets.append(attach)
-                else:
-                    print(text )
+        if "mhm" in self.baseInfo:
+            mhmfile = os.path.join(self.dirname, self.baseInfo["mhm"])
+            self.loadMHMFile(mhmfile)
         else:
-            self.attachedAssets = []
+            self.baseMesh.loadMaterial(None)
         memInfo()
         return (True)
 

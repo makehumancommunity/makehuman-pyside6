@@ -416,7 +416,7 @@ class Targets:
         return ("Target-Collection: " + str(self.collection))
 
     def loadModellingJSON(self):
-        targetpath = os.path.join(self.env.path_sysdata, "target", self.env.basename)
+        targetpath = self.env.stdSysPath("target")
 
         filename = os.path.join(targetpath, "macro.json")
         self.macrodef = self.env.readJSON(filename)
@@ -439,7 +439,7 @@ class Targets:
         filename = os.path.join(targetpath, "modelling.json")
         targetjson = self.env.readJSON(filename)
 
-        targetpath = os.path.join(self.env.path_userdata, "target", self.env.basename)
+        targetpath = self.env.stdUserPath("target")
         filename = os.path.join(targetpath, "modelling.json")
         userjson = self.env.readJSON(filename)
 
@@ -454,10 +454,10 @@ class Targets:
 
     def loadTargets(self):
         target_env = [ {
-            "targetpath": os.path.join(self.env.path_sysdata, "target", self.env.basename),
+            "targetpath": self.env.stdSysPath("target"),
             "targets": None
             }, {
-            "targetpath": os.path.join(self.env.path_userdata, "target", self.env.basename),
+            "targetpath": self.env.stdUserPath("target"),
             "targets": None
         }]
 
@@ -563,13 +563,13 @@ class Targets:
                     contentsys[target.decr.name] = target.decr.raw
 
         if sys_user & 1:
-            sysbinpath = os.path.join(self.env.path_sysdata, "target", self.env.basename, "compressedtargets.npz")
+            sysbinpath = self.env.stdSysPath("target", "compressedtargets.npz")
             f = open(sysbinpath, "wb")
             np.savez_compressed(f, **contentsys)
             f.close()
 
         if sys_user & 2:
-            userbinpath = os.path.join(self.env.path_userdata, "target", self.env.basename, "compressedtargets.npz")
+            userbinpath = self.env.stdUserPath("target", "compressedtargets.npz")
             f = open(userbinpath, "wb")
             np.savez_compressed(f, **contentuser)
             f.close()
@@ -773,13 +773,13 @@ class TargetCategories:
         #
         # system first, categoryjson would be None if not available
         #
-        targetpath = os.path.join(self.env.path_sysdata, "target", self.basename)
+        targetpath = self.env.stdSysPath("target")
         filename = os.path.join(targetpath, "target_cat.json")
         categoryjson = self.env.readJSON(filename)
 
         # now user
         #
-        targetpath = os.path.join(self.env.path_userdata, "target", self.basename)
+        targetpath = self.env.stdUserPath("target")
 
         # if folder does not exists do nothing
         #

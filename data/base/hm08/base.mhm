@@ -1,0 +1,14 @@
+# MakeHuman2 Model File
+version v2.0.1
+name base
+modifier macrodetails/Gender 0.5
+modifier macrodetails/Age 0.5
+modifier macrodetails-universal/Muscle 0.5
+modifier macrodetails-universal/Weight 0.5
+modifier macrodetails-height/Height 0.5
+modifier macrodetails-proportions/BodyProportions 0.5
+modifier breast/BreastFirmness 0.5
+modifier breast/BreastSize 0.5
+skinMaterial skins/young_caucasian_female_special_suit.mhmat
+eyes Low-Poly 1cc97a30-85a1-42e6-a9f7-b3e753732baa
+material Low-Poly 1cc97a30-85a1-42e6-a9f7-b3e753732baa eyes/materials/brown.mhmat
