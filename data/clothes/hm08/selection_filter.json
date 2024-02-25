@@ -11,7 +11,7 @@
 		"Top": {
 			"Layer1": ["Bra", "Tanktop", "Swimwear"],
 			"Layer2": ["Shirt", "Sweater", "Pullover", "Blouse", "Top"],
-			"Layer3": ["Jacket", "Suit"]
+			"Layer3": ["Jacket", "Suit", "Costume"]
 		},
 		"Bottom": {
 			"Layer1": ["Panties", "Tights"],
@@ -19,7 +19,7 @@
 		},
 		"Hands": {
 			"Layer1": ["Gloves", "Rings"],
-			"Layer1": ["Weapons", "Miscellaneous"]
+			"Layer2": ["Weapons", "Miscellaneous"]
 		},
 		"Feet" : {
 			"Layer1": ["Socks"],
@@ -30,5 +30,18 @@
 	"Translate": {
 		"unisex": null,
 		"vintage": "=epoch:past"
-	}
+	},
+	"Shortcut": [
+		["glasses.png", "slot:headgear:layer1:glasses", "Glasses"],
+		["hat.png", "slot:headgear:layer3:hat", "Hat"],
+		["accessory.png", "slot:neck:necklace", "Accessories"],
+		["shirt.png", "slot:top:layer2:shirt", "Shirt"],
+		["costume.png", "slot:top:layer3:costume", "Costume"],
+		["jacket.png", "slot:top:layer3:jacket", "Jacket"],
+		["pant.png", "slot:bottom:layer2:pants", "Pants"],
+		["skirt.png", "slot:bottom:layer2:skirt", "Skirt"],
+		["f_shoe.png", "slot:feet:layer2&gender:female", "Shoes (female)"],
+		["m_shoe.png", "slot:feet:layer2&gender:male", "Shoes (male)"],
+		["wing.png", "slot:back:wings", "Wings"]
+	]
 }

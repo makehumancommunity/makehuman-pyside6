@@ -11,26 +11,12 @@ from gui.memwindow import  MHMemWindow
 from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.slider import ScaleComboArray
-from gui.imageselector import Equipment
+from gui.imageselector import Equipment, IconButton
 from gui.dialogs import DialogBox, ErrorBox, WorkerThread, MHBusyWindow
 from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
 
 import os
-
-class IconButton(QPushButton):
-    def __init__(self, funcid, path, tip, func):
-        self._funcid = funcid
-        icon  = QIcon(path)
-        super().__init__()
-        self.setIcon(icon)
-        self.setIconSize(QSize(36,36))
-        self.setCheckable(True)
-        self.setFixedSize(40,40)
-        self.setToolTip(tip)
-        if func is not None:
-            self.clicked.connect(func)
-
 
 class MHMainWindow(QMainWindow):
     """
@@ -258,12 +244,7 @@ class MHMainWindow(QMainWindow):
         sel = button["button"]
         for elem in row:
             b = elem["button"]
-            if b == sel:
-                b.setChecked(True)
-                b.setStyleSheet("background-color : orange")
-            else:
-                b.setChecked(False)
-                b.setStyleSheet("background-color : lightgrey")
+            b.setChecked(b == sel)
 
     def setCategoryIcons(self):
         s = self.sender()
@@ -383,8 +364,8 @@ class MHMainWindow(QMainWindow):
             else:
                 self.env.logLine(1, self.env.last_error )
         elif self.tool_mode == 2:
-            widget = self.equipment[self.category_mode]["func"].leftPanel()
-            self.BaseBox.addWidget(widget)
+            layout = self.equipment[self.category_mode]["func"].leftPanel()
+            self.BaseBox.addLayout(layout)
         self.BaseBox.addStretch()
 
 

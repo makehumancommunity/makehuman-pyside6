@@ -12,5 +12,9 @@
 		"lady": "=gender:female",
 		"mens": "=gender:male",
 		"vintage": "=epoch:past"
-	}
+	},
+	"Shortcut": [
+		["f_hair.png", "gender:female", "Female"],
+		["m_hair.png", "gender:male", "Male"]
+	]
 }

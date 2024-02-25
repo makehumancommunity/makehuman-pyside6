@@ -6,6 +6,26 @@ from PySide6.QtGui import QPixmap, QPainter, QPen, QIcon, QColor, QFont, QStanda
 
 from PySide6.QtWidgets import QApplication, QWidget, QLayout, QLayoutItem, QStyle, QSizePolicy, QPushButton, QAbstractButton, QRadioButton, QCheckBox, QGroupBox, QVBoxLayout, QLabel, QLineEdit, QTreeView, QAbstractItemView, QScrollArea, QPlainTextEdit, QHBoxLayout
 
+class IconButton(QPushButton):
+    def __init__(self, funcid, path, tip, func):
+        self._funcid = funcid
+        icon  = QIcon(path)
+        super().__init__()
+        self.setIcon(icon)
+        self.setIconSize(QSize(36,36))
+        self.setCheckable(True)
+        self.setFixedSize(40,40)
+        self.setToolTip(tip)
+        if func is not None:
+            self.clicked.connect(func)
+
+    def setChecked(self, value):
+        super().setChecked(value)
+        if value is True:
+            self.setStyleSheet("background-color : orange")
+        else:
+            self.setStyleSheet("background-color : lightgrey")
+
 class MHPictSelectable:
     def __init__(self, name: str, icon: str, filename: str, author: str, tags: list):
         self.name = name
@@ -347,12 +367,15 @@ class FilterTree(QTreeView):
     :param displayInfo: points to information box
     """
 
-    def  __init__(self, assets, searchByFilterText, displayInfo):
+    def  __init__(self, assets, searchByFilterText, displayInfo, iconpath):
 
         self.assets = assets
         self.searchByFilterText = searchByFilterText
         self.flowLayout = None
         self.displayInfo = displayInfo
+        self.iconpath = iconpath
+        self.shortcut = []
+        self.shortcutbutton = []
 
         super().__init__()
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -375,6 +398,10 @@ class FilterTree(QTreeView):
             #
             # set base when layer is None, otherwise keep old one and create substring by appending layer
             find = elem.lower()
+            if find == "shortcut":
+                for subelem in subtree[elem]:
+                    self.shortcut.append(subelem)
+                continue
             if find == "translate":
                 continue
             if base == "":
@@ -400,6 +427,54 @@ class FilterTree(QTreeView):
                 if type(subtree) is dict:
                     self.addTree(subtree[elem], child, nbase, substring)
 
+    def markSelectedButtons(self, funcid):
+        for elem in self.shortcutbutton:
+            elem.setChecked(elem._funcid == funcid)
+
+    def shortCutPressed(self):
+        funcid = self.sender()._funcid
+        text = self.shortcut[funcid][1]
+        print ("Shortcut pressed: " + text)
+        allterms = text.split("&")
+        ruleset = {}
+        for elem in allterms:
+            layers = elem.split(":")
+            if len(layers) > 1:
+                ruleset[layers[0]] = [ ":".join(layers[1:]) ]
+
+        print (ruleset)
+        self.markSelectedButtons(funcid)
+        self.flowLayout.removeAllWidgets()
+        self.flowLayout.populate(self.assets, ruleset, "", self.displayInfo)
+
+
+    def addShortCuts(self):
+        numicons = len(self.shortcut)
+        if numicons == 0:
+            return None
+        i_per_row = 7
+
+        layout=QVBoxLayout() if numicons > i_per_row else None
+        row=QHBoxLayout()
+        cnt = 0
+        for funcid, elem in enumerate(self.shortcut):
+            button = IconButton(funcid, os.path.join(self.iconpath, elem[0]), elem[2], self.shortCutPressed)
+            row.addWidget(button)
+            self.shortcutbutton.append(button)
+            cnt += 1
+            if cnt == i_per_row and layout is not None:
+                row.addStretch()
+                layout.addLayout(row)
+                row =QHBoxLayout()
+                cnt = 0
+        if cnt != 0:
+            row.addStretch()
+            if layout is not None:
+                layout.addLayout(row)
+
+        return ( layout if numicons > i_per_row else row)
+
+
     def filterChanged(self):
         """
         create a ruleset from selected items and repopulate the flow-Layout
@@ -414,6 +489,7 @@ class FilterTree(QTreeView):
                 ruleset[base] = []
             ruleset[base].append(index.searchpattern)
         filtertext = self.searchByFilterText.text().lower()
+        self.markSelectedButtons(-1)
         self.flowLayout.removeAllWidgets()
         self.flowLayout.populate(self.assets, ruleset, filtertext, self.displayInfo)
 
@@ -463,9 +539,12 @@ class Equipment():
                 if isinstance(subtree[elem], dict):
                     self.createTagGroups(subtree[elem], path + ":" + elem.lower())
                 elif isinstance(subtree[elem], list):
-                    for l in subtree[elem]:
-                        repl = path + ":" + elem.lower()
-                        self.tagreplace[l.lower()] = repl[1:]       # get rid of first ":"
+                    if elem == "Shortcut":
+                        pass
+                    else:
+                        for l in subtree[elem]:
+                            repl = path + ":" + elem.lower()
+                            self.tagreplace[l.lower()] = repl[1:]       # get rid of first ":"
                 if elem == "Translate":                             # extra, change by word
                     for l in subtree[elem]:
                         self.tagreplace[l.lower()] = subtree[elem][l]
@@ -525,25 +604,27 @@ class Equipment():
         """
         done first
         """
+        iconpath = os.path.join(self.env.stdSysPath(self.type), "icons")
+        
         v1layout = QVBoxLayout()    # this is for searching
         self.infobox = InformationBox(v1layout)
-        gbox = QGroupBox("Filtering")
-        gbox.setObjectName("subwindow")
 
         widget = QWidget()
         slayout = QHBoxLayout()  # layout for textbox + empty button
         filteredit = editBox(slayout, widget)
-        self.filterview = FilterTree(self.asset_category, filteredit, self.infobox.setInformation)
+        self.filterview = FilterTree(self.asset_category, filteredit, self.infobox.setInformation, iconpath)
         self.filterview.addTree(self.filterjson)
         self.filterview.selectionModel().selectionChanged.connect(self.filterview.filterChanged)
+        shortcuts = self.filterview.addShortCuts()
         filteredit.addConnect(self.filterview.filterChanged)
 
         v1layout.addWidget(self.filterview)
+        if shortcuts is not None:
+            v1layout.addLayout(shortcuts)
         v1layout.addWidget(QLabel("Filter:"))
         v1layout.addLayout(slayout)
 
-        gbox.setLayout(v1layout)
-        return(gbox)
+        return(v1layout)
 
     def rightPanel(self):
         """
