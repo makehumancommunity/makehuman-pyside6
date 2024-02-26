@@ -2,6 +2,7 @@ from PySide6.QtCore import QSize, Qt, QObject, QEvent
 from PySide6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QSlider
 from PySide6.QtGui import QVector3D, QColor, QIcon
 from core.baseobj import baseClass
+from gui.imageselector import IconButton
 from gui.slider import SimpleSlider
 from opengl.main import OpenGLView
 import os
@@ -83,13 +84,7 @@ class MHGraphicWindow(QWidget):
             ["Bottom","bottom.png",self.bottom_button ]
         ]
         for elem in elems:
-            icon = os.path.join(self.env.path_sysicon, elem[1])
-            button = QPushButton(elem[0])
-            button.setStyleSheet("background-color : lightgrey")
-            button.clicked.connect(elem[2])
-            button.setIcon(QIcon(icon))
-            button.setIconSize(QSize(24,24))
-            button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+            button = IconButton(1, os.path.join(self.env.path_sysicon, elem[1]), elem[0], elem[2])
             vlayout.addWidget(button)
 
         # perspective button is a toggle

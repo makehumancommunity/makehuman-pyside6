@@ -33,10 +33,12 @@
 	},
 	"Shortcut": [
 		["glasses.png", "slot:headgear:layer1:glasses", "Glasses"],
+		["costume.png", "slot:headgear:layer1:mask", "Mask"],
 		["hat.png", "slot:headgear:layer3:hat", "Hat"],
 		["accessory.png", "slot:neck:necklace", "Accessories"],
 		["shirt.png", "slot:top:layer2:shirt", "Shirt"],
-		["costume.png", "slot:top:layer3:costume", "Costume"],
+		["lingerie.png", "slot:top:layer1:bra", "Lingerie"],
+		["swimwear.png", "slot:top:layer1:swimwear", "Swimwear"],
 		["jacket.png", "slot:top:layer3:jacket", "Jacket"],
 		["pant.png", "slot:bottom:layer2:pants", "Pants"],
 		["skirt.png", "slot:bottom:layer2:skirt", "Skirt"],

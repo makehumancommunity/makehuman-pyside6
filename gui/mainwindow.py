@@ -10,6 +10,7 @@ from gui.infowindow import  MHInfoWindow
 from gui.memwindow import  MHMemWindow
 from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
+from gui.fileactions import BaseSelect, SaveMHMForm
 from gui.slider import ScaleComboArray
 from gui.imageselector import Equipment, IconButton
 from gui.dialogs import DialogBox, ErrorBox, WorkerThread, MHBusyWindow
@@ -39,6 +40,7 @@ class MHMainWindow(QMainWindow):
         self.ToolBox = None
         self.ButtonBox = None
         self.CategoryBox = None
+        self.baseSelector = None
 
         self.in_close = False
         self.targetfilter = None
@@ -317,19 +319,6 @@ class MHMainWindow(QMainWindow):
         self.central_widget.setLayout(hLayout)
         self.setCentralWidget(self.central_widget)
 
-    def baseMeshSelectWidget(self, layout):
-        env = self.env
-        self.baseResultList = env.getDataDirList("base.obj", "base")
-        self.basewidget = QListWidget()
-        self.basewidget.setFixedSize(240, 200)
-        self.basewidget.addItems(self.baseResultList.keys())
-        self.basewidget.setSelectionMode(QAbstractItemView.SingleSelection)
-        if env.basename is not None:
-            items = self.basewidget.findItems(env.basename,Qt.MatchExactly)
-            if len(items) > 0:
-                self.basewidget.setCurrentItem(items[0])
-        layout.addWidget(self.basewidget)
-
 
     def drawBasePanel(self):
         """
@@ -339,20 +328,20 @@ class MHMainWindow(QMainWindow):
 
         # extra code for no basemesh selected
         #
-
-
-        if self.tool_mode == 0 or env.basename is None:
-            bgroupBox = QGroupBox("base mesh")
-            bgroupBox.setObjectName("subwindow")
-            bvLayout = QVBoxLayout()
-            self.baseMeshSelectWidget(bvLayout)
-            buttons = QPushButton("Select")
-            buttons.clicked.connect(self.selectmesh_call)
-            bvLayout.addWidget(buttons)
-            bgroupBox.setLayout(bvLayout)
-            self.BaseBox.addWidget(bgroupBox)
+        if (self.tool_mode == 0 and self.category_mode == 0) or env.basename is None:
+            self.baseSelector = BaseSelect(self.glob, self.selectmesh_call)
+            self.BaseBox.addWidget(self.baseSelector)
             self.BaseBox.addStretch()
             return
+        
+        if self.tool_mode == 0:
+            if self.category_mode == 2:
+                self.saveForm = SaveMHMForm(self.glob, self.graph.view)
+
+            self.BaseBox.addWidget(self.saveForm)
+            self.BaseBox.addStretch()
+            return
+
         
         if self.tool_mode == 1:
             if self.glob.targetCategories is not None:
@@ -566,15 +555,12 @@ class MHMainWindow(QMainWindow):
                 self.graph.view.Tweak()
 
     def selectmesh_call(self):
-        sel = self.basewidget.selectedItems()
-        if len(sel) > 0:
-            base = sel[0].text()
-            #
-            # do nothing if not changes
+        (base, filename) = self.baseSelector.getSelectedItem()
+        if base is not None:
             #
             if base == self.env.basename:
                 return
-            dirname = os.path.dirname(self.baseResultList[base])
+            dirname = os.path.dirname(filename)
             base = baseClass(self.glob, base, dirname)
             okay = base.prepareClass()
             if not okay:

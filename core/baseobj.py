@@ -14,6 +14,7 @@ class MakeHumanModel():
         self.modifiers = []
         self.attached = []
         self.materials = []
+        self.tags = []
 
     def __str__(self):
         return(dumper(self))
@@ -70,6 +71,7 @@ class baseClass():
         memInfo()
         self.env.basename = name
         self.name = name                # will hold the character name
+        self.tags = []                  # will hold the tags
 
     def noAssetsUsed(self):
         for elem in self.mhclo_namemap:
@@ -108,6 +110,8 @@ class baseClass():
                 setattr (loaded, key, words[1])
             elif key == "name":
                 loaded.name = " ".join(words[1:])
+            elif key == "tags":
+                loaded.tags = " ".join(words[1:]).split(";")
             elif key == "modifier":
                 loaded.modifiers.append(" ".join(words[1:]))
             elif key == "material":
@@ -148,6 +152,7 @@ class baseClass():
 
         if loaded.name is not None:
             self.name = loaded.name
+        self.tags = loaded.tags
 
         if loaded.skinMaterial is not None:
             self.skinMaterial = loaded.skinMaterial

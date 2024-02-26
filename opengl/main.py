@@ -1,5 +1,5 @@
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
-from PySide6.QtCore import QSize
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QMatrix4x4, QVector3D, QOpenGLContext
 
 # try to keep only constants here
@@ -117,6 +117,11 @@ class OpenGLView(QOpenGLWidget):
 
         self.skybox = OpenGLSkyBox(self.env, self.mh_shaders._shaders[1], glfunc)
         self.skybox.create()
+
+    def createThumbnail(self, name):
+        image = self.grabFramebuffer()
+        image = image.scaled(128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        image.save(name, "PNG", -1)
 
     def customView(self, direction):
         self.camera.customView(direction)
