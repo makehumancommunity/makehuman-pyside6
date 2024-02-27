@@ -13,6 +13,10 @@ class NavigationEvent(QObject):
         super().__init__()
 
     def eventFilter(self, widget, event):
+
+        if not hasattr(event, "type"):
+            return False
+
         if event.type() == QEvent.ShortcutOverride:
             key = event.key()
             if key == 55:

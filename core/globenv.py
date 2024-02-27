@@ -6,6 +6,7 @@ import locale
 import platform
 import json
 import glob
+from uuid import uuid4
 from gui.application import QTVersion
 from opengl.main import GLVersion
 from core.baseobj import mhcloElem
@@ -32,6 +33,9 @@ class globalObjects():
         self.target_changing = None         # for parallel processing
         self.textSlot = [None, None, None, None, None] # text slots for graphical window
 
+
+    def gen_uuid(self):
+        return(str(uuid4()))
 
     def readShaderInitJSON(self):
         shaderfile = os.path.join(self.env.path_sysdata, "shaders", "phong3l.json")

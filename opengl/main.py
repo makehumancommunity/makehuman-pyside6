@@ -118,9 +118,10 @@ class OpenGLView(QOpenGLWidget):
         self.skybox = OpenGLSkyBox(self.env, self.mh_shaders._shaders[1], glfunc)
         self.skybox.create()
 
-    def createThumbnail(self, name):
+    def createThumbnail(self):
         image = self.grabFramebuffer()
-        image = image.scaled(128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        return (image.scaled(128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+
         image.save(name, "PNG", -1)
 
     def customView(self, direction):

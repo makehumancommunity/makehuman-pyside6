@@ -336,9 +336,9 @@ class MHMainWindow(QMainWindow):
         
         if self.tool_mode == 0:
             if self.category_mode == 2:
-                self.saveForm = SaveMHMForm(self.glob, self.graph.view)
+                self.saveForm = SaveMHMForm(self.glob, self.graph.view, self.setWindowTitle)
 
-            self.BaseBox.addWidget(self.saveForm)
+            self.BaseBox.addLayout(self.saveForm)
             self.BaseBox.addStretch()
             return
 

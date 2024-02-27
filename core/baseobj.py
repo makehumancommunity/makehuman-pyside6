@@ -9,6 +9,7 @@ from core.target import Modelling
 class MakeHumanModel():
     def __init__(self):
         self.name = None
+        self.uuid = None
         self.version = None
         self.skinMaterial = None
         self.modifiers = []
@@ -72,6 +73,10 @@ class baseClass():
         self.env.basename = name
         self.name = name                # will hold the character name
         self.tags = []                  # will hold the tags
+        self.photo = None
+
+    def __str__(self):
+        return(dumper(self))
 
     def noAssetsUsed(self):
         for elem in self.mhclo_namemap:
@@ -106,7 +111,7 @@ class baseClass():
                 continue
 
             key = words[0]
-            if key in ["version", "skinMaterial"]:
+            if key in ["version", "uuid", "skinMaterial"]:
                 setattr (loaded, key, words[1])
             elif key == "name":
                 loaded.name = " ".join(words[1:])
@@ -153,6 +158,7 @@ class baseClass():
         if loaded.name is not None:
             self.name = loaded.name
         self.tags = loaded.tags
+        self.uuid = loaded.uuid
 
         if loaded.skinMaterial is not None:
             self.skinMaterial = loaded.skinMaterial
