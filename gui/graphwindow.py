@@ -80,16 +80,23 @@ class MHGraphicWindow(QWidget):
 
     def navButtons(self, vlayout):
         elems = [ 
-            ["Front", "front.png", self.front_button ],
-            ["Back",  "back.png",  self.back_button ],
-            ["Left",  "left.png",  self.left_button ],
-            ["Right", "right.png", self.right_button ],
             ["Top",   "top.png",   self.top_button ],
+            ["Left",  "left.png",  self.left_button ],
+            ["Front", "front.png", self.front_button ],
+            ["Right", "right.png", self.right_button ],
+            ["Back",  "back.png",  self.back_button ],
             ["Bottom","bottom.png",self.bottom_button ]
         ]
-        for elem in elems:
-            button = IconButton(1, os.path.join(self.env.path_sysicon, elem[1]), elem[0], elem[2])
-            vlayout.addWidget(button)
+        button = IconButton(1, os.path.join(self.env.path_sysicon, elems[0][1]), elems[0][0], elems[0][2])
+        vlayout.addWidget(button)
+        hlayout = QHBoxLayout()
+        for i in range(1,5):
+            button = IconButton(1, os.path.join(self.env.path_sysicon, elems[i][1]), elems[i][0], elems[i][2])
+            hlayout.addWidget(button)
+        vlayout.addLayout(hlayout)
+
+        button = IconButton(1, os.path.join(self.env.path_sysicon, elems[5][1]), elems[5][0], elems[5][2])
+        vlayout.addWidget(button)
 
         # perspective button is a toggle
         #

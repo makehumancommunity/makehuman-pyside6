@@ -12,7 +12,7 @@ from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.fileactions import BaseSelect, SaveMHMForm
 from gui.slider import ScaleComboArray
-from gui.imageselector import Equipment, IconButton
+from gui.imageselector import ImageSelection, IconButton
 from gui.dialogs import DialogBox, ErrorBox, WorkerThread, MHBusyWindow
 from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
@@ -33,6 +33,7 @@ class MHMainWindow(QMainWindow):
         self.info_window = None
         self.log_window = None
         self.rightColumn = None
+        self.leftColumn = None
         self.graph = None
         self.qTree = None
 
@@ -170,18 +171,25 @@ class MHMainWindow(QMainWindow):
 
         equip = tools_menu.addMenu("Equipment")
 
+        # TODO: when starting or baseclass changes, what will happen then?!?!
+        #
         if self.glob.baseClass is not None:
             for elem in self.equipment:
-                elem["func"] = Equipment(self.glob, self.glob.baseClass.mhclo_namemap, elem["name"], elem["mult"])
+                elem["func"] = ImageSelection(self.glob, self.glob.baseClass.mhclo_namemap, elem["name"], elem["mult"])
                 elem["func"].prepare()
                 elem["menu"] = equip.addAction(elem["name"])
                 elem["menu"].triggered.connect(self.equip_call)
+
+        scanned = self.env.fileScanFolderMHM()
+        self.charselect = ImageSelection(self.glob, scanned, "models", False)
+        self.charselect.prepare()
 
         # generate tool buttons, model_buttons (save ressources)
         #
         for elem in (self.tool_buttons, self.model_buttons):
             for n, b in enumerate(elem):
                 b["button"] = IconButton(n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"])
+        self.markSelectedButtons(self.tool_buttons, self.tool_buttons[0])
 
         # generate category buttons
         #
@@ -189,6 +197,7 @@ class MHMainWindow(QMainWindow):
             offset = (m + 1) * 100
             for n, b in enumerate(tool):
                 b["button"] = IconButton(offset+n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"])
+        self.markSelectedButtons(self.category_buttons[0], self.category_buttons[0][0])
 
         self.createCentralWidget()
         self.setWindowTitle("default character")
@@ -276,14 +285,14 @@ class MHMainWindow(QMainWindow):
         self.CategoryBox= self.buttonRow(self.category_buttons[0])
         self.ButtonBox.addLayout(self.CategoryBox)
 
-        groupBase = QGroupBox("Basic Operations")
-        groupBase.setMinimumWidth(300)
+        self.leftColumn = QGroupBox()
+        self.leftColumn.setMinimumWidth(300)
         self.BaseBox = QVBoxLayout()
 
-        self.drawBasePanel()
-        groupBase.setMaximumWidth(400)
-        groupBase.setLayout(self.BaseBox)
-        self.ButtonBox.addWidget(groupBase)
+        self.drawLeftPanel()
+        self.leftColumn.setMaximumWidth(400)
+        self.leftColumn.setLayout(self.BaseBox)
+        self.ButtonBox.addWidget(self.leftColumn)
         hLayout.addLayout(self.ButtonBox)
 
         # create window for internal or external use
@@ -309,7 +318,7 @@ class MHMainWindow(QMainWindow):
         self.rightColumn = QGroupBox("Toolpanel")
         self.ToolBox = QVBoxLayout()
 
-        self.drawToolPanel()
+        self.drawRightPanel()
         self.rightColumn.setMinimumWidth(500)
         self.rightColumn.setMaximumWidth(500)
         self.rightColumn.setLayout(self.ToolBox)
@@ -320,7 +329,7 @@ class MHMainWindow(QMainWindow):
         self.setCentralWidget(self.central_widget)
 
 
-    def drawBasePanel(self):
+    def drawLeftPanel(self):
         """
         draw left panel
         """
@@ -329,22 +338,28 @@ class MHMainWindow(QMainWindow):
         # extra code for no basemesh selected
         #
         if (self.tool_mode == 0 and self.category_mode == 0) or env.basename is None:
+            self.leftColumn.setTitle("Base mesh :: selection")
             self.baseSelector = BaseSelect(self.glob, self.selectmesh_call)
-            self.BaseBox.addWidget(self.baseSelector)
+            self.BaseBox.addLayout(self.baseSelector)
             self.BaseBox.addStretch()
             return
         
         if self.tool_mode == 0:
+            if self.category_mode == 1:
+                self.leftColumn.setTitle("Load file :: filter")
+                layout = self.charselect.leftPanel()
+                self.BaseBox.addLayout(layout)
             if self.category_mode == 2:
+                self.leftColumn.setTitle("Save file :: additional parameters")
                 self.saveForm = SaveMHMForm(self.glob, self.graph.view, self.setWindowTitle)
-
-            self.BaseBox.addLayout(self.saveForm)
+                self.BaseBox.addLayout(self.saveForm)
             self.BaseBox.addStretch()
             return
 
         
         if self.tool_mode == 1:
             if self.glob.targetCategories is not None:
+                self.leftColumn.setTitle("Modify character :: categories")
                 self.qTree = MHTreeView(self.glob.targetCategories, "Modelling", self.redrawNewCategory, None)
                 self.targetfilter = self.qTree.getStartPattern()
                 self.BaseBox.addWidget(self.qTree)
@@ -353,6 +368,7 @@ class MHMainWindow(QMainWindow):
             else:
                 self.env.logLine(1, self.env.last_error )
         elif self.tool_mode == 2:
+            self.leftColumn.setTitle("Character equipment :: filter")
             layout = self.equipment[self.category_mode]["func"].leftPanel()
             self.BaseBox.addLayout(layout)
         self.BaseBox.addStretch()
@@ -370,6 +386,17 @@ class MHMainWindow(QMainWindow):
 
             self.ToolBox.addWidget(scrollArea)
 
+    def drawCharSelectPanel(self):
+        self.rightColumn.setTitle("Files")
+        widget = QWidget()
+        picwidget = self.charselect.rightPanel()
+        widget.setLayout(picwidget.layout)
+        scrollArea = QScrollArea()
+        scrollArea.setWidget(widget)
+        scrollArea.setWidgetResizable(True)
+        scrollArea.setHorizontalScrollBarPolicy( Qt.ScrollBarAlwaysOff )
+        self.ToolBox.addWidget(scrollArea)
+
     def drawEquipPanel(self, category, text):
         self.rightColumn.setTitle("Character equipment, category: " + text)
         widget = QWidget()
@@ -381,13 +408,14 @@ class MHMainWindow(QMainWindow):
         scrollArea.setHorizontalScrollBarPolicy( Qt.ScrollBarAlwaysOff )
         self.ToolBox.addWidget(scrollArea)
 
-    def drawToolPanel(self, text="None"):
+    def drawRightPanel(self, text="None"):
         #
         # works according to tool_mode and category_mode
         #
         print (self.tool_mode, self.category_mode)
         if self.tool_mode == 0:
-            self.rightColumn.setTitle("Toolpannel")
+            if self.category_mode == 1:
+                self.drawCharSelectPanel()
         elif self.tool_mode == 1:
             self.drawMorphPanel(text)
         elif self.tool_mode == 2:
@@ -424,8 +452,8 @@ class MHMainWindow(QMainWindow):
             if self.CategoryBox is not None:
                 self.ButtonBox.insertLayout(1, self.CategoryBox)
                 self.markSelectedButtons(buttons, buttons[category])
-            self.drawBasePanel()
-            self.drawToolPanel()
+            self.drawLeftPanel()
+            self.drawRightPanel()
 
     def show(self):
         """
@@ -534,7 +562,7 @@ class MHMainWindow(QMainWindow):
 
         if confirmed:
             self.emptyLayout(self.BaseBox)
-            self.drawBasePanel()
+            self.drawLeftPanel()
             self.BaseBox.update()
 
     def reset_call(self):
@@ -569,11 +597,11 @@ class MHMainWindow(QMainWindow):
 
             self.graph.view.newMesh()
             self.emptyLayout(self.ToolBox)
-            self.drawToolPanel()
+            self.drawRightPanel()
             self.ToolBox.update()
 
             self.emptyLayout(self.BaseBox)
-            self.drawBasePanel()
+            self.drawLeftPanel()
             self.BaseBox.update()
             self.graph.setSizeInfo()
 

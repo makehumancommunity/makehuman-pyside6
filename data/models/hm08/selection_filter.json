@@ -1,0 +1,5 @@
+{
+	"Gender": ["Male", "Female"],
+	"Epoch": ["Contemporary", "Future", "Past"],
+	"Genre": ["Realistic", "Comic", "Fantasy"]
+}

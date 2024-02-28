@@ -9,7 +9,7 @@ import glob
 from uuid import uuid4
 from gui.application import QTVersion
 from opengl.main import GLVersion
-from core.baseobj import mhcloElem
+from core.debug import dumper
 
 class globalObjects():
     def __init__(self, env):
@@ -80,6 +80,32 @@ class globalObjects():
                     return (False)
 
         return (True)
+
+class mhPrefetchElem():
+    def __init__(self, name, uuid, path, folder, obj_file, thumbfile, author, tag):
+        self.name = name
+        self.uuid = uuid
+        self.folder = folder
+        self.path = path
+        self.thumbfile = thumbfile
+        self.author = author
+        self.tag = tag
+        self.used = False
+        #
+        # calculate expected npzfile
+        #
+        if obj_file is not None:
+            self.obj_file = os.path.join(os.path.dirname(path), obj_file)
+            if obj_file.endswith(".obj"):
+                obj_file = obj_file[:-3] + "npz"
+            else:
+                obj_file += ".npz"
+            self.npz_file = os.path.join(os.path.dirname(path), "npzip", obj_file)
+        else:
+            self.obj_file = None
+
+    def __str__(self):
+        return(dumper(self))
 
 class programInfo():
     """
@@ -601,7 +627,7 @@ class programInfo():
                             filenames.append([folder, aname1])
         return(filenames)
 
-    def fileScanBaseFolder(self, pattern):
+    def fileScanFoldersMHCLO(self, pattern):
         """
         scanner e.g. for mhclo files checks in all basefolders + subdirs (only 1 level)
         """
@@ -623,25 +649,66 @@ class programInfo():
                 for line in fp:
                     if line.startswith("verts"):
                         break
+                    words = line.split()
+                    if len(words) < 2:
+                        continue
 
-                    if "name" in line:          # always last word, one word
-                        name =line.split()[-1]
-                    elif "uuid" in line:        # always last word, one word
-                        uuid = line.split()[-1]
-                    elif "obj_file" in line:        # always last word, one word
-                        obj_file = line.split()[-1]
+                    if words[0] == "name":          # always last word, one word
+                        name = words[1]
+                    elif words[0] == "uuid":        # always last word, one word
+                        uuid = words[1]
+                    elif words[0] == "obj_file":        # always last word, one word
+                        obj_file = words[1]
                     elif "author" in line:      # part of the comment, can be author
-                        words = line.split()
                         if words[1].startswith("author"):
                             author = " ".join(words[2:])
 
                     elif "tag" in line:         # allow tags with blanks
-                        words = line.split()
                         tag.append(" ".join(words[1:]))
         
-                namematch.append(mhcloElem(name, uuid, path, folder, obj_file, thumbfile, author, tag))
+                namematch.append(mhPrefetchElem(name, uuid, path, folder, obj_file, thumbfile, author, tag))
 
         return (namematch)
+
+    def fileScanFolderMHM(self):
+        """
+        scanner for mhm files checks in models folder
+        """
+        namematch = []
+        dirname = self.stdUserPath("models")
+        files = self.getFileList(dirname, "*.mhm")
+        for path in files:
+            print (path)
+            (filename, extension) = os.path.splitext(path)
+            thumbfile = filename + ".thumb"
+            if not os.path.isfile(thumbfile):
+                thumbfile = None
+            
+            with open(path, 'r') as fp:
+                uuid = 0
+                name = None
+                author = "unknown"
+                tags = []
+                for line in fp:
+                    if line.startswith("modifier"):
+                        break
+                    words = line.split()
+                    if len(words) < 2:
+                        continue
+
+                    if words[0] == "name":          # always last word, one word
+                        name = words[1]
+                    elif words[0] == "uuid":        # always last word, one word
+                        uuid = words[1]
+                    elif "tags" in line:
+                        tags =" ".join(words[1:]).split(";")
+
+                if name is None:
+                    name = os.path.basename(filename)
+
+                namematch.append(mhPrefetchElem(name, uuid, path, "models", None, thumbfile, author, tags))
+        return (namematch)
+
 
     def dictFillGaps(self, standard, testdict):
         """

@@ -1,9 +1,8 @@
 import os
-from core.debug import dumper
 from core.target import Targets
 from core.attached_asset import attachedAsset
 from obj3d.object3d import object3d
-from core.debug import memInfo
+from core.debug import memInfo, dumper
 from core.target import Modelling
 
 class MakeHumanModel():
@@ -16,29 +15,6 @@ class MakeHumanModel():
         self.attached = []
         self.materials = []
         self.tags = []
-
-    def __str__(self):
-        return(dumper(self))
-
-class mhcloElem():
-    def __init__(self, name, uuid, path, folder, obj_file, thumbfile, author, tag):
-        self.name = name
-        self.uuid = uuid
-        self.folder = folder
-        self.path = path
-        self.obj_file = os.path.join(os.path.dirname(path), obj_file)
-        self.thumbfile = thumbfile
-        self.author = author
-        self.tag = tag
-        self.used = False
-        #
-        # calculate expected npzfile
-        #
-        if obj_file.endswith(".obj"):
-            obj_file = obj_file[:-3] + "npz"
-        else:
-            obj_file += ".npz"
-        self.npz_file = os.path.join(os.path.dirname(path), "npzip", obj_file)
 
     def __str__(self):
         return(dumper(self))
@@ -74,6 +50,7 @@ class baseClass():
         self.name = name                # will hold the character name
         self.tags = []                  # will hold the tags
         self.photo = None
+        self.uuid = None
 
     def __str__(self):
         return(dumper(self))
@@ -192,12 +169,19 @@ class baseClass():
         except IOError as err:
             return (False, str(err))
 
-        # create version as string, name from filename
+        # create version as string, name from self.name or filename
         #
         vers = ".".join(map(str,self.env.release_info["version"]))
-        (p, name) = os.path.split(filename[:-4])
+        name = self.name if  self.name != "" else os.path.split(filename[:-4])[-1]
 
         fp.write("# MakeHuman2 Model File\nversion v" + vers + "\nname " + name + "\n")
+
+        # tags and uuid if available
+        #
+        if self.uuid is not None and self.uuid != "":
+            fp.write ("uuid " + self.uuid + "\n")
+        if len(self.tags) > 0:
+            fp.write ("tags " + ";".join(self.tags) + "\n")
 
         # write targets
         #
@@ -304,7 +288,7 @@ class baseClass():
             self.env.logLine(1, self.env.last_error )
             return (False)
 
-        self.mhclo_namemap = self.env.fileScanBaseFolder(".mhclo")
+        self.mhclo_namemap = self.env.fileScanFoldersMHCLO(".mhclo")
         for elem in self.mhclo_namemap:
             print (elem)
 

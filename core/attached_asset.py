@@ -138,9 +138,27 @@ class attachedAsset:
                 continue
 
             elif status == 3:
+
+                # delete vertices
                 #
-                # to do representation of vertices
-                #
+                sequence = False
+                for v in words:
+                    if v == "-":
+                        sequence = True
+                    else:
+                        v1 = int(v)
+                        if sequence:
+                            for vn in range(v0,v1+1):
+                                #proxy.deleteVerts[vn] = True
+                                # bool cache, test if it makes sense still
+                                pass
+                            sequence = False
+                        else:
+                            #proxy.deleteVerts[v1] = True
+                            pass
+                        v0 = v1
+
+
                 continue
 
             if len(words) < 2 or status > 0:

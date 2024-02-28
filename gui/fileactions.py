@@ -4,14 +4,11 @@ from PySide6.QtGui import QPixmap
 from gui.imageselector import IconButton
 import os
 
-class BaseSelect(QGroupBox):
+class BaseSelect(QVBoxLayout):
     def __init__(self, glob, callback):
-        super().__init__("base mesh")
+        super().__init__()
         env = glob.env
-        self.setObjectName("subwindow")
         self.baseResultList = env.getDataDirList("base.obj", "base")
-
-        bvLayout = QVBoxLayout()
 
         self.basewidget = QListWidget()
         self.basewidget.setFixedSize(240, 200)
@@ -21,12 +18,11 @@ class BaseSelect(QGroupBox):
             items = self.basewidget.findItems(env.basename,Qt.MatchExactly)
             if len(items) > 0:
                 self.basewidget.setCurrentItem(items[0])
-        bvLayout.addWidget(self.basewidget)
+        self.addWidget(self.basewidget)
 
         buttons = QPushButton("Select")
         buttons.clicked.connect(callback)
-        bvLayout.addWidget(buttons)
-        self.setLayout(bvLayout)
+        self.addWidget(buttons)
 
     def getSelectedItem(self):
         sel = self.basewidget.selectedItems()
@@ -76,6 +72,7 @@ class SaveMHMForm(QVBoxLayout):
         self.addLayout(ilayout)
         uuid = self.bc.uuid if hasattr(self.bc, "uuid") else ""
         self.uuid = QLineEdit(uuid)
+        self.uuid.editingFinished.connect(self.newuuid)
         self.addWidget(self.uuid)
 
         # tags
@@ -97,19 +94,52 @@ class SaveMHMForm(QVBoxLayout):
         # filename
         #
         self.addWidget(QLabel("\nFilename:"))
-        self.filename = QLineEdit()
+        self.filename = QLineEdit(self.bc.name + ".mhm")
+        self.filename.editingFinished.connect(self.newfilename)
         self.addWidget(self.filename)
         self.savebutton=QPushButton("Save")
+        self.savebutton.clicked.connect(self.savefile)
         self.addWidget(self.savebutton)
 
+    def savefile(self):
+        """
+        path calculation, save file, save icon
+        """
+        path = self.glob.env.stdUserPath("models", self.filename.text())
+        self.bc.saveMHMFile(path)
+        if self.bc.photo is not None:
+            iconpath = path[:-4] + ".thumb"
+            self.bc.photo.save(iconpath, "PNG", -1)
+
+    def newfilename(self):
+        """
+        not empty, always ends with mhm
+        """
+        text = self.filename.text()
+        if len(text) == 0:
+            text = self.editname.text()
+        if not text.endswith(".mhm"):
+            self.filename.setText(text + ".mhm")
+
     def newname(self):
+        """
+        when empty, then 'base', create filename in case of no filename available
+        """
         text = self.editname.text()
-        if len(text):
-            self.bc.name = text
-            self.displaytitle(text)
+        if len(text) == 0:
+            self.editname.setText("base")
+
+        self.bc.name = text
+        self.displaytitle(text)
+        if self.filename.text() == "":
+            self.filename.setText(text + ".mhm")
 
     def genuuid(self):
-        self.uuid.setText(self.glob.gen_uuid())
+        self.bc.uuid = self.glob.gen_uuid()
+        self.uuid.setText(self.bc.uuid)
+
+    def newuuid(self):
+        self.bc.uuid = self.uuid.text()
 
     def cleartags(self):
         for l in range(5):
@@ -130,7 +160,7 @@ class SaveMHMForm(QVBoxLayout):
 
     def displayPixmap(self):
         if self.bc.photo is None:
-            pixmap = QPixmap(os.path.join(self.glob.env.path_sysicon, "empty_char.png"))
+            pixmap = QPixmap(os.path.join(self.glob.env.path_sysicon, "empty_models.png"))
         else:
             pixmap = QPixmap.fromImage(self.bc.photo)
         self.imglabel.setPixmap(pixmap)
@@ -139,4 +169,3 @@ class SaveMHMForm(QVBoxLayout):
     def thumbnail(self):
         self.bc.photo = self.view.createThumbnail()
         self.displayPixmap()
-        #image.save(name, "PNG", -1)

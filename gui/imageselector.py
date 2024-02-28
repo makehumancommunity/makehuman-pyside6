@@ -514,7 +514,7 @@ class editBox(QLineEdit):
         if self.changeFilter is not None:
             self.changeFilter()
 
-class Equipment():
+class ImageSelection():
     def __init__(self, glob, assetrepo, eqtype, multisel):
         self.glob = glob
         self.env = glob.env
@@ -595,6 +595,8 @@ class Equipment():
 
     def equipAsset(self, asset):
         print (asset)
+        if self.type == "models":
+            return
         if asset.status == 0:
             self.glob.baseClass.delAsset(asset.filename)
         elif asset.status == 1:
