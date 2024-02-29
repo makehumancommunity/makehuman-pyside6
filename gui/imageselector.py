@@ -33,11 +33,12 @@ class MHPictSelectable:
         self.filename = filename
         self.author = author
         self.tags = tags
+        self.basename = os.path.split(filename)[1].lower()
         #
         # append filename, author and  name as tags as well
         #
         self.tags.append(name.lower())
-        self.tags.append(os.path.split(filename)[1].lower())    # only name, not path
+        self.tags.append(self.basename)    # only name, not path
         self.tags.append(author.lower())
         self.status = 0
 
@@ -49,14 +50,11 @@ class PictureButton(QPushButton):
     tri-state picture button
     holds state in asset.status to be be reachable from outside
     :param asset: asset to be shown (used for name)
-    :param parent_update:      refresh function for widget where this button is contained
-    :param information_update: refresh function for widget where information will be written
     """
-    def __init__(self, asset: MHPictSelectable, emptyicon,  parent_update, information_update):
+    def __init__(self, asset: MHPictSelectable, scale, emptyicon):
 
         self.asset = asset
-        self.parent_update = parent_update
-        self.information_update = information_update
+        self.scale = scale
         self.icon = None
 
         super().__init__()
@@ -66,17 +64,20 @@ class PictureButton(QPushButton):
         else:
             self.picture_added = True
             self.icon = asset.icon
-        #self.setPicture(QPixmap(self.icon))
-        self.setPicture(QPixmap(self.icon).scaled(96,96, Qt.AspectRatioMode.KeepAspectRatio))
         self.setCheckable(True)
-        self.framecol  = (Qt.black, Qt.yellow, Qt.green)
-        self.setToolTip(asset.name)
+        self.framecol  = (Qt.black, Qt.yellow, Qt.green, Qt.blue)
+        self.setToolTip(asset.name + "\n" + asset.basename)
+        self.update()
 
     #def __del__(self):
     #    print (self.asset.name + " deleted")
 
-    def setPicture(self, icon):
-        self.picture = icon
+    def update(self):
+        self.picture = QPixmap(self.icon).scaled(self.scale,self.scale, Qt.AspectRatioMode.KeepAspectRatio)
+        super().update()
+
+    def setScale(self, scale):
+        self.scale=scale
         self.update()
 
     def sizeHint(self):
@@ -103,31 +104,25 @@ class PictureButton(QPushButton):
 
         painter.end()
 
-    def btnstate(self):
-        if self.asset.status == 0:
-            #print ("button " + str (self.text) + " pressed")
-            self.asset.status = 1
-            self.information_update(self.asset)
-        else:
-            #print ("button released")
-            self.asset.status = 0
-        self.parent_update(self)
-
-
 class PicFlowLayout(QLayout):
     """
-    multiSel: multiple selection, will change refresh method
+    selmode: multiple selection, will change refresh method
     """
-    def __init__(self, multiSel: False, callback, emptyIcon: str="", parent: QWidget=None, margin: int=-1, hSpacing: int=-1, vSpacing: int=-1):
+    def __init__(self, parent, assets, callback, printinfo, margin: int=-1, hSpacing: int=-1, vSpacing: int=-1):
 
-        super().__init__(parent)
+        super().__init__()
         self.itemList = list()
         self.wList = list()
         self.m_hSpace = hSpacing
         self.m_vSpace = vSpacing
-        self.multiSel = multiSel
-        self.empty = emptyIcon
+        self.selmode = parent.selmode
+        self.imagescale = parent.imagescale
+        self.empty = parent.emptyIcon
         self.callback = callback
+        self.printinfo = printinfo
+        self.assetlist = assets
+        self.filter = None
+        self.ruleset = None
         self.setContentsMargins(margin, margin, margin, margin)
 
     def __del__(self):
@@ -151,14 +146,14 @@ class PicFlowLayout(QLayout):
         self.wList = list()
 
     def refreshAllWidgets(self, current):
-        if self.multiSel:
+        if self.selmode == 1:
             for widget in self.wList:
                 if widget is not current and widget.asset.status == 1:
                     widget.asset.status = 2
                     widget.update()
         else:
             for widget in self.wList:
-                if widget is not current and widget.asset.status == 1:
+                if widget is not current and widget.asset.status > 0:
                     # print("item " + widget.text + " toggle")
                     widget.asset.status = 0
                     widget.update()
@@ -257,20 +252,38 @@ class PicFlowLayout(QLayout):
 
         return y + lineHeight - rect.y() + bottom
 
-    def updateAsset(self, current):
+    def updateAsset(self):
+        current = self.sender()
+        print (current.asset)
+
+        if current.asset.status == 0:
+            #print ("button " + str (self.text) + " pressed")
+            current.asset.status = 3 if self.selmode == 2 else 1
+            self.printinfo(current.asset)
+        else:
+            #print ("button released")
+            current.asset.status = 1 if self.selmode == 2 else 0
         self.callback(current.asset)
         self.refreshAllWidgets(current)
 
-    def populate(self, assetlist, ruleset, filtertext, displayInfo):
+    def setImageScale(self, scale):
+        self.imagescale = scale
+        self.removeAllWidgets()
+        self.populate(self.ruleset, self.filter)
+        
+    def populate(self, ruleset, filtertext):
         """
         :assetlist: complete asset list to be considered
         :ruleset: list for comparison or None
         :param filtertext: additional filter text or None
-        displayInfo: function for infobox
         """
         if filtertext == "":
             filtertext = None
-        for asset in assetlist:
+
+        self.filter = filtertext
+        self.ruleset = ruleset
+
+        for asset in self.assetlist:
             #
             # when ruleset in not empty or none check rules per base
     
@@ -311,20 +324,19 @@ class PicFlowLayout(QLayout):
                 display = fdisplay & display
 
             if display:
-                button1 = PictureButton(asset, self.empty, self.updateAsset, displayInfo)
-                button1.pressed.connect(button1.btnstate)
+                button1 = PictureButton(asset, self.imagescale, self.empty)
+                button1.pressed.connect(self.updateAsset)
                 self.addWidget (button1)
 
 class PicSelectWidget(QWidget):
     """
     PicSelectWidget is a PicFlowLayout embedded in a QGroupBox with a QScrollArea
     addWidget will add a button to the PicFlowLayout
-    :param name: headline (default selection)
-    :param multiSel: multiple selection 
+    :param parent: for empty image, selection-mode
+    :param callback: function to call when clicked
     """
-    def __init__(self, name="Selection", callback=None, multiSel=False, emptyIcon=""):
-        self.multiSel =  multiSel
-        self.layout = PicFlowLayout(multiSel=multiSel, callback=callback,  emptyIcon=emptyIcon)
+    def __init__(self, parent, assets, callback, printinfo):
+        self.layout = PicFlowLayout(parent, assets, callback, printinfo)
         super().__init__()
 
     def __del__(self):
@@ -336,17 +348,19 @@ class PicSelectWidget(QWidget):
     def refreshAllWidgets(self, current):
         self.layout.refreshAllWidgets(current)
 
-    def populate(self, assetlist, ruleset, filtertext, displayInfo):
-        self.layout.populate(assetlist, ruleset, filtertext, displayInfo)
+    def populate(self, ruleset, filtertext):
+        self.layout.populate(ruleset, filtertext)
 
     def addWidget(self, button):
         self.layout.addWidget (button)
+
+    def setImageScale(self, scale):
+        self.layout.setImageScale(scale)
 
 class InformationBox(QWidget):
     def __init__(self, layout):
         super().__init__()
         self.layout = layout
-        #self.layout = QVBoxLayout()
         self.selectedName = QLabel("Name:\nAuthor:")
         self.layout.addWidget(self.selectedName)
         self.layout.addWidget(QLabel("Tags:"))
@@ -355,7 +369,6 @@ class InformationBox(QWidget):
         self.tagbox.setReadOnly(True)
         self.tagbox.setFixedHeight(120)
         self.layout.addWidget(self.tagbox)
-        #self.setLayout(self.layout)
 
     def setInformation(self, asset):
         self.selectedName.setText("Name: " + asset.name + "\n" + "Author: " + asset.author)
@@ -364,15 +377,13 @@ class InformationBox(QWidget):
 class FilterTree(QTreeView):
     """
     :param flowLayout: points to layout
-    :param displayInfo: points to information box
     """
 
-    def  __init__(self, assets, searchByFilterText, displayInfo, iconpath):
+    def  __init__(self, assets, searchByFilterText, iconpath):
 
         self.assets = assets
         self.searchByFilterText = searchByFilterText
         self.flowLayout = None
-        self.displayInfo = displayInfo
         self.iconpath = iconpath
         self.shortcut = []
         self.shortcutbutton = []
@@ -432,20 +443,31 @@ class FilterTree(QTreeView):
             elem.setChecked(elem._funcid == funcid)
 
     def shortCutPressed(self):
+        """
+        create a ruleset by a macro from button, so for an icon lingerie one has:
+            gender:female&slot:top:layer1:bra|slot:bottom:layer1:panties
+        what creates:
+            {'gender': ['female'], 'slot': ['top:layer1:bra', 'bottom:layer1:panties']}
+        """
         funcid = self.sender()._funcid
         text = self.shortcut[funcid][1]
         print ("Shortcut pressed: " + text)
-        allterms = text.split("&")
+        andOps = text.split("&")
         ruleset = {}
-        for elem in allterms:
-            layers = elem.split(":")
-            if len(layers) > 1:
-                ruleset[layers[0]] = [ ":".join(layers[1:]) ]
+        for aelem in andOps:
+            orOps = aelem.split("|")
+            for oelem in orOps:
+                layers = oelem.split(":")
+                if len(layers) > 1:
+                    key = layers[0]
+                    if key in ruleset:
+                        ruleset[key].append(":".join(layers[1:]))
+                    else:
+                        ruleset[key] = [ ":".join(layers[1:]) ]
 
-        print (ruleset)
         self.markSelectedButtons(funcid)
         self.flowLayout.removeAllWidgets()
-        self.flowLayout.populate(self.assets, ruleset, "", self.displayInfo)
+        self.flowLayout.populate(ruleset, "")
 
 
     def addShortCuts(self):
@@ -491,16 +513,17 @@ class FilterTree(QTreeView):
         filtertext = self.searchByFilterText.text().lower()
         self.markSelectedButtons(-1)
         self.flowLayout.removeAllWidgets()
-        self.flowLayout.populate(self.assets, ruleset, filtertext, self.displayInfo)
+        #print (ruleset)
+        self.flowLayout.populate(ruleset, filtertext)
 
 class editBox(QLineEdit):
-    def  __init__(self, slayout, widget):
+    def  __init__(self, slayout):
+        super().__init__()
         self.changeFilter = None
         self.empty = QPushButton("")
-        self.empty.setIcon(widget.style().standardIcon(QStyle.SP_DialogCancelButton))
+        self.empty.setIcon(self.style().standardIcon(QStyle.SP_DialogCancelButton))
         self.empty.setMaximumWidth(30)
         self.empty.clicked.connect(self.clearEditBox)
-        super().__init__()
         slayout.addWidget(self)
         slayout.addWidget(self.empty)
         self.setMaximumWidth(170)
@@ -515,18 +538,22 @@ class editBox(QLineEdit):
             self.changeFilter()
 
 class ImageSelection():
-    def __init__(self, glob, assetrepo, eqtype, multisel):
+    def __init__(self, glob, assetrepo, eqtype, selmode, callback, scale=2):
         self.glob = glob
         self.env = glob.env
         self.assetrepo = assetrepo
         self.type = eqtype
-        self.multisel = multisel
+        self.selmode = selmode
+        self.callback = callback
         self.tagreplace = {}
         self.filterjson = None
         self.picwidget = None
         self.filterview = None
         self.asset_category = []
+        self.scales = [48, 64, 96, 128]
         self.emptyIcon = os.path.join(self.env.path_sysdata, "icons", "empty_" + self.type + ".png")
+        self.scaleindex = scale
+        self.imagescale = self.scales[scale]
         if not os.path.isfile(self.emptyIcon):
             self.emptyIcon = os.path.join(self.env.path_sysdata, "icons", "noidea.png")
 
@@ -593,14 +620,15 @@ class ImageSelection():
         for elem in self.asset_category:
             elem.status = 1 if elem.filename in checked else 0
 
-    def equipAsset(self, asset):
-        print (asset)
-        if self.type == "models":
-            return
-        if asset.status == 0:
-            self.glob.baseClass.delAsset(asset.filename)
-        elif asset.status == 1:
-            self.glob.baseClass.addAndDisplayAsset(asset.filename, self.type, self.multisel)
+    def picButtonChanged(self, asset):
+        multi = (self.selmode == 1)
+        self.callback(asset, self.type, multi)
+
+    def scaleImages(self):
+        # toggle through 4 scales
+        self.scaleindex = (self.scaleindex + 1) % 4
+        self.imagescale = self.scales[self.scaleindex]
+        self.picwidget.setImageScale(self.imagescale)
 
     def leftPanel(self):
         """
@@ -611,10 +639,9 @@ class ImageSelection():
         v1layout = QVBoxLayout()    # this is for searching
         self.infobox = InformationBox(v1layout)
 
-        widget = QWidget()
         slayout = QHBoxLayout()  # layout for textbox + empty button
-        filteredit = editBox(slayout, widget)
-        self.filterview = FilterTree(self.asset_category, filteredit, self.infobox.setInformation, iconpath)
+        filteredit = editBox(slayout)
+        self.filterview = FilterTree(self.asset_category, filteredit, iconpath)
         self.filterview.addTree(self.filterjson)
         self.filterview.selectionModel().selectionChanged.connect(self.filterview.filterChanged)
         shortcuts = self.filterview.addShortCuts()
@@ -626,15 +653,19 @@ class ImageSelection():
         v1layout.addWidget(QLabel("Filter:"))
         v1layout.addLayout(slayout)
 
+        sizebutton = QPushButton("Change Image Size")
+        sizebutton.clicked.connect(self.scaleImages)
+        v1layout.addWidget(sizebutton)
+
         return(v1layout)
 
     def rightPanel(self):
         """
         draw tools Panel
         """
-        self.picwidget = PicSelectWidget("Clothes", multiSel=self.multisel, callback=self.equipAsset, emptyIcon=self.emptyIcon)
+        self.picwidget = PicSelectWidget(self, self.asset_category, self.picButtonChanged, self.infobox.setInformation)
         self.filterview.setPicLayout(self.picwidget.layout)
-        self.picwidget.populate(self.asset_category, None, None, self.infobox.setInformation)
+        self.picwidget.populate(None, None)
         self.changeStatus()
         return(self.picwidget)
 

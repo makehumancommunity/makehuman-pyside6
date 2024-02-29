@@ -37,7 +37,7 @@
 		["hat.png", "slot:headgear:layer3:hat", "Hat"],
 		["accessory.png", "slot:neck:necklace", "Accessories"],
 		["shirt.png", "slot:top:layer2:shirt", "Shirt"],
-		["lingerie.png", "slot:top:layer1:bra", "Lingerie"],
+		["lingerie.png", "gender:female&slot:top:layer1:bra|slot:bottom:layer1:panties", "Lingerie"],
 		["swimwear.png", "slot:top:layer1:swimwear", "Swimwear"],
 		["jacket.png", "slot:top:layer3:jacket", "Jacket"],
 		["pant.png", "slot:bottom:layer2:pants", "Pants"],

@@ -187,8 +187,8 @@ class baseClass():
         #
         if self.glob.Targets is not None:
             for target in self.glob.Targets.modelling_targets:
-                if target.value != 0.0 and target.pattern != "None":
-                    fp.write ("modifier " + target.pattern + " " + str(target.value / 100) + "\n")
+                if target.value != target.default and target.pattern != "None":
+                    fp.write ("modifier " + target.pattern + " " + str(round(target.value / 100, 6)) + "\n")
 
         # assets
         #

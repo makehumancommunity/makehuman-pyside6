@@ -52,14 +52,14 @@ class MHMainWindow(QMainWindow):
         self.category_mode = 0      # the categories according to tool_mode
 
         self.equipment = [
-                { "func": None, "menu": None, "name": "clothes", "mult": True },
-                { "func": None, "menu": None, "name": "hair", "mult": False },
-                { "func": None, "menu": None, "name": "eyes", "mult": False },
-                { "func": None, "menu": None, "name": "eyebrows", "mult": False },
-                { "func": None, "menu": None, "name": "eyelashes", "mult": False },
-                { "func": None, "menu": None, "name": "teeth", "mult": False },
-                { "func": None, "menu": None, "name": "tongue", "mult": False },
-                { "func": None, "menu": None, "name": "topology", "mult": False }
+                { "func": None, "menu": None, "name": "clothes", "mode": 1 },
+                { "func": None, "menu": None, "name": "hair", "mode": 0 },
+                { "func": None, "menu": None, "name": "eyes", "mode": 0 },
+                { "func": None, "menu": None, "name": "eyebrows", "mode": 0 },
+                { "func": None, "menu": None, "name": "eyelashes", "mode": 0 },
+                { "func": None, "menu": None, "name": "teeth", "mode": 0 },
+                { "func": None, "menu": None, "name": "tongue", "mode": 0 },
+                { "func": None, "menu": None, "name": "topology", "mode": 0 }
         ]
 
         self.model_buttons = [ 
@@ -175,13 +175,13 @@ class MHMainWindow(QMainWindow):
         #
         if self.glob.baseClass is not None:
             for elem in self.equipment:
-                elem["func"] = ImageSelection(self.glob, self.glob.baseClass.mhclo_namemap, elem["name"], elem["mult"])
+                elem["func"] = ImageSelection(self.glob, self.glob.baseClass.mhclo_namemap, elem["name"], elem["mode"], self.equipCallback)
                 elem["func"].prepare()
                 elem["menu"] = equip.addAction(elem["name"])
                 elem["menu"].triggered.connect(self.equip_call)
 
         scanned = self.env.fileScanFolderMHM()
-        self.charselect = ImageSelection(self.glob, scanned, "models", False)
+        self.charselect = ImageSelection(self.glob, scanned, "models", 2, self.loadByIconCallback, 3)
         self.charselect.prepare()
 
         # generate tool buttons, model_buttons (save ressources)
@@ -213,6 +213,14 @@ class MHMainWindow(QMainWindow):
     def setWindowTitle(self, text):
         title = self.env.release_info["name"] + " (" + text + ")"
         super().setWindowTitle(title)
+
+
+    def equipCallback(self, asset, eqtype, multi):
+        if asset.status == 0:
+            self.glob.baseClass.delAsset(asset.filename)
+        elif asset.status == 1:
+            self.glob.baseClass.addAndDisplayAsset(asset.filename, eqtype, multi)
+
 
     def fileRequest(self, ftext, pattern, directory, save=None):
         """
@@ -513,28 +521,38 @@ class MHMainWindow(QMainWindow):
             self.scene_window = MHSceneWindow(self, self.graph.view)
         self.scene_window.show()
 
+    def changesLost(self, text):
+        confirmed = 1
+        if self.glob.project_changed:
+            dbox = DialogBox(text + ": all recent changes will be lost.\nPress cancel to abort", QDialogButtonBox.Ok)
+            confirmed = dbox.exec()
+        return(confirmed)
+
+    def newCharacter(self, filename):
+        if filename is not None:
+            self.setToolModeAndPanel(0, 0)
+            self.graph.view.noAssets()
+            self.glob.freeTextures()
+            self.glob.baseClass.loadMHMFile(filename)
+            self.graph.view.addAssets()
+            self.graph.view.newTexture(self.glob.baseClass.baseMesh)
+            self.graph.view.Tweak()
+            self.setWindowTitle(self.glob.baseClass.name)
+            self.glob.mhViewport.setSizeInfo()
+        self.glob.project_changed = False
+
     def loadmhm_call(self):
         if self.glob.baseClass is not None:
-            confirmed = 1
-            if self.glob.project_changed:
-                dbox = DialogBox("All changes will be lost, okay to load a new character?", QDialogButtonBox.Ok)
-                confirmed = dbox.exec()
-
-            if confirmed:
+            if self.changesLost("Load character"):
                 directory = self.env.stdUserPath("models")
                 filename = self.fileRequest("Model", "Model files (*.mhm)", directory)
-                if filename is not None:
-                    self.setToolModeAndPanel(0, 0)
-                    self.graph.view.noAssets()
-                    self.glob.freeTextures()
-                    self.glob.baseClass.loadMHMFile(filename)
-                    self.graph.view.addAssets()
-                    self.graph.view.newTexture(self.glob.baseClass.baseMesh)
-                    self.graph.view.Tweak()
-                    self.setWindowTitle(self.glob.baseClass.name)
-                    self.glob.mhViewport.setSizeInfo()
-                self.glob.project_changed = False
+                self.newCharacter(filename)
 
+    def loadByIconCallback(self, asset, eqtype, multi):
+        if asset.status != 1:
+            return
+        if self.changesLost("Load character"):
+            self.newCharacter(asset.filename)
 
     def savemhm_call(self):
         if self.glob.baseClass is not None:
@@ -554,25 +572,9 @@ class MHMainWindow(QMainWindow):
             self.info_window = MHInfoWindow(self.glob)
         self.info_window.show()
 
-    def presentbaseselect_call(self):
-        confirmed = 1
-        if self.glob.project_changed:
-            dbox = DialogBox("By changing the base mesh, all current changes are lost. Do you want to apply a new mesh?", QDialogButtonBox.Ok)
-            confirmed =  dbox.exec()
-
-        if confirmed:
-            self.emptyLayout(self.BaseBox)
-            self.drawLeftPanel()
-            self.BaseBox.update()
-
     def reset_call(self):
         if self.glob.Targets is not None:
-            confirmed = 1
-            if self.glob.project_changed:
-                dbox = DialogBox("All changes will be lost. Do you want to do a reset?", QDialogButtonBox.Ok)
-                confirmed = dbox.exec()
-
-            if confirmed:
+            if self.changesLost("Reset character"):
                 print ("Reset")
                 self.glob.Targets.reset()
                 self.glob.project_changed = False
@@ -587,6 +589,8 @@ class MHMainWindow(QMainWindow):
         if base is not None:
             #
             if base == self.env.basename:
+                return
+            if self.changesLost("New basemesh") == 0:
                 return
             dirname = os.path.dirname(filename)
             base = baseClass(self.glob, base, dirname)
@@ -709,14 +713,13 @@ class MHMainWindow(QMainWindow):
         if self.graph is not None:
             self.graph.cleanUp()
 
-        if self.glob.project_changed:
-            dbox = DialogBox("All changes will be lost. Do you want to exit?", QDialogButtonBox.Ok)
-            confirmed = dbox.exec()
-            if confirmed == 0:
-                if isinstance(event,QCloseEvent):
-                    event.ignore()
-                    print ("Close event")
-                return
+        confirmed =  self.changesLost("Exit program")
+        if confirmed == 0:
+            if isinstance(event,QCloseEvent):
+                event.ignore()
+                print ("Close event")
+            return
+
         self.glob.freeTextures()
         if self.in_close is False:
             self.in_close = True                # avoid double call by closeAllWindows
