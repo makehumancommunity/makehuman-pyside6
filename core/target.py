@@ -39,12 +39,13 @@ class Modelling:
         self.barycentric = None # map slider
         self.opposite = True # two.directional slider
         self.mapSlider = None # filled from mapslider function
+        self.sym = None       # symmetric side (left, right)
         self.displayname = name
         self.group = None
         self.pattern = "None"
 
     def __str__(self):
-        return (self.name + ": " + str(self.incr) + "/" + str(self.decr))
+        return (self.name + ": " + str(self.incr) + " | " + str(self.decr))
 
     def memInfo(self):
         if self.barycentric:
@@ -63,6 +64,9 @@ class Modelling:
             t = [self.name, str(self.incr), li, str(self.decr), ld, self.pattern, self.value]
         return (t)
 
+
+    def set_symname(self, name):
+        self.sym = name
 
     def incr_target(self, fname):
         self.incr = fname
@@ -185,6 +189,10 @@ class Modelling:
         print("init  " + self.name)
         if self.incr is not None or self.decr is not None:
             self.obj.getInitialCopyForSlider(factor, self.decr, self.incr)
+            if self.glob.Targets.getSym() is True and self.sym is not None:
+                if self.sym in self.glob.targetRepo:
+                    key = self.glob.targetRepo[self.sym]
+                    self.obj.getInitialCopyForSlider(factor, key.decr, key.incr)
 
     def generateAllMacroWeights(self, targetlist, macroname, factor, weights):
         """
@@ -336,6 +344,18 @@ class Modelling:
         elif self.incr is not None or self.decr is not None:
             print("change " + self.name)
             self.obj.updateByTarget(factor, self.decr, self.incr)
+
+            # in case symmetry is switched on, set sym-side + value
+            #
+            if self.glob.Targets.getSym() is True and self.sym is not None:
+                if self.sym in self.glob.targetRepo:
+                    key = self.glob.targetRepo[self.sym]
+                    self.obj.updateByTarget(factor, key.decr, key.incr)
+                    key.value = self.value
+                else:
+                    print ("Target missing")
+            else:
+                print ("no sym")
             self.glob.project_changed = True
             self.glob.mhViewport.setSizeInfo()
             self.gwindow.Tweak()
@@ -411,9 +431,17 @@ class Targets:
         self.collection = None
         self.macrodef = None
         self.baseClass = glob.baseClass
+        self.symmetry = False
 
     def __str__(self):
         return ("Target-Collection: " + str(self.collection))
+
+    def getSym(self):
+        return self.symmetry
+
+    def setSym(self, value):
+        print ("Set symmetry " + str(value))
+        self.symmetry = value
 
     def loadModellingJSON(self):
         targetpath = self.env.stdSysPath("target")
@@ -512,6 +540,8 @@ class Targets:
                 mt = Morphtarget(self.env, t["incr"])
                 mt.loadTargetData(targetpath, bintargets)
                 m.incr_target(mt)
+            if "sym" in t:
+                m.set_symname(t["sym"])
             if "macro" in t:
                 m.macro_target(t["macro"])
             if "macro_influence" in t:

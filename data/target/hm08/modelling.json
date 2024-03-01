@@ -441,238 +441,272 @@
 		"group": "face|right eye",
 		"icon": "r-eye-bag-decr-incr.png",
 		"decr": "eyes/r-eye-bag-decr",
-                "incr": "eyes/r-eye-bag-incr"
+                "incr": "eyes/r-eye-bag-incr",
+		"sym": "eyes/l-eye-bag-decr|incr"
 	},
 	"R-Eye Bag Distorsion": {
 		"name": "Eye Bag Distorsion",
 		"group": "face|right eye",
 		"icon": "r-eye-bag-in-out.png",
 		"decr": "eyes/r-eye-bag-in",
-                "incr": "eyes/r-eye-bag-out"
+                "incr": "eyes/r-eye-bag-out",
+		"sym": "eyes/l-eye-bag-in|out"
 	},
 	"R-Eye Bag Height": {
 		"name": "Eye Bag Height",
 		"group": "face|right eye",
 		"icon": "r-eye-bag-height-decr-incr.png",
 		"decr": "eyes/r-eye-bag-height-decr",
-                "incr": "eyes/r-eye-bag-height-incr"
+                "incr": "eyes/r-eye-bag-height-incr",
+		"sym": "eyes/l-eye-bag-height-decr|incr"
 	},
 	"R-Eye Fold Angle": {
 		"name": "Eyefold Angle",
 		"group": "face|right eye",
 		"icon": "r-eye-eyefold-angle-down-up.png",
 		"decr": "eyes/r-eye-eyefold-angle-down",
-                "incr": "eyes/r-eye-eyefold-angle-up"
+                "incr": "eyes/r-eye-eyefold-angle-up",
+		"sym": "eyes/l-eye-eyefold-angle-down|up"
 	},
 	"R-Eye Fold Volume": {
 		"name": "Eyefold Volume",
 		"group": "face|right eye",
 		"icon": "r-eye-eyefold-concave-convex.png",
 		"decr": "eyes/r-eye-eyefold-concave",
-                "incr": "eyes/r-eye-eyefold-convex"
+                "incr": "eyes/r-eye-eyefold-convex",
+		"sym": "eyes/l-eye-eyefold-concave|convex"
 	},
 	"R-Eye Fold Pos": {
 		"name": "Eyefold Position",
 		"group": "face|right eye",
 		"icon": "r-eye-eyefold-down-up.png",
 		"decr": "eyes/r-eye-eyefold-down",
-                "incr": "eyes/r-eye-eyefold-up"
+                "incr": "eyes/r-eye-eyefold-up",
+		"sym": "eyes/l-eye-eyefold-down|up"
 	},
 	"R-Eye Epicanthus": {
 		"name": "Eye Epicathus",
 		"group": "face|right eye",
 		"icon": "r-eye-epicanthus-in-out.png",
 		"decr": "eyes/r-eye-epicanthus-in",
-                "incr": "eyes/r-eye-epicanthus-out"
+                "incr": "eyes/r-eye-epicanthus-out",
+		"sym": "eyes/l-eye-epicanthus-in|out"
 	},
 	"R-Eye Scale": {
 		"name": "Scale Eye",
 		"group": "face|right eye",
 		"icon": "r-eye-scale-decr-incr.png",
 		"decr": "eyes/r-eye-scale-decr",
-		"incr": "eyes/r-eye-scale-incr"
+		"incr": "eyes/r-eye-scale-incr",
+		"sym": "eyes/l-eye-scale-decr|incr"
 	},
 	"R-Eye ScaleVer1": {
 		"name": "Eye Scale Inner Height",
 		"group": "face|right eye",
 		"icon": "r-eye-height1-decr-incr.png",
 		"decr": "eyes/r-eye-height1-decr",
-		"incr": "eyes/r-eye-height1-incr"
+		"incr": "eyes/r-eye-height1-incr",
+		"sym": "eyes/l-eye-height1-decr|incr"
 	},
 	"R-Eye ScaleVer2": {
 		"name": "Eye Scale Central Height",
 		"group": "face|right eye",
 		"icon": "r-eye-height2-decr-incr.png",
 		"decr": "eyes/r-eye-height2-decr",
-		"incr": "eyes/r-eye-height2-incr"
+		"incr": "eyes/r-eye-height2-incr",
+		"sym": "eyes/l-eye-height2-decr|incr"
 	},
 	"R-Eye ScaleVer3": {
 		"name": "Eye Scale Outer Height",
 		"group": "face|right eye",
 		"icon": "r-eye-height3-decr-incr.png",
 		"decr": "eyes/r-eye-height3-decr",
-		"incr": "eyes/r-eye-height3-incr"
+		"incr": "eyes/r-eye-height3-incr",
+		"sym": "eyes/l-eye-height3-decr|incr"
 	},
 	"R-Eye MoveHor": {
 		"name": "Move Eye Horizontally",
 		"group": "face|right eye",
 		"icon": "r-eye-trans-in-out.png",
 		"decr": "eyes/r-eye-trans-in",
-		"incr": "eyes/r-eye-trans-out"
+		"incr": "eyes/r-eye-trans-out",
+		"sym": "eyes/l-eye-trans-in|out"
 	},
 	"R-Eye OutCorn MoveHor": {
 		"name": "Move Outer Corner Horizontally",
 		"group": "face|right eye",
 		"icon": "r-eye-push1-in-out.png",
 		"decr": "eyes/r-eye-push1-in",
-		"incr": "eyes/r-eye-push1-out"
+		"incr": "eyes/r-eye-push1-out",
+		"sym": "eyes/l-eye-push1-in|out"
 	},
 	"R-Eye OutCorn MoveVer": {
 		"name": "Move Outer Corner Vertically",
 		"group": "face|right eye",
 		"icon": "r-eye-corner1-down-up.png",
                 "decr": "eyes/r-eye-corner1-down",
-                "incr": "eyes/r-eye-corner1-up"
+                "incr": "eyes/r-eye-corner1-up",
+		"sym": "eyes/l-eye-corner1-down|up"
 	},
 	"R-Eye InCorn MoveHor": {
 		"name": "Move Inner Corner Horizontally",
 		"group": "face|right eye",
 		"icon": "r-eye-push2-in-out.png",
 		"decr": "eyes/r-eye-push2-in",
-		"incr": "eyes/r-eye-push2-out"
+		"incr": "eyes/r-eye-push2-out",
+		"sym": "eyes/l-eye-push2-in|out"
 	},
 	"R-Eye InCorn MoveVer": {
 		"name": "Move Inner Corner Vertically",
 		"group": "face|right eye",
 		"icon": "r-eye-corner2-down-up.png",
                 "decr": "eyes/r-eye-corner2-down",
-                "incr": "eyes/r-eye-corner2-up"
+                "incr": "eyes/r-eye-corner2-up",
+		"sym": "eyes/l-eye-corner2-down|up"
 	},
 	"R-Eye MoveVer": {
 		"name": "Move Eye Vertically",
 		"group": "face|right eye",
 		"icon": "r-eye-trans-down-up.png",
 		"decr": "eyes/r-eye-trans-down",
-		"incr": "eyes/r-eye-trans-up"
+		"incr": "eyes/r-eye-trans-up",
+		"sym": "eyes/l-eye-trans-down|up"
 	},
 	"L-Eye Bag Volume": {
 		"name": "Eye Bag Volume",
 		"group": "face|left eye",
 		"icon": "l-eye-bag-decr-incr.png",
 		"decr": "eyes/l-eye-bag-decr",
-                "incr": "eyes/l-eye-bag-incr"
+                "incr": "eyes/l-eye-bag-incr",
+		"sym": "eyes/r-eye-bag-decr|incr"
 	},
 	"L-Eye Bag Distorsion": {
 		"name": "Eye Bag Distorsion",
 		"group": "face|left eye",
 		"icon": "l-eye-bag-in-out.png",
 		"decr": "eyes/l-eye-bag-in",
-                "incr": "eyes/l-eye-bag-out"
+                "incr": "eyes/l-eye-bag-out",
+		"sym": "eyes/r-eye-bag-in|out"
 	},
 	"L-Eye Bag Height": {
 		"name": "Eye Bag Height",
 		"group": "face|left eye",
 		"icon": "l-eye-bag-height-decr-incr.png",
 		"decr": "eyes/l-eye-bag-height-decr",
-                "incr": "eyes/l-eye-bag-height-incr"
+                "incr": "eyes/l-eye-bag-height-incr",
+		"sym": "eyes/r-eye-bag-height-decr|incr"
 	},
 	"L-Eye Fold Angle": {
 		"name": "Eyefold Angle",
 		"group": "face|left eye",
 		"icon": "l-eye-eyefold-angle-down-up.png",
 		"decr": "eyes/l-eye-eyefold-angle-down",
-                "incr": "eyes/l-eye-eyefold-angle-up"
+                "incr": "eyes/l-eye-eyefold-angle-up",
+		"sym": "eyes/r-eye-eyefold-angle-down|up"
 	},
 	"L-Eye Fold Volume": {
 		"name": "Eyefold Volume",
 		"group": "face|left eye",
 		"icon": "l-eye-eyefold-concave-convex.png",
 		"decr": "eyes/l-eye-eyefold-concave",
-                "incr": "eyes/l-eye-eyefold-convex"
+                "incr": "eyes/l-eye-eyefold-convex",
+		"sym": "eyes/r-eye-eyefold-concave|convex"
 	},
 	"L-Eye Fold Pos": {
 		"name": "Eyefold Position",
 		"group": "face|left eye",
 		"icon": "l-eye-eyefold-down-up.png",
 		"decr": "eyes/l-eye-eyefold-down",
-                "incr": "eyes/l-eye-eyefold-up"
+                "incr": "eyes/l-eye-eyefold-up",
+		"sym": "eyes/r-eye-eyefold-down|up"
 	},
 	"L-Eye Epicanthus": {
 		"name": "Eye Epicathus",
 		"group": "face|left eye",
 		"icon": "l-eye-epicanthus-in-out.png",
 		"decr": "eyes/l-eye-epicanthus-in",
-                "incr": "eyes/l-eye-epicanthus-out"
+                "incr": "eyes/l-eye-epicanthus-out",
+		"sym": "eyes/r-eye-epicanthus-in|out"
 	},
 	"L-Eye Scale": {
 		"name": "Scale Eye",
 		"group": "face|left eye",
 		"icon": "l-eye-scale-decr-incr.png",
 		"decr": "eyes/l-eye-scale-decr",
-		"incr": "eyes/l-eye-scale-incr"
+		"incr": "eyes/l-eye-scale-incr",
+		"sym": "eyes/r-eye-scale-decr|incr"
 	},
 	"L-Eye ScaleVer1": {
 		"name": "Eye Scale Inner Height",
 		"group": "face|left eye",
 		"icon": "l-eye-height1-decr-incr.png",
 		"decr": "eyes/l-eye-height1-decr",
-		"incr": "eyes/l-eye-height1-incr"
+		"incr": "eyes/l-eye-height1-incr",
+		"sym": "eyes/r-eye-height1-decr|incr"
 	},
 	"L-Eye ScaleVer2": {
 		"name": "Eye Scale Central Height",
 		"group": "face|left eye",
 		"icon": "l-eye-height2-decr-incr.png",
 		"decr": "eyes/l-eye-height2-decr",
-		"incr": "eyes/l-eye-height2-incr"
+		"incr": "eyes/l-eye-height2-incr",
+		"sym": "eyes/r-eye-height2-decr|incr"
 	},
 	"L-Eye ScaleVer3": {
 		"name": "Eye Scale Outer Height",
 		"group": "face|left eye",
 		"icon": "l-eye-height3-decr-incr.png",
 		"decr": "eyes/l-eye-height3-decr",
-		"incr": "eyes/l-eye-height3-incr"
+		"incr": "eyes/l-eye-height3-incr",
+		"sym": "eyes/r-eye-height3-decr|incr"
 	},
 	"L-Eye MoveHor": {
 		"name": "Move Eye Horizontally",
 		"group": "face|left eye",
 		"icon": "l-eye-trans-in-out.png",
 		"decr": "eyes/l-eye-trans-in",
-		"incr": "eyes/l-eye-trans-out"
+		"incr": "eyes/l-eye-trans-out",
+		"sym": "eyes/r-eye-trans-in|out"
 	},
 	"L-Eye OutCorn MoveHor": {
 		"name": "Move Outer Corner Horizontally",
 		"group": "face|left eye",
 		"icon": "l-eye-push1-in-out.png",
 		"decr": "eyes/l-eye-push1-in",
-		"incr": "eyes/l-eye-push1-out"
+		"incr": "eyes/l-eye-push1-out",
+		"sym": "eyes/r-eye-push1-in|out"
 	},
 	"L-Eye OutCorn MoveVer": {
 		"name": "Move Outer Corner Vertically",
 		"group": "face|left eye",
 		"icon": "l-eye-corner1-down-up.png",
                 "decr": "eyes/l-eye-corner1-down",
-                "incr": "eyes/l-eye-corner1-up"
+                "incr": "eyes/l-eye-corner1-up",
+		"sym": "eyes/r-eye-corner1-down|up"
 	},
 	"L-Eye InCorn MoveHor": {
 		"name": "Move Inner Corner Horizontally",
 		"group": "face|left eye",
 		"icon": "l-eye-push2-in-out.png",
 		"decr": "eyes/l-eye-push2-in",
-		"incr": "eyes/l-eye-push2-out"
+		"incr": "eyes/l-eye-push2-out",
+		"sym": "eyes/r-eye-push2-in|out"
 	},
 	"L-Eye InCorn MoveVer": {
 		"name": "Move Inner Corner Vertically",
 		"group": "face|left eye",
 		"icon": "l-eye-corner2-down-up.png",
                 "decr": "eyes/l-eye-corner2-down",
-                "incr": "eyes/l-eye-corner2-up"
+                "incr": "eyes/l-eye-corner2-up",
+		"sym": "eyes/r-eye-corner2-down|up"
 	},
 	"L-Eye MoveVer": {
 		"name": "Move Eye Vertically",
 		"group": "face|left eye",
 		"icon": "l-eye-trans-down-up.png",
 		"decr": "eyes/l-eye-trans-down",
-		"incr": "eyes/l-eye-trans-up"
+		"incr": "eyes/l-eye-trans-up",
+		"sym": "eyes/r-eye-trans-down|up"
 	},
 	"Nose MoveHor": {
 		"name": "Move Horizontally",
@@ -980,154 +1014,176 @@
 		"group": "face|right ear",
 		"icon": "r-ear-scale-decr-incr.png",
 		"decr": "ears/r-ear-scale-decr",
-		"incr": "ears/r-ear-scale-incr"
+		"incr": "ears/r-ear-scale-incr",
+		"sym": "ears/l-ear-scale-decr|incr"
 	},
 	"R-EAR ScaleHor": {
 		"name": "Scale Width",
 		"group": "face|right ear",
 		"icon": "r-ear-scale-depth-decr-incr.png",
 		"decr": "ears/r-ear-scale-depth-decr",
-		"incr": "ears/r-ear-scale-depth-incr"
+		"incr": "ears/r-ear-scale-depth-incr",
+		"sym": "ears/l-ear-scale-depth-decr|incr"
 	},
 	"R-EAR ScaleVer": {
 		"name": "Scale Height",
 		"group": "face|right ear",
 		"icon": "r-ear-scale-vert-decr-incr.png",
 		"decr": "ears/r-ear-scale-vert-decr",
-		"incr": "ears/r-ear-scale-vert-incr"
+		"incr": "ears/r-ear-scale-vert-incr",
+		"sym": "ears/l-ear-scale-vert-decr|incr"
 	},
 	"R-EAR MoveVer": {
 		"name": "Move Vertically",
 		"group": "face|right ear",
 		"icon": "r-ear-trans-down-up.png",
 		"decr": "ears/r-ear-trans-down",
-		"incr": "ears/r-ear-trans-up"
+		"incr": "ears/r-ear-trans-up",
+		"sym": "ears/l-ear-trans-down|up"
 	},
 	"R-EAR MoveDep": {
 		"name": "Move Depth",
 		"group": "face|right ear",
 		"icon": "r-ear-trans-backward-forward.png",
 		"decr": "ears/r-ear-trans-backward",
-		"incr": "ears/r-ear-trans-forward"
+		"incr": "ears/r-ear-trans-forward",
+		"sym": "ears/l-ear-trans-backward|forward"
 	},
 	"R-EAR Lobe Scale": {
 		"name": "Scale Lobe",
 		"group": "face|right ear",
 		"icon": "r-ear-lobe-decr-incr.png",
 		"decr": "ears/r-ear-lobe-decr",
-		"incr": "ears/r-ear-lobe-incr"
+		"incr": "ears/r-ear-lobe-incr",
+		"sym": "ears/l-ear-lobe-decr|incr"
 	},
 	"R-EAR Rot": {
 		"name": "Rotate Ear",
 		"group": "face|right ear",
 		"icon": "r-ear-rot-backward-forward.png",
 		"decr": "ears/r-ear-rot-backward",
-		"incr": "ears/r-ear-rot-forward"
+		"incr": "ears/r-ear-rot-forward",
+		"sym": "ears/l-ear-rot-backward|forward"
 	},
 	"R-EAR Shape1": {
 		"name": "Shape (pointed-triangle)",
 		"group": "face|right ear",
 		"icon": "r-ear-shape-pointed-triangle.png",
 		"decr": "ears/r-ear-shape-pointed",
-		"incr": "ears/r-ear-shape-triangle"
+		"incr": "ears/r-ear-shape-triangle",
+		"sym": "ears/l-ear-shape-pointed|triangle"
 	},
 	"R-EAR Shape2": {
 		"name": "Shape (squared-round)",
 		"group": "face|right ear",
 		"icon": "r-ear-shape-square-round.png",
 		"decr": "ears/r-ear-shape-square",
-		"incr": "ears/r-ear-shape-round"
+		"incr": "ears/r-ear-shape-round",
+		"sym": "ears/l-ear-shape-square|round"
 	},
 	"R-EAR Shape3": {
 		"name": "Ear Wing-shaped",
 		"group": "face|right ear",
 		"icon": "r-ear-wing-decr-incr.png",
 		"decr": "ears/r-ear-wing-decr",
-		"incr": "ears/r-ear-wing-incr"
+		"incr": "ears/r-ear-wing-incr",
+		"sym": "ears/l-ear-wing-decr|incr"
 	},
 	"R-EAR Shape4": {
 		"name": "Ear Flapped",
 		"group": "face|right ear",
 		"icon": "r-ear-flap-decr-incr.png",
 		"decr": "ears/r-ear-flap-decr",
-		"incr": "ears/r-ear-flap-incr"
+		"incr": "ears/r-ear-flap-incr",
+		"sym": "ears/l-ear-flap-decr|incr"
 	},
 	"L-EAR Scale": {
 		"name": "Scale Ear",
 		"group": "face|left ear",
 		"icon": "l-ear-scale-decr-incr.png",
 		"decr": "ears/l-ear-scale-decr",
-		"incr": "ears/l-ear-scale-incr"
+		"incr": "ears/l-ear-scale-incr",
+		"sym": "ears/r-ear-scale-decr|incr"
 	},
 	"L-EAR ScaleHor": {
 		"name": "Scale Width",
 		"group": "face|left ear",
 		"icon": "l-ear-scale-depth-decr-incr.png",
 		"decr": "ears/l-ear-scale-depth-decr",
-		"incr": "ears/l-ear-scale-depth-incr"
+		"incr": "ears/l-ear-scale-depth-incr",
+		"sym": "ears/r-ear-scale-depth-decr|incr"
 	},
 	"L-EAR ScaleVer": {
 		"name": "Scale Height",
 		"group": "face|left ear",
 		"icon": "l-ear-scale-vert-decr-incr.png",
 		"decr": "ears/l-ear-scale-vert-decr",
-		"incr": "ears/l-ear-scale-vert-incr"
+		"incr": "ears/l-ear-scale-vert-incr",
+		"sym": "ears/r-ear-scale-vert-decr|incr"
 	},
 	"L-EAR MoveVer": {
 		"name": "Move Vertically",
 		"group": "face|left ear",
 		"icon": "l-ear-trans-down-up.png",
 		"decr": "ears/l-ear-trans-down",
-		"incr": "ears/l-ear-trans-up"
+		"incr": "ears/l-ear-trans-up",
+		"sym": "ears/r-ear-trans-down|up"
 	},
 	"L-EAR MoveDep": {
 		"name": "Move Depth",
 		"group": "face|left ear",
 		"icon": "l-ear-trans-backward-forward.png",
 		"decr": "ears/l-ear-trans-backward",
-		"incr": "ears/l-ear-trans-forward"
+		"incr": "ears/l-ear-trans-forward",
+		"sym": "ears/r-ear-trans-backward|forward"
 	},
 	"L-EAR Lobe Scale": {
 		"name": "Scale Lobe",
 		"group": "face|left ear",
 		"icon": "l-ear-lobe-decr-incr.png",
 		"decr": "ears/l-ear-lobe-decr",
-		"incr": "ears/l-ear-lobe-incr"
+		"incr": "ears/l-ear-lobe-incr",
+		"sym": "ears/r-ear-lobe-decr|incr"
 	},
 	"L-EAR Rot": {
 		"name": "Rotate Ear",
 		"group": "face|left ear",
 		"icon": "l-ear-rot-backward-forward.png",
 		"decr": "ears/l-ear-rot-backward",
-		"incr": "ears/l-ear-rot-forward"
+		"incr": "ears/l-ear-rot-forward",
+		"sym": "ears/r-ear-rot-backward|forward"
 	},
 	"L-EAR Shape1": {
 		"name": "Shape (pointed-triangle)",
 		"group": "face|left ear",
 		"icon": "l-ear-shape-pointed-triangle.png",
 		"decr": "ears/l-ear-shape-pointed",
-		"incr": "ears/l-ear-shape-triangle"
+		"incr": "ears/l-ear-shape-triangle",
+		"sym": "ears/r-ear-shape-pointed|triangle"
 	},
 	"L-EAR Shape2": {
 		"name": "Shape (squared-round)",
 		"group": "face|left ear",
 		"icon": "l-ear-shape-square-round.png",
 		"decr": "ears/l-ear-shape-square",
-		"incr": "ears/l-ear-shape-round"
+		"incr": "ears/l-ear-shape-round",
+		"sym": "ears/r-ear-shape-square|round"
 	},
 	"L-EAR Shape3": {
 		"name": "Ear Wing-shaped",
 		"group": "face|left ear",
 		"icon": "l-ear-wing-decr-incr.png",
 		"decr": "ears/l-ear-wing-decr",
-		"incr": "ears/l-ear-wing-incr"
+		"incr": "ears/l-ear-wing-incr",
+		"sym": "ears/r-ear-wing-decr|incr"
 	},
 	"L-EAR Shape4": {
 		"name": "Ear Flapped",
 		"group": "face|left ear",
 		"icon": "l-ear-flap-decr-incr.png",
 		"decr": "ears/l-ear-flap-decr",
-		"incr": "ears/l-ear-flap-incr"
+		"incr": "ears/l-ear-flap-incr",
+		"sym": "ears/r-ear-flap-decr|incr"
 	},
 	"Chin ScaleHor": {
 		"name": "Scale Chin Width",
@@ -1407,224 +1463,256 @@
 		"group": "arms|right shoulder",
 		"icon": "r-upperarm-shoulder-muscle-decr-incr.png",
 		"decr": "armslegs/r-upperarm-shoulder-muscle-decr",
-		"incr": "armslegs/r-upperarm-shoulder-muscle-incr"
+		"incr": "armslegs/r-upperarm-shoulder-muscle-incr",
+		"sym": "armslegs/l-upperarm-shoulder-muscle-decr|incr"
 	},
 	"L-Shoulder Muscle": {
 		"name": "Muscle Mass",
 		"group": "arms|left shoulder",
 		"icon": "l-upperarm-shoulder-muscle-decr-incr.png",
 		"decr": "armslegs/l-upperarm-shoulder-muscle-decr",
-		"incr": "armslegs/l-upperarm-shoulder-muscle-incr"
+		"incr": "armslegs/l-upperarm-shoulder-muscle-incr",
+		"sym": "armslegs/r-upperarm-shoulder-muscle-decr|incr"
 	},
 	"R-UArm THor": {
 		"name": "Upper Arm Length",
 		"group": "arms|right arm",
 		"icon": "r-upperarm-scale-horiz-decr-incr.png",
 		"decr": "armslegs/r-upperarm-scale-horiz-decr",
-		"incr": "armslegs/r-upperarm-scale-horiz-incr"
+		"incr": "armslegs/r-upperarm-scale-horiz-incr",
+		"sym": "armslegs/l-upperarm-scale-horiz-decr|incr"
 	},
 	"R-UArm TVer": {
 		"name": "Upper Arm Height",
 		"group": "arms|right arm",
 		"icon": "r-upperarm-scale-vert-decr-incr.png",
 		"decr": "armslegs/r-upperarm-scale-vert-decr",
-		"incr": "armslegs/r-upperarm-scale-vert-incr"
+		"incr": "armslegs/r-upperarm-scale-vert-incr",
+		"sym": "armslegs/l-upperarm-scale-vert-decr|incr"
 	},
 	"R-UArm TDep": {
 		"name": "Upper Arm Width",
 		"group": "arms|right arm",
 		"icon": "r-upperarm-scale-depth-decr-incr.png",
 		"decr": "armslegs/r-upperarm-scale-depth-decr",
-		"incr": "armslegs/r-upperarm-scale-depth-incr"
+		"incr": "armslegs/r-upperarm-scale-depth-incr",
+		"sym": "armslegs/l-upperarm-scale-depth-decr|incr"
 	},
 	"R-UArm Fat": {
 		"name": "Upper Arm Skinny-Fat",
 		"group": "arms|right arm",
 		"icon": "r-upperarm-fat-decr-incr.png",
 		"decr": "armslegs/r-upperarm-fat-decr",
-		"incr": "armslegs/r-upperarm-fat-incr"
+		"incr": "armslegs/r-upperarm-fat-incr",
+		"sym": "armslegs/l-upperarm-fat-decr|incr"
 	},
 	"R-UArm Muscles": {
 		"name": "Upper Arm Muscles",
 		"group": "arms|right arm",
 		"icon": "r-upperarm-muscle-decr-incr.png",
 		"decr": "armslegs/r-upperarm-muscle-decr",
-		"incr": "armslegs/r-upperarm-muscle-incr"
+		"incr": "armslegs/r-upperarm-muscle-incr",
+		"sym": "armslegs/l-upperarm-muscle-decr|incr"
 	},
 	"R-LArm THor": {
 		"name": "Forearm Length",
 		"group": "arms|right arm",
 		"icon": "r-lowerarm-scale-horiz-decr-incr.png",
 		"decr": "armslegs/r-lowerarm-scale-horiz-decr",
-		"incr": "armslegs/r-lowerarm-scale-horiz-incr"
+		"incr": "armslegs/r-lowerarm-scale-horiz-incr",
+		"sym": "armslegs/l-lowerarm-scale-horiz-decr|incr"
 	},
 	"R-LArm TVer": {
 		"name": "Forearm Height",
 		"group": "arms|right arm",
 		"icon": "r-lowerarm-scale-vert-decr-incr.png",
 		"decr": "armslegs/r-lowerarm-scale-vert-decr",
-		"incr": "armslegs/r-lowerarm-scale-vert-incr"
+		"incr": "armslegs/r-lowerarm-scale-vert-incr",
+		"sym": "armslegs/l-lowerarm-scale-vert-decr|incr"
 	},
 	"R-LArm TDep": {
 		"name": "Forearm Width",
 		"group": "arms|right arm",
 		"icon": "r-lowerarm-scale-depth-decr-incr.png",
 		"decr": "armslegs/r-lowerarm-scale-depth-decr",
-		"incr": "armslegs/r-lowerarm-scale-depth-incr"
+		"incr": "armslegs/r-lowerarm-scale-depth-incr",
+		"sym": "armslegs/l-lowerarm-scale-depth-decr|incr"
 	},
 	"R-LArm Fat": {
 		"name": "Forearm Skinny-Fat",
 		"group": "arms|right arm",
 		"icon": "r-lowerarm-fat-decr-incr.png",
 		"decr": "armslegs/r-lowerarm-fat-decr",
-		"incr": "armslegs/r-lowerarm-fat-incr"
+		"incr": "armslegs/r-lowerarm-fat-incr",
+		"sym": "armslegs/l-lowerarm-fat-decr|incr"
 	},
 	"R-LArm Muscles": {
 		"name": "Forearm Muscles",
 		"group": "arms|right arm",
 		"icon": "r-lowerarm-muscle-decr-incr.png",
 		"decr": "armslegs/r-lowerarm-muscle-decr",
-		"incr": "armslegs/r-lowerarm-muscle-incr"
+		"incr": "armslegs/r-lowerarm-muscle-incr",
+		"sym": "armslegs/l-lowerarm-muscle-decr|incr"
 	},
 	"L-UArm THor": {
 		"name": "Upper Arm Length",
 		"group": "arms|left arm",
 		"icon": "l-upperarm-scale-horiz-decr-incr.png",
 		"decr": "armslegs/l-upperarm-scale-horiz-decr",
-		"incr": "armslegs/l-upperarm-scale-horiz-incr"
+		"incr": "armslegs/l-upperarm-scale-horiz-incr",
+		"sym": "armslegs/r-upperarm-scale-horiz-decr|incr"
 	},
 	"L-UArm TVer": {
 		"name": "Upper Arm Height",
 		"group": "arms|left arm",
 		"icon": "l-upperarm-scale-vert-decr-incr.png",
 		"decr": "armslegs/l-upperarm-scale-vert-decr",
-		"incr": "armslegs/l-upperarm-scale-vert-incr"
+		"incr": "armslegs/l-upperarm-scale-vert-incr",
+		"sym": "armslegs/r-upperarm-scale-vert-decr|incr"
 	},
 	"L-UArm TDep": {
 		"name": "Upper Arm Width",
 		"group": "arms|left arm",
 		"icon": "l-upperarm-scale-depth-decr-incr.png",
 		"decr": "armslegs/l-upperarm-scale-depth-decr",
-		"incr": "armslegs/l-upperarm-scale-depth-incr"
+		"incr": "armslegs/l-upperarm-scale-depth-incr",
+		"sym": "armslegs/r-upperarm-scale-depth-decr|incr"
 	},
 	"L-UArm Fat": {
 		"name": "Upper Arm Skinny-Fat",
 		"group": "arms|left arm",
 		"icon": "l-upperarm-fat-decr-incr.png",
 		"decr": "armslegs/l-upperarm-fat-decr",
-		"incr": "armslegs/l-upperarm-fat-incr"
+		"incr": "armslegs/l-upperarm-fat-incr",
+		"sym": "armslegs/r-upperarm-fat-decr|incr"
 	},
 	"L-UArm Muscles": {
 		"name": "Upper Arm Muscles",
 		"group": "arms|left arm",
 		"icon": "l-upperarm-muscle-decr-incr.png",
 		"decr": "armslegs/l-upperarm-muscle-decr",
-		"incr": "armslegs/l-upperarm-muscle-incr"
+		"incr": "armslegs/l-upperarm-muscle-incr",
+		"sym": "armslegs/r-upperarm-muscle-decr|incr"
 	},
 	"L-LArm THor": {
 		"name": "Forearm Length",
 		"group": "arms|left arm",
 		"icon": "l-lowerarm-scale-horiz-decr-incr.png",
 		"decr": "armslegs/l-lowerarm-scale-horiz-decr",
-		"incr": "armslegs/l-lowerarm-scale-horiz-incr"
+		"incr": "armslegs/l-lowerarm-scale-horiz-incr",
+		"sym": "armslegs/r-lowerarm-scale-horiz-decr|incr"
 	},
 	"L-LArm TVer": {
 		"name": "Forearm Height",
 		"group": "arms|left arm",
 		"icon": "l-lowerarm-scale-vert-decr-incr.png",
 		"decr": "armslegs/l-lowerarm-scale-vert-decr",
-		"incr": "armslegs/l-lowerarm-scale-vert-incr"
+		"incr": "armslegs/l-lowerarm-scale-vert-incr",
+		"sym": "armslegs/r-lowerarm-scale-vert-decr|incr"
 	},
 	"L-LArm TDep": {
 		"name": "Forearm Width",
 		"group": "arms|left arm",
 		"icon": "l-lowerarm-scale-depth-decr-incr.png",
 		"decr": "armslegs/l-lowerarm-scale-depth-decr",
-		"incr": "armslegs/l-lowerarm-scale-depth-incr"
+		"incr": "armslegs/l-lowerarm-scale-depth-incr",
+		"sym": "armslegs/r-lowerarm-scale-depth-decr|incr"
 	},
 	"L-LArm Fat": {
 		"name": "Forearm Skinny-Fat",
 		"group": "arms|left arm",
 		"icon": "l-lowerarm-fat-decr-incr.png",
 		"decr": "armslegs/l-lowerarm-fat-decr",
-		"incr": "armslegs/l-lowerarm-fat-incr"
+		"incr": "armslegs/l-lowerarm-fat-incr",
+		"sym": "armslegs/r-lowerarm-fat-decr|incr"
 	},
 	"L-LArm Muscles": {
 		"name": "Forearm Muscles",
 		"group": "arms|left arm",
 		"icon": "l-lowerarm-muscle-decr-incr.png",
 		"decr": "armslegs/l-lowerarm-muscle-decr",
-		"incr": "armslegs/l-lowerarm-muscle-incr"
+		"incr": "armslegs/l-lowerarm-muscle-incr",
+		"sym": "armslegs/r-lowerarm-muscle-decr|incr"
 	},
 	"R-Hand Scale": {
 		"name": "Scale",
 		"group": "arms|right hand",
 		"icon": "r-hand-scale-decr-incr.png",
 		"decr": "armslegs/r-hand-scale-decr",
-		"incr": "armslegs/r-hand-scale-incr"
+		"incr": "armslegs/r-hand-scale-incr",
+		"sym": "armslegs/l-hand-scale-decr|incr"
 	},
 	"R-Hand Pos": {
 		"name": "Position",
 		"group": "arms|right hand",
 		"icon": "r-hand-trans-in-out.png",
 		"decr": "armslegs/r-hand-trans-in",
-		"incr": "armslegs/r-hand-trans-out"
+		"incr": "armslegs/r-hand-trans-out",
+		"sym": "armslegs/l-hand-trans-in|out"
 	},
 	"R-Hand FingerLen": {
 		"name": "Fingers length",
 		"group": "arms|right hand",
 		"icon": "r-hand-fingers-length-decr-incr.png",
 		"decr": "armslegs/r-hand-fingers-length-decr",
-		"incr": "armslegs/r-hand-fingers-length-incr"
+		"incr": "armslegs/r-hand-fingers-length-incr",
+		"sym": "armslegs/l-hand-fingers-length-decr|incr"
 	},
 	"R-Hand FingerDia": {
 		"name": "Fingers Diameter",
 		"group": "arms|right hand",
 		"icon": "r-hand-fingers-diameter-decr-incr.png",
 		"decr": "armslegs/r-hand-fingers-diameter-decr",
-		"incr": "armslegs/r-hand-fingers-diameter-incr"
+		"incr": "armslegs/r-hand-fingers-diameter-incr",
+		"sym": "armslegs/l-hand-fingers-diameter-decr|incr"
 	},
 	"R-Hand FingerDist": {
 		"name": "Fingers Distance",
 		"group": "arms|right hand",
 		"icon": "r-hand-fingers-distance-decr-incr.png",
 		"decr": "armslegs/r-hand-fingers-distance-decr",
-		"incr": "armslegs/r-hand-fingers-distance-incr"
+		"incr": "armslegs/r-hand-fingers-distance-incr",
+		"sym": "armslegs/l-hand-fingers-distance-decr|incr"
 	},
 	"L-Hand Scale": {
 		"name": "Scale",
 		"group": "arms|left hand",
 		"icon": "l-hand-scale-decr-incr.png",
 		"decr": "armslegs/l-hand-scale-decr",
-		"incr": "armslegs/l-hand-scale-incr"
+		"incr": "armslegs/l-hand-scale-incr",
+		"sym": "armslegs/r-hand-scale-decr|incr"
 	},
 	"L-Hand Pos": {
 		"name": "Position",
 		"group": "arms|left hand",
 		"icon": "l-hand-trans-in-out.png",
 		"decr": "armslegs/l-hand-trans-in",
-		"incr": "armslegs/l-hand-trans-out"
+		"incr": "armslegs/l-hand-trans-out",
+		"sym": "armslegs/r-hand-trans-in|out"
 	},
 	"L-Hand FingerLen": {
 		"name": "Fingers length",
 		"group": "arms|left hand",
 		"icon": "l-hand-fingers-length-decr-incr.png",
 		"decr": "armslegs/l-hand-fingers-length-decr",
-		"incr": "armslegs/l-hand-fingers-length-incr"
+		"incr": "armslegs/l-hand-fingers-length-incr",
+		"sym": "armslegs/r-hand-fingers-length-decr|incr"
 	},
 	"L-Hand FingerDia": {
 		"name": "Fingers Diameter",
 		"group": "arms|left hand",
 		"icon": "l-hand-fingers-diameter-decr-incr.png",
 		"decr": "armslegs/l-hand-fingers-diameter-decr",
-		"incr": "armslegs/l-hand-fingers-diameter-incr"
+		"incr": "armslegs/l-hand-fingers-diameter-incr",
+		"sym": "armslegs/r-hand-fingers-diameter-decr|incr"
 	},
 	"L-Hand FingerDist": {
 		"name": "Fingers Distance",
 		"group": "arms|left hand",
 		"icon": "l-hand-fingers-distance-decr-incr.png",
 		"decr": "armslegs/l-hand-fingers-distance-decr",
-		"incr": "armslegs/l-hand-fingers-distance-incr"
+		"incr": "armslegs/l-hand-fingers-distance-incr",
+		"sym": "armslegs/r-hand-fingers-distance-decr|incr"
 	},
 	"Legs UpperLen": {
 		"name": "Thigh Height",

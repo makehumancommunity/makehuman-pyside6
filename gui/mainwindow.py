@@ -66,7 +66,7 @@ class MHMainWindow(QMainWindow):
                 { "button": None, "icon": "reset.png", "tip": "Reset all targets", "func": self.reset_call},
                 { "button": None, "icon": "symm1.png", "tip": "Symmetry, left to right", "func": None },
                 { "button": None, "icon": "symm2.png", "tip": "Symmetry, right to left", "func": None },
-                { "button": None, "icon": "symm.png", "tip": "Symmetry applied always", "func": None }
+                { "button": None, "icon": "symm.png", "tip": "Symmetry applied always", "func": self.symSwitch }
         ]
 
         self.tool_buttons = [ 
@@ -583,6 +583,11 @@ class MHMainWindow(QMainWindow):
                 self.glob.baseClass.updateAttachedAssets()
                 self.graph.setSizeInfo()
                 self.graph.view.Tweak()
+
+    def symSwitch(self):
+        v = not self.glob.Targets.getSym()
+        self.glob.Targets.setSym(v)
+        self.sender().setChecked(v)
 
     def selectmesh_call(self):
         (base, filename) = self.baseSelector.getSelectedItem()
