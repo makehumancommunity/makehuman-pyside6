@@ -39,8 +39,6 @@ class OpenGLView(QOpenGLWidget):
         self.camera  = None
         self.skybox = None
         self.glob.openGLWindow = self
-        if glob.Targets is not None:
-            glob.Targets.refreshTargets(self)
 
     def createObject(self, obj, needtexture=False):
         glbuffer = OpenGlBuffers()

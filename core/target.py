@@ -24,7 +24,6 @@ class Modelling:
     def __init__(self, glob, name, icon, tip):
         self.glob     = glob
         self.obj      = glob.baseClass
-        self.gwindow  = glob.openGLWindow
 
         self.name = name
         self.icon = icon
@@ -40,6 +39,7 @@ class Modelling:
         self.opposite = True # two.directional slider
         self.mapSlider = None # filled from mapslider function
         self.sym = None       # symmetric side (left, right)
+        self.isRSide = False    # bool for side
         self.displayname = name
         self.group = None
         self.pattern = "None"
@@ -65,8 +65,9 @@ class Modelling:
         return (t)
 
 
-    def set_symname(self, name):
+    def set_symname(self, name, side):
         self.sym = name
+        self.isRSide = side
 
     def incr_target(self, fname):
         self.incr = fname
@@ -175,9 +176,6 @@ class Modelling:
         if user == 1:
             self.pattern = "custom/" + self.pattern
 
-    def set_refresh(self,refreshwindow):
-        self.gwindow = refreshwindow
-
     def set_displayname(self, name):
         self.displayname = name
 
@@ -192,7 +190,7 @@ class Modelling:
             if self.glob.Targets.getSym() is True and self.sym is not None:
                 if self.sym in self.glob.targetRepo:
                     key = self.glob.targetRepo[self.sym]
-                    self.obj.getInitialCopyForSlider(factor, key.decr, key.incr)
+                    self.obj.getInitialCopyForSlider(key.value / 100, key.decr, key.incr)
 
     def generateAllMacroWeights(self, targetlist, macroname, factor, weights):
         """
@@ -307,7 +305,7 @@ class Modelling:
 
     def finished_bckproc(self):
         print ("done")
-        self.gwindow.Tweak()
+        self.glob.openGLWindow.Tweak()
         self.glob.target_changing = None
         #
         # when still a difference exists, callback should start again
@@ -354,11 +352,9 @@ class Modelling:
                     key.value = self.value
                 else:
                     print ("Target missing")
-            else:
-                print ("no sym")
             self.glob.project_changed = True
             self.glob.mhViewport.setSizeInfo()
-            self.gwindow.Tweak()
+            self.glob.openGLWindow.Tweak()
 
     #def __del__(self):
     #    print (" -- __del__ Modelling: " + self.name)
@@ -442,6 +438,27 @@ class Targets:
     def setSym(self, value):
         print ("Set symmetry " + str(value))
         self.symmetry = value
+
+    def makeSym(self, RtoL):
+        if RtoL:
+            print ("Make symmetry RToL")
+        else:
+            print ("Make symmetry LToR")
+        #
+        # TODO: this "kinda" works but creates problems, best to create whole character from scratch?
+        #
+        for elem in self.modelling_targets:
+            if elem.sym is not None and elem.isRSide is RtoL:
+                if elem.sym in self.glob.targetRepo:
+                    opp = self.glob.targetRepo[elem.sym]
+                    if opp.value != elem.value:
+                        print (elem)
+                        print (opp)
+                        elem.obj.getInitialCopyForSlider(opp.value / 100, opp.decr, opp.incr)
+                        elem.obj.updateByTarget(elem.value / 100, opp.decr, opp.incr)
+                        opp.value = elem.value
+        self.glob.openGLWindow.Tweak()
+
 
     def loadModellingJSON(self):
         targetpath = self.env.stdSysPath("target")
@@ -540,8 +557,10 @@ class Targets:
                 mt = Morphtarget(self.env, t["incr"])
                 mt.loadTargetData(targetpath, bintargets)
                 m.incr_target(mt)
-            if "sym" in t:
-                m.set_symname(t["sym"])
+            if "rsym" in t:
+                m.set_symname(t["rsym"], False)
+            if "lsym" in t:
+                m.set_symname(t["lsym"], True)
             if "macro" in t:
                 m.macro_target(t["macro"])
             if "macro_influence" in t:
@@ -603,16 +622,6 @@ class Targets:
             f = open(userbinpath, "wb")
             np.savez_compressed(f, **contentuser)
             f.close()
-
-
-
-
-    def refreshTargets(self, window):
-        """
-        refreshes Callbacks
-        """
-        for target in self.modelling_targets:
-            target.set_refresh(window)
 
     def reset(self):
         for target in self.modelling_targets:

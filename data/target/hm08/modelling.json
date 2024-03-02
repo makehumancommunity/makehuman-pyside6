@@ -442,7 +442,7 @@
 		"icon": "r-eye-bag-decr-incr.png",
 		"decr": "eyes/r-eye-bag-decr",
                 "incr": "eyes/r-eye-bag-incr",
-		"sym": "eyes/l-eye-bag-decr|incr"
+		"lsym": "eyes/l-eye-bag-decr|incr"
 	},
 	"R-Eye Bag Distorsion": {
 		"name": "Eye Bag Distorsion",
@@ -450,7 +450,7 @@
 		"icon": "r-eye-bag-in-out.png",
 		"decr": "eyes/r-eye-bag-in",
                 "incr": "eyes/r-eye-bag-out",
-		"sym": "eyes/l-eye-bag-in|out"
+		"lsym": "eyes/l-eye-bag-in|out"
 	},
 	"R-Eye Bag Height": {
 		"name": "Eye Bag Height",
@@ -458,7 +458,7 @@
 		"icon": "r-eye-bag-height-decr-incr.png",
 		"decr": "eyes/r-eye-bag-height-decr",
                 "incr": "eyes/r-eye-bag-height-incr",
-		"sym": "eyes/l-eye-bag-height-decr|incr"
+		"lsym": "eyes/l-eye-bag-height-decr|incr"
 	},
 	"R-Eye Fold Angle": {
 		"name": "Eyefold Angle",
@@ -466,7 +466,7 @@
 		"icon": "r-eye-eyefold-angle-down-up.png",
 		"decr": "eyes/r-eye-eyefold-angle-down",
                 "incr": "eyes/r-eye-eyefold-angle-up",
-		"sym": "eyes/l-eye-eyefold-angle-down|up"
+		"lsym": "eyes/l-eye-eyefold-angle-down|up"
 	},
 	"R-Eye Fold Volume": {
 		"name": "Eyefold Volume",
@@ -474,7 +474,7 @@
 		"icon": "r-eye-eyefold-concave-convex.png",
 		"decr": "eyes/r-eye-eyefold-concave",
                 "incr": "eyes/r-eye-eyefold-convex",
-		"sym": "eyes/l-eye-eyefold-concave|convex"
+		"lsym": "eyes/l-eye-eyefold-concave|convex"
 	},
 	"R-Eye Fold Pos": {
 		"name": "Eyefold Position",
@@ -482,7 +482,7 @@
 		"icon": "r-eye-eyefold-down-up.png",
 		"decr": "eyes/r-eye-eyefold-down",
                 "incr": "eyes/r-eye-eyefold-up",
-		"sym": "eyes/l-eye-eyefold-down|up"
+		"lsym": "eyes/l-eye-eyefold-down|up"
 	},
 	"R-Eye Epicanthus": {
 		"name": "Eye Epicathus",
@@ -490,7 +490,7 @@
 		"icon": "r-eye-epicanthus-in-out.png",
 		"decr": "eyes/r-eye-epicanthus-in",
                 "incr": "eyes/r-eye-epicanthus-out",
-		"sym": "eyes/l-eye-epicanthus-in|out"
+		"lsym": "eyes/l-eye-epicanthus-in|out"
 	},
 	"R-Eye Scale": {
 		"name": "Scale Eye",
@@ -498,7 +498,7 @@
 		"icon": "r-eye-scale-decr-incr.png",
 		"decr": "eyes/r-eye-scale-decr",
 		"incr": "eyes/r-eye-scale-incr",
-		"sym": "eyes/l-eye-scale-decr|incr"
+		"lsym": "eyes/l-eye-scale-decr|incr"
 	},
 	"R-Eye ScaleVer1": {
 		"name": "Eye Scale Inner Height",
@@ -506,7 +506,7 @@
 		"icon": "r-eye-height1-decr-incr.png",
 		"decr": "eyes/r-eye-height1-decr",
 		"incr": "eyes/r-eye-height1-incr",
-		"sym": "eyes/l-eye-height1-decr|incr"
+		"lsym": "eyes/l-eye-height1-decr|incr"
 	},
 	"R-Eye ScaleVer2": {
 		"name": "Eye Scale Central Height",
@@ -514,7 +514,7 @@
 		"icon": "r-eye-height2-decr-incr.png",
 		"decr": "eyes/r-eye-height2-decr",
 		"incr": "eyes/r-eye-height2-incr",
-		"sym": "eyes/l-eye-height2-decr|incr"
+		"lsym": "eyes/l-eye-height2-decr|incr"
 	},
 	"R-Eye ScaleVer3": {
 		"name": "Eye Scale Outer Height",
@@ -522,7 +522,7 @@
 		"icon": "r-eye-height3-decr-incr.png",
 		"decr": "eyes/r-eye-height3-decr",
 		"incr": "eyes/r-eye-height3-incr",
-		"sym": "eyes/l-eye-height3-decr|incr"
+		"lsym": "eyes/l-eye-height3-decr|incr"
 	},
 	"R-Eye MoveHor": {
 		"name": "Move Eye Horizontally",
@@ -530,7 +530,7 @@
 		"icon": "r-eye-trans-in-out.png",
 		"decr": "eyes/r-eye-trans-in",
 		"incr": "eyes/r-eye-trans-out",
-		"sym": "eyes/l-eye-trans-in|out"
+		"lsym": "eyes/l-eye-trans-in|out"
 	},
 	"R-Eye OutCorn MoveHor": {
 		"name": "Move Outer Corner Horizontally",
@@ -538,7 +538,7 @@
 		"icon": "r-eye-push1-in-out.png",
 		"decr": "eyes/r-eye-push1-in",
 		"incr": "eyes/r-eye-push1-out",
-		"sym": "eyes/l-eye-push1-in|out"
+		"lsym": "eyes/l-eye-push1-in|out"
 	},
 	"R-Eye OutCorn MoveVer": {
 		"name": "Move Outer Corner Vertically",
@@ -546,7 +546,7 @@
 		"icon": "r-eye-corner1-down-up.png",
                 "decr": "eyes/r-eye-corner1-down",
                 "incr": "eyes/r-eye-corner1-up",
-		"sym": "eyes/l-eye-corner1-down|up"
+		"lsym": "eyes/l-eye-corner1-down|up"
 	},
 	"R-Eye InCorn MoveHor": {
 		"name": "Move Inner Corner Horizontally",
@@ -554,7 +554,7 @@
 		"icon": "r-eye-push2-in-out.png",
 		"decr": "eyes/r-eye-push2-in",
 		"incr": "eyes/r-eye-push2-out",
-		"sym": "eyes/l-eye-push2-in|out"
+		"lsym": "eyes/l-eye-push2-in|out"
 	},
 	"R-Eye InCorn MoveVer": {
 		"name": "Move Inner Corner Vertically",
@@ -562,7 +562,7 @@
 		"icon": "r-eye-corner2-down-up.png",
                 "decr": "eyes/r-eye-corner2-down",
                 "incr": "eyes/r-eye-corner2-up",
-		"sym": "eyes/l-eye-corner2-down|up"
+		"lsym": "eyes/l-eye-corner2-down|up"
 	},
 	"R-Eye MoveVer": {
 		"name": "Move Eye Vertically",
@@ -570,7 +570,7 @@
 		"icon": "r-eye-trans-down-up.png",
 		"decr": "eyes/r-eye-trans-down",
 		"incr": "eyes/r-eye-trans-up",
-		"sym": "eyes/l-eye-trans-down|up"
+		"lsym": "eyes/l-eye-trans-down|up"
 	},
 	"L-Eye Bag Volume": {
 		"name": "Eye Bag Volume",
@@ -578,7 +578,7 @@
 		"icon": "l-eye-bag-decr-incr.png",
 		"decr": "eyes/l-eye-bag-decr",
                 "incr": "eyes/l-eye-bag-incr",
-		"sym": "eyes/r-eye-bag-decr|incr"
+		"rsym": "eyes/r-eye-bag-decr|incr"
 	},
 	"L-Eye Bag Distorsion": {
 		"name": "Eye Bag Distorsion",
@@ -586,7 +586,7 @@
 		"icon": "l-eye-bag-in-out.png",
 		"decr": "eyes/l-eye-bag-in",
                 "incr": "eyes/l-eye-bag-out",
-		"sym": "eyes/r-eye-bag-in|out"
+		"rsym": "eyes/r-eye-bag-in|out"
 	},
 	"L-Eye Bag Height": {
 		"name": "Eye Bag Height",
@@ -594,7 +594,7 @@
 		"icon": "l-eye-bag-height-decr-incr.png",
 		"decr": "eyes/l-eye-bag-height-decr",
                 "incr": "eyes/l-eye-bag-height-incr",
-		"sym": "eyes/r-eye-bag-height-decr|incr"
+		"rsym": "eyes/r-eye-bag-height-decr|incr"
 	},
 	"L-Eye Fold Angle": {
 		"name": "Eyefold Angle",
@@ -602,7 +602,7 @@
 		"icon": "l-eye-eyefold-angle-down-up.png",
 		"decr": "eyes/l-eye-eyefold-angle-down",
                 "incr": "eyes/l-eye-eyefold-angle-up",
-		"sym": "eyes/r-eye-eyefold-angle-down|up"
+		"rsym": "eyes/r-eye-eyefold-angle-down|up"
 	},
 	"L-Eye Fold Volume": {
 		"name": "Eyefold Volume",
@@ -610,7 +610,7 @@
 		"icon": "l-eye-eyefold-concave-convex.png",
 		"decr": "eyes/l-eye-eyefold-concave",
                 "incr": "eyes/l-eye-eyefold-convex",
-		"sym": "eyes/r-eye-eyefold-concave|convex"
+		"rsym": "eyes/r-eye-eyefold-concave|convex"
 	},
 	"L-Eye Fold Pos": {
 		"name": "Eyefold Position",
@@ -618,7 +618,7 @@
 		"icon": "l-eye-eyefold-down-up.png",
 		"decr": "eyes/l-eye-eyefold-down",
                 "incr": "eyes/l-eye-eyefold-up",
-		"sym": "eyes/r-eye-eyefold-down|up"
+		"rsym": "eyes/r-eye-eyefold-down|up"
 	},
 	"L-Eye Epicanthus": {
 		"name": "Eye Epicathus",
@@ -626,7 +626,7 @@
 		"icon": "l-eye-epicanthus-in-out.png",
 		"decr": "eyes/l-eye-epicanthus-in",
                 "incr": "eyes/l-eye-epicanthus-out",
-		"sym": "eyes/r-eye-epicanthus-in|out"
+		"rsym": "eyes/r-eye-epicanthus-in|out"
 	},
 	"L-Eye Scale": {
 		"name": "Scale Eye",
@@ -634,7 +634,7 @@
 		"icon": "l-eye-scale-decr-incr.png",
 		"decr": "eyes/l-eye-scale-decr",
 		"incr": "eyes/l-eye-scale-incr",
-		"sym": "eyes/r-eye-scale-decr|incr"
+		"rsym": "eyes/r-eye-scale-decr|incr"
 	},
 	"L-Eye ScaleVer1": {
 		"name": "Eye Scale Inner Height",
@@ -642,7 +642,7 @@
 		"icon": "l-eye-height1-decr-incr.png",
 		"decr": "eyes/l-eye-height1-decr",
 		"incr": "eyes/l-eye-height1-incr",
-		"sym": "eyes/r-eye-height1-decr|incr"
+		"rsym": "eyes/r-eye-height1-decr|incr"
 	},
 	"L-Eye ScaleVer2": {
 		"name": "Eye Scale Central Height",
@@ -650,7 +650,7 @@
 		"icon": "l-eye-height2-decr-incr.png",
 		"decr": "eyes/l-eye-height2-decr",
 		"incr": "eyes/l-eye-height2-incr",
-		"sym": "eyes/r-eye-height2-decr|incr"
+		"rsym": "eyes/r-eye-height2-decr|incr"
 	},
 	"L-Eye ScaleVer3": {
 		"name": "Eye Scale Outer Height",
@@ -658,7 +658,7 @@
 		"icon": "l-eye-height3-decr-incr.png",
 		"decr": "eyes/l-eye-height3-decr",
 		"incr": "eyes/l-eye-height3-incr",
-		"sym": "eyes/r-eye-height3-decr|incr"
+		"rsym": "eyes/r-eye-height3-decr|incr"
 	},
 	"L-Eye MoveHor": {
 		"name": "Move Eye Horizontally",
@@ -666,7 +666,7 @@
 		"icon": "l-eye-trans-in-out.png",
 		"decr": "eyes/l-eye-trans-in",
 		"incr": "eyes/l-eye-trans-out",
-		"sym": "eyes/r-eye-trans-in|out"
+		"rsym": "eyes/r-eye-trans-in|out"
 	},
 	"L-Eye OutCorn MoveHor": {
 		"name": "Move Outer Corner Horizontally",
@@ -674,7 +674,7 @@
 		"icon": "l-eye-push1-in-out.png",
 		"decr": "eyes/l-eye-push1-in",
 		"incr": "eyes/l-eye-push1-out",
-		"sym": "eyes/r-eye-push1-in|out"
+		"rsym": "eyes/r-eye-push1-in|out"
 	},
 	"L-Eye OutCorn MoveVer": {
 		"name": "Move Outer Corner Vertically",
@@ -682,7 +682,7 @@
 		"icon": "l-eye-corner1-down-up.png",
                 "decr": "eyes/l-eye-corner1-down",
                 "incr": "eyes/l-eye-corner1-up",
-		"sym": "eyes/r-eye-corner1-down|up"
+		"rsym": "eyes/r-eye-corner1-down|up"
 	},
 	"L-Eye InCorn MoveHor": {
 		"name": "Move Inner Corner Horizontally",
@@ -690,7 +690,7 @@
 		"icon": "l-eye-push2-in-out.png",
 		"decr": "eyes/l-eye-push2-in",
 		"incr": "eyes/l-eye-push2-out",
-		"sym": "eyes/r-eye-push2-in|out"
+		"rsym": "eyes/r-eye-push2-in|out"
 	},
 	"L-Eye InCorn MoveVer": {
 		"name": "Move Inner Corner Vertically",
@@ -698,7 +698,7 @@
 		"icon": "l-eye-corner2-down-up.png",
                 "decr": "eyes/l-eye-corner2-down",
                 "incr": "eyes/l-eye-corner2-up",
-		"sym": "eyes/r-eye-corner2-down|up"
+		"rsym": "eyes/r-eye-corner2-down|up"
 	},
 	"L-Eye MoveVer": {
 		"name": "Move Eye Vertically",
@@ -706,7 +706,7 @@
 		"icon": "l-eye-trans-down-up.png",
 		"decr": "eyes/l-eye-trans-down",
 		"incr": "eyes/l-eye-trans-up",
-		"sym": "eyes/r-eye-trans-down|up"
+		"rsym": "eyes/r-eye-trans-down|up"
 	},
 	"Nose MoveHor": {
 		"name": "Move Horizontally",
@@ -1015,7 +1015,7 @@
 		"icon": "r-ear-scale-decr-incr.png",
 		"decr": "ears/r-ear-scale-decr",
 		"incr": "ears/r-ear-scale-incr",
-		"sym": "ears/l-ear-scale-decr|incr"
+		"lsym": "ears/l-ear-scale-decr|incr"
 	},
 	"R-EAR ScaleHor": {
 		"name": "Scale Width",
@@ -1023,7 +1023,7 @@
 		"icon": "r-ear-scale-depth-decr-incr.png",
 		"decr": "ears/r-ear-scale-depth-decr",
 		"incr": "ears/r-ear-scale-depth-incr",
-		"sym": "ears/l-ear-scale-depth-decr|incr"
+		"lsym": "ears/l-ear-scale-depth-decr|incr"
 	},
 	"R-EAR ScaleVer": {
 		"name": "Scale Height",
@@ -1031,7 +1031,7 @@
 		"icon": "r-ear-scale-vert-decr-incr.png",
 		"decr": "ears/r-ear-scale-vert-decr",
 		"incr": "ears/r-ear-scale-vert-incr",
-		"sym": "ears/l-ear-scale-vert-decr|incr"
+		"lsym": "ears/l-ear-scale-vert-decr|incr"
 	},
 	"R-EAR MoveVer": {
 		"name": "Move Vertically",
@@ -1039,7 +1039,7 @@
 		"icon": "r-ear-trans-down-up.png",
 		"decr": "ears/r-ear-trans-down",
 		"incr": "ears/r-ear-trans-up",
-		"sym": "ears/l-ear-trans-down|up"
+		"lsym": "ears/l-ear-trans-down|up"
 	},
 	"R-EAR MoveDep": {
 		"name": "Move Depth",
@@ -1047,7 +1047,7 @@
 		"icon": "r-ear-trans-backward-forward.png",
 		"decr": "ears/r-ear-trans-backward",
 		"incr": "ears/r-ear-trans-forward",
-		"sym": "ears/l-ear-trans-backward|forward"
+		"lsym": "ears/l-ear-trans-backward|forward"
 	},
 	"R-EAR Lobe Scale": {
 		"name": "Scale Lobe",
@@ -1055,7 +1055,7 @@
 		"icon": "r-ear-lobe-decr-incr.png",
 		"decr": "ears/r-ear-lobe-decr",
 		"incr": "ears/r-ear-lobe-incr",
-		"sym": "ears/l-ear-lobe-decr|incr"
+		"lsym": "ears/l-ear-lobe-decr|incr"
 	},
 	"R-EAR Rot": {
 		"name": "Rotate Ear",
@@ -1063,7 +1063,7 @@
 		"icon": "r-ear-rot-backward-forward.png",
 		"decr": "ears/r-ear-rot-backward",
 		"incr": "ears/r-ear-rot-forward",
-		"sym": "ears/l-ear-rot-backward|forward"
+		"lsym": "ears/l-ear-rot-backward|forward"
 	},
 	"R-EAR Shape1": {
 		"name": "Shape (pointed-triangle)",
@@ -1071,7 +1071,7 @@
 		"icon": "r-ear-shape-pointed-triangle.png",
 		"decr": "ears/r-ear-shape-pointed",
 		"incr": "ears/r-ear-shape-triangle",
-		"sym": "ears/l-ear-shape-pointed|triangle"
+		"lsym": "ears/l-ear-shape-pointed|triangle"
 	},
 	"R-EAR Shape2": {
 		"name": "Shape (squared-round)",
@@ -1079,7 +1079,7 @@
 		"icon": "r-ear-shape-square-round.png",
 		"decr": "ears/r-ear-shape-square",
 		"incr": "ears/r-ear-shape-round",
-		"sym": "ears/l-ear-shape-square|round"
+		"lsym": "ears/l-ear-shape-square|round"
 	},
 	"R-EAR Shape3": {
 		"name": "Ear Wing-shaped",
@@ -1087,7 +1087,7 @@
 		"icon": "r-ear-wing-decr-incr.png",
 		"decr": "ears/r-ear-wing-decr",
 		"incr": "ears/r-ear-wing-incr",
-		"sym": "ears/l-ear-wing-decr|incr"
+		"lsym": "ears/l-ear-wing-decr|incr"
 	},
 	"R-EAR Shape4": {
 		"name": "Ear Flapped",
@@ -1095,7 +1095,7 @@
 		"icon": "r-ear-flap-decr-incr.png",
 		"decr": "ears/r-ear-flap-decr",
 		"incr": "ears/r-ear-flap-incr",
-		"sym": "ears/l-ear-flap-decr|incr"
+		"lsym": "ears/l-ear-flap-decr|incr"
 	},
 	"L-EAR Scale": {
 		"name": "Scale Ear",
@@ -1103,7 +1103,7 @@
 		"icon": "l-ear-scale-decr-incr.png",
 		"decr": "ears/l-ear-scale-decr",
 		"incr": "ears/l-ear-scale-incr",
-		"sym": "ears/r-ear-scale-decr|incr"
+		"rsym": "ears/r-ear-scale-decr|incr"
 	},
 	"L-EAR ScaleHor": {
 		"name": "Scale Width",
@@ -1111,7 +1111,7 @@
 		"icon": "l-ear-scale-depth-decr-incr.png",
 		"decr": "ears/l-ear-scale-depth-decr",
 		"incr": "ears/l-ear-scale-depth-incr",
-		"sym": "ears/r-ear-scale-depth-decr|incr"
+		"rsym": "ears/r-ear-scale-depth-decr|incr"
 	},
 	"L-EAR ScaleVer": {
 		"name": "Scale Height",
@@ -1119,7 +1119,7 @@
 		"icon": "l-ear-scale-vert-decr-incr.png",
 		"decr": "ears/l-ear-scale-vert-decr",
 		"incr": "ears/l-ear-scale-vert-incr",
-		"sym": "ears/r-ear-scale-vert-decr|incr"
+		"rsym": "ears/r-ear-scale-vert-decr|incr"
 	},
 	"L-EAR MoveVer": {
 		"name": "Move Vertically",
@@ -1127,7 +1127,7 @@
 		"icon": "l-ear-trans-down-up.png",
 		"decr": "ears/l-ear-trans-down",
 		"incr": "ears/l-ear-trans-up",
-		"sym": "ears/r-ear-trans-down|up"
+		"rsym": "ears/r-ear-trans-down|up"
 	},
 	"L-EAR MoveDep": {
 		"name": "Move Depth",
@@ -1135,7 +1135,7 @@
 		"icon": "l-ear-trans-backward-forward.png",
 		"decr": "ears/l-ear-trans-backward",
 		"incr": "ears/l-ear-trans-forward",
-		"sym": "ears/r-ear-trans-backward|forward"
+		"rsym": "ears/r-ear-trans-backward|forward"
 	},
 	"L-EAR Lobe Scale": {
 		"name": "Scale Lobe",
@@ -1143,7 +1143,7 @@
 		"icon": "l-ear-lobe-decr-incr.png",
 		"decr": "ears/l-ear-lobe-decr",
 		"incr": "ears/l-ear-lobe-incr",
-		"sym": "ears/r-ear-lobe-decr|incr"
+		"rsym": "ears/r-ear-lobe-decr|incr"
 	},
 	"L-EAR Rot": {
 		"name": "Rotate Ear",
@@ -1151,7 +1151,7 @@
 		"icon": "l-ear-rot-backward-forward.png",
 		"decr": "ears/l-ear-rot-backward",
 		"incr": "ears/l-ear-rot-forward",
-		"sym": "ears/r-ear-rot-backward|forward"
+		"rsym": "ears/r-ear-rot-backward|forward"
 	},
 	"L-EAR Shape1": {
 		"name": "Shape (pointed-triangle)",
@@ -1159,7 +1159,7 @@
 		"icon": "l-ear-shape-pointed-triangle.png",
 		"decr": "ears/l-ear-shape-pointed",
 		"incr": "ears/l-ear-shape-triangle",
-		"sym": "ears/r-ear-shape-pointed|triangle"
+		"rsym": "ears/r-ear-shape-pointed|triangle"
 	},
 	"L-EAR Shape2": {
 		"name": "Shape (squared-round)",
@@ -1167,7 +1167,7 @@
 		"icon": "l-ear-shape-square-round.png",
 		"decr": "ears/l-ear-shape-square",
 		"incr": "ears/l-ear-shape-round",
-		"sym": "ears/r-ear-shape-square|round"
+		"rsym": "ears/r-ear-shape-square|round"
 	},
 	"L-EAR Shape3": {
 		"name": "Ear Wing-shaped",
@@ -1175,7 +1175,7 @@
 		"icon": "l-ear-wing-decr-incr.png",
 		"decr": "ears/l-ear-wing-decr",
 		"incr": "ears/l-ear-wing-incr",
-		"sym": "ears/r-ear-wing-decr|incr"
+		"rsym": "ears/r-ear-wing-decr|incr"
 	},
 	"L-EAR Shape4": {
 		"name": "Ear Flapped",
@@ -1183,7 +1183,7 @@
 		"icon": "l-ear-flap-decr-incr.png",
 		"decr": "ears/l-ear-flap-decr",
 		"incr": "ears/l-ear-flap-incr",
-		"sym": "ears/r-ear-flap-decr|incr"
+		"rsym": "ears/r-ear-flap-decr|incr"
 	},
 	"Chin ScaleHor": {
 		"name": "Scale Chin Width",
@@ -1464,7 +1464,7 @@
 		"icon": "r-upperarm-shoulder-muscle-decr-incr.png",
 		"decr": "armslegs/r-upperarm-shoulder-muscle-decr",
 		"incr": "armslegs/r-upperarm-shoulder-muscle-incr",
-		"sym": "armslegs/l-upperarm-shoulder-muscle-decr|incr"
+		"lsym": "armslegs/l-upperarm-shoulder-muscle-decr|incr"
 	},
 	"L-Shoulder Muscle": {
 		"name": "Muscle Mass",
@@ -1472,7 +1472,7 @@
 		"icon": "l-upperarm-shoulder-muscle-decr-incr.png",
 		"decr": "armslegs/l-upperarm-shoulder-muscle-decr",
 		"incr": "armslegs/l-upperarm-shoulder-muscle-incr",
-		"sym": "armslegs/r-upperarm-shoulder-muscle-decr|incr"
+		"rsym": "armslegs/r-upperarm-shoulder-muscle-decr|incr"
 	},
 	"R-UArm THor": {
 		"name": "Upper Arm Length",
@@ -1480,7 +1480,7 @@
 		"icon": "r-upperarm-scale-horiz-decr-incr.png",
 		"decr": "armslegs/r-upperarm-scale-horiz-decr",
 		"incr": "armslegs/r-upperarm-scale-horiz-incr",
-		"sym": "armslegs/l-upperarm-scale-horiz-decr|incr"
+		"lsym": "armslegs/l-upperarm-scale-horiz-decr|incr"
 	},
 	"R-UArm TVer": {
 		"name": "Upper Arm Height",
@@ -1488,7 +1488,7 @@
 		"icon": "r-upperarm-scale-vert-decr-incr.png",
 		"decr": "armslegs/r-upperarm-scale-vert-decr",
 		"incr": "armslegs/r-upperarm-scale-vert-incr",
-		"sym": "armslegs/l-upperarm-scale-vert-decr|incr"
+		"lsym": "armslegs/l-upperarm-scale-vert-decr|incr"
 	},
 	"R-UArm TDep": {
 		"name": "Upper Arm Width",
@@ -1496,7 +1496,7 @@
 		"icon": "r-upperarm-scale-depth-decr-incr.png",
 		"decr": "armslegs/r-upperarm-scale-depth-decr",
 		"incr": "armslegs/r-upperarm-scale-depth-incr",
-		"sym": "armslegs/l-upperarm-scale-depth-decr|incr"
+		"lsym": "armslegs/l-upperarm-scale-depth-decr|incr"
 	},
 	"R-UArm Fat": {
 		"name": "Upper Arm Skinny-Fat",
@@ -1504,7 +1504,7 @@
 		"icon": "r-upperarm-fat-decr-incr.png",
 		"decr": "armslegs/r-upperarm-fat-decr",
 		"incr": "armslegs/r-upperarm-fat-incr",
-		"sym": "armslegs/l-upperarm-fat-decr|incr"
+		"lsym": "armslegs/l-upperarm-fat-decr|incr"
 	},
 	"R-UArm Muscles": {
 		"name": "Upper Arm Muscles",
@@ -1512,7 +1512,7 @@
 		"icon": "r-upperarm-muscle-decr-incr.png",
 		"decr": "armslegs/r-upperarm-muscle-decr",
 		"incr": "armslegs/r-upperarm-muscle-incr",
-		"sym": "armslegs/l-upperarm-muscle-decr|incr"
+		"lsym": "armslegs/l-upperarm-muscle-decr|incr"
 	},
 	"R-LArm THor": {
 		"name": "Forearm Length",
@@ -1520,7 +1520,7 @@
 		"icon": "r-lowerarm-scale-horiz-decr-incr.png",
 		"decr": "armslegs/r-lowerarm-scale-horiz-decr",
 		"incr": "armslegs/r-lowerarm-scale-horiz-incr",
-		"sym": "armslegs/l-lowerarm-scale-horiz-decr|incr"
+		"lsym": "armslegs/l-lowerarm-scale-horiz-decr|incr"
 	},
 	"R-LArm TVer": {
 		"name": "Forearm Height",
@@ -1528,7 +1528,7 @@
 		"icon": "r-lowerarm-scale-vert-decr-incr.png",
 		"decr": "armslegs/r-lowerarm-scale-vert-decr",
 		"incr": "armslegs/r-lowerarm-scale-vert-incr",
-		"sym": "armslegs/l-lowerarm-scale-vert-decr|incr"
+		"lsym": "armslegs/l-lowerarm-scale-vert-decr|incr"
 	},
 	"R-LArm TDep": {
 		"name": "Forearm Width",
@@ -1536,7 +1536,7 @@
 		"icon": "r-lowerarm-scale-depth-decr-incr.png",
 		"decr": "armslegs/r-lowerarm-scale-depth-decr",
 		"incr": "armslegs/r-lowerarm-scale-depth-incr",
-		"sym": "armslegs/l-lowerarm-scale-depth-decr|incr"
+		"lsym": "armslegs/l-lowerarm-scale-depth-decr|incr"
 	},
 	"R-LArm Fat": {
 		"name": "Forearm Skinny-Fat",
@@ -1544,7 +1544,7 @@
 		"icon": "r-lowerarm-fat-decr-incr.png",
 		"decr": "armslegs/r-lowerarm-fat-decr",
 		"incr": "armslegs/r-lowerarm-fat-incr",
-		"sym": "armslegs/l-lowerarm-fat-decr|incr"
+		"lsym": "armslegs/l-lowerarm-fat-decr|incr"
 	},
 	"R-LArm Muscles": {
 		"name": "Forearm Muscles",
@@ -1552,7 +1552,7 @@
 		"icon": "r-lowerarm-muscle-decr-incr.png",
 		"decr": "armslegs/r-lowerarm-muscle-decr",
 		"incr": "armslegs/r-lowerarm-muscle-incr",
-		"sym": "armslegs/l-lowerarm-muscle-decr|incr"
+		"lsym": "armslegs/l-lowerarm-muscle-decr|incr"
 	},
 	"L-UArm THor": {
 		"name": "Upper Arm Length",
@@ -1560,7 +1560,7 @@
 		"icon": "l-upperarm-scale-horiz-decr-incr.png",
 		"decr": "armslegs/l-upperarm-scale-horiz-decr",
 		"incr": "armslegs/l-upperarm-scale-horiz-incr",
-		"sym": "armslegs/r-upperarm-scale-horiz-decr|incr"
+		"rsym": "armslegs/r-upperarm-scale-horiz-decr|incr"
 	},
 	"L-UArm TVer": {
 		"name": "Upper Arm Height",
@@ -1568,7 +1568,7 @@
 		"icon": "l-upperarm-scale-vert-decr-incr.png",
 		"decr": "armslegs/l-upperarm-scale-vert-decr",
 		"incr": "armslegs/l-upperarm-scale-vert-incr",
-		"sym": "armslegs/r-upperarm-scale-vert-decr|incr"
+		"rsym": "armslegs/r-upperarm-scale-vert-decr|incr"
 	},
 	"L-UArm TDep": {
 		"name": "Upper Arm Width",
@@ -1576,7 +1576,7 @@
 		"icon": "l-upperarm-scale-depth-decr-incr.png",
 		"decr": "armslegs/l-upperarm-scale-depth-decr",
 		"incr": "armslegs/l-upperarm-scale-depth-incr",
-		"sym": "armslegs/r-upperarm-scale-depth-decr|incr"
+		"rsym": "armslegs/r-upperarm-scale-depth-decr|incr"
 	},
 	"L-UArm Fat": {
 		"name": "Upper Arm Skinny-Fat",
@@ -1584,7 +1584,7 @@
 		"icon": "l-upperarm-fat-decr-incr.png",
 		"decr": "armslegs/l-upperarm-fat-decr",
 		"incr": "armslegs/l-upperarm-fat-incr",
-		"sym": "armslegs/r-upperarm-fat-decr|incr"
+		"rsym": "armslegs/r-upperarm-fat-decr|incr"
 	},
 	"L-UArm Muscles": {
 		"name": "Upper Arm Muscles",
@@ -1592,7 +1592,7 @@
 		"icon": "l-upperarm-muscle-decr-incr.png",
 		"decr": "armslegs/l-upperarm-muscle-decr",
 		"incr": "armslegs/l-upperarm-muscle-incr",
-		"sym": "armslegs/r-upperarm-muscle-decr|incr"
+		"rsym": "armslegs/r-upperarm-muscle-decr|incr"
 	},
 	"L-LArm THor": {
 		"name": "Forearm Length",
@@ -1600,7 +1600,7 @@
 		"icon": "l-lowerarm-scale-horiz-decr-incr.png",
 		"decr": "armslegs/l-lowerarm-scale-horiz-decr",
 		"incr": "armslegs/l-lowerarm-scale-horiz-incr",
-		"sym": "armslegs/r-lowerarm-scale-horiz-decr|incr"
+		"rsym": "armslegs/r-lowerarm-scale-horiz-decr|incr"
 	},
 	"L-LArm TVer": {
 		"name": "Forearm Height",
@@ -1608,7 +1608,7 @@
 		"icon": "l-lowerarm-scale-vert-decr-incr.png",
 		"decr": "armslegs/l-lowerarm-scale-vert-decr",
 		"incr": "armslegs/l-lowerarm-scale-vert-incr",
-		"sym": "armslegs/r-lowerarm-scale-vert-decr|incr"
+		"rsym": "armslegs/r-lowerarm-scale-vert-decr|incr"
 	},
 	"L-LArm TDep": {
 		"name": "Forearm Width",
@@ -1616,7 +1616,7 @@
 		"icon": "l-lowerarm-scale-depth-decr-incr.png",
 		"decr": "armslegs/l-lowerarm-scale-depth-decr",
 		"incr": "armslegs/l-lowerarm-scale-depth-incr",
-		"sym": "armslegs/r-lowerarm-scale-depth-decr|incr"
+		"rsym": "armslegs/r-lowerarm-scale-depth-decr|incr"
 	},
 	"L-LArm Fat": {
 		"name": "Forearm Skinny-Fat",
@@ -1624,7 +1624,7 @@
 		"icon": "l-lowerarm-fat-decr-incr.png",
 		"decr": "armslegs/l-lowerarm-fat-decr",
 		"incr": "armslegs/l-lowerarm-fat-incr",
-		"sym": "armslegs/r-lowerarm-fat-decr|incr"
+		"rsym": "armslegs/r-lowerarm-fat-decr|incr"
 	},
 	"L-LArm Muscles": {
 		"name": "Forearm Muscles",
@@ -1632,7 +1632,7 @@
 		"icon": "l-lowerarm-muscle-decr-incr.png",
 		"decr": "armslegs/l-lowerarm-muscle-decr",
 		"incr": "armslegs/l-lowerarm-muscle-incr",
-		"sym": "armslegs/r-lowerarm-muscle-decr|incr"
+		"rsym": "armslegs/r-lowerarm-muscle-decr|incr"
 	},
 	"R-Hand Scale": {
 		"name": "Scale",
@@ -1640,7 +1640,7 @@
 		"icon": "r-hand-scale-decr-incr.png",
 		"decr": "armslegs/r-hand-scale-decr",
 		"incr": "armslegs/r-hand-scale-incr",
-		"sym": "armslegs/l-hand-scale-decr|incr"
+		"lsym": "armslegs/l-hand-scale-decr|incr"
 	},
 	"R-Hand Pos": {
 		"name": "Position",
@@ -1648,7 +1648,7 @@
 		"icon": "r-hand-trans-in-out.png",
 		"decr": "armslegs/r-hand-trans-in",
 		"incr": "armslegs/r-hand-trans-out",
-		"sym": "armslegs/l-hand-trans-in|out"
+		"lsym": "armslegs/l-hand-trans-in|out"
 	},
 	"R-Hand FingerLen": {
 		"name": "Fingers length",
@@ -1656,7 +1656,7 @@
 		"icon": "r-hand-fingers-length-decr-incr.png",
 		"decr": "armslegs/r-hand-fingers-length-decr",
 		"incr": "armslegs/r-hand-fingers-length-incr",
-		"sym": "armslegs/l-hand-fingers-length-decr|incr"
+		"lsym": "armslegs/l-hand-fingers-length-decr|incr"
 	},
 	"R-Hand FingerDia": {
 		"name": "Fingers Diameter",
@@ -1664,7 +1664,7 @@
 		"icon": "r-hand-fingers-diameter-decr-incr.png",
 		"decr": "armslegs/r-hand-fingers-diameter-decr",
 		"incr": "armslegs/r-hand-fingers-diameter-incr",
-		"sym": "armslegs/l-hand-fingers-diameter-decr|incr"
+		"lsym": "armslegs/l-hand-fingers-diameter-decr|incr"
 	},
 	"R-Hand FingerDist": {
 		"name": "Fingers Distance",
@@ -1672,7 +1672,7 @@
 		"icon": "r-hand-fingers-distance-decr-incr.png",
 		"decr": "armslegs/r-hand-fingers-distance-decr",
 		"incr": "armslegs/r-hand-fingers-distance-incr",
-		"sym": "armslegs/l-hand-fingers-distance-decr|incr"
+		"lsym": "armslegs/l-hand-fingers-distance-decr|incr"
 	},
 	"L-Hand Scale": {
 		"name": "Scale",
@@ -1680,7 +1680,7 @@
 		"icon": "l-hand-scale-decr-incr.png",
 		"decr": "armslegs/l-hand-scale-decr",
 		"incr": "armslegs/l-hand-scale-incr",
-		"sym": "armslegs/r-hand-scale-decr|incr"
+		"rsym": "armslegs/r-hand-scale-decr|incr"
 	},
 	"L-Hand Pos": {
 		"name": "Position",
@@ -1688,7 +1688,7 @@
 		"icon": "l-hand-trans-in-out.png",
 		"decr": "armslegs/l-hand-trans-in",
 		"incr": "armslegs/l-hand-trans-out",
-		"sym": "armslegs/r-hand-trans-in|out"
+		"rsym": "armslegs/r-hand-trans-in|out"
 	},
 	"L-Hand FingerLen": {
 		"name": "Fingers length",
@@ -1696,7 +1696,7 @@
 		"icon": "l-hand-fingers-length-decr-incr.png",
 		"decr": "armslegs/l-hand-fingers-length-decr",
 		"incr": "armslegs/l-hand-fingers-length-incr",
-		"sym": "armslegs/r-hand-fingers-length-decr|incr"
+		"rsym": "armslegs/r-hand-fingers-length-decr|incr"
 	},
 	"L-Hand FingerDia": {
 		"name": "Fingers Diameter",
@@ -1704,7 +1704,7 @@
 		"icon": "l-hand-fingers-diameter-decr-incr.png",
 		"decr": "armslegs/l-hand-fingers-diameter-decr",
 		"incr": "armslegs/l-hand-fingers-diameter-incr",
-		"sym": "armslegs/r-hand-fingers-diameter-decr|incr"
+		"rsym": "armslegs/r-hand-fingers-diameter-decr|incr"
 	},
 	"L-Hand FingerDist": {
 		"name": "Fingers Distance",
@@ -1712,7 +1712,7 @@
 		"icon": "l-hand-fingers-distance-decr-incr.png",
 		"decr": "armslegs/l-hand-fingers-distance-decr",
 		"incr": "armslegs/l-hand-fingers-distance-incr",
-		"sym": "armslegs/r-hand-fingers-distance-decr|incr"
+		"rsym": "armslegs/r-hand-fingers-distance-decr|incr"
 	},
 	"Legs UpperLen": {
 		"name": "Thigh Height",
@@ -1733,252 +1733,288 @@
 		"group": "legs|right leg",
 		"icon": "r-leg-valgus-decr-incr.png",
 		"decr": "armslegs/r-leg-valgus-decr",
-		"incr": "armslegs/r-leg-valgus-incr"
+		"incr": "armslegs/r-leg-valgus-incr",
+		"lsym": "armslegs/l-leg-valgus-decr|incr"
 	},
 	"R-Leg Knee MoveVer": {
 		"name": "Move Knee Vertically",
 		"group": "legs|right leg",
 		"icon": "r-upperleg-scale-vert-decr-incr.png",
 		"decr": "armslegs/r-upperleg-scale-vert-decr",
-		"incr": "armslegs/r-upperleg-scale-vert-incr"
+		"incr": "armslegs/r-upperleg-scale-vert-incr",
+		"lsym": "armslegs/l-upperleg-scale-vert-decr|incr"
 	},
 	"R-ULeg ScaleHor": {
 		"name": "Thigh Scale Horizontally",
 		"group": "legs|right leg",
 		"icon": "r-upperleg-scale-horiz-decr-incr.png",
 		"decr": "armslegs/r-upperleg-scale-horiz-decr",
-		"incr": "armslegs/r-upperleg-scale-horiz-incr"
+		"incr": "armslegs/r-upperleg-scale-horiz-incr",
+		"lsym": "armslegs/l-upperleg-scale-horiz-decr|incr"
 	},
 	"R-ULeg ScaleDep": {
 		"name": "Thigh Scale Depth",
 		"group": "legs|right leg",
 		"icon": "r-upperleg-scale-depth-decr-incr.png",
 		"decr": "armslegs/r-upperleg-scale-depth-decr",
-		"incr": "armslegs/r-upperleg-scale-depth-incr"
+		"incr": "armslegs/r-upperleg-scale-depth-incr",
+		"lsym": "armslegs/l-upperleg-scale-depth-decr|incr"
 	},
 	"R-ULeg Fat": {
 		"name": "Thigh Skinny-Fat",
 		"group": "legs|right leg",
 		"icon": "r-upperleg-fat-decr-incr.png",
 		"decr": "armslegs/r-upperleg-fat-decr",
-		"incr": "armslegs/r-upperleg-fat-incr"
+		"incr": "armslegs/r-upperleg-fat-incr",
+		"lsym": "armslegs/l-upperleg-fat-decr|incr"
 	},
 	"R-ULeg Muscle": {
 		"name": "Thigh Muscle",
 		"group": "legs|right leg",
 		"icon": "r-upperleg-muscle-decr-incr.png",
 		"decr": "armslegs/r-upperleg-muscle-decr",
-		"incr": "armslegs/r-upperleg-muscle-incr"
+		"incr": "armslegs/r-upperleg-muscle-incr",
+		"lsym": "armslegs/l-upperleg-muscle-decr|incr"
 	},
 	"R-LLeg ScaleHor": {
 		"name": "Lower Leg Scale Horizontally",
 		"group": "legs|right leg",
 		"icon": "r-lowerleg-scale-horiz-decr-incr.png",
 		"decr": "armslegs/r-lowerleg-scale-horiz-decr",
-		"incr": "armslegs/r-lowerleg-scale-horiz-incr"
+		"incr": "armslegs/r-lowerleg-scale-horiz-incr",
+		"lsym": "armslegs/l-lowerleg-scale-horiz-decr|incr"
 	},
 	"R-LLeg ScaleVer": {
 		"name": "Lower Leg Scale Vertically",
 		"group": "legs|right leg",
 		"icon": "r-lowerleg-scale-vert-decr-incr.png",
 		"decr": "armslegs/r-lowerleg-scale-vert-decr",
-		"incr": "armslegs/r-lowerleg-scale-vert-incr"
+		"incr": "armslegs/r-lowerleg-scale-vert-incr",
+		"lsym": "armslegs/l-lowerleg-scale-vert-decr|incr"
 	},
 	"R-LLeg ScaleDep": {
 		"name": "Lower Leg Scale Depth",
 		"group": "legs|right leg",
 		"icon": "r-lowerleg-scale-depth-decr-incr.png",
 		"decr": "armslegs/r-lowerleg-scale-depth-decr",
-		"incr": "armslegs/r-lowerleg-scale-depth-incr"
+		"incr": "armslegs/r-lowerleg-scale-depth-incr",
+		"lsym": "armslegs/l-lowerleg-scale-depth-decr|incr"
 	},
 	"R-LLeg Fat": {
 		"name": "Lower Leg Skinny-Fat",
 		"group": "legs|right leg",
 		"icon": "r-lowerleg-fat-decr-incr.png",
 		"decr": "armslegs/r-lowerleg-fat-decr",
-		"incr": "armslegs/r-lowerleg-fat-incr"
+		"incr": "armslegs/r-lowerleg-fat-incr",
+		"lsym": "armslegs/l-lowerleg-fat-decr|incr"
 	},
 	"R-LLeg Muscle": {
 		"name": "Lower Leg Muscle",
 		"group": "legs|right leg",
 		"icon": "r-lowerleg-muscle-decr-incr.png",
 		"decr": "armslegs/r-lowerleg-muscle-decr",
-		"incr": "armslegs/r-lowerleg-muscle-incr"
+		"incr": "armslegs/r-lowerleg-muscle-incr",
+		"lsym": "armslegs/l-lowerleg-muscle-decr|incr"
 	},
 	"L-Leg Knee MoveHor": {
 		"name": "Move Knee Horizintally",
 		"group": "legs|left leg",
 		"icon": "l-leg-valgus-decr-incr.png",
 		"decr": "armslegs/l-leg-valgus-decr",
-		"incr": "armslegs/l-leg-valgus-incr"
+		"incr": "armslegs/l-leg-valgus-incr",
+		"rsym": "armslegs/r-leg-valgus-decr|incr"
 	},
 	"L-Leg Knee MoveVer": {
 		"name": "Move Knee Vertically",
 		"group": "legs|left leg",
 		"icon": "l-upperleg-scale-vert-decr-incr.png",
 		"decr": "armslegs/l-upperleg-scale-vert-decr",
-		"incr": "armslegs/l-upperleg-scale-vert-incr"
+		"incr": "armslegs/l-upperleg-scale-vert-incr",
+		"rsym": "armslegs/r-upperleg-scale-vert-decr|incr"
 	},
 	"L-ULeg ScaleHor": {
 		"name": "Thigh Scale Horizontally",
 		"group": "legs|left leg",
 		"icon": "l-upperleg-scale-horiz-decr-incr.png",
 		"decr": "armslegs/l-upperleg-scale-horiz-decr",
-		"incr": "armslegs/l-upperleg-scale-horiz-incr"
+		"incr": "armslegs/l-upperleg-scale-horiz-incr",
+		"rsym": "armslegs/r-upperleg-scale-horiz-decr|incr"
 	},
 	"L-ULeg ScaleDep": {
 		"name": "Thigh Scale Depth",
 		"group": "legs|left leg",
 		"icon": "l-upperleg-scale-depth-decr-incr.png",
 		"decr": "armslegs/l-upperleg-scale-depth-decr",
-		"incr": "armslegs/l-upperleg-scale-depth-incr"
+		"incr": "armslegs/l-upperleg-scale-depth-incr",
+		"rsym": "armslegs/r-upperleg-scale-depth-decr|incr"
 	},
 	"L-ULeg Fat": {
 		"name": "Thigh Skinny-Fat",
 		"group": "legs|left leg",
 		"icon": "l-upperleg-fat-decr-incr.png",
 		"decr": "armslegs/l-upperleg-fat-decr",
-		"incr": "armslegs/l-upperleg-fat-incr"
+		"incr": "armslegs/l-upperleg-fat-incr",
+		"rsym": "armslegs/r-upperleg-fat-decr|incr"
 	},
 	"L-ULeg Muscle": {
 		"name": "Thigh Muscle",
 		"group": "legs|left leg",
 		"icon": "l-upperleg-muscle-decr-incr.png",
 		"decr": "armslegs/l-upperleg-muscle-decr",
-		"incr": "armslegs/l-upperleg-muscle-incr"
+		"incr": "armslegs/l-upperleg-muscle-incr",
+		"rsym": "armslegs/r-upperleg-muscle-decr|incr"
 	},
 	"L-LLeg ScaleHor": {
 		"name": "Lower Leg Scale Horizontally",
 		"group": "legs|left leg",
 		"icon": "l-lowerleg-scale-horiz-decr-incr.png",
 		"decr": "armslegs/l-lowerleg-scale-horiz-decr",
-		"incr": "armslegs/l-lowerleg-scale-horiz-incr"
+		"incr": "armslegs/l-lowerleg-scale-horiz-incr",
+		"rsym": "armslegs/r-lowerleg-scale-horiz-decr|incr"
 	},
 	"L-LLeg ScaleVer": {
 		"name": "Lower Leg Scale Vertically",
 		"group": "legs|left leg",
 		"icon": "l-lowerleg-scale-vert-decr-incr.png",
 		"decr": "armslegs/l-lowerleg-scale-vert-decr",
-		"incr": "armslegs/l-lowerleg-scale-vert-incr"
+		"incr": "armslegs/l-lowerleg-scale-vert-incr",
+		"rsym": "armslegs/r-lowerleg-scale-vert-decr|incr"
 	},
 	"L-LLeg ScaleDep": {
 		"name": "Lower Leg Scale Depth",
 		"group": "legs|left leg",
 		"icon": "l-lowerleg-scale-depth-decr-incr.png",
 		"decr": "armslegs/l-lowerleg-scale-depth-decr",
-		"incr": "armslegs/l-lowerleg-scale-depth-incr"
+		"incr": "armslegs/l-lowerleg-scale-depth-incr",
+		"rsym": "armslegs/r-lowerleg-scale-depth-decr|incr"
 	},
 	"L-LLeg Fat": {
 		"name": "Lower Leg Skinny-Fat",
 		"group": "legs|left leg",
 		"icon": "l-lowerleg-fat-decr-incr.png",
 		"decr": "armslegs/l-lowerleg-fat-decr",
-		"incr": "armslegs/l-lowerleg-fat-incr"
+		"incr": "armslegs/l-lowerleg-fat-incr",
+		"rsym": "armslegs/r-lowerleg-fat-decr|incr"
 	},
 	"L-LLeg Muscle": {
 		"name": "Lower Leg Muscle",
 		"group": "legs|left leg",
 		"icon": "l-lowerleg-muscle-decr-incr.png",
 		"decr": "armslegs/l-lowerleg-muscle-decr",
-		"incr": "armslegs/l-lowerleg-muscle-incr"
+		"incr": "armslegs/l-lowerleg-muscle-incr",
+		"rsym": "armslegs/r-lowerleg-muscle-decr|incr"
 	},
 	"R-Foot Scale": {
 		"name": "Scale",
 		"group": "legs|right foot",
 		"icon": "r-foot-scale-decr-incr.png",
 		"decr": "armslegs/r-foot-scale-decr",
-		"incr": "armslegs/r-foot-scale-incr"
+		"incr": "armslegs/r-foot-scale-incr",
+		"lsym": "armslegs/l-foot-scale-decr|incr"
 	},
 	"R-Foot ScaleHor": {
 		"name": "Scale Horizontally",
 		"group": "legs|right foot",
 		"icon": "r-foot-scale-horiz-decr-incr.png",
 		"decr": "armslegs/r-foot-scale-horiz-decr",
-		"incr": "armslegs/r-foot-scale-horiz-incr"
+		"incr": "armslegs/r-foot-scale-horiz-incr",
+		"lsym": "armslegs/l-foot-scale-horiz-decr|incr"
 	},
 	"R-Foot ScaleVer": {
 		"name": "Scale Vertically",
 		"group": "legs|right foot",
 		"icon": "r-foot-scale-vert-decr-incr.png",
 		"decr": "armslegs/r-foot-scale-vert-decr",
-		"incr": "armslegs/r-foot-scale-vert-incr"
+		"incr": "armslegs/r-foot-scale-vert-incr",
+		"lsym": "armslegs/l-foot-scale-vert-decr|incr"
 	},
 	"R-Foot ScaleDep": {
 		"name": "Scale Depth",
 		"group": "legs|right foot",
 		"icon": "r-foot-scale-depth-decr-incr.png",
 		"decr": "armslegs/r-foot-scale-depth-decr",
-		"incr": "armslegs/r-foot-scale-depth-incr"
+		"incr": "armslegs/r-foot-scale-depth-incr",
+		"lsym": "armslegs/l-foot-scale-depth-decr|incr"
 	},
 	"R-Foot MoveHor": {
 		"name": "Move Horizontally",
 		"group": "legs|right foot",
 		"icon": "r-foot-trans-in-out.png",
 		"decr": "armslegs/r-foot-trans-in",
-		"incr": "armslegs/r-foot-trans-out"
+		"incr": "armslegs/r-foot-trans-out",
+		"lsym": "armslegs/l-foot-trans-in|out"
 	},
 	"R-Foot MoveVer": {
 		"name": "Move Vertically",
 		"group": "legs|right foot",
 		"icon": "r-foot-trans-down-up.png",
 		"decr": "armslegs/r-foot-trans-down",
-		"incr": "armslegs/r-foot-trans-up"
+		"incr": "armslegs/r-foot-trans-up",
+		"lsym": "armslegs/l-foot-trans-down|up"
 	},
 	"R-Foot MoveDep": {
 		"name": "Move Depth",
 		"group": "legs|right foot",
 		"icon": "r-foot-trans-backward-forward.png",
 		"decr": "armslegs/r-foot-trans-backward",
-		"incr": "armslegs/r-foot-trans-forward"
+		"incr": "armslegs/r-foot-trans-forward",
+		"lsym": "armslegs/l-foot-trans-backward|forward"
 	},
 	"L-Foot Scale": {
 		"name": "Scale",
 		"group": "legs|left foot",
 		"icon": "l-foot-scale-decr-incr.png",
 		"decr": "armslegs/l-foot-scale-decr",
-		"incr": "armslegs/l-foot-scale-incr"
+		"incr": "armslegs/l-foot-scale-incr",
+		"rsym": "armslegs/r-foot-scale-decr|incr"
 	},
 	"L-Foot ScaleHor": {
 		"name": "Scale Horizontally",
 		"group": "legs|left foot",
 		"icon": "l-foot-scale-horiz-decr-incr.png",
 		"decr": "armslegs/l-foot-scale-horiz-decr",
-		"incr": "armslegs/l-foot-scale-horiz-incr"
+		"incr": "armslegs/l-foot-scale-horiz-incr",
+		"rsym": "armslegs/r-foot-scale-horiz-decr|incr"
 	},
 	"L-Foot ScaleVer": {
 		"name": "Scale Vertically",
 		"group": "legs|left foot",
 		"icon": "l-foot-scale-vert-decr-incr.png",
 		"decr": "armslegs/l-foot-scale-vert-decr",
-		"incr": "armslegs/l-foot-scale-vert-incr"
+		"incr": "armslegs/l-foot-scale-vert-incr",
+		"rsym": "armslegs/r-foot-scale-vert-decr|incr"
 	},
 	"L-Foot ScaleDep": {
 		"name": "Scale Depth",
 		"group": "legs|left foot",
 		"icon": "l-foot-scale-depth-decr-incr.png",
 		"decr": "armslegs/l-foot-scale-depth-decr",
-		"incr": "armslegs/l-foot-scale-depth-incr"
+		"incr": "armslegs/l-foot-scale-depth-incr",
+		"rsym": "armslegs/r-foot-scale-depth-decr|incr"
 	},
 	"L-Foot MoveHor": {
 		"name": "Move Horizontally",
 		"group": "legs|left foot",
 		"icon": "l-foot-trans-in-out.png",
 		"decr": "armslegs/l-foot-trans-in",
-		"incr": "armslegs/l-foot-trans-out"
+		"incr": "armslegs/l-foot-trans-out",
+		"rsym": "armslegs/r-foot-trans-in|out"
 	},
 	"L-Foot MoveVer": {
 		"name": "Move Vertically",
 		"group": "legs|left foot",
 		"icon": "l-foot-trans-down-up.png",
 		"decr": "armslegs/l-foot-trans-down",
-		"incr": "armslegs/l-foot-trans-up"
+		"incr": "armslegs/l-foot-trans-up",
+		"rsym": "armslegs/r-foot-trans-down|up"
 	},
 	"L-Foot MoveDep": {
 		"name": "Move Depth",
 		"group": "legs|left foot",
 		"icon": "l-foot-trans-backward-forward.png",
 		"decr": "armslegs/l-foot-trans-backward",
-		"incr": "armslegs/l-foot-trans-forward"
+		"incr": "armslegs/l-foot-trans-forward",
+		"rsym": "armslegs/r-foot-trans-backward|forward"
 	},
 	"ME-Neck Circ": {
 		"name": "Neck Circum",

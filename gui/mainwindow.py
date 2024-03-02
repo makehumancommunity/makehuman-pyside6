@@ -64,8 +64,8 @@ class MHMainWindow(QMainWindow):
 
         self.model_buttons = [ 
                 { "button": None, "icon": "reset.png", "tip": "Reset all targets", "func": self.reset_call},
-                { "button": None, "icon": "symm1.png", "tip": "Symmetry, left to right", "func": None },
-                { "button": None, "icon": "symm2.png", "tip": "Symmetry, right to left", "func": None },
+                { "button": None, "icon": "symm1.png", "tip": "Symmetry, right to left", "func": self.symRToL },
+                { "button": None, "icon": "symm2.png", "tip": "Symmetry, left to right", "func": self.symLToR },
                 { "button": None, "icon": "symm.png", "tip": "Symmetry applied always", "func": self.symSwitch }
         ]
 
@@ -588,6 +588,12 @@ class MHMainWindow(QMainWindow):
         v = not self.glob.Targets.getSym()
         self.glob.Targets.setSym(v)
         self.sender().setChecked(v)
+
+    def symLToR(self):
+        self.glob.Targets.makeSym(False)
+
+    def symRToL(self):
+        self.glob.Targets.makeSym(True)
 
     def selectmesh_call(self):
         (base, filename) = self.baseSelector.getSelectedItem()
