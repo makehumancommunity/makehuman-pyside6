@@ -4,6 +4,7 @@ from core.attached_asset import attachedAsset
 from obj3d.object3d import object3d
 from core.debug import memInfo, dumper
 from core.target import Modelling
+from gui.dialogs import WorkerThread
 
 class MakeHumanModel():
     def __init__(self):
@@ -128,9 +129,10 @@ class baseClass():
         #
         for elem in loaded.attached:
             print (self.env.basename, elem.type, elem.name, elem.relmaterial)
-            filename = self.env.existFileInBaseFolder(self.env.basename, elem.type, elem.name, elem.relmaterial)
-            if filename is not None:
-                elem.material = filename
+            if elem.relmaterial is not None:
+                filename = self.env.existFileInBaseFolder(self.env.basename, elem.type, elem.name, elem.relmaterial)
+                if filename is not None:
+                    elem.material = filename
 
         if loaded.name is not None:
             self.name = loaded.name
@@ -357,9 +359,10 @@ class baseClass():
         self.baseMesh.setTarget(factor, decr, incr)
         self.updateAttachedAssets()
 
-    def applyAllTargets(self):
-        #
-        #
+    def applyAllTargets(self, bckproc=None, args=None):
+        """
+        applies all targets and corrects attached assets
+        """
         self.baseMesh.resetMesh()
         targets = self.glob.Targets.modelling_targets
         if self.glob.targetMacros is not None:
@@ -367,7 +370,7 @@ class baseClass():
             # TODO: this dummy class method is not that good 
             #
             m = self.glob.targetMacros['macrodef']
-            mo = Modelling(self.glob, "dummy", None, None)
+            mo = Modelling(self.glob, "dummy", None)
             mo.macroCalculation(list(range(0,len(m))))
             
         for target in targets:
@@ -376,6 +379,19 @@ class baseClass():
                     print ("Set " + target.name)
                     self.baseMesh.setTarget(target.value / 100, target.decr, target.incr)
         self.updateAttachedAssets()
+
+    def finishApply(self):
+        self.glob.openGLWindow.Tweak()
+        self.glob.parallel = None
+
+    def parApplyTargets(self):
+        """
+        background process for applyAllTargets
+        """
+        if self.glob.parallel is None:
+            self.glob.parallel = WorkerThread(self.applyAllTargets, None)
+            self.glob.parallel.start()
+            self.glob.parallel.finished.connect(self.finishApply)
 
     def __del__(self):
         self.env.logLine (4, " -- __del__ baseClass " + self.name)

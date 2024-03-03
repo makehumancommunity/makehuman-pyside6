@@ -250,17 +250,22 @@ class ScaleComboArray(QWidget):
             self.layout.addWidget(text)
         self.layout.addStretch()
 
-    def comboArrayUpdate(self, elem):
+    def comboUnexpand(self):
+        for scalecombo in self.scaleComboArray:
+            if scalecombo.expanded:
+                scalecombo.comboUpdate(False)
+
+    def comboArrayUpdate(self, current):
         """
         update all widgets
         """
-        if elem.expanded:
-            elem.comboUpdate(False)
+        if current.expanded:
+            current.comboUpdate(False)
         else:
-            for scalecombo in self.scaleComboArray:
-                if scalecombo.expanded:
-                    scalecombo.comboUpdate(False)
-            elem.comboUpdate(True)
+            for elem in self.scaleComboArray:
+                if elem != current and elem.expanded:
+                    elem.comboUpdate(False)
+            current.comboUpdate(True)
 
 class SimpleSlider(QWidget):
     def __init__(self, labeltext, minimum, maximum, callback, parent=None, vertical=False):

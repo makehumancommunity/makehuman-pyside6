@@ -1,4 +1,5 @@
 from gui.dialogs import WorkerThread
+from core.targetcat import TargetCategories
 import os
 import sys
 import json
@@ -21,13 +22,13 @@ class MacroTree:
 
 
 class Modelling:
-    def __init__(self, glob, name, icon, tip):
+    def __init__(self, glob, name, icon):
         self.glob     = glob
         self.obj      = glob.baseClass
 
         self.name = name
         self.icon = icon
-        self.tip  = tip
+        self.tip  = "Select or modify"
         self.selected = False
         self.value = 0.0
         self.default = 0.0
@@ -64,19 +65,35 @@ class Modelling:
             t = [self.name, str(self.incr), li, str(self.decr), ld, self.pattern, self.value]
         return (t)
 
-
-    def set_symname(self, name, side):
-        self.sym = name
-        self.isRSide = side
-
-    def incr_target(self, fname):
-        self.incr = fname
-
-    def decr_target(self, fname):
-        self.decr = fname
-
-    def macro_target(self, name):
-        self.macro = name
+    def setFromDict(self, t, targetpath, bintargets):
+        if "tip" in t:
+            self.tip = t["tip"]
+        if "decr" in t:
+            self.decr = Morphtarget(self.glob.env, t["decr"])
+            self.decr.loadTargetData(targetpath, bintargets)
+        if "incr" in t:
+            self.incr = Morphtarget(self.glob.env, t["incr"])
+            self.incr.loadTargetData(targetpath, bintargets)
+        if "rsym" in t:
+            self.sym = t["rsym"]
+            self.isRSide = False
+        elif "lsym" in t:
+            self.sym = t["lsym"]
+            self.isRSide = True
+        if "macro" in t:
+            self.macro = t["macro"]
+        if "macro_influence" in t:
+            self.macro_influence(t["macro_influence"])
+        if "barycentric" in t:
+            self.macro_barycentric(t["barycentric"])
+        if "name" in t:
+            self.displayname = t["name"]
+        if "group" in t:
+            self.group = t["group"]
+        if "display" in t:
+            self.textSlot(t["display"])
+        if "default" in t:
+            self.default = t["default"] * 100
 
     def macro_influence(self, array):
         #
@@ -92,7 +109,6 @@ class Modelling:
 
     def macro_barycentric(self, val):
         text = ["A", "B", "C"]
-        #value = [0.33, 0.33, 0.33]
         value = [0.0, 0.0, 1.0]
         i = 0
         for x in val:
@@ -102,9 +118,6 @@ class Modelling:
                 {"name": val[0], "text": text[0], "value": value[0] },
                 {"name": val[1], "text": text[1], "value": value[1] },
                 {"name": val[2], "text": text[2], "value": value[2] } ]
-
-    def setDefault(self,default):
-        self.default = default
 
     def resetValue(self):
         self.value = self.default
@@ -147,18 +160,18 @@ class Modelling:
         if self.barycentric:
             self.pattern = self.barycentric
             self.opposite = False
-            return
+            return (self.pattern)
         if self.macro:
             self.pattern = self.macro
             self.opposite = False
-            return
+            return (self.pattern)
 
         d = str(self.decr)
         i = str(self.incr)
 
         self.pattern = "None"
         if i == "None":
-            return
+            return (self.pattern)
 
         # use target opposites to find pattern (from base.json)
         #
@@ -175,12 +188,7 @@ class Modelling:
 
         if user == 1:
             self.pattern = "custom/" + self.pattern
-
-    def set_displayname(self, name):
-        self.displayname = name
-
-    def set_group(self, name):
-        self.group = name
+        return (self.pattern)
 
     def initialize(self):
         factor = self.value / 100
@@ -297,7 +305,7 @@ class Modelling:
         """
         change macros will run as a background process
         """
-        self.last_value = self.value
+        self._last_value = self.value
 
         self.obj.baseMesh.subtractMacroBuffer()
         self.macroCalculation(self.m_influence)
@@ -306,13 +314,13 @@ class Modelling:
     def finished_bckproc(self):
         print ("done")
         self.glob.openGLWindow.Tweak()
-        self.glob.target_changing = None
+        self.glob.parallel = None
         #
         # when still a difference exists, callback should start again
 
         if self.barycentric is not None:
             self.set_barycentricFromMapSlider()
-        if self.value != self.last_value:
+        if self.value != self._last_value:
             self.callback()
         else:
             self.glob.mhViewport.setSizeInfo()
@@ -329,15 +337,15 @@ class Modelling:
             #
             # make sure background process runs only once
 
-            if self.glob.target_changing is None:
+            if self.glob.parallel is None:
                 #
                 # special case barycentric, values will be fetched
 
                 if self.barycentric is not None:
                     self.set_barycentricFromMapSlider()
-                self.glob.target_changing = WorkerThread(self.changeMacroTarget, None)
-                self.glob.target_changing.start()
-                self.glob.target_changing.finished.connect(self.finished_bckproc)
+                self.glob.parallel = WorkerThread(self.changeMacroTarget, None)
+                self.glob.parallel.start()
+                self.glob.parallel.finished.connect(self.finished_bckproc)
 
         elif self.incr is not None or self.decr is not None:
             print("change " + self.name)
@@ -444,20 +452,13 @@ class Targets:
             print ("Make symmetry RToL")
         else:
             print ("Make symmetry LToR")
-        #
-        # TODO: this "kinda" works but creates problems, best to create whole character from scratch?
-        #
+
         for elem in self.modelling_targets:
             if elem.sym is not None and elem.isRSide is RtoL:
                 if elem.sym in self.glob.targetRepo:
                     opp = self.glob.targetRepo[elem.sym]
                     if opp.value != elem.value:
-                        print (elem)
-                        print (opp)
-                        elem.obj.getInitialCopyForSlider(opp.value / 100, opp.decr, opp.incr)
-                        elem.obj.updateByTarget(elem.value / 100, opp.decr, opp.incr)
                         opp.value = elem.value
-        self.glob.openGLWindow.Tweak()
 
 
     def loadModellingJSON(self):
@@ -539,49 +540,23 @@ class Targets:
         #
         for name in targetjson:
             t = targetjson[name]
-            tip = t["tip"] if "tip" in t else "Select to modify"
 
             mode = 1 if "user" in t else 0
             targetpath = target_env[mode]["targetpath"]
             bintargets = target_env[mode]["targets"]
-
             iconpath = os.path.join(targetpath, "icons")
             icon = os.path.join(iconpath, t["icon"]) if "icon" in t else default_icon
-            m = Modelling(self.glob, name, icon, tip)
 
-            if "decr" in t:
-                mt = Morphtarget(self.env, t["decr"])
-                mt.loadTargetData(targetpath, bintargets)
-                m.decr_target(mt)
-            if "incr" in t:
-                mt = Morphtarget(self.env, t["incr"])
-                mt.loadTargetData(targetpath, bintargets)
-                m.incr_target(mt)
-            if "rsym" in t:
-                m.set_symname(t["rsym"], False)
-            if "lsym" in t:
-                m.set_symname(t["lsym"], True)
-            if "macro" in t:
-                m.macro_target(t["macro"])
-            if "macro_influence" in t:
-                m.macro_influence(t["macro_influence"])
-            if "barycentric" in t:
-                m.macro_barycentric(t["barycentric"])
-            if "name" in t:
-                m.set_displayname(t["name"])
-            if "group" in t:
-                m.set_group(t["group"])
-            if "display" in t:
-                m.textSlot(t["display"])
-            if "default" in t:
-                m.setDefault(t["default"] * 100)
-            m.search_pattern(mode)
-            if m.pattern != "None":
-                if isinstance(m.pattern, list):
-                    for l in m.pattern:
+            m = Modelling(self.glob, name, icon)
+            m.setFromDict(t, targetpath, bintargets)
+
+            pattern = m.search_pattern(mode)
+            if pattern != "None":
+                if isinstance(pattern, list):
+                    for l in pattern:
                         self.glob.targetRepo[l["name"]] = m
                 else:
-                    self.glob.targetRepo[m.pattern] = m
+                    self.glob.targetRepo[pattern] = m
             self.modelling_targets.append(m)
 
     def saveBinaryTargets(self, bckproc, *args):
@@ -665,206 +640,4 @@ class Targets:
     def __del__(self):
         if self.collection is not None:
             self.env.logLine (4, " -- __del__ Targets: " + self.collection)
-
-class TargetCategories:
-    """
-    class to support the files for categories, creates also JSON files
-    for categories in User space
-    """
-
-    def __init__(self, glob):
-        self.glob = glob
-        self.env = glob.env
-        self.basename = self.env.basename
-        self.mod_cat = 0
-        self.mod_modelling = 0
-        self.mod_latest = 0
-        self.user_targets = []
-        self.icon_repos = []
-
-    def addUserTarget(self, folder, subfolder, filename ):
-        if subfolder is None:
-            fname = os.path.join(folder, filename)
-        else:
-            fname = os.path.join(folder, subfolder, filename)
-            filename = os.path.join(subfolder, filename)
-        mod = int(os.stat(fname).st_mtime)
-        if mod > self.mod_latest:
-            self.env.logLine(8, "Newer modification time detected: " + filename + " " + str(mod))
-            self.mod_latest = mod
-        self.user_targets.append(filename[:-7])
-
-
-    def formatModellingEntry(self, user_mod, cats, folder, filename):
-        """
-        :param: filename is target without suffix
-        """
-        name = filename.replace('-', ' ') # display name
-        if folder is not None:
-            fname = os.path.join(folder, filename)
-            elem = folder.capitalize() + " " + name.capitalize()
-            group = "user|" + folder
-            iconname = folder + "-" + filename
-        else:
-            fname = filename
-            elem = "User " + name.capitalize()
-            group = "user|unsorted"
-            iconname = filename
-
-        dualtarget = False
-        if filename.endswith("incr"):
-            if folder is not None:
-                opposite = os.path.join(folder, filename.replace("incr", "decr"))
-            else:
-                opposite = filename.replace("incr", "decr")
-            if opposite in cats:
-                print ("Dual target: " + filename + " / "  + opposite)
-                name = name[:-5]
-                elem = elem[:-5]
-                user_mod[elem] = ({"user": 1, "name": name, "group": group,  "incr": fname, "decr": opposite })
-
-                iconname = iconname[:-5] + ".png"
-                if iconname in self.icon_repos:
-                    user_mod[elem]["icon"] = iconname
-                dualtarget = True
-
-        elif filename.endswith("decr"):
-            if folder is not None:
-                opposite = os.path.join(folder, filename.replace("decr", "incr"))
-            else:
-                opposite = filename.replace("decr", "incr")
-
-            if opposite in cats:
-                dualtarget = True
-
-        if dualtarget is False:
-            print ("Simple target: " + filename)
-            user_mod[elem] = ({"user": 1, "name": name, "group": group,  "incr": fname })
-            iconname = iconname + ".png"
-            if iconname in self.icon_repos:
-                user_mod[elem]["icon"] = iconname
-
-    def getIcons(self, folder):
-        dirs = os.listdir(folder)
-        for ifile in dirs:
-            if ifile.endswith(".png"):
-                fname = os.path.join(folder, ifile)
-                mod = int(os.stat(fname).st_mtime)
-                if mod > self.mod_latest:
-                    self.env.logLine(8, "Newer modification time detected: " + ifile + " " + str(mod))
-                    self.mod_latest = mod
-                self.icon_repos.append(ifile)
-
-    def getAListOfTargets(self, folder):
-        """
-        allow two layers as a maximum
-        """
-        dirs = os.listdir(folder)
-        for ifile in dirs:
-
-            fname = os.path.join(folder, ifile)
-
-            # read names of the icons
-            #
-            if ifile == "icons":
-                self.getIcons(fname)
-                continue
-
-            # we don't do it recursive to avoid more than two layers
-            #
-            if os.path.isdir(fname):
-                dir2s = os.listdir(fname)
-                for ifile2 in dir2s:
-                    if ifile2.endswith(".target"):
-                        self.addUserTarget(folder, ifile, ifile2)
-
-            elif ifile.endswith(".target"):
-                self.addUserTarget(folder, None, ifile)
-
-
-    def createJStruct(self, categories):
-        user_mod = {}
-        cat_list = []
-        user_cat = {"User": {"group": "user", "items": [] }}
-        items = user_cat["User"]["items"]
-        for elem in categories:
-            if "/" in elem:
-                (d, f) = elem.split("/")
-                if d not in cat_list:
-                    cat_list.append(d)
-                    items.append( {"title": d.capitalize(), "cat": d } )
-                self.formatModellingEntry(user_mod, categories, d, f)
-            elif "\\" in elem:
-                (d, f) = elem.split("\\")
-                if d not in cat_list:
-                    cat_list.append(d)
-                    items.append( {"title": d.capitalize(), "cat": d } )
-                self.formatModellingEntry(user_mod, categories, d, f)
-            else:
-                if "unsorted" not in cat_list:
-                    cat_list.append("unsorted")
-                    items.append( {"title": "Unsorted", "cat": "unsorted" } )
-                self.formatModellingEntry(user_mod, categories, None, elem)
-
-        return (user_cat, user_mod)
-
-    def readFiles(self):
-        #
-        # system first, categoryjson would be None if not available
-        #
-        targetpath = self.env.stdSysPath("target")
-        filename = os.path.join(targetpath, "target_cat.json")
-        categoryjson = self.env.readJSON(filename)
-
-        # now user
-        #
-        targetpath = self.env.stdUserPath("target")
-
-        # if folder does not exists do nothing
-        #
-        if not os.path.isdir(targetpath):
-            self.env.logLine(8, "No target folder for " + self.basename + " in user space")
-            return (categoryjson)
-
-        #    check for "target_cat.json" (with date)
-        #
-        catfilename = os.path.join(targetpath, "target_cat.json")
-        if os.path.isfile(catfilename):
-            self.mod_cat = int(os.stat(catfilename).st_mtime)
-            self.env.logLine(8, "User target category file exists and last modified: " + str(self.mod_cat))
-        else:
-            self.env.logLine(8, "User target category file does not exists")
-            self.mod_cat = 0
-
-        #    check for "modelling.json" (with date)
-        #
-        modfilename = os.path.join(targetpath, "modelling.json")
-        if os.path.isfile(modfilename):
-            self.mod_modelling = int(os.stat(modfilename).st_mtime)
-            self.env.logLine(8, "User target modelling file exists and last modified: " + str(self.mod_modelling))
-        else:
-            self.env.logLine(8, "User target modelling file does not exists")
-
-        # now scan targets
-        #
-        self.getAListOfTargets(targetpath)
-        if self.mod_latest > self.mod_cat or self.mod_latest > self.mod_modelling:
-            (json_cat_object, json_mod_object) = self.createJStruct(self.user_targets)
-            self.env.writeJSON(catfilename, json_cat_object)
-            self.env.logLine(8, "New user target category file written")
-            self.env.writeJSON(modfilename, json_mod_object)
-            self.env.logLine(8, "New user target modelling file written")
-        else:
-            self.env.logLine(8, "User target category and modelling file is not changed")
-
-        userjson = self.env.readJSON(catfilename)
-        if userjson is not None:
-            if categoryjson is not None:
-                categoryjson["User"] = userjson["User"]
-            else:
-                categoryjson = userjson         # only user targets
-
-        # make it globally available
-        #
-        self.glob.targetCategories = categoryjson
 

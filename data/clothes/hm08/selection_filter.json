@@ -1,6 +1,6 @@
 {
 	"Gender": ["Male", "Female"],
-	"Epoch": ["Contemporary", "Future", "Past"],
+	"Era": ["Contemporary", "Future", "Past"],
 	"Slot": {
 		"Headgear": {
 			"Layer1": [ "Glasses", "Mask" ],

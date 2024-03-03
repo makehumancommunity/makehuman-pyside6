@@ -1,6 +1,6 @@
 {
 	"Gender": ["Male", "Female"],
-	"Epoch": ["Contemporary", "Future", "Past"],
+	"Era": ["Contemporary", "Future", "Past"],
 	"Style": ["Afro", "Asymmetrical", "Bob", "Braid", "Curly", "Long", "Short", "Updo", "Wavy"],
 	"Occasion": ["Casual", "Fashion", "Festive", "Formal" ],
 	"Translate": {

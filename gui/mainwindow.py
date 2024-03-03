@@ -386,8 +386,8 @@ class MHMainWindow(QMainWindow):
         self.rightColumn.setTitle("Modify character, category: " + text)
         if self.glob.Targets is not None:
             widget = QWidget()
-            scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets, self.targetfilter)
-            widget.setLayout(scalerArray.layout)
+            self.scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets, self.targetfilter)
+            widget.setLayout(self.scalerArray.layout)
             scrollArea = QScrollArea()
             scrollArea.setWidget(widget)
             scrollArea.setWidgetResizable(True)
@@ -528,17 +528,25 @@ class MHMainWindow(QMainWindow):
             confirmed = dbox.exec()
         return(confirmed)
 
+    def parallelLoad(self, bckproc, *args):
+        self.glob.baseClass.loadMHMFile(args[0][0])
+
+    def finishLoad(self):
+        self.graph.view.addAssets()
+        self.graph.view.newTexture(self.glob.baseClass.baseMesh)
+        self.graph.view.Tweak()
+        self.setWindowTitle(self.glob.baseClass.name)
+        self.glob.mhViewport.setSizeInfo()
+        self.glob.parallel = None
+
     def newCharacter(self, filename):
-        if filename is not None:
+        if filename is not None and self.glob.parallel is None:
             self.setToolModeAndPanel(0, 0)
             self.graph.view.noAssets()
             self.glob.freeTextures()
-            self.glob.baseClass.loadMHMFile(filename)
-            self.graph.view.addAssets()
-            self.graph.view.newTexture(self.glob.baseClass.baseMesh)
-            self.graph.view.Tweak()
-            self.setWindowTitle(self.glob.baseClass.name)
-            self.glob.mhViewport.setSizeInfo()
+            self.glob.parallel = WorkerThread(self.parallelLoad, filename)
+            self.glob.parallel.start()
+            self.glob.parallel.finished.connect(self.finishLoad)
         self.glob.project_changed = False
 
     def loadmhm_call(self):
@@ -580,20 +588,24 @@ class MHMainWindow(QMainWindow):
                 self.glob.project_changed = False
                 self.redrawNewCategory(self.targetfilter)
                 self.glob.baseClass.applyAllTargets()
-                self.glob.baseClass.updateAttachedAssets()
                 self.graph.setSizeInfo()
                 self.graph.view.Tweak()
 
     def symSwitch(self):
+        self.scalerArray.comboUnexpand()
         v = not self.glob.Targets.getSym()
         self.glob.Targets.setSym(v)
         self.sender().setChecked(v)
 
     def symLToR(self):
         self.glob.Targets.makeSym(False)
+        self.glob.baseClass.parApplyTargets()
+        #self.graph.view.Tweak()
 
     def symRToL(self):
         self.glob.Targets.makeSym(True)
+        self.glob.baseClass.parApplyTargets()
+        #self.graph.view.Tweak()
 
     def selectmesh_call(self):
         (base, filename) = self.baseSelector.getSelectedItem()

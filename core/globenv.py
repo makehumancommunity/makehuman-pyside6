@@ -30,7 +30,7 @@ class globalObjects():
         self.targetRepo       = {}          # will contain a dictionary of available targets
         self.macroRepo        = {}          # will contain a dictionary of available macros
         self.missingTargets = []            # will contain a list of missing targets after load
-        self.target_changing = None         # for parallel processing
+        self.parallel = None                # for parallel processing. Should avoid more than one process at the time
         self.textSlot = [None, None, None, None, None] # text slots for graphical window
 
 
