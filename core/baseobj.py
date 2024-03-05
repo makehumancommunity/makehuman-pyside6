@@ -369,9 +369,8 @@ class baseClass():
             #
             # TODO: this dummy class method is not that good 
             #
-            m = self.glob.targetMacros['macrodef']
             mo = Modelling(self.glob, "dummy", None)
-            mo.macroCalculation(list(range(0,len(m))))
+            mo.macroCalculationLoad()
             
         for target in targets:
             if target.value != 0.0:

@@ -34,7 +34,8 @@ class object3d:
         self.gl_coord_o = []  # will contain a copy of unchanged positions (TODO base mesh only ?)
 
         self.gl_coord_w = []  # will contain a copy of unchanged positions (working mode with targets)
-        self.gl_coord_m = []  # will contain another buffer for work with macros (base mesh only)
+        self.gl_coord_mn = []  # will contain buffer for work with macros containing all changes except the macros
+        self.gl_coord_mm = []  # will contain buffer for work with macros containing all changes of the macros
 
         self.gl_uvcoord = []  # will contain flattened gluv-Buffer
         self.gl_norm  = []    # will contain flattended normal buffer
@@ -47,7 +48,6 @@ class object3d:
         if baseinfo is not None:
             self.visible = baseinfo["visible groups"]
             self.is_base = True
-            self.clearMacroBuffer()
         else:
             self.visible = None
             self.is_base = False
@@ -214,7 +214,6 @@ class object3d:
         self.gl_coord_o = self.gl_coord.copy()  # create a copy for original values
         if self.is_base:
             self.gl_coord_w = self.gl_coord.copy()          # basemesh: create another one for working
-            self.gl_coord_m = np.zeros_like(self.gl_coord)  # basemesh: create a macrotarget buffer
 
         if self.n_fuvs > 0:
             self.gl_uvcoord = self.uvs.flatten()
@@ -266,20 +265,19 @@ class object3d:
         if factor < 0.0:
             if targetlower is None:
                 return
-            verts = targetlower.verts
-            data  = targetlower.data
+            verts = targetlower.verts * 3
+            data  = targetlower.data.ravel()
             factor = -factor
         elif factor > 0.0:
-            verts = targetupper.verts
-            data  = targetupper.data
+            verts = targetupper.verts * 3
+            data  = targetupper.data.ravel()
 
-        for i in range(0, len(verts)):
-            x = verts[i] * 3
-            self.gl_coord[x]   = self.gl_coord_w[x]   + factor * data[i][0]
-            self.gl_coord[x+1] = self.gl_coord_w[x+1] + factor * data[i][1]
-            self.gl_coord[x+2] = self.gl_coord_w[x+2] + factor * data[i][2]
+        srcVerts = np.s_[...]
+        self.gl_coord[verts] = self.gl_coord_w[verts] + data[srcVerts][::3] * factor
+        self.gl_coord[verts+1] = self.gl_coord_w[verts+1] + data[srcVerts][1::3] * factor
+        self.gl_coord[verts+2] = self.gl_coord_w[verts+2] + data[srcVerts][2::3] * factor
 
-        # do not forget the overflow vertices
+        # overflow vertices
         #
         self.overflowCorrection(self.gl_coord)
 
@@ -290,69 +288,79 @@ class object3d:
         if factor < 0.0:
             if targetlower is None:
                 return
-            verts = targetlower.verts
-            data  = targetlower.data
+            verts = targetlower.verts * 3
+            data  = targetlower.data.ravel()
             factor = -factor
         elif factor > 0.0:
             if targetupper is None:
                 return
-            verts = targetupper.verts
-            data  = targetupper.data
+            verts = targetupper.verts * 3
+            data  = targetupper.data.ravel()
 
-        for i in range(0, len(verts)):
-            x = verts[i] * 3
-            self.gl_coord[x]   += factor * data[i][0]
-            self.gl_coord[x+1] += factor * data[i][1]
-            self.gl_coord[x+2] += factor * data[i][2]
+        srcVerts = np.s_[...]
+        self.gl_coord[verts] += data[srcVerts][::3] * factor
+        self.gl_coord[verts+1] += data[srcVerts][1::3] * factor
+        self.gl_coord[verts+2] += data[srcVerts][2::3] * factor
 
-        # do not forget the overflow vertices
+        # overflow vertices
         #
         self.overflowCorrection(self.gl_coord)
 
-    def clearMacroBuffer(self):
-        self.gl_coord_m = np.zeros_like(self.gl_coord)
+    def prepareMacroBuffer(self):
+        """
+        copy original mesh + add all changes of non-macrotargets
+        """
+        print ("+++ Prepare Buffer")
+        self.gl_coord_mn =  self.gl_coord.copy()
+        self.gl_coord_mm = np.zeros_like(self.gl_coord)
+
+    def addAllNonMacroTargets(self):
+        """
+        copy original mesh + add all changes of non-macrotargets
+        """
+        print ("+++ Add all non Macro Targets to buffer")
+        self.gl_coord[:] = self.gl_coord_o[:]
+        targets = self.glob.Targets.modelling_targets
+        for target in targets:
+            if target.value != 0.0 and target.macro is None:
+                print ("Set " + target.name)
+                self.setTarget(target.value / 100, target.decr, target.incr)
+        #
+        # now keep original mesh
+        #
+        self.gl_coord_mn =  self.gl_coord.copy()
+        self.gl_coord_mm = np.zeros_like(self.gl_coord)
+
 
     def addTargetToMacroBuffer(self, factor, target):
         """
         updates a special buffer for a macro target
         """
-        # print ("add macro buffer for " + str(target))
-        verts = target.verts
-        data  = target.data
+        print ("+++ Add a target")
 
-        for i in range(0, len(verts)):
-            x = verts[i] * 3
-            self.gl_coord_m[x]   += factor * data[i][0]
-            self.gl_coord_m[x+1] += factor * data[i][1]
-            self.gl_coord_m[x+2] += factor * data[i][2]
+        m = target.data.ravel()
+        verts = target.verts * 3
+
+        srcVerts = np.s_[...]
+        self.gl_coord_mm[verts] += m[srcVerts][::3] * factor
+        self.gl_coord_mm[verts+1] += m[srcVerts][1::3] * factor
+        self.gl_coord_mm[verts+2] += m[srcVerts][2::3] * factor
+
 
     def addMacroBuffer(self):
 
         # make sure to write in same buffer (out will avoid to get a new one)
         #
-        np.add(self.gl_coord, self.gl_coord_m, out=self.gl_coord)  
+        print ("+++ Add macro to character")
+        np.add(self.gl_coord_mm, self.gl_coord_mn, out=self.gl_coord)  
         self.overflowCorrection(self.gl_coord)
-
-    def subtractMacroBuffer(self):
-        # make sure to write in same buffer (out will avoid to get a new one)
-        #
-        np.subtract(self.gl_coord, self.gl_coord_m, out=self.gl_coord)  
+        self.gl_coord_mm = np.zeros_like(self.gl_coord)
 
     def approxByTarget(self, asset, base):
         """
         updates the mesh when slider is moved, approximation
         """
 
-        # TODO: only handles simple case
-        """
-        i = 0
-        for vnum in asset.ref_vIdxs:
-            x =  vnum[0] * 3
-            self.gl_coord[i] = base.gl_coord[x]
-            self.gl_coord[i+1] = base.gl_coord[x+1]
-            self.gl_coord[i+2] = base.gl_coord[x+2]
-            i += 3
-        """
         i = 0
         b = base.gl_coord
         w = asset.weights

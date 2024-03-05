@@ -193,7 +193,9 @@ class Modelling:
     def initialize(self):
         factor = self.value / 100
         print("init  " + self.name)
-        if self.incr is not None or self.decr is not None:
+        if self.macro is not None:
+            self.obj.baseMesh.addAllNonMacroTargets()
+        elif self.incr is not None or self.decr is not None:
             self.obj.getInitialCopyForSlider(factor, self.decr, self.incr)
             if self.glob.Targets.getSym() is True and self.sym is not None:
                 if self.sym in self.glob.targetRepo:
@@ -288,18 +290,24 @@ class Modelling:
                         sortedtargets[l[name]] = elem["factor"]
                         print(name + " is new")
                 else:
-                    print(name + " does not exist")
                     pass
-                    #print (name + " not found")
 
         # add them to screen first
         #
-        self.obj.baseMesh.clearMacroBuffer()
         for elem in sortedtargets:
             if elem in self.glob.macroRepo:
                 print (elem, round(sortedtargets[elem],2))
                 self.obj.baseMesh.addTargetToMacroBuffer(sortedtargets[elem], self.glob.macroRepo[elem])
         self.obj.baseMesh.addMacroBuffer()
+
+    def macroCalculationLoad(self):
+        m = self.glob.targetMacros['macrodef']
+        #
+        # create all macros
+        #
+        m_influence = list(range(0,len(m)))
+        self.obj.baseMesh.prepareMacroBuffer()
+        self.macroCalculation(m_influence)
 
     def changeMacroTarget(self, bckproc, args):
         """
@@ -307,8 +315,11 @@ class Modelling:
         """
         self._last_value = self.value
 
-        self.obj.baseMesh.subtractMacroBuffer()
-        self.macroCalculation(self.m_influence)
+        print (self.m_influence)
+        m = self.glob.targetMacros['macrodef']
+        m_influence = list(range(0,len(m)))
+        #self.macroCalculation(self.m_influence)
+        self.macroCalculation(m_influence)
         self.obj.updateAttachedAssets()
 
     def finished_bckproc(self):
