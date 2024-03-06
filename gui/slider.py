@@ -1,7 +1,7 @@
 import os
 import sys
 from PySide6.QtCore import Qt, QRect, QPoint
-from PySide6.QtGui import QPainter, QPixmap, QPen
+from PySide6.QtGui import QPainter, QPixmap, QPen, QIcon
 
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QSlider, QStyle, QStyleOptionSlider, QLabel, QPushButton, QSizePolicy, QDoubleSpinBox, QProgressBar, QFrame, QColorDialog
 from gui.mapslider import MapBaryCentricCombo
@@ -106,7 +106,7 @@ class ScaleCombo(QWidget):
         self.dSpinBox.setValue(self.elem.value)
         self.dSpinBox.valueChanged.connect(self.dspinValueChanged)
         self.resetButton = QPushButton()
-        self.resetButton.setToolTip("Reset to 0.0")
+        self.resetButton.setToolTip("Reset to default")
         self.resetButton.setIcon(self.resetIcon)
         self.resetButton.setMaximumWidth(30)
         self.resetButton.pressed.connect(self.resetButtonPressed)
@@ -145,9 +145,9 @@ class ScaleCombo(QWidget):
         """
         change sliders and element accordingly
         """
-        self.slider.setValue(0)
-        self.dSpinBox.setValue(0)
-        self.elem.value = 0
+        self.elem.value = self.elem.default
+        self.slider.setValue(self.elem.value)
+        self.dSpinBox.setValue(self.elem.value)
 
     def selectButtonPressed(self):
         """
@@ -214,11 +214,11 @@ class ScaleComboArray(QWidget):
     """
     a slider array of all the elements in modelling
     """
-    def __init__(self, mainwidget, modelling, filterparam=None,  parent=None):
+    def __init__(self, mainwidget, modelling, filterparam,  sweep, parent=None):
         super(ScaleComboArray, self).__init__(parent=parent)
         self.layout=QVBoxLayout(self)
         self.scaleComboArray = []
-        self.resetIcon = mainwidget.style().standardIcon(QStyle.SP_DialogResetButton)
+        self.resetIcon = QIcon(sweep) #mainwidget.style().standardIcon(QStyle.SP_DialogResetButton)
         cnt = 0
         for elem in modelling:
             if filterparam is None or elem.group == filterparam:

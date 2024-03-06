@@ -284,6 +284,7 @@ class object3d:
     def setTarget(self, factor, targetlower, targetupper):
         """
         updates from file (all done on basemesh directly)
+        no overflow correction
         """
         if factor < 0.0:
             if targetlower is None:
@@ -302,10 +303,6 @@ class object3d:
         self.gl_coord[verts+1] += data[srcVerts][1::3] * factor
         self.gl_coord[verts+2] += data[srcVerts][2::3] * factor
 
-        # overflow vertices
-        #
-        self.overflowCorrection(self.gl_coord)
-
     def prepareMacroBuffer(self):
         """
         copy original mesh + add all changes of non-macrotargets
@@ -319,12 +316,17 @@ class object3d:
         copy original mesh + add all changes of non-macrotargets
         """
         print ("+++ Add all non Macro Targets to buffer")
-        self.gl_coord[:] = self.gl_coord_o[:]
+        self.resetMesh()
         targets = self.glob.Targets.modelling_targets
         for target in targets:
             if target.value != 0.0 and target.macro is None:
                 print ("Set " + target.name)
                 self.setTarget(target.value / 100, target.decr, target.incr)
+
+        # overflow vertices
+        #
+        self.overflowCorrection(self.gl_coord)
+
         #
         # now keep original mesh
         #

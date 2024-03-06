@@ -352,31 +352,21 @@ class baseClass():
         self.baseMesh.updateByTarget(factor, decr, incr)
         self.updateAttachedAssets()
 
-    def setTarget(self, factor, decr, incr):
-        """
-        set all meshes by target
-        """
-        self.baseMesh.setTarget(factor, decr, incr)
-        self.updateAttachedAssets()
-
     def applyAllTargets(self, bckproc=None, args=None):
         """
         applies all targets and corrects attached assets
         """
         self.baseMesh.resetMesh()
         targets = self.glob.Targets.modelling_targets
+        self.baseMesh.addAllNonMacroTargets()
+
         if self.glob.targetMacros is not None:
             #
             # TODO: this dummy class method is not that good 
             #
             mo = Modelling(self.glob, "dummy", None)
             mo.macroCalculationLoad()
-            
-        for target in targets:
-            if target.value != 0.0:
-                if target.macro is None:
-                    print ("Set " + target.name)
-                    self.baseMesh.setTarget(target.value / 100, target.decr, target.incr)
+        
         self.updateAttachedAssets()
 
     def finishApply(self):

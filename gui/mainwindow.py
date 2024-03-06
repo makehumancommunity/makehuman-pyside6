@@ -386,7 +386,8 @@ class MHMainWindow(QMainWindow):
         self.rightColumn.setTitle("Modify character, category: " + text)
         if self.glob.Targets is not None:
             widget = QWidget()
-            self.scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets, self.targetfilter)
+            sweep = os.path.join(self.glob.env.path_sysicon, "sweep.png")
+            self.scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets, self.targetfilter, sweep)
             widget.setLayout(self.scalerArray.layout)
             scrollArea = QScrollArea()
             scrollArea.setWidget(widget)

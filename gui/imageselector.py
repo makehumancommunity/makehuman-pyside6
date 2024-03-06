@@ -517,14 +517,17 @@ class FilterTree(QTreeView):
         self.flowLayout.populate(ruleset, filtertext)
 
 class editBox(QLineEdit):
-    def  __init__(self, slayout):
+    def  __init__(self, slayout, sweep):
         super().__init__()
         self.changeFilter = None
         self.empty = QPushButton("")
-        self.empty.setIcon(self.style().standardIcon(QStyle.SP_DialogCancelButton))
-        self.empty.setMaximumWidth(30)
+        self.empty.setIcon(QIcon(sweep))
+        self.empty.setIconSize(QSize(36,36))
+        self.empty.setMaximumWidth(40)
         self.empty.clicked.connect(self.clearEditBox)
+        slayout.addWidget(QLabel("Filter:"))
         slayout.addWidget(self)
+        slayout.addStretch()
         slayout.addWidget(self.empty)
         self.setMaximumWidth(170)
 
@@ -640,7 +643,7 @@ class ImageSelection():
         self.infobox = InformationBox(v1layout)
 
         slayout = QHBoxLayout()  # layout for textbox + empty button
-        filteredit = editBox(slayout)
+        filteredit = editBox(slayout, os.path.join(self.env.path_sysicon, "sweep.png" ))
         self.filterview = FilterTree(self.asset_category, filteredit, iconpath)
         self.filterview.addTree(self.filterjson)
         self.filterview.selectionModel().selectionChanged.connect(self.filterview.filterChanged)
@@ -650,7 +653,7 @@ class ImageSelection():
         v1layout.addWidget(self.filterview)
         if shortcuts is not None:
             v1layout.addLayout(shortcuts)
-        v1layout.addWidget(QLabel("Filter:"))
+        #v1layout.addWidget(QLabel("Filter:"))
         v1layout.addLayout(slayout)
 
         sizebutton = QPushButton("Change Image Size")
