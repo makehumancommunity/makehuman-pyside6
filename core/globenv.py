@@ -647,11 +647,12 @@ class programInfo():
                 author = "unknown"
                 tag = []
                 for line in fp:
-                    if line.startswith("verts"):
-                        break
+                    #if line.startswith("verts"):
                     words = line.split()
                     if len(words) < 2:
                         continue
+                    if words[0].isnumeric():
+                        break
 
                     if words[0] == "name":          # always last word, one word
                         name = words[1]

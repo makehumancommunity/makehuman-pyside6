@@ -549,6 +549,7 @@ class ImageSelection():
         self.selmode = selmode
         self.callback = callback
         self.tagreplace = {}
+        self.tagfromname = {}
         self.filterjson = None
         self.picwidget = None
         self.filterview = None
@@ -578,10 +579,13 @@ class ImageSelection():
                 if elem == "Translate":                             # extra, change by word
                     for l in subtree[elem]:
                         self.tagreplace[l.lower()] = subtree[elem][l]
+                if elem == "GuessName":                             # extra, change by word
+                    for l in subtree[elem]:
+                        self.tagfromname[l.lower()] = subtree[elem][l]
 
-    def completeTags(self, tags):
+    def completeTags(self, name, tags):
         """
-        replace tags by tags with prepended strings
+        replace tags by tags with prepended strings or check name
         """
         newtags = []
         for tag in tags:
@@ -598,6 +602,12 @@ class ImageSelection():
             else:
                 if tag not in newtags:
                     newtags.append(tag)
+
+        for tag in self.tagfromname:
+            if tag in name:
+                ntag = self.tagfromname[tag]
+                if ntag not in newtags:
+                    newtags.append(ntag)
         return (newtags)
 
     def prepare(self):
@@ -611,7 +621,7 @@ class ImageSelection():
 
         for elem in self.assetrepo:
             if elem.folder == self.type:
-                elem.tag = self.completeTags(elem.tag)
+                elem.tag = self.completeTags(elem.name, elem.tag)
                 self.asset_category.append(MHPictSelectable(elem.name, elem.thumbfile, elem.path,  elem.author, elem.tag))
 
     def changeStatus(self):

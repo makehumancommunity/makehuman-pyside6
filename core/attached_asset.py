@@ -123,13 +123,15 @@ class attachedAsset:
                 continue
 
             if status == 1:
-                refVert = referenceVerts()
-                refVerts.append(refVert)
-                if len(words) == 1:
-                    value = refVert.identicalValue(words, vnum, self.vertWeights)
-                else:
-                    refVert.fromTriple(words, vnum, self.vertWeights)
-                vnum += 1
+                if key.isnumeric():
+                    refVert = referenceVerts()
+                    refVerts.append(refVert)
+                    if len(words) == 1:
+                        value = refVert.identicalValue(words, vnum, self.vertWeights)
+                    else:
+                        refVert.fromTriple(words, vnum, self.vertWeights)
+                    vnum += 1
+                    continue
 
             elif status == 2:
                 #
@@ -161,7 +163,7 @@ class attachedAsset:
 
                 continue
 
-            if len(words) < 2 or status > 0:
+            if len(words) < 2:
                 continue
 
             if key in ["name", "uuid", "description", "author", "license", "homepage"]:
@@ -195,7 +197,7 @@ class attachedAsset:
         if self.material is not None:
             self.material = os.path.normpath(os.path.join(os.path.dirname(filename), self.material))
         print(self.obj_file)
-        print(self.material)
+        print("Material: " + str(self.material))
         # finally create the numpy arrays here
         #
         self.weights = np.asarray([v._weights for v in refVerts], dtype=np.float32)

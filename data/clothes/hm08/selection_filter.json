@@ -29,7 +29,11 @@
 	},
 	"Translate": {
 		"unisex": null,
-		"vintage": "=epoch:past"
+		"vintage": "=epoch:past",
+		"hats": "=slot:headgear:layer3:hat"
+	},
+	"GuessName": { 
+		"suit": "slot:top:layer3:suit"
 	},
 	"Shortcut": [
 		["glasses.png", "slot:headgear:layer1:glasses", "Glasses"],
