@@ -10,7 +10,7 @@ from gui.infowindow import  MHInfoWindow
 from gui.memwindow import  MHMemWindow
 from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
-from gui.fileactions import BaseSelect, SaveMHMForm
+from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport
 from gui.slider import ScaleComboArray
 from gui.imageselector import ImageSelection, IconButton
 from gui.dialogs import DialogBox, ErrorBox, WorkerThread, MHBusyWindow
@@ -357,10 +357,14 @@ class MHMainWindow(QMainWindow):
                 self.leftColumn.setTitle("Load file :: filter")
                 layout = self.charselect.leftPanel()
                 self.BaseBox.addLayout(layout)
-            if self.category_mode == 2:
+            elif self.category_mode == 2:
                 self.leftColumn.setTitle("Save file :: additional parameters")
                 self.saveForm = SaveMHMForm(self.glob, self.graph.view, self.setWindowTitle)
                 self.BaseBox.addLayout(self.saveForm)
+            elif self.category_mode == 4:
+                self.leftColumn.setTitle("Import file :: additional parameters")
+                dlform = DownLoadImport(self, self.graph.view, self.setWindowTitle)
+                self.BaseBox.addLayout(dlform)
             self.BaseBox.addStretch()
             return
 

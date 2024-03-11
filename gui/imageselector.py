@@ -413,7 +413,7 @@ class FilterTree(QTreeView):
                 for subelem in subtree[elem]:
                     self.shortcut.append(subelem)
                 continue
-            if find == "translate":
+            if find in ( "translate", "guessname"):
                 continue
             if base == "":
                 substring = ""
@@ -524,6 +524,7 @@ class editBox(QLineEdit):
         self.empty.setIcon(QIcon(sweep))
         self.empty.setIconSize(QSize(36,36))
         self.empty.setMaximumWidth(40)
+        self.empty.setToolTip("Clear filter")
         self.empty.clicked.connect(self.clearEditBox)
         slayout.addWidget(QLabel("Filter:"))
         slayout.addWidget(self)
@@ -567,6 +568,14 @@ class ImageSelection():
         """
         for elem in subtree:
             if isinstance(elem, str):
+                if elem == "Translate":                             # extra, change by word
+                    for l in subtree[elem]:
+                        self.tagreplace[l.lower()] = subtree[elem][l]
+                    continue
+                if elem == "GuessName":                             # extra, change by word
+                    for l in subtree[elem]:
+                        self.tagfromname[l.lower()] = subtree[elem][l]
+                    continue
                 if isinstance(subtree[elem], dict):
                     self.createTagGroups(subtree[elem], path + ":" + elem.lower())
                 elif isinstance(subtree[elem], list):
@@ -576,12 +585,6 @@ class ImageSelection():
                         for l in subtree[elem]:
                             repl = path + ":" + elem.lower()
                             self.tagreplace[l.lower()] = repl[1:]       # get rid of first ":"
-                if elem == "Translate":                             # extra, change by word
-                    for l in subtree[elem]:
-                        self.tagreplace[l.lower()] = subtree[elem][l]
-                if elem == "GuessName":                             # extra, change by word
-                    for l in subtree[elem]:
-                        self.tagfromname[l.lower()] = subtree[elem][l]
 
     def completeTags(self, name, tags):
         """
@@ -666,8 +669,14 @@ class ImageSelection():
         #v1layout.addWidget(QLabel("Filter:"))
         v1layout.addLayout(slayout)
 
-        sizebutton = QPushButton("Change Image Size")
+        resize = os.path.join(self.env.path_sysicon, "resize.png" )
+        #sizebutton = QPushButton("Change Image Size")
+        sizebutton = QPushButton("")
         sizebutton.clicked.connect(self.scaleImages)
+        sizebutton.setIcon(QIcon(resize))
+        sizebutton.setIconSize(QSize(36,36))
+        sizebutton.setMaximumWidth(40)
+        sizebutton.setToolTip("Resize thumbnails")
         v1layout.addWidget(sizebutton)
 
         return(v1layout)

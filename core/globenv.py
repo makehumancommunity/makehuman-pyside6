@@ -665,7 +665,7 @@ class programInfo():
                             author = " ".join(words[2:])
 
                     elif "tag" in line:         # allow tags with blanks
-                        tag.append(" ".join(words[1:]))
+                        tag.append(" ".join(words[1:]).encode('ascii', 'ignore').lower().decode("utf-8"))
         
                 namematch.append(mhPrefetchElem(name, uuid, path, folder, obj_file, thumbfile, author, tag))
 

@@ -1,8 +1,10 @@
-from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QAbstractItemView, QLineEdit, QLabel
+from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QAbstractItemView, QLineEdit, QLabel, QMessageBox
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPixmap
 from gui.imageselector import IconButton
+from gui.dialogs import DialogBox, ErrorBox, WorkerThread, MHBusyWindow
 import os
+from core.importfiles import AssetPack
 
 class BaseSelect(QVBoxLayout):
     def __init__(self, glob, callback):
@@ -169,3 +171,47 @@ class SaveMHMForm(QVBoxLayout):
     def thumbnail(self):
         self.bc.photo = self.view.createThumbnail()
         self.displayPixmap()
+
+
+class DownLoadImport(QVBoxLayout):
+    def __init__(self, parent, view, displaytitle):
+        self.parent = parent
+        self.view = view
+        self.env = parent.env
+        self.displaytitle = displaytitle
+        self.assets = None
+        self.bck_proc = None
+
+        super().__init__()
+
+        # name
+        #
+        self.addWidget(QLabel("\nZip Filename:"))
+        self.filename = QLineEdit("")
+        self.addWidget(self.filename)
+        self.savebutton=QPushButton("Extract")
+        self.savebutton.clicked.connect(self.extractZip)
+        self.addWidget(self.savebutton)
+
+    def parallelunzip(self, bckproc, *args):
+        tempdir = self.assets.unZip(self.filename.text())
+        print (tempdir, self.env.path_userdata, self.env.basename)
+        #self.assets.copyAssets(tempdir, self.env.path_userdata, self.env.basename)
+
+    def finishLoad(self):
+        self.assets.cleanupUnzip()
+        if self.prog_window is not None:
+            self.prog_window.progress.close()
+            self.prog_window = None
+        QMessageBox.information(self.parent, "Done!", self.bckproc.finishmsg)
+        self.bckproc = None
+
+    def extractZip(self):
+        print ("extract Zipfile")
+        self.assets = AssetPack(None, None)
+        self.prog_window = MHBusyWindow("Extract ZIP file", "extracting ...")
+        self.prog_window.progress.forceShow()
+        self.bckproc = WorkerThread(self.parallelunzip, None)
+        self.bckproc.start()
+        self.bckproc.finishmsg = "Zip file has been imported"
+        self.bckproc.finished.connect(self.finishLoad)

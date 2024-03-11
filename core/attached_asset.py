@@ -169,7 +169,7 @@ class attachedAsset:
             if key in ["name", "uuid", "description", "author", "license", "homepage"]:
                 setattr (self, key, " ".join(words[1:]))
             elif key == "tag":
-                self.tags.append( " ".join(words[1:]).lower() )
+                self.tags.append(" ".join(words[1:]).encode('ascii', 'ignore').lower().decode("utf-8"))
             elif key in ["obj_file", "material", "vertexboneweights_file"]:
                 setattr (self, key, words[1])
             elif key in ["version", "z_depth"]:

@@ -11,7 +11,7 @@
 		"Top": {
 			"Layer1": ["Bra", "Tanktop", "Swimwear"],
 			"Layer2": ["Shirt", "Sweater", "Pullover", "Blouse", "Top"],
-			"Layer3": ["Jacket", "Suit", "Costume"]
+			"Layer3": ["Jacket", "Suit", "Costume", "Uniform"]
 		},
 		"Bottom": {
 			"Layer1": ["Panties", "Tights"],
@@ -25,7 +25,8 @@
 			"Layer1": ["Socks"],
 			"Layer2": ["Shoes", "Sandals", "Boots"]
 		},
-		"Back": ["Backpack", "Wings"]
+		"Back": ["Backpack", "Wings"],
+		"Extra": ["Baby", "Child"]
 	},
 	"Translate": {
 		"unisex": null,
@@ -48,6 +49,10 @@
 		["skirt.png", "slot:bottom:layer2:skirt", "Skirt"],
 		["f_shoe.png", "slot:feet:layer2&gender:female", "Shoes (female)"],
 		["m_shoe.png", "slot:feet:layer2&gender:male", "Shoes (male)"],
+		["uniform.png", "slot:top:layer3:uniform", "Uniform"],
+		["handheld.png", "slot:hand:layer2", "Handheld objects"],
+		["babyassets.png", "slot:extra:baby", "Assets for babies"],
+		["kidassets.png", "slot:extra:child", "Assets for kids"],
 		["wing.png", "slot:back:wings", "Wings"]
 	]
 }
