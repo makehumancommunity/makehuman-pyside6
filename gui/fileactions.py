@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QAbstractItemView, QLineEdit, QLabel, QMessageBox
+from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QAbstractItemView, QLineEdit, QLabel, QMessageBox, QRadioButton
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPixmap
 from gui.imageselector import IconButton
@@ -179,26 +179,81 @@ class DownLoadImport(QVBoxLayout):
         self.view = view
         self.env = parent.env
         self.displaytitle = displaytitle
-        self.assets = None
-        self.bck_proc = None
+        self.bckproc = None     # will contain process running in parallel
+        self.error   = None     # will contain possible error text
+        self.zipfile = None     # last loaded zipfile
+        self.use_userpath = True
+        self.assets = AssetPack()
 
         super().__init__()
 
         # name
         #
-        self.addWidget(QLabel("\nZip Filename:"))
+        ilayout = QVBoxLayout()
+        ilayout.addWidget(QLabel("To download an asset pack, check name here:"))
+        #
+        # TODO: make this flexible
+        #
+        linklabel = QLabel()
+        linklabel.setText('''<a href='http://static.makehumancommunity.org/assets/assetpacks.html'>Asset Packs</a>''')
+        linklabel.setOpenExternalLinks(True)
+        ilayout.addWidget(linklabel)
+
+
+        ilayout.addWidget(QLabel("then copy URL into this box, press Download:"))
+        self.url = QLineEdit("")
+        ilayout.addWidget(self.url)
+        self.dlbutton=QPushButton("Download")
+        self.dlbutton.clicked.connect(self.downLoad)
+        ilayout.addWidget(self.dlbutton)
+
+        ilayout.addWidget(QLabel("\nBase is: " + self.env.basename))
+        userpath = QLabel("Destination user path:\n"+ self.env.path_userdata)
+        userpath.setToolTip("Files will be extracted to " + self.env.basename + " folders in "  + self.env.path_userdata)
+        ilayout.addWidget(userpath)
+
+        if self.env.admin:
+            syspath = QLabel("Destination system path:\n"+ self.env.path_sysdata)
+            syspath.setToolTip("Files will be extracted to " + self.env.basename + " folders in "  + self.env.path_sysdata)
+            ilayout.addWidget(syspath)
+
+            self.userbutton = QRadioButton("Install in your user path")
+            self.userbutton.setChecked(True)
+            self.systembutton = QRadioButton("Install in system path")
+            self.userbutton.toggled.connect(self.setMethod)
+            self.systembutton.toggled.connect(self.setMethod)
+            ilayout.addWidget(self.userbutton)
+            ilayout.addWidget(self.systembutton)
+
+
+        ilayout.addWidget(QLabel("\nAfter download use the filename inserted by\nprogram or type in a name of an already\ndownloaded file and press extract:"))
         self.filename = QLineEdit("")
-        self.addWidget(self.filename)
+        self.filename.setText(self.parent.glob.lastdownload)
+        ilayout.addWidget(self.filename)
+
         self.savebutton=QPushButton("Extract")
         self.savebutton.clicked.connect(self.extractZip)
-        self.addWidget(self.savebutton)
+        ilayout.addWidget(self.savebutton)
 
-    def parallelunzip(self, bckproc, *args):
+        ilayout.addWidget(QLabel("\nIf the downloaded file is no longer needed,\npress cleanup to delete the temporary folder"))
+        self.clbutton=QPushButton("Clean Up")
+        self.clbutton.clicked.connect(self.cleanUp)
+        ilayout.addWidget(self.clbutton)
+        self.addLayout(ilayout)
+
+    def setMethod(self, value):
+        if self.userbutton.isChecked():
+            self.use_userpath = True
+        else:
+            self.use_userpath = False
+
+    def par_unzip(self, bckproc, *args):
         tempdir = self.assets.unZip(self.filename.text())
-        print (tempdir, self.env.path_userdata, self.env.basename)
-        #self.assets.copyAssets(tempdir, self.env.path_userdata, self.env.basename)
+        destpath = self.env.path_sysdata if self.use_userpath is False else self.env.path_userdata
+        print (tempdir, destpath, self.env.basename)
+        #self.assets.copyAssets(tempdir, destpath, self.env.basename)
 
-    def finishLoad(self):
+    def finishUnzip(self):
         self.assets.cleanupUnzip()
         if self.prog_window is not None:
             self.prog_window.progress.close()
@@ -208,10 +263,63 @@ class DownLoadImport(QVBoxLayout):
 
     def extractZip(self):
         print ("extract Zipfile")
-        self.assets = AssetPack(None, None)
-        self.prog_window = MHBusyWindow("Extract ZIP file", "extracting ...")
-        self.prog_window.progress.forceShow()
-        self.bckproc = WorkerThread(self.parallelunzip, None)
-        self.bckproc.start()
-        self.bckproc.finishmsg = "Zip file has been imported"
-        self.bckproc.finished.connect(self.finishLoad)
+        fname = self.filename.text()
+        if not fname.endswith(".zip"):
+            ErrorBox(self.parent, "Filename should have the suffix .zip")
+            return
+
+        if self.bckproc == None:
+            self.prog_window = MHBusyWindow("Extract ZIP file", "extracting ...")
+            self.prog_window.progress.forceShow()
+            self.bckproc = WorkerThread(self.par_unzip, None)
+            self.bckproc.start()
+            self.bckproc.finishmsg = "Zip file has been imported"
+            self.bckproc.finished.connect(self.finishUnzip)
+
+    def par_download(self, bckproc, *args):
+        tempdir = args[0][0]
+        filename = args[0][1]
+        self.error = None
+        print (tempdir)
+        print (filename)
+        (err, text) = self.assets.getAssetPack(self.url.text(), tempdir, filename)
+        self.error = text
+
+    def finishLoad(self):
+        if self.prog_window is not None:
+            self.prog_window.progress.close()
+            self.prog_window = None
+        if self.error:
+            ErrorBox(self.parent, self.error)
+        else:
+            QMessageBox.information(self.parent, "Done!", self.bckproc.finishmsg)
+        self.bckproc = None
+
+    def downLoad(self):
+        print ("Download")
+        url = self.url.text()
+        if not (url.startswith("ftp:") or url.startswith("http:") or url.startswith("https:")):
+            ErrorBox(self.parent, "URL must start with a known protocol [http, https, ftp]")
+            return
+        filename = os.path.split(url)[1]
+
+        if self.bckproc == None:
+            tempdir = self.assets.tempDir()
+            self.parent.glob.lastdownload = os.path.join(tempdir, filename)
+            self.filename.setText(self.parent.glob.lastdownload)
+            self.prog_window = MHBusyWindow("Download Assetfile to " + tempdir, "loading ...")
+            self.prog_window.progress.forceShow()
+            self.bckproc = WorkerThread(self.par_download, tempdir, filename)
+            self.bckproc.start()
+            self.bckproc.finishmsg = "Download finished"
+            self.bckproc.finished.connect(self.finishLoad)
+
+    def cleanUp(self):
+        fullpath = self.parent.glob.lastdownload
+        if fullpath is not None:
+            (fpath, fname ) = os.path.split(fullpath)
+            if os.path.isfile(fullpath):
+                os.remove(fullpath)
+            os.rmdir(fpath)
+            self.parent.glob.lastdownload = None
+            self.filename.setText(self.parent.glob.lastdownload)

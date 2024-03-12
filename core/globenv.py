@@ -31,6 +31,7 @@ class globalObjects():
         self.macroRepo        = {}          # will contain a dictionary of available macros
         self.missingTargets = []            # will contain a list of missing targets after load
         self.parallel = None                # for parallel processing. Should avoid more than one process at the time
+        self.lastdownload = None            # will contain the filename of last downloaded file
         self.textSlot = [None, None, None, None, None] # text slots for graphical window
 
 
