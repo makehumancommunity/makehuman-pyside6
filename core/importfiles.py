@@ -3,8 +3,64 @@ from urllib.request import Request, urlopen
 from urllib.error import URLError
 from zipfile import ZipFile
 import os
+import sys
 import shutil
+import platform
 import tempfile
+
+class UserEnvironment():
+    def __init__(self):
+        self.osindex= -1
+
+    def GetPlatform(self):
+        p =sys.platform
+        if p.startswith('win'):
+            ostype = "Windows"
+            osindex= 0
+            platform_version = " ".join(platform.win32_ver())
+        elif p.startswith('darwin'):
+            ostype = "MacOS"
+            osindex= 2
+            platform_version = platform.mac_ver()[0]
+        else:
+            ostype = "Linux"
+            osindex= 1
+            try:
+                platform_version = ' '.join(platform.linux_distribution())
+            except AttributeError:
+                try:
+                    import distro
+                    platform_version = ' '.join(distro.linux_distribution())
+                except ImportError:
+                    platform_version = "Unknown"
+        self.osindex = osindex
+        return (p, osindex, ostype, platform_version)
+
+    def GetHardware(self):
+        return(platform.machine(), platform.processor(), platform.uname()[2])
+
+    def GetUserConfigFilenames(self, osindex=None, create=False):
+        if osindex is None:
+            osindex = self.osindex
+        if osindex == 0:
+            path = os.getenv('LOCALAPPDATA', '')
+        elif osindex == 1:
+            path = os.path.expanduser('~/.config')
+        else:
+            path = os.path.expanduser('~/Library/Application Support/MakeHuman')
+
+        #
+        # create of subfolder
+        folder = os.path.join(path, 'makehuman2')
+        if create is True:
+            if not os.path.isdir(folder):
+                try:
+                    os.mkdir(folder)
+                except:
+                    return (None, folder)
+
+        return (os.path.join(folder, 'makehuman2.conf'), os.path.join(folder, 'makehuman2_session.conf'))
+        
 
 class AssetPack():
     def __init__(self):

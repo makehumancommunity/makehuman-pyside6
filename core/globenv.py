@@ -3,13 +3,13 @@ import sys
 import os
 import re
 import locale
-import platform
 import json
 import glob
 from uuid import uuid4
 from gui.application import QTVersion
 from opengl.main import GLVersion
 from core.debug import dumper
+from core.importfiles import UserEnvironment
 
 class globalObjects():
     def __init__(self, env):
@@ -142,30 +142,18 @@ class programInfo():
         self.uselog  = uselog
         self.frozen  = frozen
         self.path_sys = path_sys
-        
-        p =sys.platform
-        if p.startswith('win'):
-            self.ostype = "Windows"
-            self.osindex= 0
-            self.platform_version = " ".join(platform.win32_ver())
-        elif p.startswith('darwin'):
-            self.ostype = "MacOS"
-            self.osindex= 2
-            self.platform_version = platform.mac_ver()[0]
-        else:
-            self.ostype = "Linux"
-            self.osindex= 1
-            try:
-                self.platform_version = ' '.join(platform.linux_distribution())
-            except AttributeError:
-                try:
-                    import distro
-                    self.platform_version = ' '.join(distro.linux_distribution())
-                    print (join(distro.linux_distribution()))
-                except ImportError:
-                    self.platform_version = "Unknown"
+ 
+        uenv = UserEnvironment()
+        (self.sys_platform, self.osindex, self.ostype, self.latform_version) = uenv.GetPlatform()
+        (self.platform_machine, self.platform_processor, self.platform_release) = uenv.GetHardware()
 
-        self.sys_platform = p
+        # create user configfolder if not there, if that is impossible terminate
+        #
+        (self.path_userconf, self.path_usersess) = uenv.GetUserConfigFilenames(create=True)
+        if self.path_userconf is None:
+            print("cannot create folder " + self.path_usersess)
+            exit(21)
+
         #
         # a lot of information for later use
         #
@@ -178,9 +166,6 @@ class programInfo():
         self.sys_version = re.sub(r"[\r\n]"," ", sys.version)
 
         self.sys_executable = sys.executable
-        self.platform_machine = platform.machine()
-        self.platform_processor = platform.processor()
-        self.platform_release = platform.uname()[2]
 
         from numpy import __version__ as numpvers
         self.numpy_version = [int(x) for x in numpvers.split('.')]
@@ -300,35 +285,11 @@ class programInfo():
             "units": "metric"
         }
 
-        # get all system and user paths according to operating system
-        #
-        if self.osindex == 0:
-            path = os.getenv('LOCALAPPDATA', '')
-        elif self.osindex == 1:
-            path = os.path.expanduser('~/.config')
-        else:
-            path = os.path.expanduser('~/Library/Application Support/MakeHuman')
-        
         # system paths
         #
         self.path_sysdata = os.path.join(self.path_sys,  "data")
         self.path_sysicon = os.path.join(self.path_sysdata, "icons")
         self.path_sysconf = os.path.join(self.path_sysdata, "makehuman2_default.conf")
-
-        # configuration files
-        #
-        # create of subfolder
-        #
-        folder = os.path.join(path, 'makehuman2')
-        if not os.path.isdir(folder):
-            try:
-                os.mkdir(folder)
-            except:
-                self.last_error = "cannot create folder " + folder
-                return (False)
-
-        self.path_userconf = os.path.join(folder, 'makehuman2.conf')
-        self.path_usersess = os.path.join(folder, 'makehuman2_session.conf') 
 
         # read json files with additional information, home-path can be changed
         #

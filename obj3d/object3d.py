@@ -2,8 +2,6 @@ import numpy as np
 from obj3d.fops_binary import exportObj3dBinary, importObjFromFile
 from opengl.material import Material
 
-# from timeit import default_timer as timer
-
 class object3d:
     def __init__(self, glob, baseinfo ):
  
@@ -113,10 +111,17 @@ class object3d:
         """
         when the main part of the mesh is directly corrected, handle the overflow
         """
-        for (source, dest) in self.overflow:
-            s = source * 3
-            d = dest * 3
-            arr[d:d+3]   = arr[s:s+3]
+        # numpy: create fancy indices from columns, repeat it 3 times and add values 0, 1, 2
+        # simulates this:
+        # for (source, dest) in self.overflow:
+        #    s = source * 3     # np.repeat
+        #    d = dest * 3
+        #    arr[d:d+3]   = arr[s:s+3]  (np.tile for d:d+3)
+
+        index = np.tile(np.array([0,1,2]), len(self.overflow))
+        src = np.repeat(self.overflow[:,0], 3)*3 + index
+        dst = np.repeat(self.overflow[:,1], 3)*3 + index
+        arr[dst]   = arr[src]
 
     def calcNormals(self):
         """
@@ -279,6 +284,7 @@ class object3d:
 
         # overflow vertices
         #
+        self.overflowCorrection(self.gl_coord_w)
         self.overflowCorrection(self.gl_coord)
 
     def setTarget(self, factor, targetlower, targetupper):
