@@ -1,5 +1,6 @@
 from PySide6.QtOpenGL import QOpenGLTexture
-from PySide6.QtGui import QImage
+from PySide6.QtGui import QImage, QColor
+from PySide6.QtCore import QSize
 
 import os
 from core.debug import dumper
@@ -29,9 +30,14 @@ class Material:
         self.env = glob.env
         self.objdir = objdir
         self.tags = []
+        self._textures = []
+        self.default()
 
     def __str__(self):
         return(dumper(self))
+
+    def default(self):
+        self.diffuseColor = [1.0, 1.0, 1.0 ]
 
     def isExistent(self, filename):
         """
@@ -117,17 +123,32 @@ class Material:
                         "ambientOcclusion"]:
                     setattr (self, "sc_" + words[1], words[2].lower() in ["yes", "enabled", "true"])
 
-
         print(self)
 
         return (True)
 
-    def loadTexture(self, path):
+    def newTexture(self, path, image):
         texture = QOpenGLTexture(QOpenGLTexture.Target2D)
         texture.create()
-        texture.setData(QImage(path))
+        texture.setData(image)
         self.glob.addTexture(path, texture)
-        #texture.setData(MH_Image(path, self.env))
         texture.setMinMagFilters(QOpenGLTexture.Linear, QOpenGLTexture.Linear)
         texture.setWrapMode(QOpenGLTexture.ClampToEdge)
+        self._textures.append(texture)
         return (texture)
+
+    def emptyTexture(self, hexcolor=0xff808080):
+        image = QImage(QSize(1,1),QImage.Format_ARGB32)
+        color = QColor(hexcolor)
+        image.fill(color)
+        name = "Generated " + repr(self) + " [" +str(len(self._textures)+1) + "]"
+        return(self.newTexture(name, image))
+
+    def loadTexture(self, path):
+        image = QImage(path)
+        return(self.newTexture(path, image))
+
+    def freeTextures(self):
+        for elem in self._textures:
+            self.glob.freeTexture(elem)
+        self._textures = []

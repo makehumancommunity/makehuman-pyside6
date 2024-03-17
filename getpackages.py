@@ -4,13 +4,18 @@ import json
 from core.importfiles import AssetPack, UserEnvironment
 
 if __name__ == '__main__':
-    #
-    # nearly all pathes just temporary, until solution found
-    #
-    server = "files.makehumancommunity.org"
-    path   = "asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip"
-    mesh = "hm08"
 
+    # get urls + name of standard mesh
+    #
+    release_info = os.path.join("data", "makehuman2_version.json")
+    if os.path.isfile(release_info):
+        with open(release_info, 'r') as f:
+            release = json.load(f)
+
+    (server, path, mesh)  = (release["url_fileserver"], release["url_systemassets"], release["standardmesh"])
+
+    # get user data path (if available)
+    #
     uenv = UserEnvironment()
     uenv.GetPlatform()
     conffile = uenv.GetUserConfigFilenames()[0]
@@ -38,8 +43,11 @@ if __name__ == '__main__':
                 okay = True
     else:
         space = systemspace
-    
-    print ("Selection: " + space)
+
+    source = "http://" + server + "/" + path
+    print ("Download from: " + source)
+    print ("for mesh     : " + mesh)
+    print ("to folder    : " + space)
     okay = False
     while not okay:
         line = input('Enter a to abort, d to download: ')
@@ -50,7 +58,7 @@ if __name__ == '__main__':
 
     assets = AssetPack()
     tempdir =assets.tempDir()
-    (success, message) = assets.getAssetPack("http://" + server + "/" + path, tempdir)
+    (success, message) = assets.getAssetPack(source, tempdir)
     if not success:
         print (message)
         exit (20)

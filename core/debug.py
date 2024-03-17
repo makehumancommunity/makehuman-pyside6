@@ -8,7 +8,7 @@ def memInfo():
 def dumper(mclass):
     text = ""
     for attr in dir(mclass):
-        if not attr.startswith("__"):
+        if not attr.startswith("_"):
             m = getattr(mclass, attr)
             if isinstance(m, int) or isinstance(m, str) or  isinstance(m, list):
                 text += (" %s = %r\n" % (attr, m))

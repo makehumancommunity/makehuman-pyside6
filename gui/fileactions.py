@@ -192,10 +192,11 @@ class DownLoadImport(QVBoxLayout):
         ilayout = QVBoxLayout()
         ilayout.addWidget(QLabel("To download an asset pack, check name here:"))
         #
-        # TODO: make this flexible
+        # link
         #
         linklabel = QLabel()
-        linklabel.setText('''<a href='http://static.makehumancommunity.org/assets/assetpacks.html'>Asset Packs</a>''')
+        ltext = "<a href='" + self.env.release_info["url_assetpacks"] + "'>Asset Packs</a>"
+        linklabel.setText(ltext)
         linklabel.setOpenExternalLinks(True)
         ilayout.addWidget(linklabel)
 

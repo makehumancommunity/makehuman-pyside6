@@ -163,9 +163,6 @@ def importObjFromFile(path, obj):
     """
     check if binary file exists, directory in inside subdirectory named npzip
     """
-    obj.dir_loaded  = os.path.dirname(path)
-    obj.name_loaded = os.path.basename(path)
-
     if obj.name_loaded.endswith(".obj"):
         binfile = os.path.join(obj.dir_loaded, "npzip", obj.name_loaded[:-3] + "npz")
         if os.path.isfile(binfile):

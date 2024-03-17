@@ -19,6 +19,7 @@ class globalObjects():
         self.openGLWindow = None
         self.mhViewport = None
         self.baseClass = None
+        self.textures = {}
         self.reset()
 
     def reset(self):
@@ -55,20 +56,26 @@ class globalObjects():
         """
         central location to delete textures
         """
-        if hasattr(self, "textures"):
-            t = self.textures
-            if name is None:
-                for elem in t:
-                    t[elem].destroy()
-            else:
-                if name in t:
-                    t[name].destroy()
-                    del t[name]
-                    return
-        self.textures = {}
+        t = self.textures
+        if name is None:
+            for elem in t:
+                t[elem].destroy()
+            self.textures = {}
+        else:
+            if name in t:
+                t[name].destroy()
+                del t[name]
 
     def addTexture(self, path, texture):
         self.textures[path] = texture
+
+    def freeTexture(self, texture):
+        t = self.textures
+        for elem in t:
+            if t[elem] == texture:
+                t[elem].destroy()
+                del t[elem]
+                return
 
     def generateBaseSubDirs(self, basename):
         for name in self.env.basefolders + ["skins", "models", "target"]:
@@ -121,14 +128,6 @@ class programInfo():
         init: set all global parameters
         evaluates system path, platform in ostype and osindex.
         """
-        self.release_info = {
-            "name": "MakeHuman [test]",
-            "author": "black punkduck, elvaerwyn",
-            "version": (2, 0, 1),
-            "copyright": "Copyright ... and listed authors",
-            "maintainer": "black punkduck",
-            "status": "only development"
-        }
 
         # all folders that belong to a basemesh
         #
@@ -289,6 +288,7 @@ class programInfo():
         #
         self.path_sysdata = os.path.join(self.path_sys,  "data")
         self.path_sysicon = os.path.join(self.path_sysdata, "icons")
+        self.path_version = os.path.join(self.path_sysdata, "makehuman2_version.json")
         self.path_sysconf = os.path.join(self.path_sysdata, "makehuman2_default.conf")
 
         # read json files with additional information, home-path can be changed
@@ -296,6 +296,15 @@ class programInfo():
         self.config = {}
         self.path_home = None
         self.writeconf = False          # in case of first time or in case of missing parameter, config file needs to rewritten
+
+        if os.path.isfile(self.path_version):
+            c = self.readJSON(self.path_version)
+            if c is None:
+                return False
+        else:
+            self.last_error = self.path_version + " not found!"
+            return False
+        self.release_info = c
 
         if os.path.isfile(self.path_userconf):
             c = self.readJSON(self.path_userconf)

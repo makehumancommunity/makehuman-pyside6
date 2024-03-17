@@ -40,32 +40,29 @@ class OpenGLView(QOpenGLWidget):
         self.skybox = None
         self.glob.openGLWindow = self
 
-    def createObject(self, obj, needtexture=False):
+    def createObject(self, obj):
         glbuffer = OpenGlBuffers()
         glbuffer.VertexBuffer(obj.gl_coord, obj.gl_icoord, obj.n_glverts)
         glbuffer.NormalBuffer(obj.gl_norm)
         glbuffer.TexCoordBuffer(obj.gl_uvcoord)
         self.buffers.append(glbuffer)
 
-        # TODO: material from mhmat file but not yet correct, these thing will be done in the shader
-        #
-        if needtexture is False:
-            if hasattr(obj.material, 'diffuseTexture'):
-                texture = obj.material.loadTexture(obj.material.diffuseTexture)
-            else:
-                default = self.env.existDataFile("skins", self.env.basename, "textures", "default.png")
-                if default is not None:
-                    texture = obj.material.loadTexture(default)
+        if hasattr(obj.material, 'diffuseTexture'):
+            texture = obj.material.loadTexture(obj.material.diffuseTexture)
+            #texture = obj.material.emptyTexture(0xff926250)
         else:
-            if hasattr(obj.material, 'diffuseTexture'):
-                texture = obj.material.loadTexture(obj.material.diffuseTexture)
+            default = self.env.existDataFile("skins", self.env.basename, "textures", "default.png")
+            if default is not None:
+                texture = obj.material.loadTexture(default)
+            else:
+                texture = obj.material.emptyTexture(0xff926250)
+
         obj.openGL = RenderedObject(self.context(), glbuffer, self.mh_shaders._shaders[0], texture, pos=QVector3D(0, 0, 0))
         self.objects.append(obj.openGL)
 
     def deleteObject(self,obj):
         obj.openGL.delete()
-        if hasattr(obj.material, 'diffuseTexture'):
-            self.glob.freeTextures(obj.material.diffuseTexture)
+        obj.material.freeTextures()
         self.objects.remove(obj.openGL)
         self.Tweak()
 
@@ -109,9 +106,6 @@ class OpenGLView(QOpenGLWidget):
 
         if baseClass is not None:
             self.newMesh()
-            #obj = baseClass.baseMesh
-            #self.createObject(obj)
-            #self.camera.setCenter(obj.getCenter())
 
         self.skybox = OpenGLSkyBox(self.env, self.mh_shaders._shaders[1], glfunc)
         self.skybox.create()
@@ -191,22 +185,24 @@ class OpenGLView(QOpenGLWidget):
         self.buffers = self.buffers[:1]
 
     def addAssets(self):
+        """
+        add all assets to a basemesh
+        """
         for elem in self.glob.baseClass.attachedAssets:
-            # print ("   " + str(elem))
-            self.createObject(elem.obj, True)
+            self.createObject(elem.obj)
 
     def newMesh(self):
-        baseClass = self.glob.baseClass
+        """
+        create of complete new mesh with assets
+        """
         for glbuffer in self.buffers:
             glbuffer.Delete()
         self.objects = []
         self.buffers = []
 
-        if baseClass is not None:
-            self.createObject(baseClass.baseMesh, False)
-            for elem in baseClass.attachedAssets:
-                # print ("   " + str(elem))
-                self.createObject(elem.obj, True)
+        if self.glob.baseClass is not None:
+            self.createObject(self.glob.baseClass.baseMesh)
+            self.addAssets()
             self.setCameraCenter()
             self.paintGL()
             self.update()

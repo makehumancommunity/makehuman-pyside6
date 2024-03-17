@@ -1,6 +1,7 @@
 import numpy as np 
 from obj3d.fops_binary import exportObj3dBinary, importObjFromFile
 from opengl.material import Material
+import os
 
 class object3d:
     def __init__(self, glob, baseinfo ):
@@ -59,9 +60,14 @@ class object3d:
 
     def load(self, path):
         """
-        TODO: should contain other pathes later
+        load a mesh either binary or per object
         """
-        return (importObjFromFile(path, self))
+        self.dir_loaded  = os.path.dirname(path)
+        self.name_loaded = os.path.basename(path)
+        (success, text) = importObjFromFile(path, self)
+        if success:
+            self.material = Material(self.glob, self.dir_loaded)
+        return (success, text)
 
     def loadMaterial(self, pathname, dirname=None):
         """
@@ -69,8 +75,7 @@ class object3d:
         """
         print ("Loading material")
         print (pathname)
-        self.material = Material(self.glob, self.dir_loaded)
-        if pathname is not None:
+        if pathname is not None and self.material is not None:
             return(self.material.loadMatFile(pathname))
         else:
             return True
