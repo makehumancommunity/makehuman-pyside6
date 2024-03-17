@@ -58,10 +58,10 @@ if __name__ == '__main__':
 
     assets = AssetPack()
     tempdir =assets.tempDir()
-    (success, message) = assets.getAssetPack(source, tempdir)
+    filename = os.path.split(path)[1]
+    (success, message) = assets.getAssetPack(source, tempdir, filename, unzip=True)
     if not success:
         print (message)
         exit (20)
-    filename = os.path.split(path)[1]
-    assets.copyAssets(tempdir, space, mesh, filename)
+    assets.copyAssets(tempdir, space, mesh)
     assets.cleanupUnzip()
