@@ -151,7 +151,7 @@ class object3d:
             #b = [ self.gl_coord[x][1] - self.gl_coord[x][2], self.gl_coord[x+1][1] - self.gl_coord[x+1][2], self.gl_coord[x+2][1] - self.gl_coord[x+2][2] ]
             #norm = np.cross(a, b)
 
-            for i in range(2):
+            for i in range(3):
                 fa_norm[elem[i]] += norm
                 fa_cnt[elem[i]] += 1
 

@@ -127,6 +127,14 @@ class Material:
 
         return (True)
 
+    def listAllMaterials(self):
+        materialfiles=[]
+        for (root, dirs, files) in  os.walk(self.objdir):
+            for name in files:
+                if name.endswith(".mhmat"):
+                    materialfiles.append(os.path.join(root, name))
+        return(materialfiles)
+
     def newTexture(self, path, image):
         texture = QOpenGLTexture(QOpenGLTexture.Target2D)
         texture.create()

@@ -270,6 +270,12 @@ class PicFlowLayout(QLayout):
         self.imagescale = scale
         self.removeAllWidgets()
         self.populate(self.ruleset, self.filter)
+
+    def getSelected(self):
+        for widget in self.wList:
+            if widget.asset.status == 1:
+                return(widget.asset)
+        return(None)
         
     def populate(self, ruleset, filtertext):
         """
@@ -350,6 +356,9 @@ class PicSelectWidget(QWidget):
 
     def populate(self, ruleset, filtertext):
         self.layout.populate(ruleset, filtertext)
+
+    def getSelected(self):
+        return(self.layout.getSelected())
 
     def addWidget(self, button):
         self.layout.addWidget (button)
@@ -520,17 +529,13 @@ class editBox(QLineEdit):
     def  __init__(self, slayout, sweep):
         super().__init__()
         self.changeFilter = None
-        self.empty = QPushButton("")
-        self.empty.setIcon(QIcon(sweep))
-        self.empty.setIconSize(QSize(36,36))
-        self.empty.setMaximumWidth(40)
-        self.empty.setToolTip("Clear filter")
-        self.empty.clicked.connect(self.clearEditBox)
+        self.empty = IconButton(0, sweep, "Clear filter", self.clearEditBox)
         slayout.addWidget(QLabel("Filter:"))
         slayout.addWidget(self)
         slayout.addStretch()
         slayout.addWidget(self.empty)
         self.setMaximumWidth(170)
+        self.setFixedWidth(190)
 
     def addConnect(self, changeFilter):
         self.changeFilter = changeFilter
@@ -646,6 +651,22 @@ class ImageSelection():
         self.imagescale = self.scales[self.scaleindex]
         self.picwidget.setImageScale(self.imagescale)
 
+    def materialCallback(self):
+        selected = self.picwidget.getSelected()
+        found = None
+        if selected is not None:
+            print ("Material change")
+            print (selected)
+            for cnt, elem in enumerate(self.glob.baseClass.attachedAssets):
+                if elem.filename == selected.filename:
+                    found = elem
+                    break
+        if found is not None:
+            print (cnt)     # current index on body
+            print (found)   # asset in inventory
+            matfiles = found.obj.material.listAllMaterials()
+            print (matfiles)
+
     def leftPanel(self):
         """
         done first
@@ -668,16 +689,17 @@ class ImageSelection():
             v1layout.addLayout(shortcuts)
         #v1layout.addWidget(QLabel("Filter:"))
         v1layout.addLayout(slayout)
-
+        hlayout = QHBoxLayout()
         resize = os.path.join(self.env.path_sysicon, "resize.png" )
-        #sizebutton = QPushButton("Change Image Size")
-        sizebutton = QPushButton("")
-        sizebutton.clicked.connect(self.scaleImages)
-        sizebutton.setIcon(QIcon(resize))
-        sizebutton.setIconSize(QSize(36,36))
-        sizebutton.setMaximumWidth(40)
-        sizebutton.setToolTip("Resize thumbnails")
-        v1layout.addWidget(sizebutton)
+        sizebutton = IconButton(0, resize, "Resize thumbnails", self.scaleImages)
+        hlayout.addWidget(sizebutton)
+        hlayout.addStretch()
+
+        matpath = os.path.join(self.env.path_sysicon, "materials.png" )
+        matbutton = IconButton(0, matpath, "Change material", self.materialCallback)
+        hlayout.addWidget(matbutton)
+
+        v1layout.addLayout(hlayout)
 
         return(v1layout)
 
