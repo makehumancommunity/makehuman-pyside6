@@ -30,6 +30,7 @@ class MHMainWindow(QMainWindow):
         self.pref_window = None
         self.mem_window = None
         self.scene_window = None
+        self.material_window = None
         self.info_window = None
         self.log_window = None
         self.rightColumn = None
@@ -175,13 +176,13 @@ class MHMainWindow(QMainWindow):
         #
         if self.glob.baseClass is not None:
             for elem in self.equipment:
-                elem["func"] = ImageSelection(self.glob, self.glob.baseClass.mhclo_namemap, elem["name"], elem["mode"], self.equipCallback)
+                elem["func"] = ImageSelection(self, self.glob.baseClass.mhclo_namemap, elem["name"], elem["mode"], self.equipCallback)
                 elem["func"].prepare()
                 elem["menu"] = equip.addAction(elem["name"])
                 elem["menu"].triggered.connect(self.equip_call)
 
         scanned = self.env.fileScanFolderMHM()
-        self.charselect = ImageSelection(self.glob, scanned, "models", 2, self.loadByIconCallback, 3)
+        self.charselect = ImageSelection(self, scanned, "models", 2, self.loadByIconCallback, 3)
         self.charselect.prepare()
 
         # generate tool buttons, model_buttons (save ressources)

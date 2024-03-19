@@ -6,6 +6,9 @@ from PySide6.QtGui import QPixmap, QPainter, QPen, QIcon, QColor, QFont, QStanda
 
 from PySide6.QtWidgets import QApplication, QWidget, QLayout, QLayoutItem, QStyle, QSizePolicy, QPushButton, QAbstractButton, QRadioButton, QCheckBox, QGroupBox, QVBoxLayout, QLabel, QLineEdit, QTreeView, QAbstractItemView, QScrollArea, QPlainTextEdit, QHBoxLayout
 
+from gui.materialwindow import  MHMaterialWindow
+
+
 class IconButton(QPushButton):
     def __init__(self, funcid, path, tip, func):
         self._funcid = funcid
@@ -39,7 +42,8 @@ class MHPictSelectable:
         #
         self.tags.append(name.lower())
         self.tags.append(self.basename)    # only name, not path
-        self.tags.append(author.lower())
+        if author is not None:
+            self.tags.append(author.lower())
         self.status = 0
 
     def __str__(self):
@@ -259,7 +263,8 @@ class PicFlowLayout(QLayout):
         if current.asset.status == 0:
             #print ("button " + str (self.text) + " pressed")
             current.asset.status = 3 if self.selmode == 2 else 1
-            self.printinfo(current.asset)
+            if self.printinfo is not None:
+                self.printinfo(current.asset)
         else:
             #print ("button released")
             current.asset.status = 1 if self.selmode == 2 else 0
@@ -276,6 +281,9 @@ class PicFlowLayout(QLayout):
             if widget.asset.status == 1:
                 return(widget.asset)
         return(None)
+    
+    def newAssetList(self, assets):
+        self.assetlist = assets
         
     def populate(self, ruleset, filtertext):
         """
@@ -547,9 +555,9 @@ class editBox(QLineEdit):
             self.changeFilter()
 
 class ImageSelection():
-    def __init__(self, glob, assetrepo, eqtype, selmode, callback, scale=2):
-        self.glob = glob
-        self.env = glob.env
+    def __init__(self, parent, assetrepo, eqtype, selmode, callback, scale=2):
+        self.parent = parent
+        self.env = parent.glob.env
         self.assetrepo = assetrepo
         self.type = eqtype
         self.selmode = selmode
@@ -657,15 +665,31 @@ class ImageSelection():
         if selected is not None:
             print ("Material change")
             print (selected)
-            for cnt, elem in enumerate(self.glob.baseClass.attachedAssets):
+            for cnt, elem in enumerate(self.parent.glob.baseClass.attachedAssets):
                 if elem.filename == selected.filename:
                     found = elem
                     break
         if found is not None:
+            matimg = []
             print (cnt)     # current index on body
             print (found)   # asset in inventory
             matfiles = found.obj.material.listAllMaterials()
-            print (matfiles)
+            for elem in matfiles:
+                (folder, name) = os.path.split(elem)
+                thumb = elem[:-6] + ".thumb"
+                if not os.path.isfile(thumb):
+                    thumb = None
+                matimg.append(MHPictSelectable(name[:-6], thumb, elem, None, []))
+            if self.parent.material_window is None:
+                self.parent.material_window = MHMaterialWindow(self.parent, PicSelectWidget, matimg)
+            else:
+                print(matimg)
+                self.parent.material_window.updateWidgets(matimg)
+
+            mw = self.parent.material_window
+            mw.show()
+            mw.activateWindow()
+
 
     def leftPanel(self):
         """
