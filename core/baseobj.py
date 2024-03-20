@@ -143,7 +143,7 @@ class baseClass():
             self.skinMaterial = loaded.skinMaterial
             filename = self.env.existDataFile("skins", self.env.basename, os.path.basename(loaded.skinMaterial))
             if filename is not None:
-                self.baseMesh.loadMaterial(filename, os.path.dirname(filename))
+                self.baseMesh.loadMaterial(filename)
 
         print(loaded)
 

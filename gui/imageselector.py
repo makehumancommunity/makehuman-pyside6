@@ -665,26 +665,28 @@ class ImageSelection():
         if selected is not None:
             print ("Material change")
             print (selected)
-            for cnt, elem in enumerate(self.parent.glob.baseClass.attachedAssets):
+            for elem in self.parent.glob.baseClass.attachedAssets:
                 if elem.filename == selected.filename:
                     found = elem
                     break
         if found is not None:
             matimg = []
-            print (cnt)     # current index on body
             print (found)   # asset in inventory
+            oldmaterial = found.material
             matfiles = found.obj.material.listAllMaterials()
             for elem in matfiles:
                 (folder, name) = os.path.split(elem)
                 thumb = elem[:-6] + ".thumb"
                 if not os.path.isfile(thumb):
                     thumb = None
-                matimg.append(MHPictSelectable(name[:-6], thumb, elem, None, []))
+                p = MHPictSelectable(name[:-6], thumb, elem, None, [])
+                if elem == oldmaterial:
+                    p.status = 1
+                matimg.append(p)
             if self.parent.material_window is None:
-                self.parent.material_window = MHMaterialWindow(self.parent, PicSelectWidget, matimg)
+                self.parent.material_window = MHMaterialWindow(self.parent, PicSelectWidget, matimg, found)
             else:
-                print(matimg)
-                self.parent.material_window.updateWidgets(matimg)
+                self.parent.material_window.updateWidgets(matimg, found)
 
             mw = self.parent.material_window
             mw.show()

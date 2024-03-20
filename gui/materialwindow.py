@@ -6,12 +6,14 @@ class MHMaterialWindow(QWidget):
     """
     MaterialWindow
     """
-    def __init__(self, parent, PicSelectWidget, materials):
+    def __init__(self, parent, PicSelectWidget, materials, asset):
         super().__init__()
         self.parent = parent
         self.env = parent.env
         self.glob = parent.glob
         self.materials = materials
+        self.oldmaterial = asset.material
+        self.asset = asset
 
         self.setWindowTitle("Material")
         self.resize(360, 500)
@@ -36,17 +38,41 @@ class MHMaterialWindow(QWidget):
         layout.addWidget(button4)
         self.setLayout(layout)
 
-    def picButtonChanged(self, asset):
-        print(asset)
+    def picButtonChanged(self, matelem):
+        if matelem.status == 1:
+            # check asset before, if different change
+            if matelem.filename != self.oldmaterial:
+                print ("change")
 
-    def updateWidgets(self, materials):
+                # get new material (releases old stuff as well)
+                #
+                obj = self.asset.obj
+                obj.newMaterial(matelem.filename)
+                self.asset.material = matelem.filename
+                #
+                # todo errors
+                # atm only changing texture, not shader
+
+                if hasattr(obj.material, 'diffuseTexture'):
+                    texture = obj.material.loadTexture(obj.material.diffuseTexture)
+                else:
+                    texture = obj.material.emptyTexture(0xff926250)
+
+                # set texture
+                #
+                obj.openGL.setTexture(texture)
+                self.parent.graph.view.Tweak()
+                self.oldmaterial = matelem.filename
+
+    def updateWidgets(self, materials, asset):
         self.materials = materials
+        self.oldmaterial = asset.material
+        self.asset = asset
         self.picwidget.layout.removeAllWidgets()
         self.picwidget.layout.newAssetList(materials)
         self.picwidget.populate(None, None)
 
     def use_call(self):
-        print ("hallo")
         self.close()
 
 

@@ -539,7 +539,7 @@ class MHMainWindow(QMainWindow):
 
     def finishLoad(self):
         self.graph.view.addAssets()
-        self.graph.view.newTexture(self.glob.baseClass.baseMesh)
+        self.graph.view.newSkin(self.glob.baseClass.baseMesh)
         self.graph.view.Tweak()
         self.setWindowTitle(self.glob.baseClass.name)
         self.glob.mhViewport.setSizeInfo()

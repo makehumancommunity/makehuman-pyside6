@@ -69,7 +69,7 @@ class object3d:
             self.material = Material(self.glob, self.dir_loaded)
         return (success, text)
 
-    def loadMaterial(self, pathname, dirname=None):
+    def loadMaterial(self, pathname):
         """
         use a relative path to self.dir_loaded
         """
@@ -80,8 +80,12 @@ class object3d:
         else:
             return True
 
-    def newTexture(self):
-        pass
+    def newMaterial(self, pathname):
+
+        if self.material is not None:
+             self.material.freeTextures()
+        self.material = Material(self.glob, self.dir_loaded)
+        return(self.material.loadMatFile(pathname))
 
     def exportBin(self):
         return(exportObj3dBinary(self.name_loaded, self.dir_loaded, self))

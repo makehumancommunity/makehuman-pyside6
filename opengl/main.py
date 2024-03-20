@@ -66,7 +66,7 @@ class OpenGLView(QOpenGLWidget):
         self.objects.remove(obj.openGL)
         self.Tweak()
 
-    def newTexture(self, obj):
+    def newSkin(self, obj):
         
         if hasattr(obj.material, 'diffuseTexture'):
             self.texture = obj.material.loadTexture(obj.material.diffuseTexture)
