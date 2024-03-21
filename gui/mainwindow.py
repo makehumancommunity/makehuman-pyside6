@@ -348,7 +348,7 @@ class MHMainWindow(QMainWindow):
         #
         if (self.tool_mode == 0 and self.category_mode == 0) or env.basename is None:
             self.leftColumn.setTitle("Base mesh :: selection")
-            self.baseSelector = BaseSelect(self.glob, self.selectmesh_call)
+            self.baseSelector = BaseSelect(self, self.selectmesh_call)
             self.BaseBox.addLayout(self.baseSelector)
             self.BaseBox.addStretch()
             return

@@ -246,6 +246,7 @@ class MHMemWindow(QWidget):
         data = []
         if self.glob.baseClass is not None:
             base = self.glob.baseClass
+            data.append(["base", base.skinMaterial])
             for elem in base.attachedAssets:
                 data.append([elem.name, elem.material])
         if len(data) == 0:

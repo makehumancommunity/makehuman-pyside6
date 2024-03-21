@@ -652,6 +652,8 @@ class ImageSelection():
     def picButtonChanged(self, asset):
         multi = (self.selmode == 1)
         self.callback(asset, self.type, multi)
+        if self.parent.material_window is not None:
+            self.materialCallback()
 
     def scaleImages(self):
         # toggle through 4 scales

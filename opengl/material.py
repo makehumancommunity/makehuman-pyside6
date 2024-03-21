@@ -127,9 +127,12 @@ class Material:
 
         return (True)
 
-    def listAllMaterials(self):
+    def listAllMaterials(self, objdir = None):
+        if objdir is None:
+            objdir = self.objdir
+
         materialfiles=[]
-        for (root, dirs, files) in  os.walk(self.objdir):
+        for (root, dirs, files) in  os.walk(objdir):
             for name in files:
                 if name.endswith(".mhmat"):
                     materialfiles.append(os.path.join(root, name))

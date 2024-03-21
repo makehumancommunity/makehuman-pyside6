@@ -1,23 +1,25 @@
 from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QAbstractItemView, QLineEdit, QLabel, QMessageBox, QRadioButton
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPixmap
-from gui.imageselector import IconButton
+from gui.imageselector import IconButton, MHPictSelectable, PicSelectWidget
+from gui.materialwindow import  MHMaterialWindow
 from gui.dialogs import DialogBox, ErrorBox, WorkerThread, MHBusyWindow
 import os
 from core.importfiles import AssetPack
 
 class BaseSelect(QVBoxLayout):
-    def __init__(self, glob, callback):
+    def __init__(self, parent, callback):
         super().__init__()
-        env = glob.env
-        self.baseResultList = env.getDataDirList("base.obj", "base")
+        self.parent = parent
+        self.env = parent.glob.env
+        self.baseResultList = self.env.getDataDirList("base.obj", "base")
 
         self.basewidget = QListWidget()
         self.basewidget.setFixedSize(240, 200)
         self.basewidget.addItems(self.baseResultList.keys())
         self.basewidget.setSelectionMode(QAbstractItemView.SingleSelection)
-        if env.basename is not None:
-            items = self.basewidget.findItems(env.basename,Qt.MatchExactly)
+        if self.env.basename is not None:
+            items = self.basewidget.findItems(self.env.basename,Qt.MatchExactly)
             if len(items) > 0:
                 self.basewidget.setCurrentItem(items[0])
         self.addWidget(self.basewidget)
@@ -25,6 +27,39 @@ class BaseSelect(QVBoxLayout):
         buttons = QPushButton("Select")
         buttons.clicked.connect(callback)
         self.addWidget(buttons)
+
+        matpath = os.path.join(self.env.path_sysicon, "materials.png" )
+        matbutton = IconButton(0, matpath, "Change material", self.materialCallback)
+        self.addWidget(matbutton)
+
+    def materialCallback(self):
+        p1 = self.env.stdUserPath("skins")
+        p2 = self.env.stdSysPath("skins")
+        basemesh = self.parent.glob.baseClass.baseMesh
+        matfiles = basemesh.material.listAllMaterials(p1)
+        matfiles.extend(basemesh.material.listAllMaterials(p2))
+        matimg = []
+        oldmaterial = self.parent.glob.baseClass.skinMaterial
+        print(oldmaterial)
+        for elem in matfiles:
+            #print (elem)
+            (folder, name) = os.path.split(elem)
+            thumb = elem[:-6] + ".thumb"
+            if not os.path.isfile(thumb):
+                thumb = None
+            p = MHPictSelectable(name[:-6], thumb, elem, None, [])
+            if elem == oldmaterial:
+                p.status = 1
+            matimg.append(p)
+        if self.parent.material_window is None:
+            self.parent.material_window = MHMaterialWindow(self.parent, PicSelectWidget, matimg, basemesh)
+        else:
+            self.parent.material_window.updateWidgets(matimg, basemesh)
+
+        mw = self.parent.material_window
+        mw.show()
+        mw.activateWindow()
+
 
     def getSelectedItem(self):
         sel = self.basewidget.selectedItems()

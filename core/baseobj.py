@@ -44,7 +44,7 @@ class baseClass():
         self.baseInfo = None
         self.mhclo_namemap = []
         self.attachedAssets = []
-        self.skinMaterial = None
+        self.skinMaterial = None    # should contain complete path of skin
         self.env.logLine(2, "New baseClass: " + name)
         memInfo()
         self.env.basename = name
@@ -144,6 +144,7 @@ class baseClass():
             filename = self.env.existDataFile("skins", self.env.basename, os.path.basename(loaded.skinMaterial))
             if filename is not None:
                 self.baseMesh.loadMaterial(filename)
+                self.skinMaterial = filename
 
         print(loaded)
 

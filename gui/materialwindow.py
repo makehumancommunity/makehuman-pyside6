@@ -1,6 +1,8 @@
 import os
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QGroupBox, QCheckBox, QSizePolicy, QScrollArea
+from obj3d.object3d import object3d
+
 
 class MHMaterialWindow(QWidget):
     """
@@ -45,10 +47,16 @@ class MHMaterialWindow(QWidget):
                 print ("change")
 
                 # get new material (releases old stuff as well)
+                # different for skin (object3d) and asset
                 #
-                obj = self.asset.obj
+                if isinstance(self.asset, object3d):
+                    obj = self.asset
+                    self.glob.baseClass.skinMaterial = matelem.filename
+                else:
+                    obj = self.asset.obj
+                    self.asset.material = matelem.filename
+
                 obj.newMaterial(matelem.filename)
-                self.asset.material = matelem.filename
                 #
                 # todo errors
                 # atm only changing texture, not shader
