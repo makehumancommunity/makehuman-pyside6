@@ -652,7 +652,7 @@ class ImageSelection():
     def picButtonChanged(self, asset):
         multi = (self.selmode == 1)
         self.callback(asset, self.type, multi)
-        if self.parent.material_window is not None:
+        if self.parent.material_window is not None and self.parent.material_window.isVisible():
             self.materialCallback()
 
     def scaleImages(self):

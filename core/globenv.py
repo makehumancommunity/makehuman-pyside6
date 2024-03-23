@@ -10,6 +10,7 @@ from gui.application import QTVersion
 from opengl.main import GLVersion
 from core.debug import dumper
 from core.importfiles import UserEnvironment
+from core.sql_cache  import FileCache
 
 class globalObjects():
     def __init__(self, env):
@@ -34,7 +35,6 @@ class globalObjects():
         self.parallel = None                # for parallel processing. Should avoid more than one process at the time
         self.lastdownload = None            # will contain the filename of last downloaded file
         self.textSlot = [None, None, None, None, None] # text slots for graphical window
-
 
     def gen_uuid(self):
         return(str(uuid4()))
@@ -78,7 +78,7 @@ class globalObjects():
                 return
 
     def generateBaseSubDirs(self, basename):
-        for name in self.env.basefolders + ["skins", "models", "target"]:
+        for name in self.env.basefolders + ["skins", "models", "target", "dbcache"]:
             folder = os.path.join(self.env.path_userdata, name, basename)
             if not os.path.isdir(folder):
                 try:
@@ -134,6 +134,7 @@ class programInfo():
         self.basefolders = [ "clothes", "eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue" ]
 
         self.basename = None
+        self.fileCache = None
         self.last_error = None
 
         self.verbose = verbose
@@ -447,7 +448,7 @@ class programInfo():
 
         # subfolder inside userdata, so usually base folder + special ones
         #
-        for name in self.basefolders + ["themes", "skins", "models", "target" ]:
+        for name in self.basefolders + ["themes", "skins", "models", "target", "dbcache" ]:
             folder = os.path.join(userdata, name)
             if not os.path.isdir(folder):
                 try:
@@ -458,6 +459,9 @@ class programInfo():
 
         return (True)
 
+    def initFileCache(self):
+        dbname = self.stdUserPath("dbcache", "repository.db")
+        self.fileCache = FileCache(dbname)
 
     def reDirect(self, log=False):
         """
@@ -582,6 +586,7 @@ class programInfo():
         classical all folders for objects may have 2 levels
         """
         filenames = []
+        latest = 0
         for path in [self.path_userdata, self.path_sysdata]:
             for folder in self.basefolders:
                 test = os.path.join(path, folder, self.basename)
@@ -593,52 +598,75 @@ class programInfo():
                             files2 = os.listdir(os.path.join(test,aname1))
                             for fname2 in files2:
                                 if fname2.endswith(pattern):
-                                    filenames.append([folder, os.path.join(aname1, fname2)])
+                                    cname = os.path.join(aname1, fname2)
+                                    mod = int(os.stat(cname).st_mtime)
+                                    if mod > latest:
+                                        latest = mod
+                                    filenames.append([folder, cname])
                         if fname1.endswith(pattern):
+                            mod = int(os.stat(aname1).st_mtime)
+                            if mod > latest:
+                                latest = mod
                             filenames.append([folder, aname1])
-        return(filenames)
+
+        print ("Latest: " + str(latest))
+        return(latest, filenames)
 
     def fileScanFoldersMHCLO(self, pattern):
         """
         scanner e.g. for mhclo files checks in all basefolders + subdirs (only 1 level)
         """
-        namematch = []
-        files = self.subDirsBaseFolder(pattern)
-        for (folder, path) in files:
-            print (path)
-            (filename, extension) = os.path.splitext(path)
-            thumbfile = filename + ".thumb"
-            if not os.path.isfile(thumbfile):
-                thumbfile = None
+        (latest, files) = self.subDirsBaseFolder(pattern)
+        #
+        # check date of db?
+        reread = self.fileCache.createCache(latest)
+        print ("Reread is " + str(reread))
+        if reread is True:
+            data = []
+            for (folder, path) in files:
+                #print (path)
+                (filename, extension) = os.path.splitext(path)
+                thumbfile = filename + ".thumb"
+                if not os.path.isfile(thumbfile):
+                    thumbfile = None
+
+                with open(path, 'r') as fp:
+                    uuid = 0
+                    name = ""
+                    obj_file = None
+                    author = "unknown"
+                    tags = []
+                    for line in fp:
+                        #if line.startswith("verts"):
+                        words = line.split()
+                        if len(words) < 2:
+                            continue
+                        if words[0].isnumeric():
+                            break
+
+                        if words[0] == "name":          # always last word, one word
+                            name = words[1]
+                        elif words[0] == "uuid":        # always last word, one word
+                            uuid = words[1]
+                        elif words[0] == "obj_file":        # always last word, one word
+                            obj_file = words[1]
+                        elif "author" in line:      # part of the comment, can be author
+                            if words[1].startswith("author"):
+                                author = " ".join(words[2:])
+
+                        elif "tag" in line:         # allow tags with blanks
+                            tags.append(" ".join(words[1:]).encode('ascii', 'ignore').lower().decode("utf-8"))
+                    mtags = "|".join(tags)
+                    data.append([name, uuid, path, folder, obj_file, thumbfile, author, mtags])
             
-            with open(path, 'r') as fp:
-                uuid = 0
-                name = ""
-                obj_file = None
-                author = "unknown"
-                tag = []
-                for line in fp:
-                    #if line.startswith("verts"):
-                    words = line.split()
-                    if len(words) < 2:
-                        continue
-                    if words[0].isnumeric():
-                        break
+            self.fileCache.insertCache(data)
 
-                    if words[0] == "name":          # always last word, one word
-                        name = words[1]
-                    elif words[0] == "uuid":        # always last word, one word
-                        uuid = words[1]
-                    elif words[0] == "obj_file":        # always last word, one word
-                        obj_file = words[1]
-                    elif "author" in line:      # part of the comment, can be author
-                        if words[1].startswith("author"):
-                            author = " ".join(words[2:])
-
-                    elif "tag" in line:         # allow tags with blanks
-                        tag.append(" ".join(words[1:]).encode('ascii', 'ignore').lower().decode("utf-8"))
-        
-                namematch.append(mhPrefetchElem(name, uuid, path, folder, obj_file, thumbfile, author, tag))
+        data = []
+        rows = self.fileCache.listCache()
+        for row in rows:
+            tags = row[7].split("|")
+            data.append(mhPrefetchElem(row[0], row[1], row[2], row[3], row[4], row[5], row[6], tags))
+        return (data)
 
         return (namematch)
 

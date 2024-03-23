@@ -170,16 +170,12 @@ class MHMainWindow(QMainWindow):
         morph_act = tools_menu.addAction("Change Character")
         morph_act.triggered.connect(self.morph_call)
 
-        equip = tools_menu.addMenu("Equipment")
+        self.equip = tools_menu.addMenu("Equipment")
 
         # TODO: when starting or baseclass changes, what will happen then?!?!
         #
         if self.glob.baseClass is not None:
-            for elem in self.equipment:
-                elem["func"] = ImageSelection(self, self.glob.baseClass.mhclo_namemap, elem["name"], elem["mode"], self.equipCallback)
-                elem["func"].prepare()
-                elem["menu"] = equip.addAction(elem["name"])
-                elem["menu"].triggered.connect(self.equip_call)
+            self.createImageSelection()
 
         scanned = self.env.fileScanFolderMHM()
         self.charselect = ImageSelection(self, scanned, "models", 2, self.loadByIconCallback, 3)
@@ -202,6 +198,13 @@ class MHMainWindow(QMainWindow):
 
         self.createCentralWidget()
         self.setWindowTitle("default character")
+
+    def createImageSelection(self):
+        for elem in self.equipment:
+            elem["func"] = ImageSelection(self, self.glob.baseClass.mhclo_namemap, elem["name"], elem["mode"], self.equipCallback)
+            elem["func"].prepare()
+            elem["menu"] = self.equip.addAction(elem["name"])
+            elem["menu"].triggered.connect(self.equip_call)
 
     def updateScene(self):
         if self.scene_window:
@@ -629,6 +632,7 @@ class MHMainWindow(QMainWindow):
                 return
 
             self.graph.view.newMesh()
+            self.createImageSelection()
             self.emptyLayout(self.ToolBox)
             self.drawRightPanel()
             self.ToolBox.update()

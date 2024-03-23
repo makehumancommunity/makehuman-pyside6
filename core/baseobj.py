@@ -290,10 +290,8 @@ class baseClass():
         if self.baseInfo is None:
             self.env.logLine(1, self.env.last_error )
             return (False)
+        self.env.initFileCache()
 
-        self.mhclo_namemap = self.env.fileScanFoldersMHCLO(".mhclo")
-        for elem in self.mhclo_namemap:
-            print (elem)
 
         name = os.path.join(self.dirname, "base.obj")
 
@@ -314,6 +312,9 @@ class baseClass():
             self.glob.reset()
             del self.glob.baseClass
         self.glob.baseClass = self
+        self.mhclo_namemap = self.env.fileScanFoldersMHCLO(".mhclo")
+        #for elem in self.mhclo_namemap:
+        #    print (elem)
 
         self.baseMesh.precalculateDimension()
         target = Targets(self.glob)
