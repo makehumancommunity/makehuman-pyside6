@@ -6,9 +6,9 @@ import numpy as np
 import os
 from obj3d.fops_wavefront import importWaveFront
 
-def exportObj3dBinary(filename, path, obj):
+def exportObj3dBinary(filename, path, obj, content = {}):
 
-    content = {}
+    #content = {}
 
     # binary structure
     # first header
@@ -172,4 +172,50 @@ def importObjFromFile(path, obj):
     #
     obj.env.logLine(8, "Load: " + path)
     return(importWaveFront(path, obj))
+
+
+def exportAssetBinary(filename, path, asset):
+    content = {}
+
+    # binary structure
+    # first header
+    mtags = "|".join(asset.tags)
+    ltags = "|S" + str(len(mtags))
+
+    lname = "|S" + str(len(asset.name))
+    llics = "|S" + str(len(asset.license))
+    luuid = "|S" + str(len(asset.uuid))
+    lauth = "|S" + str(len(asset.author))
+    ldesc = "|S" + str(len(asset.description))
+    lmesh = "|S" + str(len(asset.meshtype))
+
+    nrefverts = 3 if asset.weights[:,1:].any() else 1
+
+    asset_type = np.dtype({'names':('name', 'uuid', 'author', 'description', 'meshtype', 'refverts', 'version', 'zdepth', 'license', 'tags'),
+        'formats':(lname, luuid, lauth, ldesc, lmesh, 'i4', 'i4', 'i4', llics, ltags)})
+    content["asset"] = np.array([(asset.name, asset.uuid, asset.author, asset.description, asset.meshtype, nrefverts, asset.version,
+        asset.z_depth, asset.license, mtags)], dtype=asset_type)
+
+    lmat = "|S" + str(len(asset.material))
+    if asset.vertexboneweights_file is None:
+        vwfile = ""
+    else:
+        vwfile = asset.vertexboneweights_file
+    lweight = "|S" + str(len(vwfile))
+
+    files_type = np.dtype({'names':('material', 'weight'), 'formats': (lmat, lweight)})
+    content["files"] =  np.array([(asset.material_orgpath, vwfile)], dtype=files_type)
+
+    if nrefverts == 3:
+        content["ref_vIdxs"] = asset.ref_vIdxs
+        content["offsets"] = asset.offsets
+        content["weights"] = asset.weights
+    else:
+        content["ref_vIdxs"] = asset.ref_vIdxs[:,0]
+        content["weights"] = asset.weights[:,0]
+
+    if np.any(asset.deleteVerts):
+        content["deleteVerts"] = asset.deleteVerts
+
+    exportObj3dBinary(filename, path, asset.obj, content)
 

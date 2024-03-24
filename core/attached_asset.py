@@ -66,14 +66,21 @@ class attachedAsset:
         self.z_depth = 50
         self.obj = None             # will contain the object3d class
         self.vertWeights = {}       # will contain the parent weight
+        self.description = ""
+        self.license = ""
+        self.author = ""
+        self.uuid = ""
+        self.meshtype = self.env.basename  # for binary saving
 
                                     # numpy arrays
         self.ref_vIdxs = None       # (Vidx1,Vidx2,Vidx3) list with references to human vertex indices, indexed by reference vert
         self.weights = None         # (w1,w2,w3) list, with weights per human vertex (mapped by ref_vIdxs), indexed by reference vert
         self.offsets = None         # (x,y,z) list of vertex offsets, indexed by reference vert
+        self.deleteVerts = None     # will contain vertices to delete
         self.material = None        # path material, fully qualified
+        self.vertexboneweights_file = None # path to vbone file
         self.materialsource = None    # path material, relative
-
+        self.base_verts = self.glob.baseClass.baseMesh.n_origverts
 
     def __str__(self):
         return(dumper(self))
@@ -100,6 +107,7 @@ class attachedAsset:
         status = 0
         refVerts = [] # local reference for vertices
         vnum   = 0    # will contain the vertex number (counting from 0 to x)
+        self.deleteVerts = np.zeros(self.base_verts, bool)
 
         for line in fp:
             words = line.split()
@@ -151,15 +159,11 @@ class attachedAsset:
                         v1 = int(v)
                         if sequence:
                             for vn in range(v0,v1+1):
-                                #proxy.deleteVerts[vn] = True
-                                # bool cache, test if it makes sense still
-                                pass
+                                self.deleteVerts[vn] = True
                             sequence = False
                         else:
-                            #proxy.deleteVerts[v1] = True
-                            pass
+                            self.deleteVerts[v1] = True
                         v0 = v1
-
 
                 continue
 
@@ -195,7 +199,10 @@ class attachedAsset:
 
         self.obj_file = os.path.join(os.path.dirname(filename), self.obj_file)
         if self.material is not None:
+            self.material_orgpath = self.material
             self.material = os.path.normpath(os.path.join(os.path.dirname(filename), self.material))
+        else:
+            self.material_orgpath = ""
         print(self.obj_file)
         print("Material: " + str(self.material))
         # finally create the numpy arrays here
