@@ -1,6 +1,9 @@
 import os
 import numpy as np
 from core.debug import dumper
+from obj3d.fops_binary import exportObj3dBinary, importObjValues
+from obj3d.object3d  import object3d
+
 
 class referenceVerts:
     def __init__(self):
@@ -212,3 +215,136 @@ class attachedAsset:
         self.offsets = np.asarray([v._offset for v in refVerts], dtype=np.float32)
 
         return (True, "Okay")
+
+    def importBinary(self, path):
+        print ("read binary " + path)
+        npzfile = np.load(path)
+        for elem in ['asset', 'files', 'ref_vIdxs', 'weights']:
+            if elem not in npzfile:
+                error =  "Malformed file, missing component " + elem
+                return (False, error)
+
+        # now get data from binary, asset
+        #
+        asset = list(npzfile['asset'][0])
+        self.name        = asset[0].decode("utf-8")
+        self.uuid        = asset[1].decode("utf-8")
+        self.author      = asset[2].decode("utf-8")
+        self.description = asset[3].decode("utf-8")
+        self.meshtype    = asset[4].decode("utf-8")
+        nrefverts        = asset[5]
+        self.version     = asset[6]
+        self.z_depth     = asset[7]
+        self.license     = asset[8].decode("utf-8")
+        self.tags        = asset[9].decode("utf-8").split("|")
+
+        if nrefverts == 3 and 'offsets' not in npzfile:
+            error =  "Malformed file, missing component offsets"
+            return (False, error)
+
+        files = list(npzfile['files'][0])
+        self.material = files[0].decode("utf-8")
+        vwfile        = files[1].decode("utf-8")
+        if len(vwfile) == 0:
+            self.vertexboneweights_file = None
+        else:
+            self.vertexboneweights_file = vwfile
+
+        if nrefverts == 3:
+            self.ref_vIdxs = npzfile["ref_vIdxs"]
+            self.offsets   = npzfile["offsets"]
+            self.weights   = npzfile["weights"]
+        else:
+            num_refs = npzfile['ref_vIdxs'].shape[0]
+            self.ref_vIdxs = np.zeros((num_refs,3), dtype=np.uint32)
+            self.ref_vIdxs[:,0] = npzfile['ref_vIdxs']
+            self.offsets = np.zeros((num_refs,3), dtype=np.float32)
+            self.weights = np.zeros((num_refs,3), dtype=np.float32)
+            self.weights[:,0] = npzfile['weights']
+
+        if "deleteVerts" in npzfile:
+            self.deleteVerts = npzfile["deleteVerts"]
+
+        self.obj_file = path
+        if self.material is not None:
+            self.material_orgpath = self.material
+            self.material = os.path.normpath(os.path.join(os.path.dirname(path), self.material))
+        else:
+            self.material_orgpath = ""
+
+        importObjValues(npzfile, self.obj)
+
+
+    def load(self, filename, use_mhclo=False):
+
+        if use_mhclo is False and filename.endswith(".mhclo"):
+            binfile = filename[:-5] + "mhbin"
+            if os.path.isfile(binfile):
+                print ("we have a binary file")
+                self.filename = filename
+                self.obj = object3d(self.glob, None)
+                self.importBinary(binfile)
+                self.obj.filename = filename
+                self.obj.initMaterial(filename)
+                return (self, None)
+
+        (res, err) = self.textLoad(filename)
+        if res is True:
+            print ("Object is:" + self.obj_file)
+            obj = object3d(self.glob, None)
+            (res, err) = obj.load(self.obj_file)
+            if res is True:
+                self.obj = obj
+                return (self, None)
+
+        self.env.logLine(1, err )
+        return (None, err)
+
+    def exportBinary(self, filename=None):
+
+        filename = self.filename if filename is None  else filename
+        filename = filename[:-6] + ".mhbin" if filename.endswith(".mhclo") else filename + ".mhbin"
+        content = {}
+
+        # binary structure
+        # first header
+        mtags = "|".join(self.tags)
+        ltags = "|S" + str(len(mtags))
+
+        lname = "|S" + str(len(self.name))
+        llics = "|S" + str(len(self.license))
+        luuid = "|S" + str(len(self.uuid))
+        lauth = "|S" + str(len(self.author))
+        ldesc = "|S" + str(len(self.description))
+        lmesh = "|S" + str(len(self.meshtype))
+
+        nrefverts = 3 if self.weights[:,1:].any() else 1
+
+        asset_type = np.dtype({'names':('name', 'uuid', 'author', 'description', 'meshtype', 'refverts', 'version', 'zdepth', 'license', 'tags'),
+            'formats':(lname, luuid, lauth, ldesc, lmesh, 'i4', 'i4', 'i4', llics, ltags)})
+        content["asset"] = np.array([(self.name, self.uuid, self.author, self.description, self.meshtype, nrefverts, self.version,
+            self.z_depth, self.license, mtags)], dtype=asset_type)
+
+        lmat = "|S" + str(len(self.material))
+        if self.vertexboneweights_file is None:
+            vwfile = ""
+        else:
+            vwfile = self.vertexboneweights_file
+        lweight = "|S" + str(len(vwfile))
+
+        files_type = np.dtype({'names':('material', 'weight'), 'formats': (lmat, lweight)})
+        content["files"] =  np.array([(self.material_orgpath, vwfile)], dtype=files_type)
+
+        if nrefverts == 3:
+            content["ref_vIdxs"] = self.ref_vIdxs
+            content["offsets"] = self.offsets
+            content["weights"] = self.weights
+        else:
+            content["ref_vIdxs"] = self.ref_vIdxs[:,0]
+            content["weights"] = self.weights[:,0]
+
+        if np.any(self.deleteVerts):
+            content["deleteVerts"] = self.deleteVerts
+
+        return(exportObj3dBinary(filename, self.obj, content))
+

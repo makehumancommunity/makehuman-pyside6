@@ -210,23 +210,6 @@ class baseClass():
         
         fp.close()
 
-    def loadMHCLO(self, filename, eqtype):
-        """
-        loads mhclo + object
-        """
-        attach = attachedAsset(self.glob, eqtype)
-        (res, err) = attach.textLoad(filename)
-        if res is True:
-            print ("Object is:" + attach.obj_file)
-            obj = object3d(self.glob, None)
-            (res, err) = obj.load(attach.obj_file)
-            if res is True:
-                attach.obj = obj
-                return (attach, None)
-
-        self.env.logLine(1, err )
-        return (None, err)
-
     def delAsset(self, filename):
         for elem in self.attachedAssets:
             if elem.filename == filename:
@@ -240,7 +223,8 @@ class baseClass():
     def addAsset(self, path, eqtype, materialpath=None, materialsource=None):
         print ("Attach: " + path)
         print ("Type: " + eqtype)
-        (attach, err) = self.loadMHCLO(path, eqtype)
+        attach = attachedAsset(self.glob, eqtype)
+        attach.load(path)
         if attach is None:
             return (None)
         if materialpath is not None:

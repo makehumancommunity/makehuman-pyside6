@@ -99,18 +99,18 @@ class mhPrefetchElem():
         self.author = author
         self.tag = tag
         self.used = False
-        #
-        # calculate expected npzfile
-        #
+
         if obj_file is not None:
             self.obj_file = os.path.join(os.path.dirname(path), obj_file)
-            if obj_file.endswith(".obj"):
-                obj_file = obj_file[:-3] + "npz"
-            else:
-                obj_file += ".npz"
-            self.npz_file = os.path.join(os.path.dirname(path), "npzip", obj_file)
         else:
             self.obj_file = None
+
+        # calculate expected mhbin
+        #
+        if path.endswith(".mhclo"):
+            self.mhbin_file = path[:-5] + "mhbin"
+        else:
+            self.mhbin_file = path + ".mhbin"
 
     def __str__(self):
         return(dumper(self))
@@ -667,8 +667,6 @@ class programInfo():
             tags = row[7].split("|")
             data.append(mhPrefetchElem(row[0], row[1], row[2], row[3], row[4], row[5], row[6], tags))
         return (data)
-
-        return (namematch)
 
     def fileScanFolderMHM(self):
         """

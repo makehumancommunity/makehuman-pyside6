@@ -8,8 +8,7 @@ class object3d:
  
         self.glob = glob
         self.env  = glob.env     # needed for globals
-        self.name_loaded = None  # original name from file
-        self.dir_loaded  = None  # original folder
+        self.filename = None    # original file name
         self.name = None    # will contain object name derived from loaded file
         self.npGrpNames = []  # ordered list of groupnames numpy format
 
@@ -62,16 +61,18 @@ class object3d:
         """
         load a mesh either binary or per object
         """
-        self.dir_loaded  = os.path.dirname(path)
-        self.name_loaded = os.path.basename(path)
+        self.filename = path
         (success, text) = importObjFromFile(path, self)
         if success:
-            self.material = Material(self.glob, self.dir_loaded)
+            self.initMaterial(path)
         return (success, text)
+
+    def initMaterial(self, filename):
+        self.material = Material(self.glob, os.path.dirname(filename))
 
     def loadMaterial(self, pathname):
         """
-        use a relative path to self.dir_loaded
+        use a relative path to object
         """
         print ("Loading material")
         print (pathname)
@@ -84,11 +85,12 @@ class object3d:
 
         if self.material is not None:
              self.material.freeTextures()
-        self.material = Material(self.glob, self.dir_loaded)
+        self.initMaterial(self.filename)
         return(self.material.loadMatFile(pathname))
 
-    def exportBin(self):
-        return(exportObj3dBinary(self.name_loaded, self.dir_loaded, self))
+    def exportBinary(self):
+        filename = self.filename[:-4] + ".mhbin" if self.filename.endswith(".obj") else self.filename + ".mhbin"
+        return(exportObj3dBinary(filename, self))
 
     def setName(self, name):
         if name is None:

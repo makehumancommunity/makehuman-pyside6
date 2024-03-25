@@ -16,6 +16,7 @@ from gui.imageselector import ImageSelection, IconButton
 from gui.dialogs import DialogBox, ErrorBox, WorkerThread, MHBusyWindow
 from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
+from core.attached_asset import attachedAsset
 
 import os
 
@@ -688,7 +689,7 @@ class MHMainWindow(QMainWindow):
         force = args[0][1]
         bc = self.glob.baseClass
         if system:
-            (okay, err) = bc.baseMesh.exportBin()
+            (okay, err) = bc.baseMesh.exportBinary()
             if not okay:
                 bckproc.finishmsg = err
                 return
@@ -699,11 +700,15 @@ class MHMainWindow(QMainWindow):
             syspath = elem.path.startswith(self.env.path_sysdata)
             if syspath == system:
                 okay = False
-                if force or self.env.isSourceFileNewer(elem.npz_file, elem.obj_file):
+                if force or self.env.isSourceFileNewer(elem.mhbin_file, elem.path):
                     self.prog_window.setLabelText(elem.folder + ": create binary " + os.path.split(elem.path)[1])
-                    (attach, err) = bc.loadMHCLO(elem.path, elem.folder)
+
+                    attach = attachedAsset(self.glob, elem.folder)
+                    attach.load(elem.path, True)
+
+                    #(attach, err) = bc.loadMHCLO(elem.path, elem.folder)
                     if attach is not None:
-                        (okay, err) =attach.obj.exportBin()
+                        (okay, err) =attach.exportBinary()
                     if not okay:
                         bckproc.finishmsg = err
                         return
