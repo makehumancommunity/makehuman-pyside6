@@ -10,15 +10,20 @@ class FileCache:
         self.time = int(os.stat(name).st_mtime)
         print (self.time)
 
-    def createCache(self, latest):
+    def createCache(self, latest, subdir=None):
         res = self.cur.execute("SELECT name FROM sqlite_master WHERE name='filecache'")
         if res.fetchone() is None:
             print ("Need to create table")
             self.cur.execute("CREATE TABLE filecache(name, uuid, path, folder, obj_file, thumbfile, author, tags)")
             return(True)
         if latest > self.time:
-            print ("Need to cleanup file table")
-            self.cur.execute("DELETE FROM filecache")
+            if subdir is None:
+                print ("Need to cleanup file table")
+                self.cur.execute("DELETE FROM filecache")
+            else:
+                print("DELETE FROM filecache where folder = ?", subdir)
+                self.cur.execute("DELETE FROM filecache where folder = ?", (subdir,))
+                self.con.commit()
             return (True)
         return(False)
 

@@ -661,6 +661,14 @@ class ImageSelection():
         self.imagescale = self.scales[self.scaleindex]
         self.picwidget.setImageScale(self.imagescale)
 
+    def rescanFolder(self):
+        # maybe like this:
+        # self.parent.glob.baseClass.mhclo_namemap = self.env.fileScanFoldersMHCLO(".mhclo", elem.folder)
+        # + prepare
+        for elem in self.assetrepo:
+            if elem.folder == self.type:
+                print (elem.name)
+
     def materialCallback(self):
         selected = self.picwidget.getSelected()
         found = None
@@ -721,6 +729,10 @@ class ImageSelection():
         resize = os.path.join(self.env.path_sysicon, "resize.png" )
         sizebutton = IconButton(0, resize, "Resize thumbnails", self.scaleImages)
         hlayout.addWidget(sizebutton)
+
+        rescan = os.path.join(self.env.path_sysicon, "rescan.png" )
+        rescanbutton = IconButton(0, rescan, "Rescan folder", self.rescanFolder)
+        hlayout.addWidget(rescanbutton)
         hlayout.addStretch()
 
         matpath = os.path.join(self.env.path_sysicon, "materials.png" )

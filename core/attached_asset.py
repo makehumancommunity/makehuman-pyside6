@@ -275,30 +275,34 @@ class attachedAsset:
         importObjValues(npzfile, self.obj)
 
 
-    def load(self, filename, use_mhclo=False):
-
-        if use_mhclo is False and filename.endswith(".mhclo"):
+    def load(self, filename, use_ascii=False):
+        """
+        load mhclo or mhbin
+        """
+        if use_ascii is False and filename.endswith(".mhclo"):
             binfile = filename[:-5] + "mhbin"
-            if os.path.isfile(binfile):
+            newer = self.env.isSourceFileNewer(binfile, filename)
+            if not newer and os.path.isfile(binfile):
                 print ("we have a binary file")
                 self.filename = filename
                 self.obj = object3d(self.glob, None)
                 self.importBinary(binfile)
                 self.obj.filename = filename
                 self.obj.initMaterial(filename)
-                return (self, None)
+                return (True, None)
+            use_ascii = True
 
         (res, err) = self.textLoad(filename)
         if res is True:
             print ("Object is:" + self.obj_file)
             obj = object3d(self.glob, None)
-            (res, err) = obj.load(self.obj_file)
+            (res, err) = obj.load(self.obj_file, use_ascii)
             if res is True:
                 self.obj = obj
-                return (self, None)
+                return(self.exportBinary())
 
         self.env.logLine(1, err )
-        return (None, err)
+        return (False, err)
 
     def exportBinary(self, filename=None):
 
@@ -347,4 +351,7 @@ class attachedAsset:
             content["deleteVerts"] = self.deleteVerts
 
         return(exportObj3dBinary(filename, self.obj, content))
+
+    def mhcloToMHBin(self, path):
+        return(self.load(path, True))
 

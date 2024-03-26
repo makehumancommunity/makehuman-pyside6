@@ -704,11 +704,7 @@ class MHMainWindow(QMainWindow):
                     self.prog_window.setLabelText(elem.folder + ": create binary " + os.path.split(elem.path)[1])
 
                     attach = attachedAsset(self.glob, elem.folder)
-                    attach.load(elem.path, True)
-
-                    #(attach, err) = bc.loadMHCLO(elem.path, elem.folder)
-                    if attach is not None:
-                        (okay, err) =attach.exportBinary()
+                    (okay, err) = attach.mhcloToMHBin(elem.path)
                     if not okay:
                         bckproc.finishmsg = err
                         return

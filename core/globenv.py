@@ -581,14 +581,15 @@ class programInfo():
         self.last_error = "/".join([name for name in names]) + " not found"
         return None
 
-    def subDirsBaseFolder(self, pattern):
+    def subDirsBaseFolder(self, pattern, subdir=None):
         """
         classical all folders for objects may have 2 levels
         """
         filenames = []
         latest = 0
+        basefolders = self.basefolders if subdir is None else [subdir]
         for path in [self.path_userdata, self.path_sysdata]:
-            for folder in self.basefolders:
+            for folder in basefolders:
                 test = os.path.join(path, folder, self.basename)
                 if os.path.isdir(test):
                     files = os.listdir(test)
@@ -612,14 +613,14 @@ class programInfo():
         print ("Latest: " + str(latest))
         return(latest, filenames)
 
-    def fileScanFoldersMHCLO(self, pattern):
+    def fileScanFoldersMHCLO(self, pattern, subdir=None):
         """
         scanner e.g. for mhclo files checks in all basefolders + subdirs (only 1 level)
         """
-        (latest, files) = self.subDirsBaseFolder(pattern)
+        (latest, files) = self.subDirsBaseFolder(pattern, subdir)
         #
         # check date of db?
-        reread = self.fileCache.createCache(latest)
+        reread = self.fileCache.createCache(latest, subdir)
         print ("Reread is " + str(reread))
         if reread is True:
             data = []

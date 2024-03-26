@@ -143,11 +143,11 @@ def importObj3dBinary(path, obj):
     npzfile = np.load(path)
     return(importObjValues(npzfile, obj))
 
-def importObjFromFile(path, obj):
+def importObjFromFile(path, obj, use_obj=False):
     """
     check if binary file exists
     """
-    if obj.filename.endswith(".obj"):
+    if use_obj is False and obj.filename.endswith(".obj"):
         binfile = path[:-3] + "mhbin"
         if os.path.isfile(binfile):
             return(importObj3dBinary(binfile, obj))

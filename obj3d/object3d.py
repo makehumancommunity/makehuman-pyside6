@@ -57,12 +57,12 @@ class object3d:
                 str(self.prim) + "\nOpenGL DrawElements: " + str(self.n_verts)) 
                 #+ "\nMaximum attached faces for one vertex: " + str(self.maxAttachedFaces))
 
-    def load(self, path):
+    def load(self, path, use_obj=False):
         """
         load a mesh either binary or per object
         """
         self.filename = path
-        (success, text) = importObjFromFile(path, self)
+        (success, text) = importObjFromFile(path, self, use_obj)
         if success:
             self.initMaterial(path)
         return (success, text)
