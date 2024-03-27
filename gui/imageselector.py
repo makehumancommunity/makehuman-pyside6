@@ -104,7 +104,7 @@ class PictureButton(QPushButton):
 
         if self.picture_added is False:
             painter.setPen(Qt.black)
-            painter.drawText(10, 15, self.asset.name)
+            painter.drawText(5, 15, self.asset.name)
 
         painter.end()
 
@@ -271,10 +271,13 @@ class PicFlowLayout(QLayout):
         self.callback(current.asset)
         self.refreshAllWidgets(current)
 
+    def redisplayWidgets(self, ruleset=None, filtfunc=None):
+        self.removeAllWidgets()
+        self.populate(ruleset, filtfunc)
+
     def setImageScale(self, scale):
         self.imagescale = scale
-        self.removeAllWidgets()
-        self.populate(self.ruleset, self.filter)
+        self.redisplayWidgets(self.ruleset, self.filter)
 
     def getSelected(self):
         for widget in self.wList:
@@ -373,6 +376,9 @@ class PicSelectWidget(QWidget):
 
     def setImageScale(self, scale):
         self.layout.setImageScale(scale)
+
+    def redisplayWidgets(self):
+        self.layout.redisplayWidgets()
 
 class InformationBox(QWidget):
     def __init__(self, layout):
@@ -662,12 +668,15 @@ class ImageSelection():
         self.picwidget.setImageScale(self.imagescale)
 
     def rescanFolder(self):
-        # maybe like this:
-        # self.parent.glob.baseClass.mhclo_namemap = self.env.fileScanFoldersMHCLO(".mhclo", elem.folder)
-        # + prepare
+        self.assetrepo = self.parent.glob.baseClass.scanAssets(self.type)
         for elem in self.assetrepo:
             if elem.folder == self.type:
                 print (elem.name)
+        self.asset_category = []
+        self.prepare()
+        self.picwidget.layout.removeAllWidgets()
+        self.picwidget.populate(None, None)
+        self.picwidget.layout.newAssetList(self.assetrepo)
 
     def materialCallback(self):
         selected = self.picwidget.getSelected()

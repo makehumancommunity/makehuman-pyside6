@@ -16,19 +16,22 @@ class FileCache:
             print ("Need to create table")
             self.cur.execute("CREATE TABLE filecache(name, uuid, path, folder, obj_file, thumbfile, author, tags)")
             return(True)
-        if latest > self.time:
-            if subdir is None:
+
+        if subdir is None:
+            if latest > self.time:
                 print ("Need to cleanup file table")
                 self.cur.execute("DELETE FROM filecache")
+                return (True)
             else:
-                print("DELETE FROM filecache where folder = ?", subdir)
-                self.cur.execute("DELETE FROM filecache where folder = ?", (subdir,))
-                self.con.commit()
+                return(False)
+        else:
+            print("DELETE FROM filecache where folder = " +  subdir)
+            self.cur.execute("DELETE FROM filecache where folder = ?", (subdir,))
+            self.con.commit()
             return (True)
-        return(False)
 
     def listCache(self):
-        rows = self.cur.execute("SELECT * FROM filecache ORDER BY name")
+        rows = self.cur.execute("SELECT * FROM filecache ORDER BY name COLLATE NOCASE ASC")
         return(rows)
 
     def insertCache(self, data):

@@ -93,7 +93,7 @@ class attachedAsset:
         will usually load an mhclo-file
         structure is a key/value system + rows of verts in the end
         """
-        self.env.logLine(8, "Load: " + filename)
+        self.env.logLine(8, "Read ASCII asset " + filename)
 
         try:
             fp = open(filename, "r", encoding="utf-8", errors='ignore')
@@ -206,7 +206,6 @@ class attachedAsset:
             self.material = os.path.normpath(os.path.join(os.path.dirname(filename), self.material))
         else:
             self.material_orgpath = ""
-        print(self.obj_file)
         print("Material: " + str(self.material))
         # finally create the numpy arrays here
         #
@@ -217,7 +216,7 @@ class attachedAsset:
         return (True, "Okay")
 
     def importBinary(self, path):
-        print ("read binary " + path)
+        self.env.logLine(8, "Read binary asset " + path)
         npzfile = np.load(path)
         for elem in ['asset', 'files', 'ref_vIdxs', 'weights']:
             if elem not in npzfile:
@@ -283,7 +282,6 @@ class attachedAsset:
             binfile = filename[:-5] + "mhbin"
             newer = self.env.isSourceFileNewer(binfile, filename)
             if not newer and os.path.isfile(binfile):
-                print ("we have a binary file")
                 self.filename = filename
                 self.obj = object3d(self.glob, None)
                 self.importBinary(binfile)
@@ -308,6 +306,7 @@ class attachedAsset:
 
         filename = self.filename if filename is None  else filename
         filename = filename[:-6] + ".mhbin" if filename.endswith(".mhclo") else filename + ".mhbin"
+        self.env.logLine(8, "Write binary asset " + filename)
         content = {}
 
         # binary structure

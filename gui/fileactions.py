@@ -46,7 +46,7 @@ class BaseSelect(QVBoxLayout):
             (folder, name) = os.path.split(elem)
             thumb = elem[:-6] + ".thumb"
             if not os.path.isfile(thumb):
-                thumb = None
+                thumb =  os.path.join(self.env.path_sysicon, "empty_material.png" )
             p = MHPictSelectable(name[:-6], thumb, elem, None, [])
             if elem == oldmaterial:
                 p.status = 1

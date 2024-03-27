@@ -74,8 +74,6 @@ class object3d:
         """
         use a relative path to object
         """
-        print ("Loading material")
-        print (pathname)
         if pathname is not None and self.material is not None:
             return(self.material.loadMatFile(pathname))
         else:

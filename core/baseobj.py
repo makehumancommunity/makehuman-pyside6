@@ -222,7 +222,6 @@ class baseClass():
 
     def addAsset(self, path, eqtype, materialpath=None, materialsource=None):
         print ("Attach: " + path)
-        print ("Type: " + eqtype)
         attach = attachedAsset(self.glob, eqtype)
         attach.load(path)
         if attach is None:
@@ -231,7 +230,6 @@ class baseClass():
             attach.material = materialpath
             attach.materialsource = materialsource
         if attach.material is not None:
-            print ("Material: " + attach.material)
             attach.obj.loadMaterial(attach.material)
             self.attachedAssets.append(attach)
         return(attach)
@@ -260,6 +258,10 @@ class baseClass():
             asset.obj.approxByTarget(asset, self.baseMesh)
             self.glob.openGLWindow.createObject(asset.obj)
             self.glob.openGLWindow.Tweak()
+
+    def scanAssets(self, asset_type=None):
+        self.mhclo_namemap = self.env.fileScanFoldersMHCLO(".mhclo", asset_type)
+        return(self.mhclo_namemap)
 
     def prepareClass(self):
         self.env.logLine(2, "Prepare class called with: " + self.env.basename)
@@ -296,7 +298,7 @@ class baseClass():
             self.glob.reset()
             del self.glob.baseClass
         self.glob.baseClass = self
-        self.mhclo_namemap = self.env.fileScanFoldersMHCLO(".mhclo")
+        self.scanAssets()
         #for elem in self.mhclo_namemap:
         #    print (elem)
 
