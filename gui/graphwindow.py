@@ -164,7 +164,6 @@ class MHGraphicWindow(QWidget):
     """
     def createLayout(self):
         self.view = OpenGLView(self.glob)          # must be saved in self!
-        self.view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
         hlayout = QHBoxLayout()
         hlayout.addWidget(self.view)
 

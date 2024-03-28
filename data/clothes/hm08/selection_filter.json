@@ -32,7 +32,8 @@
 		"unisex": null,
 		"vintage": "=epoch:past",
 		"hats": "=slot:headgear:layer3:hat",
-		"lingerie": "=slot:top:layer1:bra"
+		"lingerie": "=slot:top:layer1:bra",
+		"jewelry": "=slot:neck:necklace"
 	},
 	"GuessName": { 
 		"suit": "slot:top:layer3:suit"

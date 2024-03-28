@@ -1,4 +1,5 @@
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
+from PySide6.QtWidgets import QSizePolicy
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QMatrix4x4, QVector3D, QOpenGLContext
 
@@ -33,7 +34,9 @@ class OpenGLView(QOpenGLWidget):
         self.glob = glob
         self.env = glob.env
         super().__init__()
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
         self.setMinimumSize(QSize(600, 600))
+        self.setMaximumSize(QSize(2000, 2000))
         self.buffers = []
         self.objects = []
         self.camera  = None

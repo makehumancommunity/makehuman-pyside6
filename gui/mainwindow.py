@@ -173,14 +173,8 @@ class MHMainWindow(QMainWindow):
 
         self.equip = tools_menu.addMenu("Equipment")
 
-        # TODO: when starting or baseclass changes, what will happen then?!?!
-        #
         if self.glob.baseClass is not None:
             self.createImageSelection()
-
-        scanned = self.env.fileScanFolderMHM()
-        self.charselect = ImageSelection(self, scanned, "models", 2, self.loadByIconCallback, 3)
-        self.charselect.prepare()
 
         # generate tool buttons, model_buttons (save ressources)
         #
@@ -202,10 +196,13 @@ class MHMainWindow(QMainWindow):
 
     def createImageSelection(self):
         for elem in self.equipment:
-            elem["func"] = ImageSelection(self, self.glob.baseClass.mhclo_namemap, elem["name"], elem["mode"], self.equipCallback)
+            elem["func"] = ImageSelection(self, self.glob.baseClass.cachedInfo, elem["name"], elem["mode"], self.equipCallback)
             elem["func"].prepare()
             elem["menu"] = self.equip.addAction(elem["name"])
             elem["menu"].triggered.connect(self.equip_call)
+
+        self.charselect = ImageSelection(self, self.glob.baseClass.cachedInfo, "models", 2, self.loadByIconCallback, 3)
+        self.charselect.prepare()
 
     def updateScene(self):
         if self.scene_window:
@@ -696,7 +693,10 @@ class MHMainWindow(QMainWindow):
 
         elems_compressed = 0
         elems_untouched = 0
-        for elem in bc.mhclo_namemap:
+        for elem in bc.cachedInfo:
+            # do not compress models
+            if elem.folder == "models":
+                continue
             syspath = elem.path.startswith(self.env.path_sysdata)
             if syspath == system:
                 okay = False

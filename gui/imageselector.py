@@ -573,7 +573,6 @@ class ImageSelection():
         self.filterjson = None
         self.picwidget = None
         self.filterview = None
-        self.asset_category = []
         self.scales = [48, 64, 96, 128]
         self.emptyIcon = os.path.join(self.env.path_sysdata, "icons", "empty_" + self.type + ".png")
         self.scaleindex = scale
@@ -632,19 +631,24 @@ class ImageSelection():
                     newtags.append(ntag)
         return (newtags)
 
+    def prepareRepo(self):
+        self.asset_category = []
+        for elem in self.assetrepo:
+            if elem.folder == self.type:
+                elem.tag = self.completeTags(elem.name, elem.tag)
+                self.asset_category.append(MHPictSelectable(elem.name, elem.thumbfile, elem.path,  elem.author, elem.tag))
+
     def prepare(self):
+        #
         # load filter from file according to base mesh
+        # then create an asset-category repo for this folder
         #
         path = self.env.stdSysPath(self.type, "selection_filter.json")
         self.filterjson = self.env.readJSON(path)
         if self.filterjson is None:
             self.filterjson = {}
         self.createTagGroups(self.filterjson, "")
-
-        for elem in self.assetrepo:
-            if elem.folder == self.type:
-                elem.tag = self.completeTags(elem.name, elem.tag)
-                self.asset_category.append(MHPictSelectable(elem.name, elem.thumbfile, elem.path,  elem.author, elem.tag))
+        self.prepareRepo()
 
     def changeStatus(self):
         checked = []
@@ -668,15 +672,17 @@ class ImageSelection():
         self.picwidget.setImageScale(self.imagescale)
 
     def rescanFolder(self):
+        """
+        rescan folder:
+        - get new assetrepo (only for type)
+        - remove widgets
+        - prepare new Repo (tags), send new repo and populate widget
+        """
         self.assetrepo = self.parent.glob.baseClass.scanAssets(self.type)
-        for elem in self.assetrepo:
-            if elem.folder == self.type:
-                print (elem.name)
-        self.asset_category = []
-        self.prepare()
         self.picwidget.layout.removeAllWidgets()
+        self.prepareRepo()
+        self.picwidget.layout.newAssetList(self.asset_category)
         self.picwidget.populate(None, None)
-        self.picwidget.layout.newAssetList(self.assetrepo)
 
     def materialCallback(self):
         selected = self.picwidget.getSelected()

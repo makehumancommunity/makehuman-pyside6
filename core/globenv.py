@@ -659,55 +659,59 @@ class programInfo():
                             tags.append(" ".join(words[1:]).encode('ascii', 'ignore').lower().decode("utf-8"))
                     mtags = "|".join(tags)
                     data.append([name, uuid, path, folder, obj_file, thumbfile, author, mtags])
-            
             self.fileCache.insertCache(data)
-
-        data = []
-        rows = self.fileCache.listCache()
-        for row in rows:
-            tags = row[7].split("|")
-            data.append(mhPrefetchElem(row[0], row[1], row[2], row[3], row[4], row[5], row[6], tags))
-        return (data)
 
     def fileScanFolderMHM(self):
         """
         scanner for mhm files checks in models folder
         """
         namematch = []
-        dirname = self.stdUserPath("models")
-        files = self.getFileList(dirname, "*.mhm")
-        for path in files:
-            print (path)
-            (filename, extension) = os.path.splitext(path)
-            thumbfile = filename + ".thumb"
-            if not os.path.isfile(thumbfile):
-                thumbfile = None
+        subdir = "models"
+        (latest, files) = self.subDirsBaseFolder(".mhm", subdir)
+        print (latest)
+        reread = self.fileCache.createCache(latest, subdir)
+        if reread is True:
+            data = []
+            for (folder, path) in files:
+                print (path)
+                (filename, extension) = os.path.splitext(path)
+                thumbfile = filename + ".thumb"
+                if not os.path.isfile(thumbfile):
+                    thumbfile = None
             
-            with open(path, 'r') as fp:
-                uuid = 0
-                name = None
-                author = "unknown"
-                tags = []
-                for line in fp:
-                    if line.startswith("modifier"):
-                        break
-                    words = line.split()
-                    if len(words) < 2:
-                        continue
+                with open(path, 'r') as fp:
+                    uuid = 0
+                    name = None
+                    author = "unknown"
+                    tags = []
+                    for line in fp:
+                        if line.startswith("modifier"):
+                            break
+                        words = line.split()
+                        if len(words) < 2:
+                            continue
 
-                    if words[0] == "name":          # always last word, one word
-                        name = words[1]
-                    elif words[0] == "uuid":        # always last word, one word
-                        uuid = words[1]
-                    elif "tags" in line:
-                        tags =" ".join(words[1:]).split(";")
+                        if words[0] == "name":          # always last word, one word
+                            name = words[1]
+                        elif words[0] == "uuid":        # always last word, one word
+                            uuid = words[1]
+                        elif "tags" in line:
+                            tags =" ".join(words[1:]).split(";")
 
-                if name is None:
-                    name = os.path.basename(filename)
+                    if name is None:
+                        name = os.path.basename(filename)
 
-                namematch.append(mhPrefetchElem(name, uuid, path, "models", None, thumbfile, author, tags))
-        return (namematch)
+                    mtags = "|".join(tags)
+                    data.append([name, uuid, path, subdir, None, thumbfile, author, mtags])
+            self.fileCache.insertCache(data)
 
+    def getCacheData(self):
+        data = []
+        rows = self.fileCache.listCache()
+        for row in rows:
+            tags = row[7].split("|")
+            data.append(mhPrefetchElem(row[0], row[1], row[2], row[3], row[4], row[5], row[6], tags))
+        return (data)
 
     def dictFillGaps(self, standard, testdict):
         """

@@ -42,7 +42,7 @@ class baseClass():
         self.dirname = dirname        # contains dirname of the obj (to determine user or system space)
         self.baseMesh = None
         self.baseInfo = None
-        self.mhclo_namemap = []
+        self.cachedInfo = []
         self.attachedAssets = []
         self.skinMaterial = None    # should contain complete path of skin
         self.env.logLine(2, "New baseClass: " + name)
@@ -57,11 +57,11 @@ class baseClass():
         return(dumper(self))
 
     def noAssetsUsed(self):
-        for elem in self.mhclo_namemap:
+        for elem in self.cachedInfo:
             elem.used = False
 
     def markAssetByFileName(self, path, value):
-        for elem in self.mhclo_namemap:
+        for elem in self.cachedInfo:
             if elem.path == path:
                 elem.used = value
                 return
@@ -114,7 +114,7 @@ class baseClass():
         #
         self.noAssetsUsed()
         for elem in loaded.attached:
-            for mapping in self.mhclo_namemap:
+            for mapping in self.cachedInfo:
                 if elem.name == mapping.name and elem.uuid == mapping.uuid:
                     elem.path = mapping.path
                     mapping.used = True
@@ -260,8 +260,12 @@ class baseClass():
             self.glob.openGLWindow.Tweak()
 
     def scanAssets(self, asset_type=None):
-        self.mhclo_namemap = self.env.fileScanFoldersMHCLO(".mhclo", asset_type)
-        return(self.mhclo_namemap)
+        if asset_type != "models":
+            self.env.fileScanFoldersMHCLO(".mhclo", asset_type)
+        if asset_type is None or  asset_type  == "models":
+            self.env.fileScanFolderMHM()
+        self.cachedInfo = self.env.getCacheData()
+        return(self.cachedInfo)
 
     def prepareClass(self):
         self.env.logLine(2, "Prepare class called with: " + self.env.basename)
@@ -299,7 +303,7 @@ class baseClass():
             del self.glob.baseClass
         self.glob.baseClass = self
         self.scanAssets()
-        #for elem in self.mhclo_namemap:
+        #for elem in self.cachedInfo:
         #    print (elem)
 
         self.baseMesh.precalculateDimension()
