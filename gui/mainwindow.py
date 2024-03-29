@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import ( 
-        QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFrame, QGroupBox, QListWidget,
+        QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFrame, QGroupBox, QListWidget, QLabel,
         QAbstractItemView, QSizePolicy, QScrollArea, QFileDialog, QDialogButtonBox, QMessageBox
         )
 from PySide6.QtGui import QIcon, QCloseEvent, QAction
@@ -13,7 +13,7 @@ from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport
 from gui.slider import ScaleComboArray
 from gui.imageselector import ImageSelection, IconButton
-from gui.dialogs import DialogBox, ErrorBox, WorkerThread, MHBusyWindow
+from gui.dialogs import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, MHGroupBox
 from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
 from core.attached_asset import attachedAsset
@@ -255,6 +255,7 @@ class MHMainWindow(QMainWindow):
     def buttonRow(self, subtool):
         if len(subtool) == 0:
             return (None)
+
         row=QHBoxLayout()
         for n, b in enumerate(subtool):
             row.addWidget(b["button"])
@@ -285,30 +286,38 @@ class MHMainWindow(QMainWindow):
 
         hLayout = QHBoxLayout()         # 3 columns
 
-        # left side, first button box, then base panel
+        # left side, first button box
         #
-        self.ButtonBox = QVBoxLayout()
+        b2group  = QFrame()
+        b2group.setObjectName("gboxnontitle")
+        b2group.setMaximumWidth(400)
 
+        self.ButtonBox = QVBoxLayout()
         row = self.buttonRow(self.tool_buttons)
         self.ButtonBox.addLayout(row)
 
         self.CategoryBox= self.buttonRow(self.category_buttons[0])
         self.ButtonBox.addLayout(self.CategoryBox)
 
-        self.leftColumn = QGroupBox()
-        self.leftColumn.setMinimumWidth(300)
-        self.BaseBox = QVBoxLayout()
+        b2group.setLayout(self.ButtonBox)
 
-        self.drawLeftPanel()
+        # left side base panel
+        #
+        self.BaseBox = QVBoxLayout()
+        self.leftColumn = MHGroupBox("Base")
+        self.leftColumn.setMinimumWidth(300)
         self.leftColumn.setMaximumWidth(400)
-        self.leftColumn.setLayout(self.BaseBox)
-        self.ButtonBox.addWidget(self.leftColumn)
-        hLayout.addLayout(self.ButtonBox)
+        self.drawLeftPanel()
+
+        v2Layout = QVBoxLayout()
+        v2Layout.addWidget(b2group)
+        v2Layout.addLayout(self.leftColumn.MHLayout(self.BaseBox))
+
+        hLayout.addLayout(v2Layout)
 
         # create window for internal or external use
         #
         self.graph = MHGraphicWindow(self, self.glob)
-
         gLayout = self.graph.createLayout()
         #
         # keyboard
@@ -319,20 +328,17 @@ class MHMainWindow(QMainWindow):
         # in case of being attached, add external window in layout
         #
         if self.env.g_attach is True:
-            groupBoxG = QGroupBox("Viewport")
-            groupBoxG.setLayout(gLayout)
-            hLayout.addWidget(groupBoxG)
+            frame = MHGroupBox("Viewport")
+            hLayout.addLayout(frame.MHLayout(gLayout))
 
         # right side, ToolBox
         #
-        self.rightColumn = QGroupBox("Toolpanel")
         self.ToolBox = QVBoxLayout()
-
         self.drawRightPanel()
+        self.rightColumn = MHGroupBox("Toolpanel")
         self.rightColumn.setMinimumWidth(500)
         self.rightColumn.setMaximumWidth(500)
-        self.rightColumn.setLayout(self.ToolBox)
-        hLayout.addWidget(self.rightColumn)
+        hLayout.addLayout(self.rightColumn.MHLayout(self.ToolBox))
 
         #
         self.central_widget.setLayout(hLayout)

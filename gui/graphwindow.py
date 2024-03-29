@@ -115,8 +115,10 @@ class MHGraphicWindow(QWidget):
         vlayout.addWidget(self.focusSlider )
 
     def getFocusText(self):
-        focalLength = self.view.getCamera().getFocalLength()
-        self.focusSlider.setSliderValue(focalLength)
+        cam = self.view.getCamera()
+        if cam is not None:
+            focalLength = cam.getFocalLength()
+            self.focusSlider.setSliderValue(focalLength)
 
     def focusChanged(self, value):
         self.view.modifyFov(value)

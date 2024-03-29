@@ -17,6 +17,37 @@ QListWidget::item:selected {
     background: #d7801a;
 }
 
+QFrame#groupbox {
+    border: 2px solid #a3a3a3;
+    background-color: #414141;
+    border: 4px solid #8a979b;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+QLabel#groupbox {
+    qproperty-alignment: AlignCenter;
+    border: 4px solid #8a979b;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    background-color: #cccccc;
+    padding: 5px 0px;
+    color: #000000;
+    max-height: 14px;
+    font: bold 14px;
+    margin-top: 0px;
+    margin-bottom: -4px;
+}
+
+
+
+QFrame#gboxnontitle {
+   border: 4px solid #8a979b;
+   border-radius: 6px;
+}
+
 QTreeView {
     selection-color: white;
     selection-background-color: #d7801a;

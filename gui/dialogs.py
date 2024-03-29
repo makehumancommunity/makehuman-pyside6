@@ -1,9 +1,29 @@
-from PySide6.QtWidgets import QLabel, QDialogButtonBox, QVBoxLayout, QDialog, QProgressDialog, QWidget, QApplication, QMessageBox
+from PySide6.QtWidgets import QLabel, QDialogButtonBox, QVBoxLayout, QDialog, QProgressDialog, QWidget, QApplication, QMessageBox, QFrame
 from PySide6.QtCore import Qt, QThread, Signal
 
 def ErrorBox(qw, text):
     button = QMessageBox.critical(qw, "An error occured!", text, buttons=QMessageBox.Close)
     dlg = QMessageBox()
+
+class MHGroupBox(QFrame):
+    def __init__(self, title):
+        super().__init__()
+        self.vlabel = QLabel(title)
+        self.vlabel.setObjectName("groupbox")
+        self.vlabel.setAlignment( Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+        self.setObjectName("groupbox")
+
+    def MHLayout(self, parentlayout):
+        self.setLayout(parentlayout)
+        layout = QVBoxLayout()
+        layout.setSpacing(0)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.vlabel)
+        layout.addWidget(self)
+        return(layout)
+
+    def setTitle(self, title):
+        self.vlabel.setText(title)
 
 
 class WorkerThread(QThread):
