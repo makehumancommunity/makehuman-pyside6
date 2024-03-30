@@ -1,0 +1,4 @@
+# MakeHuman2 Model File
+version v2.0.1
+name base
+skinMaterial skins/default.mhmat

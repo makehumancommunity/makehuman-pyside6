@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt, QAbstractTableModel
+from PySide6.QtCore import Qt, QAbstractTableModel, QSortFilterProxyModel
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTabWidget, QPushButton, QRadioButton, QGroupBox, QCheckBox, QTableView, QGridLayout, QHeaderView
 from PySide6.QtGui import QColor
 
@@ -56,7 +56,6 @@ class MemTableModel(QAbstractTableModel):
         super().endResetModel()
 
 
-
 class MHMemWindow(QWidget):
     """
     Message window to display used data
@@ -78,10 +77,17 @@ class MHMemWindow(QWidget):
         assetpage.setLayout(layout)
 
         self.assetTable = QTableView()
+        self.assetTable.setSortingEnabled(True)
         data = self.refreshAssetTable()
 
+
         self.assetModel = MemTableModel(data, ["Group", "Name", "used", "UUID",  "Author", "File Name", "Tags"])
-        self.assetTable.setModel(self.assetModel)
+
+        filter_proxy_model = QSortFilterProxyModel()
+        filter_proxy_model.setSourceModel(self.assetModel)
+        filter_proxy_model.setFilterKeyColumn(0)
+
+        self.assetTable.setModel(filter_proxy_model)
         self.assetModel.bestFit(self.assetTable)
         layout.addWidget(self.assetTable)
 
@@ -95,6 +101,7 @@ class MHMemWindow(QWidget):
         data = self.refreshTargetTable()
 
         self.targetModel = MemTableModel(data, ["Name", "File Increment", "Verts I",  "File Decrement", "Verts D", "MHM Identifier", "Current"])
+
         self.targetTable.setModel(self.targetModel)
         self.targetModel.bestFit(self.targetTable)
         layout.addWidget(self.targetTable)

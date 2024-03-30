@@ -9,6 +9,6 @@ modifier macrodetails-height/Height 0.5
 modifier macrodetails-proportions/BodyProportions 0.5
 modifier breast/BreastFirmness 0.5
 modifier breast/BreastSize 0.5
-skinMaterial skins/young_caucasian_female_special_suit.mhmat
+skinMaterial skins/default.mhmat
 eyes Low-Poly 1cc97a30-85a1-42e6-a9f7-b3e753732baa
 material Low-Poly 1cc97a30-85a1-42e6-a9f7-b3e753732baa eyes/materials/brown.mhmat

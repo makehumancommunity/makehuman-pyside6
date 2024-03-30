@@ -35,7 +35,7 @@ QLabel#groupbox {
     background-color: #cccccc;
     padding: 5px 0px;
     color: #000000;
-    max-height: 14px;
+    max-height: 16px;
     font: bold 14px;
     margin-top: 0px;
     margin-bottom: -4px;

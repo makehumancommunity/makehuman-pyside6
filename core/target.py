@@ -86,6 +86,8 @@ class Modelling:
             self.macro_influence(t["macro_influence"])
         if "barycentric" in t:
             self.macro_barycentric(t["barycentric"])
+        if "barycentric_diffuse" in t:
+            self.barycentric_diffuse = t["barycentric_diffuse"]
         if "name" in t:
             self.displayname = t["name"]
         if "group" in t:
@@ -322,6 +324,14 @@ class Modelling:
         self.macroCalculation(m_influence)
         self.obj.updateAttachedAssets()
 
+    def setBaryCentricDiffuse(self):
+        if hasattr(self, "barycentric_diffuse"):
+            base = self.obj.baseMesh
+            if base.openGL is not None and base.material.has_imagetexture is False:
+                influence = [self.barycentric[0]["value"], self.barycentric[1]["value"], self.barycentric[2]["value"]]
+                texture =base.material.mixColors(self.barycentric_diffuse, influence)
+                base.openGL.setTexture(texture)
+
     def finished_bckproc(self):
         print ("done")
         self.glob.openGLWindow.Tweak()
@@ -331,6 +341,8 @@ class Modelling:
 
         if self.barycentric is not None:
             self.set_barycentricFromMapSlider()
+            self.setBaryCentricDiffuse()
+
         if self.value != self._last_value:
             self.callback()
         else:
@@ -609,9 +621,13 @@ class Targets:
             np.savez_compressed(f, **contentuser)
             f.close()
 
-    def reset(self):
+    def reset(self, colors=False):
         for target in self.modelling_targets:
             target.resetValue()
+        if colors is True:
+            for target in self.modelling_targets:
+                if target.barycentric:
+                    target.setBaryCentricDiffuse()
 
     def setTargetByName(self, key, value):
         """

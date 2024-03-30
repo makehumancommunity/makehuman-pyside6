@@ -1,3 +1,4 @@
 {
-	"visible groups": [ "mh_default" ]
+	"visible groups": [ "mh_default" ],
+	 "mhm": "base.mhm"
 }

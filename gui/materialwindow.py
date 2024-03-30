@@ -64,7 +64,7 @@ class MHMaterialWindow(QWidget):
                 if hasattr(obj.material, 'diffuseTexture'):
                     texture = obj.material.loadTexture(obj.material.diffuseTexture)
                 else:
-                    texture = obj.material.emptyTexture(0xff926250)
+                    texture = obj.material.emptyTexture(obj.material.diffuseColor)
 
                 # set texture
                 #

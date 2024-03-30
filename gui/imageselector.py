@@ -679,10 +679,14 @@ class ImageSelection():
         - prepare new Repo (tags), send new repo and populate widget
         """
         self.assetrepo = self.parent.glob.baseClass.scanAssets(self.type)
+
         self.picwidget.layout.removeAllWidgets()
+        for elem in self.parent.glob.baseClass.attachedAssets:
+            self.parent.glob.baseClass.markAssetByFileName(elem.filename, True)
         self.prepareRepo()
         self.picwidget.layout.newAssetList(self.asset_category)
         self.picwidget.populate(None, None)
+        self.changeStatus()
 
     def materialCallback(self):
         selected = self.picwidget.getSelected()

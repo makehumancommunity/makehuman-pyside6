@@ -3,6 +3,7 @@ from PySide6.QtGui import QImage, QColor
 from PySide6.QtCore import QSize
 
 import os
+import numpy
 from core.debug import dumper
 
 
@@ -38,6 +39,7 @@ class Material:
 
     def default(self):
         self.diffuseColor = [1.0, 1.0, 1.0 ]
+        self.has_imagetexture = False
 
     def isExistent(self, filename):
         """
@@ -148,15 +150,28 @@ class Material:
         self._textures.append(texture)
         return (texture)
 
-    def emptyTexture(self, hexcolor=0xff808080):
+    def emptyTexture(self, rgb = [0.5, 0.5, 0.5]):
+        self.has_imagetexture = False
         image = QImage(QSize(1,1),QImage.Format_ARGB32)
-        color = QColor(hexcolor)
+        color = QColor.fromRgbF(rgb[0], rgb[1], rgb[2])
         image.fill(color)
         name = "Generated " + repr(self) + " [" +str(len(self._textures)+1) + "]"
         return(self.newTexture(name, image))
 
+    def mixColors(self, colors, values):
+        """
+        generates a texture from a number of colors (e.g. ethic slider)
+        """
+        col = numpy.asarray(colors)
+        newcolor = numpy.array([0.0, 0.0, 0.0])
+        for n, elem in enumerate(col):
+            newcolor += elem * values[n]
+        self.freeTextures()
+        return(self.emptyTexture([newcolor[0], newcolor[1], newcolor[2]]))
+
     def loadTexture(self, path):
         image = QImage(path)
+        self.has_imagetexture = True
         return(self.newTexture(path, image))
 
     def freeTextures(self):

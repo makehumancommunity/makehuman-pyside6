@@ -53,6 +53,7 @@
 	"Phenotype": {
 		"group": "main|macro",
 		"barycentric": [ "macrodetails/African", "macrodetails/Asian", "macrodetails/Caucasian"],
+		"barycentric_diffuse": [ [0.207, 0.113, 0.066], [0.721, 0.568, 0.431], [0.843, 0.639, 0.517]],
 		"macro_influence": [0]
 	},
 	"Female Apple": {

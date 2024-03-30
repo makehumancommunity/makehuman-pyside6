@@ -130,9 +130,9 @@ class baseClass():
         for elem in loaded.attached:
             print (self.env.basename, elem.type, elem.name, elem.relmaterial)
             if elem.relmaterial is not None:
-                filename = self.env.existFileInBaseFolder(self.env.basename, elem.type, elem.name, elem.relmaterial)
-                if filename is not None:
-                    elem.material = filename
+                matfilename = self.env.existFileInBaseFolder(self.env.basename, elem.type, elem.name, elem.relmaterial)
+                if matfilename is not None:
+                    elem.material = matfilename
 
         if loaded.name is not None:
             self.name = loaded.name
@@ -141,10 +141,10 @@ class baseClass():
 
         if loaded.skinMaterial is not None:
             self.skinMaterial = loaded.skinMaterial
-            filename = self.env.existDataFile("skins", self.env.basename, os.path.basename(loaded.skinMaterial))
-            if filename is not None:
-                self.baseMesh.loadMaterial(filename)
-                self.skinMaterial = filename
+            matfilename = self.env.existDataFile("skins", self.env.basename, os.path.basename(loaded.skinMaterial))
+            if matfilename is not None:
+                self.baseMesh.loadMaterial(matfilename)
+                self.skinMaterial = matfilename
 
         print(loaded)
 
@@ -163,6 +163,10 @@ class baseClass():
             self.glob.Targets.setTargetByName(name, value)
 
         self.applyAllTargets()
+
+        # finally mark MHM as used
+        #
+        self.markAssetByFileName(filename, True)
         return (True, "okay")
 
     def saveMHMFile(self, filename):

@@ -335,7 +335,7 @@ class MHMainWindow(QMainWindow):
         #
         self.ToolBox = QVBoxLayout()
         self.drawRightPanel()
-        self.rightColumn = MHGroupBox("Toolpanel")
+        self.rightColumn = MHGroupBox("No additional infomation")
         self.rightColumn.setMinimumWidth(500)
         self.rightColumn.setMaximumWidth(500)
         hLayout.addLayout(self.rightColumn.MHLayout(self.ToolBox))
@@ -369,6 +369,8 @@ class MHMainWindow(QMainWindow):
                 self.leftColumn.setTitle("Save file :: additional parameters")
                 self.saveForm = SaveMHMForm(self.glob, self.graph.view, self.setWindowTitle)
                 self.BaseBox.addLayout(self.saveForm)
+            elif self.category_mode == 3:
+                self.leftColumn.setTitle("Export file :: additional parameters")
             elif self.category_mode == 4:
                 self.leftColumn.setTitle("Import file :: additional parameters")
                 dlform = DownLoadImport(self, self.graph.view, self.setWindowTitle)
@@ -387,10 +389,15 @@ class MHMainWindow(QMainWindow):
                 self.BaseBox.addLayout(row)
             else:
                 self.env.logLine(1, self.env.last_error )
+
         elif self.tool_mode == 2:
             self.leftColumn.setTitle("Character equipment :: filter")
             layout = self.equipment[self.category_mode]["func"].leftPanel()
             self.BaseBox.addLayout(layout)
+
+        else:
+            self.leftColumn.setTitle("Not yet implemented")
+
         self.BaseBox.addStretch()
 
 
@@ -408,7 +415,7 @@ class MHMainWindow(QMainWindow):
             self.ToolBox.addWidget(scrollArea)
 
     def drawCharSelectPanel(self):
-        self.rightColumn.setTitle("Files")
+        self.rightColumn.setTitle("Character MHM Files")
         widget = QWidget()
         picwidget = self.charselect.rightPanel()
         widget.setLayout(picwidget.layout)
@@ -435,13 +442,23 @@ class MHMainWindow(QMainWindow):
         #
         print (self.tool_mode, self.category_mode)
         if self.tool_mode == 0:
-            if self.category_mode == 1:
+            if self.category_mode == 0:
+                if self.rightColumn is None:
+                    return
+                self.rightColumn.setTitle("No additional infomation")
+            elif self.category_mode == 1:
                 self.drawCharSelectPanel()
+            elif self.category_mode == 4:
+                self.rightColumn.setTitle("No additional infomation")
+            else:
+                self.rightColumn.setTitle("Not yet implemented")
         elif self.tool_mode == 1:
             self.drawMorphPanel(text)
         elif self.tool_mode == 2:
             equip = self.equipment[self.category_mode]
             self.drawEquipPanel(equip["func"], equip["name"])
+        else:
+            self.rightColumn.setTitle("Not yet implemented")
 
 
     def emptyLayout(self, layout):
@@ -597,7 +614,7 @@ class MHMainWindow(QMainWindow):
         if self.glob.Targets is not None:
             if self.changesLost("Reset character"):
                 print ("Reset")
-                self.glob.Targets.reset()
+                self.glob.Targets.reset(True)
                 self.glob.project_changed = False
                 self.redrawNewCategory(self.targetfilter)
                 self.glob.baseClass.applyAllTargets()

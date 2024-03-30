@@ -52,13 +52,8 @@ class OpenGLView(QOpenGLWidget):
 
         if hasattr(obj.material, 'diffuseTexture'):
             texture = obj.material.loadTexture(obj.material.diffuseTexture)
-            #texture = obj.material.emptyTexture(0xff926250)
         else:
-            default = self.env.existDataFile("skins", self.env.basename, "textures", "default.png")
-            if default is not None:
-                texture = obj.material.loadTexture(default)
-            else:
-                texture = obj.material.emptyTexture(0xff926250)
+            texture = obj.material.emptyTexture(obj.material.diffuseColor)
 
         obj.openGL = RenderedObject(self.context(), glbuffer, self.mh_shaders._shaders[0], texture, pos=QVector3D(0, 0, 0))
         self.objects.append(obj.openGL)
@@ -68,6 +63,7 @@ class OpenGLView(QOpenGLWidget):
         obj.material.freeTextures()
         self.objects.remove(obj.openGL)
         self.Tweak()
+        obj.openGL = None
 
     def newSkin(self, obj):
         

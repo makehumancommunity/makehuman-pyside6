@@ -8,6 +8,7 @@ class object3d:
  
         self.glob = glob
         self.env  = glob.env     # needed for globals
+        self.openGL   = None    # openGL pointer
         self.filename = None    # original file name
         self.name = None    # will contain object name derived from loaded file
         self.npGrpNames = []  # ordered list of groupnames numpy format

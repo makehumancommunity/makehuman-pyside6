@@ -100,16 +100,11 @@ class MHGraphicWindow(QWidget):
 
         # perspective button is a toggle
         #
-        icon = os.path.join(self.env.path_sysicon, "persp.png")
-        self.pers_button = QPushButton("Perspective")
-        self.pers_button.setCheckable(True)
-        self.pers_button.setChecked(True)
-        self.pers_button.setStyleSheet("background-color : orange")
-        self.pers_button.clicked.connect(self.toggle_perspective)
-        self.pers_button.setIcon(QIcon(icon))
-        self.pers_button.setIconSize(QSize(24,24))
-        self.pers_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        vlayout.addWidget(self.pers_button)
+        pers_button = IconButton(1, os.path.join(self.env.path_sysicon, "persp.png"), "Perspective", self.toggle_perspective)
+        pers_button.setChecked(True)
+        pers_button.setCheckable(True)
+
+        vlayout.addWidget(pers_button)
 
         self.focusSlider = SimpleSlider("Focal Length: ", 15, 200, self.focusChanged)
         vlayout.addWidget(self.focusSlider )
@@ -296,13 +291,11 @@ class MHGraphicWindow(QWidget):
 
 
     def toggle_perspective(self):
-        if self.pers_button.isChecked():
-            self.pers_button.setStyleSheet("background-color : orange")
-            self.focusSlider.setEnabled(True)
-        else:
-            self.pers_button.setStyleSheet("background-color : lightgrey")
-            self.focusSlider.setEnabled(False)
-        self.view.togglePerspective(self.pers_button.isChecked())
+        b = self.sender()
+        v = b.isChecked()
+        self.focusSlider.setEnabled(v)
+        b.setChecked(v)
+        self.view.togglePerspective(v)
 
     def show(self):
         """
