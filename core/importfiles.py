@@ -128,10 +128,10 @@ class AssetPack():
                     sourcefolder = os.path.join(source, root)
                     print(destfolder)
                     print (sourcefolder)
-                    #os.makedirs(destfolder, exist_ok = True)
+                    os.makedirs(destfolder, exist_ok = True)
                     sourcename = os.path.join(sourcefolder, name)
                     destname = os.path.join(destfolder, name)
                     print (sourcename)
                     print (destname)
-                    #shutil.copyfile(sourcename, destname)
+                    shutil.copyfile(sourcename, destname)
 

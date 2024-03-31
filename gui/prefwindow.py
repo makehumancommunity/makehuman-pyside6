@@ -134,7 +134,7 @@ class MHPrefWindow(QWidget):
         sel = self.listwidget.selectedItems()
         if len(sel) > 0:
             theme = sel[0].text()
-            self.parent.app.setStyles(self.themelist[theme])
+            self.parent.glob.app.setStyles(self.themelist[theme])
         else:
             theme = "makehuman.qss"
         env.config["theme"] = theme

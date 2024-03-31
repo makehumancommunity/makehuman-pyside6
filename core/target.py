@@ -499,7 +499,7 @@ class Targets:
                         for elem in mtype["targets"]:
                             if "name" in elem and "t" in elem:
                                 if elem["t"] is not None:
-                                    l[elem["name"]] = os.path.join(folder, elem["t"])
+                                    l[elem["name"]] = folder + "/" + elem["t"]  # (need to be written this way for Windows)
                                 else:
                                     l[elem["name"]] = None # to support empty or non-existent targets
                         mtype["targets"] = None  # no longer needed

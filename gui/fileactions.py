@@ -81,7 +81,6 @@ class SaveMHMForm(QVBoxLayout):
         self.bc  = glob.baseClass
         self.displaytitle = displaytitle
         super().__init__()
-        print (self.bc)
 
         # photo
         #
