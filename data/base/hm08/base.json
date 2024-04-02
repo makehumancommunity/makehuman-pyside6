@@ -23,8 +23,5 @@
 		"macrodetails/African": 0.33,
 		"breast/BreastSize": 0.5,
 		"breast/BreastFirmness": 0.5
-	},
-	"meshes": [
-		{"cat": "eyes", "name": "low-poly/low-poly.mhclo" }
-	]
+	}
 }

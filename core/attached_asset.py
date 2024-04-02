@@ -328,7 +328,12 @@ class attachedAsset:
         content["asset"] = np.array([(self.name, self.uuid, self.author, self.description, self.meshtype, nrefverts, self.version,
             self.z_depth, self.license, mtags)], dtype=asset_type)
 
-        lmat = "|S" + str(len(self.material))
+        if self.material is None:
+            matfile = ""
+        else:
+            matfile = self.material
+        lmat = "|S" + str(len(matfile))
+
         if self.vertexboneweights_file is None:
             vwfile = ""
         else:

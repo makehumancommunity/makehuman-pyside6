@@ -701,14 +701,18 @@ class MHMainWindow(QMainWindow):
 
     def compressObjs(self, bckproc, *args):
         """
-        compresses assets (atm obj files)
+        compresses assets (either objects or mhclo)
         :param bck_proc: unused pointer to background process
         :param args: [0][0] True = system, False user
         """
         system = args[0][0]
         force = args[0][1]
         bc = self.glob.baseClass
-        if system:
+
+        # first compress base itself
+        #
+        syspath =  bc.baseMesh.filename.startswith(self.env.path_sysdata)
+        if syspath == system:
             (okay, err) = bc.baseMesh.exportBinary()
             if not okay:
                 bckproc.finishmsg = err

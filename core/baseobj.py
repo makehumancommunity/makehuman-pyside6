@@ -45,6 +45,7 @@ class baseClass():
         self.cachedInfo = []
         self.attachedAssets = []
         self.skinMaterial = None    # should contain complete path of skin
+        self.proxy = None           # will contain the proxy
         self.env.logLine(2, "New baseClass: " + name)
         memInfo()
         self.env.basename = name
@@ -99,7 +100,7 @@ class baseClass():
                 loaded.modifiers.append(" ".join(words[1:]))
             elif key == "material":
                 loaded.materials.append([words[1],  words[2], words[3]])
-            elif key in ["clothes", "eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue"]:
+            elif key in ["clothes", "eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue", "proxy"]:
 
                 # attached assets consists of name, type and uuid (material)
                 #
@@ -265,7 +266,7 @@ class baseClass():
 
     def scanAssets(self, asset_type=None):
         if asset_type != "models":
-            self.env.fileScanFoldersMHCLO(".mhclo", asset_type)
+            self.env.fileScanFoldersAttachObjects(asset_type)
         if asset_type is None or  asset_type  == "models":
             self.env.fileScanFolderMHM()
         self.cachedInfo = self.env.getCacheData()

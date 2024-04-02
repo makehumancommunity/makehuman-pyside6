@@ -131,7 +131,7 @@ class programInfo():
 
         # all folders that belong to a basemesh
         #
-        self.basefolders = [ "clothes", "eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue" ]
+        self.basefolders = [ "clothes", "eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue", "proxy" ]
 
         self.basename = None
         self.fileCache = None
@@ -613,11 +613,21 @@ class programInfo():
         print ("Latest: " + str(latest))
         return(latest, filenames)
 
-    def fileScanFoldersMHCLO(self, pattern, subdir=None):
+    def fileScanFoldersAttachObjects(self, subdir=None):
         """
-        scanner e.g. for mhclo files checks in all basefolders + subdirs (only 1 level)
+        scanner for mhclo/proxy files checks in all basefolders + subdirs (only 1 level)
         """
-        (latest, files) = self.subDirsBaseFolder(pattern, subdir)
+        if subdir is None:
+            (latest, files) = self.subDirsBaseFolder(".mhclo", subdir)
+            (latestproxy, proxies) = self.subDirsBaseFolder(".proxy", "proxy")
+            if len(proxies) > 0:
+                files.extend(proxies)
+                if latestproxy > latest:
+                    latest = latestproxy
+        elif subdir == "proxy":
+            (latest, files) = self.subDirsBaseFolder(".proxy", "proxy")
+        else:
+            (latest, files) = self.subDirsBaseFolder(".mhclo", subdir)
         #
         # check date of db?
         reread = self.fileCache.createCache(latest, subdir)

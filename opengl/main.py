@@ -113,8 +113,6 @@ class OpenGLView(QOpenGLWidget):
         image = self.grabFramebuffer()
         return (image.scaled(128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
-        image.save(name, "PNG", -1)
-
     def customView(self, direction):
         self.camera.customView(direction)
         self.paintGL()
