@@ -105,6 +105,8 @@ class baseClass():
                 # attached assets consists of name, type and uuid (material)
                 #
                 loaded.attached.append(loadEquipment(key, words[1], words[2], None, None, None))
+                if key == "proxy":
+                    self.proxy = True
             else:
                 print (key + " is still unknown")
 
@@ -226,12 +228,15 @@ class baseClass():
         # TODO check memory
 
     def addAsset(self, path, eqtype, materialpath=None, materialsource=None):
-        print ("Attach: " + path)
+        print ("Attach: " + path + " of " + eqtype)
         attach = attachedAsset(self.glob, eqtype)
         attach.load(path)
         if attach is None:
             return (None)
-        if materialpath is not None:
+        if eqtype == "proxy":
+            attach.material = self.skinMaterial
+            attach.materialsource = materialsource
+        elif materialpath is not None:
             attach.material = materialpath
             attach.materialsource = materialsource
         if attach.material is not None:

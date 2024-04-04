@@ -61,7 +61,7 @@ class MHMainWindow(QMainWindow):
                 { "func": None, "menu": None, "name": "eyelashes", "mode": 0 },
                 { "func": None, "menu": None, "name": "teeth", "mode": 0 },
                 { "func": None, "menu": None, "name": "tongue", "mode": 0 },
-                { "func": None, "menu": None, "name": "topology", "mode": 0 }
+                { "func": None, "menu": None, "name": "proxy", "mode": 0 }
         ]
 
         self.model_buttons = [ 

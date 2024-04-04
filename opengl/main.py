@@ -157,7 +157,8 @@ class OpenGLView(QOpenGLWidget):
         proj_view_matrix = self.camera.getProjViewMatrix()
         baseClass = self.glob.baseClass
         if baseClass is not None:
-            for obj in self.objects:
+            start = 1 if baseClass.proxy is True else 0
+            for obj in self.objects[start:]:
                 obj.draw(self.mh_shaders._shaders[0], proj_view_matrix)
 
         if self.light.skybox and self.skybox:

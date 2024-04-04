@@ -278,7 +278,7 @@ class attachedAsset:
         """
         load mhclo or mhbin
         """
-        if use_ascii is False and filename.endswith(".mhclo"):
+        if use_ascii is False and (filename.endswith(".mhclo") or filename.endswith(".proxy")):
             binfile = filename[:-5] + "mhbin"
             newer = self.env.isSourceFileNewer(binfile, filename)
             if not newer and os.path.isfile(binfile):
@@ -305,7 +305,11 @@ class attachedAsset:
     def exportBinary(self, filename=None):
 
         filename = self.filename if filename is None  else filename
-        filename = filename[:-6] + ".mhbin" if filename.endswith(".mhclo") else filename + ".mhbin"
+        if filename.endswith(".mhclo") or filename.endswith(".proxy"):
+            filename = filename[:-6] + ".mhbin"
+        else:
+            filename = filename + ".mhbin"
+
         self.env.logLine(8, "Write binary asset " + filename)
         content = {}
 
