@@ -44,18 +44,21 @@ class baseClass():
         self.baseInfo = None
         self.cachedInfo = []
         self.attachedAssets = []
-        self.skinMaterial = None    # should contain complete path of skin
-        self.proxy = None           # will contain the proxy
         self.env.logLine(2, "New baseClass: " + name)
-        memInfo()
         self.env.basename = name
         self.name = name                # will hold the character name
-        self.tags = []                  # will hold the tags
-        self.photo = None
-        self.uuid = None
+        self.reset()
+        memInfo()
 
     def __str__(self):
         return(dumper(self))
+
+    def reset(self):
+        self.skinMaterial = None
+        self.proxy = None
+        self.tags = [] 
+        self.photo = None
+        self.uuid = None
 
     def noAssetsUsed(self):
         for elem in self.cachedInfo:
@@ -105,8 +108,6 @@ class baseClass():
                 # attached assets consists of name, type and uuid (material)
                 #
                 loaded.attached.append(loadEquipment(key, words[1], words[2], None, None, None))
-                if key == "proxy":
-                    self.proxy = True
             else:
                 print (key + " is still unknown")
 
@@ -217,12 +218,14 @@ class baseClass():
         
         fp.close()
 
-    def delAsset(self, filename):
+    def delAsset(self, filename, eqtype):
         for elem in self.attachedAssets:
             if elem.filename == filename:
                 self.glob.openGLWindow.deleteObject(elem.obj)
                 self.attachedAssets.remove(elem)
                 self.markAssetByFileName(filename, False)
+                if eqtype == "proxy":
+                    self.proxy  = None
                 break
 
         # TODO check memory
@@ -236,6 +239,7 @@ class baseClass():
         if eqtype == "proxy":
             attach.material = self.skinMaterial
             attach.materialsource = materialsource
+            self.proxy = True
         elif materialpath is not None:
             attach.material = materialpath
             attach.materialsource = materialsource

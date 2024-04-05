@@ -219,7 +219,7 @@ class MHMainWindow(QMainWindow):
 
     def equipCallback(self, asset, eqtype, multi):
         if asset.status == 0:
-            self.glob.baseClass.delAsset(asset.filename)
+            self.glob.baseClass.delAsset(asset.filename, eqtype)
         elif asset.status == 1:
             self.glob.baseClass.addAndDisplayAsset(asset.filename, eqtype, multi)
 
@@ -574,6 +574,7 @@ class MHMainWindow(QMainWindow):
             self.setToolModeAndPanel(0, 0)
             self.graph.view.noAssets()
             self.glob.freeTextures()
+            self.glob.baseClass.reset()
             self.glob.parallel = WorkerThread(self.parallelLoad, filename)
             self.glob.parallel.start()
             self.glob.parallel.finished.connect(self.finishLoad)
