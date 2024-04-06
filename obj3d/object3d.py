@@ -20,6 +20,7 @@ class object3d:
         self.n_faces = 0    # number of faces
         self.n_fuvs  = 0    # number of uv-faces
         self.n_groups= 0    # number of groups
+        self.z_depth = 0    # lowest value for z-depth, rendering of basemesh
 
         self.coord = []     # will contain positions of vertices, array of float32 for openGL
         self.uvs   = []     # will contain coordinates for uvs
@@ -67,6 +68,9 @@ class object3d:
         if success:
             self.initMaterial(path)
         return (success, text)
+
+    def setZDepth(self, z_depth):
+        self.z_depth = z_depth
 
     def initMaterial(self, filename):
         self.material = Material(self.glob, os.path.dirname(filename))
@@ -247,12 +251,12 @@ class object3d:
         called when starting work with one slider, a copy without the value
         of this slider is created.
         """
+        self.gl_coord_w[:] = self.gl_coord[:]
         if factor == 0.0:
-            self.gl_coord_w[:] = self.gl_coord[:]
+            return
         else:
             if factor < 0.0:
                 if targetlower is None:
-                    self.gl_coord_w[:] = self.gl_coord[:]
                     return
                 verts = targetlower.verts
                 data  = targetlower.data
@@ -294,7 +298,6 @@ class object3d:
 
         # overflow vertices
         #
-        self.overflowCorrection(self.gl_coord_w)
         self.overflowCorrection(self.gl_coord)
 
     def setTarget(self, factor, targetlower, targetupper):
@@ -319,14 +322,6 @@ class object3d:
         self.gl_coord[verts+1] += data[srcVerts][1::3] * factor
         self.gl_coord[verts+2] += data[srcVerts][2::3] * factor
 
-    def prepareMacroBuffer(self):
-        """
-        copy original mesh + add all changes of non-macrotargets
-        """
-        print ("+++ Prepare Buffer")
-        self.gl_coord_mn =  self.gl_coord.copy()
-        self.gl_coord_mm = np.zeros_like(self.gl_coord)
-
     def addAllNonMacroTargets(self):
         """
         copy original mesh + add all changes of non-macrotargets
@@ -343,9 +338,11 @@ class object3d:
         #
         self.overflowCorrection(self.gl_coord)
 
-        #
-        # now keep original mesh
-        #
+    def prepareMacroBuffer(self):
+        """
+        copy original mesh + add all changes of non-macrotargets
+        """
+        print ("+++ Prepare Buffer")
         self.gl_coord_mn =  self.gl_coord.copy()
         self.gl_coord_mm = np.zeros_like(self.gl_coord)
 
@@ -366,9 +363,10 @@ class object3d:
 
 
     def addMacroBuffer(self):
-
-        # make sure to write in same buffer (out will avoid to get a new one)
-        #
+        """
+        after changing a macro it will be added
+        make sure to write in same buffer (out will avoid to get a new one)
+        """
         print ("+++ Add macro to character")
         np.add(self.gl_coord_mm, self.gl_coord_mn, out=self.gl_coord)  
         self.overflowCorrection(self.gl_coord)

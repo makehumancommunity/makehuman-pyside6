@@ -66,7 +66,7 @@ class attachedAsset:
         self.type = eqtype          # asset type
         self.tags = []
         self.version = 110
-        self.z_depth = 50
+        self.z_depth = 1 if eqtype == "proxy" else 50
         self.obj = None             # will contain the object3d class
         self.vertWeights = {}       # will contain the parent weight
         self.description = ""
@@ -212,6 +212,8 @@ class attachedAsset:
         self.weights = np.asarray([v._weights for v in refVerts], dtype=np.float32)
         self.ref_vIdxs = np.asarray([v._verts for v in refVerts], dtype=np.uint32)
         self.offsets = np.asarray([v._offset for v in refVerts], dtype=np.float32)
+        if self.type == "proxy":
+            self.z_depth = 1
 
         return (True, "Okay")
 
@@ -287,6 +289,7 @@ class attachedAsset:
                 self.importBinary(binfile)
                 self.obj.filename = filename
                 self.obj.initMaterial(filename)
+                self.obj.setZDepth(self.z_depth)
                 return (True, None)
             use_ascii = True
 
@@ -297,6 +300,7 @@ class attachedAsset:
             (res, err) = obj.load(self.obj_file, use_ascii)
             if res is True:
                 self.obj = obj
+                self.obj.setZDepth(self.z_depth)
                 return(self.exportBinary())
 
         self.env.logLine(1, err )

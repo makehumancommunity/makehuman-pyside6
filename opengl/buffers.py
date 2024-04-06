@@ -60,8 +60,9 @@ class OpenGlBuffers():
         self.amount_of_vertices = 0
 
 class RenderedObject:
-    def __init__(self, context, vert_buffers, shaders, texture, pos):
+    def __init__(self, context, z_depth, vert_buffers, shaders, texture, pos):
         self.context = context
+        self.z_depth = z_depth
         self.position = QVector3D(0, 0, 0)
         self.rotation = QVector3D(0, 0, 0)
         self.scale = QVector3D(1, 1, 1)

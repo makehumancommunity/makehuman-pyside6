@@ -218,17 +218,25 @@ class baseClass():
         
         fp.close()
 
-    def delAsset(self, filename, eqtype):
+    def delAsset(self, filename):
         for elem in self.attachedAssets:
             if elem.filename == filename:
                 self.glob.openGLWindow.deleteObject(elem.obj)
                 self.attachedAssets.remove(elem)
                 self.markAssetByFileName(filename, False)
-                if eqtype == "proxy":
+                if elem.type == "proxy":
                     self.proxy  = None
                 break
 
-        # TODO check memory
+    def delProxy(self):
+        for elem in self.attachedAssets:
+            if elem.type == "proxy":
+                self.glob.openGLWindow.deleteObject(elem.obj)
+                self.attachedAssets.remove(elem)
+                self.markAssetByFileName(elem.filename, False)
+                self.proxy  = None
+                break
+
 
     def addAsset(self, path, eqtype, materialpath=None, materialsource=None):
         print ("Attach: " + path + " of " + eqtype)
@@ -253,7 +261,6 @@ class baseClass():
         """
         attach an asset and propagate to OpenGL
         """
-
         # avoid same asset (should not happen)
         #
         for elem in  self.attachedAssets:
@@ -362,7 +369,7 @@ class baseClass():
         """
         applies all targets and corrects attached assets
         """
-        self.baseMesh.resetMesh()
+        #self.baseMesh.resetMesh()
         targets = self.glob.Targets.modelling_targets
         self.baseMesh.addAllNonMacroTargets()
 

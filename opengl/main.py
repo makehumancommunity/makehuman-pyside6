@@ -44,6 +44,9 @@ class OpenGLView(QOpenGLWidget):
         self.glob.openGLWindow = self
 
     def createObject(self, obj):
+        """
+        creats a rendered object and inserts it to a list according to zdepth
+        """
         glbuffer = OpenGlBuffers()
         glbuffer.VertexBuffer(obj.gl_coord, obj.gl_icoord, obj.n_glverts)
         glbuffer.NormalBuffer(obj.gl_norm)
@@ -55,8 +58,13 @@ class OpenGLView(QOpenGLWidget):
         else:
             texture = obj.material.emptyTexture(obj.material.diffuseColor)
 
-        obj.openGL = RenderedObject(self.context(), glbuffer, self.mh_shaders._shaders[0], texture, pos=QVector3D(0, 0, 0))
-        self.objects.append(obj.openGL)
+        cnt = 0
+        for elem in self.objects:
+            if obj.z_depth < elem.z_depth:
+                break
+            cnt += 1
+        obj.openGL = RenderedObject(self.context(), obj.z_depth, glbuffer, self.mh_shaders._shaders[0], texture, pos=QVector3D(0, 0, 0))
+        self.objects.insert(cnt, obj.openGL)
 
     def deleteObject(self,obj):
         obj.openGL.delete()
@@ -161,7 +169,7 @@ class OpenGLView(QOpenGLWidget):
             for obj in self.objects[start:]:
                 obj.draw(self.mh_shaders._shaders[0], proj_view_matrix)
 
-        if self.light.skybox and self.skybox:
+        if self.light.skybox and self.skybox and self.camera.cameraPers:
             glfunc.glUseProgram(self.skyshader)
             self.skybox.setData(proj_view_matrix)
             self.skybox.draw()

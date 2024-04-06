@@ -19,6 +19,7 @@ from core.baseobj import baseClass
 from core.attached_asset import attachedAsset
 
 import os
+from time import sleep
 
 class MHMainWindow(QMainWindow):
     """
@@ -217,11 +218,11 @@ class MHMainWindow(QMainWindow):
         super().setWindowTitle(title)
 
 
-    def equipCallback(self, asset, eqtype, multi):
-        if asset.status == 0:
-            self.glob.baseClass.delAsset(asset.filename, eqtype)
-        elif asset.status == 1:
-            self.glob.baseClass.addAndDisplayAsset(asset.filename, eqtype, multi)
+    def equipCallback(self, selected, eqtype, multi):
+        if selected.status == 0:
+            self.glob.baseClass.delAsset(selected.filename)
+        elif selected.status == 1:
+            self.glob.baseClass.addAndDisplayAsset(selected.filename, eqtype, multi)
 
 
     def fileRequest(self, ftext, pattern, directory, save=None):
@@ -772,9 +773,6 @@ class MHMainWindow(QMainWindow):
         if self.in_close is True:
             return
 
-        if self.graph is not None:
-            self.graph.cleanUp()
-
         confirmed =  self.changesLost("Exit program")
         if confirmed == 0:
             if isinstance(event,QCloseEvent):
@@ -782,7 +780,10 @@ class MHMainWindow(QMainWindow):
                 print ("Close event")
             return
 
-        self.glob.freeTextures()
+        self.glob.baseClass.delProxy()
+        if self.graph is not None:
+            self.graph.cleanUp()
+
         if self.in_close is False:
             self.in_close = True                # avoid double call by closeAllWindows
             s = self.env.session["mainwinsize"]
