@@ -121,7 +121,11 @@ class AssetPack():
 
                 dirs = root.split(os.sep)
                 category = dirs[0]
-                if category in ["clothes", "eyes", "eyelashes", "eyebrows", "hair", "skins", "teeth", "tongue"]:
+                if category in ["clothes", "eyes", "eyelashes", "eyebrows", "hair", "skins", "teeth", "tongue", "proxymeshes"]:
+                    # proxy is renamed
+                    #
+                    if category == "proxymeshes":
+                        category = "proxy"
                     folder = os.path.join(dest, category, mesh)
                     restdirs = os.sep.join(dirs[1:])
                     destfolder = os.path.join(folder, restdirs)

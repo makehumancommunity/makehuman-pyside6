@@ -246,6 +246,29 @@ class object3d:
     def resetMesh(self):
         self.gl_coord[:] = self.gl_coord_o[:] # get back the copy
 
+    def hideVertices(self, verts):
+        print ("Delete vertices: " + self.filename)
+        numind = len(self.gl_icoord) -2
+        print (numind)
+        w = np.resize(verts, self.n_verts)
+        #
+        # bool copy to the end is missing
+        #
+        self.gl_hicoord = np.zeros(len(self.gl_icoord), dtype=np.uint32)
+        scnt = 0
+        dcnt = 0
+        tri = 0
+        while scnt < numind:
+            if w[self.gl_icoord[scnt]] or w[self.gl_icoord[scnt+1]] or w[self.gl_icoord[scnt+2]]:
+                tri += 1
+                #print ("Delete: " + str(cnt) + " to " + str(cnt+2))
+            else:
+                self.gl_hicoord[dcnt:dcnt+3] = self.gl_icoord[scnt:scnt+3]
+                dcnt += 3
+            scnt += 3
+        self.gl_hicoord.resize(dcnt, refcheck=False)
+        print (str(tri) + " triangles deleted")
+
     def getInitialCopyForSlider(self, factor, targetlower, targetupper):
         """
         called when starting work with one slider, a copy without the value

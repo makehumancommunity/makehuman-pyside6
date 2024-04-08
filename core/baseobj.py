@@ -224,6 +224,8 @@ class baseClass():
                 self.glob.openGLWindow.deleteObject(elem.obj)
                 self.attachedAssets.remove(elem)
                 self.markAssetByFileName(filename, False)
+                if elem.deleteVerts is not None:
+                    print ("Need to recalculate base and other meshes because vertices are visible again")
                 if elem.type == "proxy":
                     self.proxy  = None
                 break
@@ -253,7 +255,11 @@ class baseClass():
             attach.materialsource = materialsource
         if attach.material is not None:
             attach.obj.loadMaterial(attach.material)
-            self.attachedAssets.append(attach)
+        if attach.deleteVerts is not None:
+            # start with base mesh only, one asset
+            self.baseMesh.hideVertices(attach.deleteVerts)
+            self.baseMesh.openGL.newIndex(self.baseMesh.gl_hicoord)
+        self.attachedAssets.append(attach)
         return(attach)
 
 

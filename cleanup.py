@@ -15,7 +15,7 @@ if __name__ == '__main__':
     standardmesh = "hm08"
     startpath = os.path.dirname(os.path.abspath(__file__))
     data = os.path.join(startpath, "data")
-    for elem in ["clothes", "eyes", "tongue", "skins", "eyelashes", "eyebrows", "teeth"]:
+    for elem in ["clothes", "eyes", "tongue", "skins", "eyelashes", "eyebrows", "teeth", "proxy"]:
         check = os.path.join(data, elem, standardmesh)
         files = os.listdir(check)
         for subelem in files:

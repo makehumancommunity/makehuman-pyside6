@@ -60,9 +60,10 @@ class OpenGlBuffers():
         self.amount_of_vertices = 0
 
 class RenderedObject:
-    def __init__(self, context, z_depth, vert_buffers, shaders, texture, pos):
+    def __init__(self, context, name, z_depth, vert_buffers, shaders, texture, pos):
         self.context = context
         self.z_depth = z_depth
+        self.name = name
         self.position = QVector3D(0, 0, 0)
         self.rotation = QVector3D(0, 0, 0)
         self.scale = QVector3D(1, 1, 1)
@@ -85,6 +86,9 @@ class RenderedObject:
 
         self.position = pos
 
+    def __str__(self):
+        return("GL Object " + str(self.name))
+
     def delete(self):
         self.vert_buffers.Delete()
 
@@ -93,6 +97,10 @@ class RenderedObject:
         functions.glActiveTexture(gl.GL_TEXTURE0)
         self.texture = texture
         self.texture.bind()
+
+    def newIndex(self, indices):
+        self.indices = indices
+        self.amount_of_vertices = len(indices)
 
     def draw(self, shaderprog, proj_view_matrix):
         """
@@ -133,7 +141,4 @@ class RenderedObject:
         
         functions.glActiveTexture(gl.GL_TEXTURE0)
         self.texture.bind()
-
         functions.glDrawElements(gl.GL_TRIANGLES, self.amount_of_vertices, gl.GL_UNSIGNED_INT, self.indices)
-
-

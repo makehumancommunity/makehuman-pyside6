@@ -63,7 +63,7 @@ class OpenGLView(QOpenGLWidget):
             if obj.z_depth < elem.z_depth:
                 break
             cnt += 1
-        obj.openGL = RenderedObject(self.context(), obj.z_depth, glbuffer, self.mh_shaders._shaders[0], texture, pos=QVector3D(0, 0, 0))
+        obj.openGL = RenderedObject(self.context(), obj.filename, obj.z_depth, glbuffer, self.mh_shaders._shaders[0], texture, pos=QVector3D(0, 0, 0))
         self.objects.insert(cnt, obj.openGL)
 
     def deleteObject(self,obj):
