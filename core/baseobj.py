@@ -218,6 +218,25 @@ class baseClass():
         
         fp.close()
 
+    def calculateBaseDelete(self):
+        base_verts = self.baseMesh.n_origverts
+        verts = None
+        for elem in self.attachedAssets:
+            if elem.deleteVerts is not None:
+                if verts is None:
+                    verts = elem.deleteVerts.copy()
+                else:
+                    verts |= elem.deleteVerts
+                print ("Join: " + elem.name)
+
+        # start with base mesh only
+        #
+        if verts is None:
+            self.baseMesh.openGL.newIndex(self.baseMesh.gl_icoord)
+        else:
+            self.baseMesh.hideVertices(verts)
+            self.baseMesh.openGL.newIndex(self.baseMesh.gl_hicoord)
+
     def delAsset(self, filename):
         for elem in self.attachedAssets:
             if elem.filename == filename:
@@ -226,6 +245,10 @@ class baseClass():
                 self.markAssetByFileName(filename, False)
                 if elem.deleteVerts is not None:
                     print ("Need to recalculate base and other meshes because vertices are visible again")
+                    #
+                    # only works for Body atm
+                    #
+                    self.calculateBaseDelete()
                 if elem.type == "proxy":
                     self.proxy  = None
                 break
@@ -255,11 +278,21 @@ class baseClass():
             attach.materialsource = materialsource
         if attach.material is not None:
             attach.obj.loadMaterial(attach.material)
+
+        # insert according to z-depth
+        cnt = 0
+        for elem in self.attachedAssets:
+            if attach.z_depth < elem.z_depth:
+                break
+            cnt += 1
+        self.attachedAssets.insert(cnt, attach)
+
         if attach.deleteVerts is not None:
-            # start with base mesh only, one asset
-            self.baseMesh.hideVertices(attach.deleteVerts)
-            self.baseMesh.openGL.newIndex(self.baseMesh.gl_hicoord)
-        self.attachedAssets.append(attach)
+            #
+            # TODO: delete verts in all meshes "in between"
+            #
+            self.calculateBaseDelete()
+
         return(attach)
 
 
