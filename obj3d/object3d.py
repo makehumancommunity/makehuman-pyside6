@@ -43,6 +43,9 @@ class object3d:
         self.n_glverts = 0    # number of vertices for open gl
         self.n_glnorm  = 0    # number of normals for open gl
 
+        self.gl_icoord = []     # openGL-Drawarray Index
+        self.gl_hicoord = None  # openGL-Drawarray used when parts are hidden
+
         self.material = None    # will contain a material
 
         if baseinfo is not None:
@@ -112,6 +115,13 @@ class object3d:
                 nlen = l
         self.npGrpNames = np.array(names, dtype='|S'+str(nlen))
         self.n_groups = len(names)
+
+    def getOpenGLIndex(self):
+        #print (self.filename +  " deleted verts" if self.gl_hicoord is not None else self.filename + " normal")
+        return (self.gl_hicoord if self.gl_hicoord is not None else self.gl_icoord)
+
+    def notHidden(self):
+         self.gl_hicoord = None
 
     def createGLVertPos(self, pos, uvs, overflow, orig):
         self.n_origverts = orig
@@ -247,7 +257,6 @@ class object3d:
         self.gl_coord[:] = self.gl_coord_o[:] # get back the copy
 
     def hideVertices(self, verts):
-        print ("Delete vertices for: " + self.filename)
         numind = len(self.gl_icoord) -2
         w = np.resize(verts, self.n_verts)
         #
@@ -264,6 +273,28 @@ class object3d:
             # if all 3 verts are false, triangle is created
             #
             if not (w[self.gl_icoord[scnt]] and w[self.gl_icoord[scnt+1]] and w[self.gl_icoord[scnt+2]]):
+                self.gl_hicoord[dcnt:dcnt+3] = self.gl_icoord[scnt:scnt+3]
+                dcnt += 3
+            scnt += 3
+        self.gl_hicoord.resize(dcnt, refcheck=False)
+
+    def hideApproxVertices(self, asset, base, verts):
+        self.gl_hicoord = np.zeros(len(self.gl_icoord), dtype=np.uint32)
+        scnt = 0
+        dcnt = 0
+        w = np.resize(verts, base.n_verts)
+        ref = np.resize(asset.ref_vIdxs,(self.n_verts,3))
+        for (source, dest) in self.overflow:
+            w[dest] = w[source]
+            ref[dest] = ref[source]
+        numind = len(self.gl_icoord) -2
+        while scnt < numind:
+            n1 = self.gl_icoord[scnt]
+            n2 = self.gl_icoord[scnt+1]
+            n3 = self.gl_icoord[scnt+2]
+            if not (  w[ref[n1][0]] and w[ref[n1][1]] and  w[ref[n1][2]] and \
+                    w[ref[n2][0]] and w[ref[n2][1]] and  w[ref[n2][2]] and \
+                    w[ref[n3][0]] and w[ref[n3][1]] and  w[ref[n3][2]] ):
                 self.gl_hicoord[dcnt:dcnt+3] = self.gl_icoord[scnt:scnt+3]
                 dcnt += 3
             scnt += 3

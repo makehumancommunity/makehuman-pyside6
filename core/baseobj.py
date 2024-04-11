@@ -218,24 +218,31 @@ class baseClass():
         
         fp.close()
 
-    def calculateBaseDelete(self):
-        base_verts = self.baseMesh.n_origverts
+    def calculateDeletedVerts(self):
         verts = None
-        for elem in self.attachedAssets:
+        for elem in reversed(self.attachedAssets):
             if elem.deleteVerts is not None:
                 if verts is None:
+                    print ("First: " + elem.name)
                     verts = elem.deleteVerts.copy()
+                    elem.obj.notHidden()
                 else:
+                    print ("Join: " + elem.name)
+                    elem.obj.hideApproxVertices(elem, self.baseMesh, verts)
                     verts |= elem.deleteVerts
-                print ("Join: " + elem.name)
+            else:
+                if verts is not None:
+                    print ("Join: " + elem.name)
+                    elem.obj.hideApproxVertices(elem, self.baseMesh, verts)
+                else:
+                    elem.obj.notHidden()
 
         # start with base mesh only
         #
         if verts is None:
-            self.baseMesh.openGL.newIndex(self.baseMesh.gl_icoord)
+            self.baseMesh.notHidden()
         else:
             self.baseMesh.hideVertices(verts)
-            self.baseMesh.openGL.newIndex(self.baseMesh.gl_hicoord)
 
     def delAsset(self, filename):
         for elem in self.attachedAssets:
@@ -245,10 +252,7 @@ class baseClass():
                 self.markAssetByFileName(filename, False)
                 if elem.deleteVerts is not None:
                     print ("Need to recalculate base and other meshes because vertices are visible again")
-                    #
-                    # only works for Body atm
-                    #
-                    self.calculateBaseDelete()
+                    self.calculateDeletedVerts()
                 if elem.type == "proxy":
                     self.proxy  = None
                 break
@@ -287,11 +291,9 @@ class baseClass():
             cnt += 1
         self.attachedAssets.insert(cnt, attach)
 
-        if attach.deleteVerts is not None:
-            #
-            # TODO: delete verts in all meshes "in between"
-            #
-            self.calculateBaseDelete()
+        # do that always?
+        #if attach.deleteVerts is not None:
+        self.calculateDeletedVerts()
 
         return(attach)
 

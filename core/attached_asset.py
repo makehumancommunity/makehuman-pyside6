@@ -14,7 +14,7 @@ class referenceVerts:
 
     def identicalValue(self, words, vnum, vertWeights):
         v0 = int(words[0])
-        self._verts = (v0,0,1)
+        self._verts = (v0,v0,v0)
         self._weights = (1.0,0.0,0.0)
         self._offset = np.zeros(3, float)
         if v0 in vertWeights:

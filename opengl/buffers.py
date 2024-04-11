@@ -12,14 +12,12 @@ from OpenGL import GL as gl
 class OpenGlBuffers():
     def __init__(self):
         self.vert_pos_buffer = None
-        self.indices = None
         self.normal_buffer = None
         self.tex_coord_buffer = None
-        self.amount_of_vertices = 0
         self.memory_pos = None
         self.len_memory = 0
 
-    def VertexBuffer(self, pos, icoord, amount):
+    def VertexBuffer(self, pos):
         vbuffer = QOpenGLBuffer(QOpenGLBuffer.VertexBuffer)
         vbuffer.create()
         vbuffer.bind()
@@ -28,9 +26,6 @@ class OpenGlBuffers():
         self.memory_pos = pos
         vbuffer.allocate(pos, self.len_memory)
         self.vert_pos_buffer = vbuffer
-
-        self.indices = icoord
-        self.amount_of_vertices = amount
 
     def NormalBuffer(self, pos):
         vbuffer = QOpenGLBuffer()
@@ -57,13 +52,13 @@ class OpenGlBuffers():
             self.normal_buffer.destroy()
         if self.tex_coord_buffer is not None:
             self.tex_coord_buffer.destroy()
-        self.amount_of_vertices = 0
 
 class RenderedObject:
-    def __init__(self, context, name, z_depth, vert_buffers, shaders, texture, pos):
+    def __init__(self, context, getindex, name, z_depth, vert_buffers, shaders, texture, pos):
         self.context = context
         self.z_depth = z_depth
         self.name = name
+        self.getindex = getindex
         self.position = QVector3D(0, 0, 0)
         self.rotation = QVector3D(0, 0, 0)
         self.scale = QVector3D(1, 1, 1)
@@ -73,10 +68,8 @@ class RenderedObject:
         self.vert_buffers = vert_buffers
 
         self.vert_pos_buffer = vert_buffers.vert_pos_buffer
-        self.indices = vert_buffers.indices
         self.normal_buffer = vert_buffers.normal_buffer
         self.tex_coord_buffer = vert_buffers.tex_coord_buffer
-        self.amount_of_vertices = vert_buffers.amount_of_vertices
 
         self.mvp_matrix_location = shaders.uniforms["uMvpMatrix" ]
         self.model_matrix_location = shaders.uniforms["uModelMatrix"]
@@ -97,10 +90,6 @@ class RenderedObject:
         functions.glActiveTexture(gl.GL_TEXTURE0)
         self.texture = texture
         self.texture.bind()
-
-    def newIndex(self, indices):
-        self.indices = indices
-        self.amount_of_vertices = len(indices)
 
     def draw(self, shaderprog, proj_view_matrix):
         """
@@ -141,4 +130,5 @@ class RenderedObject:
         
         functions.glActiveTexture(gl.GL_TEXTURE0)
         self.texture.bind()
-        functions.glDrawElements(gl.GL_TRIANGLES, self.amount_of_vertices, gl.GL_UNSIGNED_INT, self.indices)
+        indices = self.getindex()
+        functions.glDrawElements(gl.GL_TRIANGLES, len(indices), gl.GL_UNSIGNED_INT, indices)

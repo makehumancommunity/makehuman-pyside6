@@ -48,7 +48,7 @@ class OpenGLView(QOpenGLWidget):
         creats a rendered object and inserts it to a list according to zdepth
         """
         glbuffer = OpenGlBuffers()
-        glbuffer.VertexBuffer(obj.gl_coord, obj.gl_icoord, obj.n_glverts)
+        glbuffer.VertexBuffer(obj.gl_coord)
         glbuffer.NormalBuffer(obj.gl_norm)
         glbuffer.TexCoordBuffer(obj.gl_uvcoord)
         self.buffers.append(glbuffer)
@@ -63,7 +63,7 @@ class OpenGLView(QOpenGLWidget):
             if obj.z_depth < elem.z_depth:
                 break
             cnt += 1
-        obj.openGL = RenderedObject(self.context(), obj.filename, obj.z_depth, glbuffer, self.mh_shaders._shaders[0], texture, pos=QVector3D(0, 0, 0))
+        obj.openGL = RenderedObject(self.context(), obj.getOpenGLIndex, obj.filename, obj.z_depth, glbuffer, self.mh_shaders._shaders[0], texture, pos=QVector3D(0, 0, 0))
         self.objects.insert(cnt, obj.openGL)
 
     def deleteObject(self,obj):
