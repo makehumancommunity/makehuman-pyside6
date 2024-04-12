@@ -6,7 +6,7 @@ from PySide6.QtGui import QPixmap, QPainter, QPen, QIcon, QColor, QFont, QStanda
 
 from PySide6.QtWidgets import QApplication, QWidget, QLayout, QLayoutItem, QStyle, QSizePolicy, QPushButton, QAbstractButton, QRadioButton, QCheckBox, QGroupBox, QVBoxLayout, QLabel, QLineEdit, QTreeView, QAbstractItemView, QScrollArea, QPlainTextEdit, QHBoxLayout
 
-from gui.materialwindow import  MHMaterialWindow
+from gui.materialwindow import  MHMaterialWindow, MHAssetWindow
 
 
 class IconButton(QPushButton):
@@ -688,16 +688,16 @@ class ImageSelection():
         self.picwidget.populate(None, None)
         self.changeStatus()
 
-    def materialCallback(self):
+    def getSelectedByFilename(self):
         selected = self.picwidget.getSelected()
-        found = None
         if selected is not None:
-            print ("Material change")
-            print (selected)
             for elem in self.parent.glob.baseClass.attachedAssets:
                 if elem.filename == selected.filename:
-                    found = elem
-                    break
+                    return(elem)
+        return(None)
+
+    def materialCallback(self):
+        found = self.getSelectedByFilename()
         if found is not None:
             matimg = []
             print (found)   # asset in inventory
@@ -718,6 +718,16 @@ class ImageSelection():
                 self.parent.material_window.updateWidgets(matimg, found)
 
             mw = self.parent.material_window
+            mw.show()
+            mw.activateWindow()
+
+    def assetCallback(self):
+        found = self.getSelectedByFilename()
+        if found is not None:
+            if self.parent.asset_window is None:
+                self.parent.asset_window = MHAssetWindow(self.parent, found)
+
+            mw = self.parent.asset_window
             mw.show()
             mw.activateWindow()
 
@@ -753,6 +763,10 @@ class ImageSelection():
         rescanbutton = IconButton(0, rescan, "Rescan folder", self.rescanFolder)
         hlayout.addWidget(rescanbutton)
         hlayout.addStretch()
+
+        infopath = os.path.join(self.env.path_sysicon, "information.png" )
+        infobutton = IconButton(0, infopath, "Change asset information", self.assetCallback)
+        hlayout.addWidget(infobutton)
 
         matpath = os.path.join(self.env.path_sysicon, "materials.png" )
         matbutton = IconButton(0, matpath, "Change material", self.materialCallback)

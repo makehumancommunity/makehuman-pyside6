@@ -1,4 +1,7 @@
-from PySide6.QtWidgets import QLabel, QDialogButtonBox, QVBoxLayout, QDialog, QProgressDialog, QWidget, QApplication, QMessageBox, QFrame
+from PySide6.QtWidgets import (
+        QLabel, QDialogButtonBox, QVBoxLayout, QDialog, QProgressDialog, QWidget, QApplication, QMessageBox, QFrame,
+        QHBoxLayout, QLineEdit, QPushButton
+        )
 from PySide6.QtCore import Qt, QThread, Signal
 
 def ErrorBox(qw, text):
@@ -25,6 +28,44 @@ class MHGroupBox(QFrame):
     def setTitle(self, title):
         self.vlabel.setText(title)
 
+
+class MHTagEdit(QVBoxLayout):
+    def __init__(self, tags):
+        super().__init__()
+        self.edittags = tags
+        ilayout = QHBoxLayout()
+        ilayout.addWidget(QLabel("\nTags:"))
+        self.clearbutton=QPushButton("Clear")
+        self.clearbutton.clicked.connect(self.cleartags)
+        ilayout.addWidget(self.clearbutton, alignment=Qt.AlignBottom)
+        self.addLayout(ilayout)
+        self.tags  = []
+        for l in range(5):
+            self.tags.append(QLineEdit())
+            self.tags[l].editingFinished.connect(self.reordertags)
+            self.addWidget(self.tags[l])
+        self.displaytags()
+
+    def displaytags(self):
+        for l in range(5):
+            tag = self.edittags[l] if l < len( self.edittags) else ""
+            self.tags[l].setText(tag)
+
+    def cleartags(self):
+        self.edittags=[]
+        for l in range(5):
+            self.tags[l].clear()
+
+    def reordertags(self):
+        self.edittags=[]
+        for l in range(5):
+            text = self.tags[l].text()
+            if len(text):
+                self.edittags.append(text)
+        self.displaytags()
+
+    def getTags(self):
+        return(self.edittags)
 
 class WorkerThread(QThread):
     update_progress = Signal(int)

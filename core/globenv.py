@@ -716,10 +716,13 @@ class programInfo():
             self.fileCache.insertCache(data)
 
     def getCacheData(self):
+        """
+        gets data from cache, user-settings in match will overwrite standard tags
+        """
         data = []
-        rows = self.fileCache.listCache()
+        rows, match = self.fileCache.listCacheMatch()
         for row in rows:
-            tags = row[7].split("|")
+            tags = (match[row[1]] if row[1] in match else row[7]).split("|")
             data.append(mhPrefetchElem(row[0], row[1], row[2], row[3], row[4], row[5], row[6], tags))
         return (data)
 

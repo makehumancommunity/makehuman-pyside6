@@ -29,12 +29,16 @@ class MHMainWindow(QMainWindow):
         self.env = glob.env
         env = glob.env
         self.glob = glob
+
         self.pref_window = None
         self.mem_window = None
         self.scene_window = None
         self.material_window = None
+        self.asset_window = None
         self.info_window = None
         self.log_window = None
+        self.prog_window = None     # will hold the progress bar
+
         self.rightColumn = None
         self.leftColumn = None
         self.graph = None
@@ -49,7 +53,6 @@ class MHMainWindow(QMainWindow):
         self.in_close = False
         self.targetfilter = None
         self.bckproc = None         # background process is running
-        self.prog_window = None     # will hold the progress window
 
         self.tool_mode = 0          # 0 = files, 1 = modelling, 2 = equipment, 3 = pose, 4 render
         self.category_mode = 0      # the categories according to tool_mode
