@@ -43,20 +43,23 @@ class OpenGLView(QOpenGLWidget):
         self.skybox = None
         self.glob.openGLWindow = self
 
+    def textureFromMaterial(self, obj):
+        if hasattr(obj.material, 'diffuseTexture'):
+            return(obj.material.loadTexture(obj.material.diffuseTexture))
+        if hasattr(obj.material, 'diffuseColor'):
+            return(obj.material.emptyTexture(obj.material.diffuseColor))
+        return(obj.material.emptyTexture())
+
     def createObject(self, obj):
         """
-        creats a rendered object and inserts it to a list according to zdepth
+        creates a rendered object and inserts it to a list according to zdepth
         """
         glbuffer = OpenGlBuffers()
         glbuffer.VertexBuffer(obj.gl_coord)
         glbuffer.NormalBuffer(obj.gl_norm)
         glbuffer.TexCoordBuffer(obj.gl_uvcoord)
         self.buffers.append(glbuffer)
-
-        if hasattr(obj.material, 'diffuseTexture'):
-            texture = obj.material.loadTexture(obj.material.diffuseTexture)
-        else:
-            texture = obj.material.emptyTexture(obj.material.diffuseColor)
+        texture = self.textureFromMaterial(obj)
 
         cnt = 0
         for elem in self.objects:
@@ -74,13 +77,8 @@ class OpenGLView(QOpenGLWidget):
         obj.openGL = None
 
     def newSkin(self, obj):
-        if hasattr(obj.material, 'diffuseTexture'):
-            self.texture = obj.material.loadTexture(obj.material.diffuseTexture)
-        elif hasattr(obj.material, 'diffuseColor'):
-            self.texture = obj.material.emptyTexture(obj.material.diffuseColor)
-        else:
-            self.texture = obj.material.emptyTexture()
-        self.objects[0].setTexture(self.texture)
+        texture = self.textureFromMaterial( obj)
+        self.objects[0].setTexture(texture)
 
     def initializeGL(self):
 

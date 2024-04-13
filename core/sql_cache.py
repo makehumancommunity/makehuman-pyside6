@@ -57,6 +57,10 @@ class FileCache:
         self.cur.execute("insert into userinformation values(?, ?)", (uuid, tags))
         self.con.commit()
 
+    def updateParamInfo(self, uuid, thumbfile):
+        self.cur.execute("update filecache set thumbfile = ?  where uuid = ?", (thumbfile, uuid))
+        self.con.commit()
+
     def listCache(self):
         return(self.cur.execute("SELECT * FROM filecache ORDER BY name COLLATE NOCASE ASC"))
 

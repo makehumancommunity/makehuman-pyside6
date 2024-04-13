@@ -15,10 +15,10 @@ from gui.common import IconButton
 class MHPictSelectable:
     def __init__(self, name: str, icon: str, filename: str, author: str, tags: list):
         self.name = name
-        self.icon = icon
         self.filename = filename
         self.author = author
         self.basename = os.path.split(filename)[1].lower()
+        self.icon = icon
         self.newTags(tags)
         #
         # append filename, author and  name as tags as well
@@ -31,6 +31,9 @@ class MHPictSelectable:
         self.tags.append(self.basename)    # only name, not path
         if self.author is not None:
             self.tags.append(self.author.lower())
+
+    def newIcon(self, icon):
+        self.icon = icon
 
     def __str__(self):
         return('\n'.join("%s: %s" % item for item in vars(self).items()))
@@ -681,8 +684,8 @@ class ImageSelection():
         if selected is not None:
             for elem in self.parent.glob.baseClass.attachedAssets:
                 if elem.filename == selected.filename:
-                    return(elem)
-        return(None)
+                    return(elem, selected)
+        return(None, None)
 
     def materialCallback(self, status=False, update=False):
         """
@@ -694,7 +697,7 @@ class ImageSelection():
         if update and (self.parent.material_window is None or self.parent.material_window.isVisible() is False):
             return
 
-        found = self.getSelectedByFilename()
+        found, dummy = self.getSelectedByFilename()
         if found is None:
             if self.parent.material_window is not None and self.parent.material_window.isVisible():
                 self.parent.material_window.updateWidgets([], None)
@@ -721,12 +724,15 @@ class ImageSelection():
         mw.show()
         mw.activateWindow()
 
-    def changeTags(self, asset):
+    def changeTags(self, asset, iconpath):
         for elem in self.asset_category:
             if elem.filename == asset.filename:
                 newtags= self.completeTags(elem.name, asset.tags)
                 elem.newTags(newtags)
                 self.infobox.setInformation(elem)
+                if iconpath is not None:
+                    elem.newIcon(iconpath)
+                    self.picwidget.setImageScale(self.imagescale)
 
     def assetCallback(self, status=False, update=False):
 
@@ -735,16 +741,16 @@ class ImageSelection():
         if update and (self.parent.asset_window is None or self.parent.asset_window.isVisible() is False):
             return
 
-        found = self.getSelectedByFilename()
+        found, selected  = self.getSelectedByFilename()
         if found is None:
             if self.parent.asset_window is not None and self.parent.asset_window.isVisible():
-                self.parent.asset_window.updateWidgets(None)
+                self.parent.asset_window.updateWidgets(None, None, self.emptyIcon)
             return
 
         if self.parent.asset_window is None:
-            self.parent.asset_window = MHAssetWindow(self.parent, self.changeTags, found)
+            self.parent.asset_window = MHAssetWindow(self.parent, self.changeTags, found, selected, self.emptyIcon)
         else:
-            self.parent.asset_window.updateWidgets(found)
+            self.parent.asset_window.updateWidgets(found, selected, self.emptyIcon)
 
         mw = self.parent.asset_window
         mw.show()

@@ -4,8 +4,9 @@ from PySide6.QtWidgets import (
         QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QGroupBox, QCheckBox, QSizePolicy, QScrollArea, 
         QPlainTextEdit
         )
+from PySide6.QtGui import QPixmap
 from obj3d.object3d import object3d
-from gui.common import MHTagEdit
+from gui.common import MHTagEdit, IconButton
 
 
 class MHMaterialWindow(QWidget):
@@ -93,27 +94,40 @@ class MHAssetWindow(QWidget):
     """
     AssetWindow
     """
-    def __init__(self, parent, changefunc, asset):
+    def __init__(self, parent, changefunc, asset, selected, empty):
         super().__init__()
         self.parent = parent
         self.changefunc = changefunc
         self.env = parent.env
         self.glob = parent.glob
         self.asset = asset
+        self.view = self.parent.graph.view
+        self.emptyIcon = empty
+        print(selected)
+        self.icon = None
+        self.thumb = selected.icon
         self.origtags = ""
         self.origlist = []
         self.owntags = []
-
-        # TODO change
-        #
-        self.setWindowTitle("Asset Editor")
-        self.resize(360, 500)
-        self.tagsFromDB()
 
         layout = QVBoxLayout()
         self.nameLabel = QLabel()
         self.setName()
         layout.addWidget(self.nameLabel)
+
+        # photo
+        #
+        ilayout = QHBoxLayout()
+        ilayout.addWidget(IconButton(1,  os.path.join(self.env.path_sysicon, "camera.png"), "Thumbnail", self.thumbnail))
+        self.imglabel=QLabel()
+        self.displayPixmap()
+        ilayout.addWidget(self.imglabel, alignment=Qt.AlignRight)
+        layout.addLayout(ilayout)
+
+        self.setWindowTitle("Asset Editor")
+        self.resize(360, 500)
+        self.tagsFromDB()
+
         layout.addWidget(QLabel("Original tags:"))
         self.tagbox = QPlainTextEdit()
         self.tagbox.setPlainText(self.origtags)
@@ -135,6 +149,20 @@ class MHAssetWindow(QWidget):
         layout.addLayout(hlayout)
         self.setLayout(layout)
 
+    def displayPixmap(self):
+        if self.icon is None:
+            if self.thumb is None:
+                pixmap = QPixmap(self.emptyIcon)
+            else:
+                pixmap = QPixmap(self.thumb)
+        else:
+            pixmap = QPixmap.fromImage(self.icon)
+        self.imglabel.setPixmap(pixmap)
+
+    def thumbnail(self):
+        self.icon = self.view.createThumbnail()
+        self.displayPixmap()
+
     def setName(self):
         name = self.asset.name if self.asset is not None else "none"
         self.nameLabel.setText("Name: " + name)
@@ -151,16 +179,20 @@ class MHAssetWindow(QWidget):
         for row in rows:
             self.owntags =row[0].split("|")
 
-    def updateWidgets(self, asset):
+    def updateWidgets(self, asset, selected, empty):
         self.asset = asset
+        self.emptyIcon = empty
         if asset is None:
             self.origtags = ""
             self.tagedit.clearTags()
+            self.thumb = None
         else:
             self.tagsFromDB()
             self.tagedit.newTags(self.owntags)
+            self.thumb = selected.icon
         self.setName()
         self.tagbox.setPlainText(self.origtags)
+        self.displayPixmap()
 
     def use_call(self):
         if self.asset is not None:
@@ -174,7 +206,14 @@ class MHAssetWindow(QWidget):
                 self.env.fileCache.insertParamUser(self.asset.uuid, insert)
                 self.asset.tags = newtags
             print (self.asset.tags)
-            self.changefunc(self.asset)
+            iconpath = None
+            if self.icon is not None:
+                iconpath = self.asset.filename[:-6] + ".thumb"
+                print ("Save icon as " + iconpath)
+                self.icon.save(iconpath, "PNG", -1)
+                self.env.fileCache.updateParamInfo(self.asset.uuid, iconpath)
+                # TODO ... update
+            self.changefunc(self.asset, iconpath)
 
         self.close()
 
