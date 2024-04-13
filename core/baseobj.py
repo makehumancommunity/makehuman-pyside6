@@ -4,7 +4,7 @@ from core.attached_asset import attachedAsset
 from obj3d.object3d import object3d
 from core.debug import memInfo, dumper
 from core.target import Modelling
-from gui.dialogs import WorkerThread
+from gui.common import WorkerThread
 
 class MakeHumanModel():
     def __init__(self):
@@ -54,6 +54,7 @@ class baseClass():
         return(dumper(self))
 
     def reset(self):
+        self.skinMaterialName = None
         self.skinMaterial = None
         self.proxy = None
         self.tags = [] 
@@ -144,7 +145,7 @@ class baseClass():
         self.uuid = loaded.uuid
 
         if loaded.skinMaterial is not None:
-            self.skinMaterial = loaded.skinMaterial
+            self.skinMaterialName = loaded.skinMaterial
             matfilename = self.env.existDataFile("skins", self.env.basename, os.path.basename(loaded.skinMaterial))
             if matfilename is not None:
                 self.baseMesh.loadMaterial(matfilename)
@@ -207,8 +208,8 @@ class baseClass():
             fp.write (elem.type + " " + elem.name + " " +  elem.uuid + "\n")
 
         # skinmaterial
-        if self.skinMaterial:
-            fp.write ("skinMaterial " + self.skinMaterial + "\n")
+        if self.skinMaterialName:
+            fp.write ("skinMaterial " + self.skinMaterialName + "\n")
 
         # materials (elem.materialsource is None if material is unchanged, so no save)
         #
@@ -420,8 +421,8 @@ class baseClass():
             #
             mo = Modelling(self.glob, "dummy", None)
             mo.macroCalculationLoad()
-        
         self.updateAttachedAssets()
+
 
     def finishApply(self):
         self.glob.openGLWindow.Tweak()

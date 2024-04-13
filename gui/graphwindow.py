@@ -2,7 +2,7 @@ from PySide6.QtCore import QSize, Qt, QObject, QEvent
 from PySide6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QSlider
 from PySide6.QtGui import QVector3D, QColor, QIcon
 from core.baseobj import baseClass
-from gui.imageselector import IconButton
+from gui.common import IconButton
 from gui.slider import SimpleSlider
 from opengl.main import OpenGLView
 import os

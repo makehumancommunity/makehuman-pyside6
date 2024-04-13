@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
         QPlainTextEdit
         )
 from obj3d.object3d import object3d
-from gui.dialogs import MHTagEdit
+from gui.common import MHTagEdit
 
 
 class MHMaterialWindow(QWidget):
@@ -78,11 +78,12 @@ class MHMaterialWindow(QWidget):
 
     def updateWidgets(self, materials, asset):
         self.materials = materials
-        self.oldmaterial = asset.material
         self.asset = asset
         self.picwidget.layout.removeAllWidgets()
-        self.picwidget.layout.newAssetList(materials)
-        self.picwidget.populate(None, None)
+        if asset is not None:
+            self.oldmaterial = asset.material
+            self.picwidget.layout.newAssetList(materials)
+            self.picwidget.populate(None, None)
 
     def use_call(self):
         self.close()
@@ -92,52 +93,91 @@ class MHAssetWindow(QWidget):
     """
     AssetWindow
     """
-    def __init__(self, parent, asset):
+    def __init__(self, parent, changefunc, asset):
         super().__init__()
         self.parent = parent
+        self.changefunc = changefunc
         self.env = parent.env
         self.glob = parent.glob
         self.asset = asset
+        self.origtags = ""
+        self.origlist = []
+        self.owntags = []
 
         # TODO change
         #
         self.setWindowTitle("Asset Editor")
         self.resize(360, 500)
-        rows = self.env.fileCache.getEditParamInfo(asset.uuid)
-        tags = ""
-        for row in rows:
-            tags= "\n".join(row[0].split("|"))
-
-        rows = self.env.fileCache.getEditParamUser(asset.uuid)
-        self.owntags = []
-        for row in rows:
-            self.owntags =row[0].split("|")
+        self.tagsFromDB()
 
         layout = QVBoxLayout()
+        self.nameLabel = QLabel()
+        self.setName()
+        layout.addWidget(self.nameLabel)
         layout.addWidget(QLabel("Original tags:"))
         self.tagbox = QPlainTextEdit()
-        self.tagbox.setPlainText(tags)
+        self.tagbox.setPlainText(self.origtags)
         self.tagbox.setReadOnly(True)
 
         layout.addWidget(self.tagbox)
 
-        self.tagedit = MHTagEdit(self.owntags)
+        self.tagedit = MHTagEdit(self.glob, self.owntags, "Use own tags:")
         layout.addLayout(self.tagedit)
 
-        button4 = QPushButton("Use")
-        button4.clicked.connect(self.use_call)
-        layout.addWidget(button4)
+        hlayout = QHBoxLayout()
+        save = QPushButton("Save")
+        save.clicked.connect(self.use_call)
+        hlayout.addWidget(save)
+        cancel = QPushButton("Cancel")
+        cancel.clicked.connect(self.cancel_call)
+        hlayout.addWidget(cancel)
+
+        layout.addLayout(hlayout)
         self.setLayout(layout)
 
-    def use_call(self):
-        newtags = self.tagedit.getTags()
-        if len(newtags) == 0:
-            print ("Delete own entry")
-            self.env.fileCache.deleteParamUser(self.asset.uuid)
+    def setName(self):
+        name = self.asset.name if self.asset is not None else "none"
+        self.nameLabel.setText("Name: " + name)
+
+    def tagsFromDB(self):
+        rows = self.env.fileCache.getEditParamInfo(self.asset.uuid)
+        self.origtags = ""
+        for row in rows:
+            self.origlist = row[0].split("|")
+            self.origtags= "\n".join(self.origlist)
+
+        rows = self.env.fileCache.getEditParamUser(self.asset.uuid)
+        self.owntags = []
+        for row in rows:
+            self.owntags =row[0].split("|")
+
+    def updateWidgets(self, asset):
+        self.asset = asset
+        if asset is None:
+            self.origtags = ""
+            self.tagedit.clearTags()
         else:
-            insert = "|".join(newtags)
-            self.env.fileCache.insertParamUser(self.asset.uuid, insert)
-            print(insert)
-        # update tags in assetList
+            self.tagsFromDB()
+            self.tagedit.newTags(self.owntags)
+        self.setName()
+        self.tagbox.setPlainText(self.origtags)
+
+    def use_call(self):
+        if self.asset is not None:
+            newtags = self.tagedit.getTags()
+            if len(newtags) == 0:
+                print ("Delete own entry")
+                self.env.fileCache.deleteParamUser(self.asset.uuid)
+                self.asset.tags = self.origlist
+            else:
+                insert = "|".join(newtags)
+                self.env.fileCache.insertParamUser(self.asset.uuid, insert)
+                self.asset.tags = newtags
+            print (self.asset.tags)
+            self.changefunc(self.asset)
+
+        self.close()
+
+    def cancel_call(self):
         self.close()
 

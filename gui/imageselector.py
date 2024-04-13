@@ -2,32 +2,15 @@ import sys
 import typing
 import os
 from PySide6.QtCore import Qt, QPoint, QRect, QSize
-from PySide6.QtGui import QPixmap, QPainter, QPen, QIcon, QColor, QFont, QStandardItemModel, QStandardItem
+from PySide6.QtGui import QPixmap, QPainter, QPen, QColor, QFont, QStandardItemModel, QStandardItem
 
-from PySide6.QtWidgets import QApplication, QWidget, QLayout, QLayoutItem, QStyle, QSizePolicy, QPushButton, QAbstractButton, QRadioButton, QCheckBox, QGroupBox, QVBoxLayout, QLabel, QLineEdit, QTreeView, QAbstractItemView, QScrollArea, QPlainTextEdit, QHBoxLayout
+from PySide6.QtWidgets import (
+        QWidget, QLayout, QLayoutItem, QStyle, QSizePolicy, QPushButton, QAbstractButton, QRadioButton, QCheckBox,
+        QGroupBox, QVBoxLayout, QLabel, QLineEdit, QTreeView, QAbstractItemView, QScrollArea, QPlainTextEdit, QHBoxLayout
+        )
 
 from gui.materialwindow import  MHMaterialWindow, MHAssetWindow
-
-
-class IconButton(QPushButton):
-    def __init__(self, funcid, path, tip, func):
-        self._funcid = funcid
-        icon  = QIcon(path)
-        super().__init__()
-        self.setIcon(icon)
-        self.setIconSize(QSize(36,36))
-        self.setCheckable(True)
-        self.setFixedSize(40,40)
-        self.setToolTip(tip)
-        if func is not None:
-            self.clicked.connect(func)
-
-    def setChecked(self, value):
-        super().setChecked(value)
-        if value is True:
-            self.setStyleSheet("background-color : orange")
-        else:
-            self.setStyleSheet("background-color : lightgrey")
+from gui.common import IconButton
 
 class MHPictSelectable:
     def __init__(self, name: str, icon: str, filename: str, author: str, tags: list):
@@ -35,16 +18,19 @@ class MHPictSelectable:
         self.icon = icon
         self.filename = filename
         self.author = author
-        self.tags = tags
         self.basename = os.path.split(filename)[1].lower()
+        self.newTags(tags)
         #
         # append filename, author and  name as tags as well
         #
-        self.tags.append(name.lower())
-        self.tags.append(self.basename)    # only name, not path
-        if author is not None:
-            self.tags.append(author.lower())
         self.status = 0
+
+    def newTags(self, tags):
+        self.tags = tags
+        self.tags.append(self.name.lower())
+        self.tags.append(self.basename)    # only name, not path
+        if self.author is not None:
+            self.tags.append(self.author.lower())
 
     def __str__(self):
         return('\n'.join("%s: %s" % item for item in vars(self).items()))
@@ -258,7 +244,7 @@ class PicFlowLayout(QLayout):
 
     def updateAsset(self):
         current = self.sender()
-        print (current.asset)
+        print (current.asset.name + " update")
 
         if current.asset.status == 0:
             #print ("button " + str (self.text) + " pressed")
@@ -268,8 +254,8 @@ class PicFlowLayout(QLayout):
         else:
             #print ("button released")
             current.asset.status = 1 if self.selmode == 2 else 0
-        self.callback(current.asset)
         self.refreshAllWidgets(current)
+        self.callback(current.asset)
 
     def redisplayWidgets(self, ruleset=None, filtfunc=None):
         self.removeAllWidgets()
@@ -662,8 +648,10 @@ class ImageSelection():
     def picButtonChanged(self, asset):
         multi = (self.selmode == 1)
         self.callback(asset, self.type, multi)
-        if self.parent.material_window is not None and self.parent.material_window.isVisible():
-            self.materialCallback()
+        print ("********** changed:" + asset.name + " ************")
+
+        self.materialCallback(update=True)
+        self.assetCallback(update=True)
 
     def scaleImages(self):
         # toggle through 4 scales
@@ -696,40 +684,71 @@ class ImageSelection():
                     return(elem)
         return(None)
 
-    def materialCallback(self):
+    def materialCallback(self, status=False, update=False):
+        """
+        status is internal from PushButton
+        """
+
+        # without window visible no update
+        #
+        if update and (self.parent.material_window is None or self.parent.material_window.isVisible() is False):
+            return
+
         found = self.getSelectedByFilename()
-        if found is not None:
-            matimg = []
-            print (found)   # asset in inventory
-            oldmaterial = found.material
-            matfiles = found.obj.material.listAllMaterials()
-            for elem in matfiles:
-                (folder, name) = os.path.split(elem)
-                thumb = elem[:-6] + ".thumb"
-                if not os.path.isfile(thumb):
-                    thumb = None
-                p = MHPictSelectable(name[:-6], thumb, elem, None, [])
-                if elem == oldmaterial:
-                    p.status = 1
-                matimg.append(p)
-            if self.parent.material_window is None:
-                self.parent.material_window = MHMaterialWindow(self.parent, PicSelectWidget, matimg, found)
-            else:
-                self.parent.material_window.updateWidgets(matimg, found)
+        if found is None:
+            if self.parent.material_window is not None and self.parent.material_window.isVisible():
+                self.parent.material_window.updateWidgets([], None)
+            return
 
-            mw = self.parent.material_window
-            mw.show()
-            mw.activateWindow()
+        matimg = []
+        oldmaterial = found.material
+        matfiles = found.obj.material.listAllMaterials()
+        for elem in matfiles:
+            (folder, name) = os.path.split(elem)
+            thumb = elem[:-6] + ".thumb"
+            if not os.path.isfile(thumb):
+                thumb = None
+            p = MHPictSelectable(name[:-6], thumb, elem, None, [])
+            if elem == oldmaterial:
+                p.status = 1
+            matimg.append(p)
+        if self.parent.material_window is None:
+            self.parent.material_window = MHMaterialWindow(self.parent, PicSelectWidget, matimg, found)
+        else:
+            self.parent.material_window.updateWidgets(matimg, found)
 
-    def assetCallback(self):
+        mw = self.parent.material_window
+        mw.show()
+        mw.activateWindow()
+
+    def changeTags(self, asset):
+        for elem in self.asset_category:
+            if elem.filename == asset.filename:
+                newtags= self.completeTags(elem.name, asset.tags)
+                elem.newTags(newtags)
+                self.infobox.setInformation(elem)
+
+    def assetCallback(self, status=False, update=False):
+
+        # without window visible no update
+        #
+        if update and (self.parent.asset_window is None or self.parent.asset_window.isVisible() is False):
+            return
+
         found = self.getSelectedByFilename()
-        if found is not None:
-            if self.parent.asset_window is None:
-                self.parent.asset_window = MHAssetWindow(self.parent, found)
+        if found is None:
+            if self.parent.asset_window is not None and self.parent.asset_window.isVisible():
+                self.parent.asset_window.updateWidgets(None)
+            return
 
-            mw = self.parent.asset_window
-            mw.show()
-            mw.activateWindow()
+        if self.parent.asset_window is None:
+            self.parent.asset_window = MHAssetWindow(self.parent, self.changeTags, found)
+        else:
+            self.parent.asset_window.updateWidgets(found)
+
+        mw = self.parent.asset_window
+        mw.show()
+        mw.activateWindow()
 
 
     def leftPanel(self):

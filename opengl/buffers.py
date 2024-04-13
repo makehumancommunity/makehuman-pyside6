@@ -127,7 +127,7 @@ class RenderedObject:
         shaderprog.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)
         shaderprog.setUniformValue(self.model_matrix_location, self.model_matrix)
         shaderprog.setUniformValue(self.normal_matrix_location, self.normal_matrix)
-        
+
         functions.glActiveTexture(gl.GL_TEXTURE0)
         self.texture.bind()
         indices = self.getindex()

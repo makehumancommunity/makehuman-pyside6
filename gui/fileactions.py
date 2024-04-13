@@ -1,9 +1,9 @@
 from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QAbstractItemView, QLineEdit, QLabel, QMessageBox, QRadioButton
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPixmap
-from gui.imageselector import IconButton, MHPictSelectable, PicSelectWidget
+from gui.imageselector import MHPictSelectable, PicSelectWidget
 from gui.materialwindow import  MHMaterialWindow
-from gui.dialogs import DialogBox, ErrorBox, WorkerThread, MHBusyWindow
+from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, IconButton, MHTagEdit
 import os
 from core.importfiles import AssetPack
 
@@ -113,19 +113,8 @@ class SaveMHMForm(QVBoxLayout):
 
         # tags
         #
-        ilayout = QHBoxLayout()
-        ilayout.addWidget(QLabel("\nTags:"))
-        self.clearbutton=QPushButton("Clear")
-        self.clearbutton.clicked.connect(self.cleartags)
-        ilayout.addWidget(self.clearbutton, alignment=Qt.AlignBottom)
-        self.addLayout(ilayout)
-        self.tags  = []
-        for l in range(5):
-            self.tags.append(QLineEdit())
-            self.tags[l].editingFinished.connect(self.reordertags)
-            self.addWidget(self.tags[l])
-
-        self.displaytags()
+        self.tagedit = MHTagEdit(self.glob, self.bc.tags, "\nTags:")
+        self.addLayout(self.tagedit)
 
         # filename
         #
@@ -142,6 +131,7 @@ class SaveMHMForm(QVBoxLayout):
         path calculation, save file, save icon
         """
         path = self.glob.env.stdUserPath("models", self.filename.text())
+        self.bc.tags = self.tagedit.getTags()
         self.bc.saveMHMFile(path)
         if self.bc.photo is not None:
             iconpath = path[:-4] + ".thumb"
@@ -176,23 +166,6 @@ class SaveMHMForm(QVBoxLayout):
 
     def newuuid(self):
         self.bc.uuid = self.uuid.text()
-
-    def cleartags(self):
-        for l in range(5):
-            self.tags[l].clear()
-
-    def displaytags(self):
-        for l in range(5):
-            tag = self.bc.tags[l] if l < len( self.bc.tags) else ""
-            self.tags[l].setText(tag)
-
-    def reordertags(self):
-        self.bc.tags=[]
-        for l in range(5):
-            text = self.tags[l].text()
-            if len(text):
-                self.bc.tags.append(text)
-        self.displaytags()
 
     def displayPixmap(self):
         if self.bc.photo is None:

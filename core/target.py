@@ -1,4 +1,4 @@
-from gui.dialogs import WorkerThread
+from gui.common import WorkerThread
 from core.targetcat import TargetCategories
 import os
 import sys

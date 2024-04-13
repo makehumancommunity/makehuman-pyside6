@@ -74,11 +74,13 @@ class OpenGLView(QOpenGLWidget):
         obj.openGL = None
 
     def newSkin(self, obj):
-        
         if hasattr(obj.material, 'diffuseTexture'):
             self.texture = obj.material.loadTexture(obj.material.diffuseTexture)
-            print (obj.material.diffuseTexture)
-            self.objects[0].setTexture(self.texture)
+        elif hasattr(obj.material, 'diffuseColor'):
+            self.texture = obj.material.emptyTexture(obj.material.diffuseColor)
+        else:
+            self.texture = obj.material.emptyTexture()
+        self.objects[0].setTexture(self.texture)
 
     def initializeGL(self):
 

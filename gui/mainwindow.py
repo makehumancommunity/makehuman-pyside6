@@ -12,8 +12,8 @@ from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport
 from gui.slider import ScaleComboArray
-from gui.imageselector import ImageSelection, IconButton
-from gui.dialogs import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, MHGroupBox
+from gui.imageselector import ImageSelection
+from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, MHGroupBox, IconButton
 from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
 from core.attached_asset import attachedAsset
