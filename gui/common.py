@@ -1,7 +1,7 @@
 import os
 from PySide6.QtWidgets import (
         QLabel, QDialogButtonBox, QVBoxLayout, QDialog, QProgressDialog, QWidget, QApplication, QMessageBox, QFrame,
-        QHBoxLayout, QLineEdit, QPushButton
+        QHBoxLayout, QLineEdit, QPushButton, QComboBox
         )
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QThread, Signal, QSize
@@ -52,36 +52,59 @@ class MHGroupBox(QFrame):
 
 
 class MHTagEdit(QVBoxLayout):
-    def __init__(self, glob, tags, label):
+    def __init__(self, glob, tags, label, numtags=5, copyfrom=None, predefined=None):
         super().__init__()
         self.edittags = tags
+        self.sourcetags = copyfrom
+        self.numtags = numtags
+
         ilayout = QHBoxLayout()
         ilayout.addWidget(QLabel(label))
         sweep = os.path.join(glob.env.path_sysicon, "sweep.png")
-        clearbutton = IconButton(0, sweep, "Clear", self.clearTags)
+        clearbutton = IconButton(0, sweep, "Clear own tags", self.clearTags)
 
-        ilayout.addWidget(clearbutton, alignment=Qt.AlignBottom)
+        if copyfrom is not None:
+            copy = os.path.join(glob.env.path_sysicon, "redo.png")
+            copybutton = IconButton(0, copy, "Copy tags from original asset", self.copyTags)
+            ilayout.addWidget(copybutton)
+
+        ilayout.addWidget(clearbutton)
         self.addLayout(ilayout)
+
+        if predefined is not None:
+            ilayout = QHBoxLayout()
+            self.combobox = QComboBox()
+            self.combobox.addItems(predefined)
+            ilayout.addWidget(self.combobox)
+            plus = os.path.join(glob.env.path_sysicon, "plus.png")
+            plusbutton = IconButton(0, plus, "Add predefined tag to own tags", self.addPredefinedTag)
+            ilayout.addWidget(plusbutton)
+            self.addLayout(ilayout)
+
         self.tags  = []
-        for l in range(5):
+        for l in range(self.numtags):
             self.tags.append(QLineEdit())
             self.tags[l].editingFinished.connect(self.reorderTags)
             self.addWidget(self.tags[l])
         self.displayTags()
 
     def displayTags(self):
-        for l in range(5):
-            tag = self.edittags[l] if l < len( self.edittags) else ""
+        for l in range(self.numtags):
+            tag = self.edittags[l] if l < len(self.edittags) else ""
             self.tags[l].setText(tag)
+
+    def copyTags(self):
+        self.edittags=self.sourcetags
+        self.displayTags()
 
     def clearTags(self):
         self.edittags=[]
-        for l in range(5):
+        for l in range(self.numtags):
             self.tags[l].clear()
 
     def reorderTags(self):
         self.edittags=[]
-        for l in range(5):
+        for l in range(self.numtags):
             text = self.tags[l].text()
             if len(text):
                 self.edittags.append(text)
@@ -90,6 +113,13 @@ class MHTagEdit(QVBoxLayout):
     def newTags(self, tags):
         self.edittags = tags
         self.displayTags()
+
+    def addPredefinedTag(self):
+        newtag = self.combobox.currentText()
+        if newtag not in self.edittags and len(self.edittags) < self.numtags:
+            newtag = newtag.split(":")[-1] if ":" in newtag else newtag
+            self.edittags.append(newtag)
+            self.displayTags()
 
     def getTags(self):
         return(self.edittags)

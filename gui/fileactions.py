@@ -74,7 +74,7 @@ class SaveMHMForm(QVBoxLayout):
     """
     create a form with name, tags, uuid, thumbnail, filename
     """
-    def __init__(self, glob, view, displaytitle):
+    def __init__(self, glob, view, characterselection, displaytitle):
         self.view = view
         self.glob = glob
         env = glob.env
@@ -113,7 +113,8 @@ class SaveMHMForm(QVBoxLayout):
 
         # tags
         #
-        self.tagedit = MHTagEdit(self.glob, self.bc.tags, "\nTags:")
+        self.tagedit = MHTagEdit(self.glob, self.bc.tags, "\nTags:",
+                predefined= characterselection.getTagProposals())
         self.addLayout(self.tagedit)
 
         # filename

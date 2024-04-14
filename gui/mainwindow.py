@@ -371,7 +371,7 @@ class MHMainWindow(QMainWindow):
                 self.BaseBox.addLayout(layout)
             elif self.category_mode == 2:
                 self.leftColumn.setTitle("Save file :: additional parameters")
-                self.saveForm = SaveMHMForm(self.glob, self.graph.view, self.setWindowTitle)
+                self.saveForm = SaveMHMForm(self.glob, self.graph.view, self.charselect, self.setWindowTitle)
                 self.BaseBox.addLayout(self.saveForm)
             elif self.category_mode == 3:
                 self.leftColumn.setTitle("Export file :: additional parameters")

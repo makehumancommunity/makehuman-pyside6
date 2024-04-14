@@ -557,6 +557,7 @@ class ImageSelection():
         self.type = eqtype
         self.selmode = selmode
         self.callback = callback
+        self.tagproposals = []
         self.tagreplace = {}
         self.tagfromname = {}
         self.filterjson = None
@@ -636,8 +637,13 @@ class ImageSelection():
         self.filterjson = self.env.readJSON(path)
         if self.filterjson is None:
             self.filterjson = {}
+        self.tagproposals = self.env.flattenJSON(self.filterjson, self.tagproposals,
+                exceptions= ["Translate", "GuessName", "Shortcut"])
         self.createTagGroups(self.filterjson, "")
         self.prepareRepo()
+
+    def getTagProposals(self):
+        return(self.tagproposals)
 
     def changeStatus(self):
         checked = []
@@ -651,8 +657,7 @@ class ImageSelection():
     def picButtonChanged(self, asset):
         multi = (self.selmode == 1)
         self.callback(asset, self.type, multi)
-        print ("********** changed:" + asset.name + " ************")
-
+        #print ("********** changed:" + asset.name + " ************")
         self.materialCallback(update=True)
         self.assetCallback(update=True)
 
@@ -748,7 +753,7 @@ class ImageSelection():
             return
 
         if self.parent.asset_window is None:
-            self.parent.asset_window = MHAssetWindow(self.parent, self.changeTags, found, selected, self.emptyIcon)
+            self.parent.asset_window = MHAssetWindow(self.parent, self.changeTags, found, selected, self.emptyIcon, self.tagproposals)
         else:
             self.parent.asset_window.updateWidgets(found, selected, self.emptyIcon)
 

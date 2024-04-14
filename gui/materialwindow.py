@@ -94,7 +94,7 @@ class MHAssetWindow(QWidget):
     """
     AssetWindow
     """
-    def __init__(self, parent, changefunc, asset, selected, empty):
+    def __init__(self, parent, changefunc, asset, selected, empty, proposals=[]):
         super().__init__()
         self.parent = parent
         self.changefunc = changefunc
@@ -135,7 +135,7 @@ class MHAssetWindow(QWidget):
 
         layout.addWidget(self.tagbox)
 
-        self.tagedit = MHTagEdit(self.glob, self.owntags, "Use own tags:")
+        self.tagedit = MHTagEdit(self.glob, self.owntags, "Use own tags:", copyfrom=self.origlist, predefined = proposals)
         layout.addLayout(self.tagedit)
 
         hlayout = QHBoxLayout()

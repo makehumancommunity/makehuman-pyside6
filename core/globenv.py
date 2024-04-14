@@ -260,6 +260,17 @@ class programInfo():
                 return False
         return True
 
+    def flattenJSON(self, json, flattened, exceptions=[], separator=":", prepend = ""):
+        for elem in json:
+            if elem in exceptions:
+                continue
+            j = json[elem]
+            if type(j) is dict:
+                self.flattenJSON(j, flattened, exceptions, separator, prepend + elem + separator)
+            elif type(j) is list:
+                for l in j:
+                    flattened.append((prepend + elem + separator + l).lower())
+        return(flattened)
 
     def environment(self) -> bool:
         """
