@@ -188,7 +188,7 @@ class MHAssetWindow(QWidget):
             self.thumb = None
         else:
             self.tagsFromDB()
-            self.tagedit.newTags(self.owntags)
+            self.tagedit.newTags(self.owntags, self.origlist)
             self.thumb = selected.icon
         self.setName()
         self.tagbox.setPlainText(self.origtags)

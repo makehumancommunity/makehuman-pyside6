@@ -1,60 +1,60 @@
 {
-	"Gender": ["Male", "Female"],
+	"Gender-Age": ["Male", "Female", "Child", "Baby"],
 	"Era": ["Contemporary", "Future", "Past"],
 	"Slot": {
-		"Headgear": {
+		"Head": {
 			"Layer1": [ "Glasses", "Mask" ],
-			"Layer2": [ "Hair-Band", "Barette"],
+			"Layer2": [ "Hair-Band", "Barette", "Crown"],
 			"Layer3": ["Hat", "Cap", "Helmet"]
 		},
 		"Neck": ["Necklace", "Scarf"],
-		"Top": {
+		"Top-Torso": {
 			"Layer1": ["Bra", "Tanktop", "Swimwear"],
 			"Layer2": ["Shirt", "Sweater", "Pullover", "Blouse", "Top"],
-			"Layer3": ["Jacket", "Suit", "Costume", "Uniform"]
+			"Layer3": ["Jacket", "Suit", "Costume", "Dress", "Uniform"]
 		},
 		"Bottom": {
 			"Layer1": ["Panties", "Tights"],
 			"Layer2": ["Pants", "Skirt"]
 		},
 		"Hands": {
-			"Layer1": ["Gloves", "Rings"],
-			"Layer2": ["Weapons", "Miscellaneous"]
+			"Layer1": ["Gloves", "Ring"],
+			"Layer2": ["Weapon", "Miscellaneous"]
 		},
 		"Feet" : {
 			"Layer1": ["Socks"],
 			"Layer2": ["Shoes", "Sandals", "Boots"]
 		},
-		"Back": ["Backpack", "Wings"],
-		"Extra": ["Baby", "Child"]
+		"Extra": ["Backpack", "Wings", "Bodypart"]
 	},
 	"Translate": {
 		"unisex": null,
-		"vintage": "=epoch:past",
-		"hats": "=slot:headgear:layer3:hat",
-		"lingerie": "=slot:top:layer1:bra",
+		"vintage": "=era:past",
+		"carried": "=slot:hands:layer2",
+		"hats": "=slot:head:layer3:hat",
+		"lingerie": "=slot:top-torso:layer1:bra",
 		"jewelry": "=slot:neck:necklace"
 	},
 	"GuessName": { 
-		"suit": "slot:top:layer3:suit"
+		"suit": "slot:top-torso:layer3:suit"
 	},
 	"Shortcut": [
-		["glasses.png", "slot:headgear:layer1:glasses", "Glasses"],
-		["costume.png", "slot:headgear:layer1:mask", "Mask"],
-		["hat.png", "slot:headgear:layer3:hat", "Hat"],
+		["glasses.png", "slot:head:layer1:glasses", "Glasses"],
+		["costume.png", "slot:head:layer1:mask", "Mask"],
+		["hat.png", "slot:head:layer3:hat", "Hat"],
 		["accessory.png", "slot:neck:necklace", "Accessories"],
-		["shirt.png", "slot:top:layer2", "Shirt, Tops"],
-		["lingerie.png", "gender:female&slot:top:layer1:bra|slot:bottom:layer1:panties", "Lingerie"],
-		["swimwear.png", "slot:top:layer1:swimwear", "Swimwear"],
-		["jacket.png", "slot:top:layer3:jacket", "Jacket"],
+		["shirt.png", "slot:top-torso:layer2", "Shirt, Tops"],
+		["lingerie.png", "gender-age:female&slot:top-torso:layer1:bra|slot:bottom:layer1:panties", "Lingerie"],
+		["swimwear.png", "slot:top-torso:layer1:swimwear", "Swimwear"],
+		["jacket.png", "slot:top-torso:layer3:jacket", "Jacket"],
 		["pant.png", "slot:bottom:layer2:pants", "Pants"],
 		["skirt.png", "slot:bottom:layer2:skirt", "Skirt"],
-		["f_shoe.png", "slot:feet:layer2&gender:female", "Shoes (female)"],
-		["m_shoe.png", "slot:feet:layer2&gender:male", "Shoes (male)"],
-		["uniform.png", "slot:top:layer3:uniform", "Uniform"],
-		["handheld.png", "slot:hand:layer2", "Handheld objects"],
-		["babyassets.png", "slot:extra:baby", "Assets for babies"],
-		["kidassets.png", "slot:extra:child", "Assets for kids"],
-		["wing.png", "slot:back:wings", "Wings"]
+		["f_shoe.png", "slot:feet:layer2&gender-age:female", "Shoes (female)"],
+		["m_shoe.png", "slot:feet:layer2&gender-age:male", "Shoes (male)"],
+		["uniform.png", "slot:top-torso:layer3:uniform", "Uniform"],
+		["handheld.png", "slot:hands:layer2", "Handheld objects"],
+		["babyassets.png", "gender-age:baby", "Assets for babies"],
+		["kidassets.png", "gender-age:child", "Assets for kids"],
+		["wing.png", "slot:extra:wings", "Wings"]
 	]
 }

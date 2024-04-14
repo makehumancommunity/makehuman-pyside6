@@ -1,5 +1,5 @@
 {
-	"Gender": ["Male", "Female"],
+	"Gender-Age": ["Male", "Female", "Child", "Baby"],
 	"Era": ["Contemporary", "Future", "Past"],
 	"Style": ["Afro", "Asymmetrical", "Bob", "Braid", "Curly", "Long", "Short", "Updo", "Wavy"],
 	"Occasion": ["Casual", "Fashion", "Festive", "Formal" ],
@@ -14,7 +14,7 @@
 		"vintage": "=epoch:past"
 	},
 	"Shortcut": [
-		["f_hair.png", "gender:female", "Female"],
-		["m_hair.png", "gender:male", "Male"]
+		["f_hair.png", "gender-age:female", "Female"],
+		["m_hair.png", "gender-age:male", "Male"]
 	]
 }
