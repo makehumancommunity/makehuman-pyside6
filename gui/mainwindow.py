@@ -67,6 +67,12 @@ class MHMainWindow(QMainWindow):
                 { "func": None, "menu": None, "name": "tongue", "mode": 0 },
                 { "func": None, "menu": None, "name": "proxy", "mode": 0 }
         ]
+        self.animation = [
+                { "func": None, "menu": None, "name": "rigs", "mode": 0 },
+                { "func": None, "menu": None, "name": "pose", "mode": 0 },
+                { "func": None, "menu": None, "name": "animation", "mode": 0 },
+                { "func": None, "menu": None, "name": "expression", "mode": 0 }
+        ]
 
         self.model_buttons = [ 
                 { "button": None, "icon": "reset.png", "tip": "Reset all targets", "func": self.reset_call},
@@ -208,6 +214,12 @@ class MHMainWindow(QMainWindow):
         self.charselect = ImageSelection(self, self.glob.baseClass.cachedInfo, "models", 2, self.loadByIconCallback, 3)
         self.charselect.prepare()
 
+        for elem in self.animation:
+            elem["func"] = ImageSelection(self, self.glob.baseClass.cachedInfo, elem["name"], elem["mode"], self.animCallback)
+            elem["func"].prepare()
+            elem["menu"] = self.equip.addAction(elem["name"])
+            elem["menu"].triggered.connect(self.anim_call)
+
     def updateScene(self):
         if self.scene_window:
             self.scene_window.destroy()
@@ -227,6 +239,8 @@ class MHMainWindow(QMainWindow):
         elif selected.status == 1:
             self.glob.baseClass.addAndDisplayAsset(selected.filename, eqtype, multi)
 
+    def animCallback(self, selected, eqtype, multi):
+        print ("animcallback called")
 
     def fileRequest(self, ftext, pattern, directory, save=None):
         """
@@ -399,6 +413,14 @@ class MHMainWindow(QMainWindow):
             layout = self.equipment[self.category_mode]["func"].leftPanel()
             self.BaseBox.addLayout(layout)
 
+        elif self.tool_mode == 3:
+            if self.category_mode == 0:
+                self.leftColumn.setTitle("Rigs :: filter")
+                layout = self.animation[self.category_mode]["func"].leftPanel()
+                self.BaseBox.addLayout(layout)
+            else:
+                self.leftColumn.setTitle("Not yet implemented")
+
         else:
             self.leftColumn.setTitle("Not yet implemented")
 
@@ -430,7 +452,7 @@ class MHMainWindow(QMainWindow):
         self.ToolBox.addWidget(scrollArea)
 
     def drawEquipPanel(self, category, text):
-        self.rightColumn.setTitle("Character equipment, category: " + text)
+        self.rightColumn.setTitle(text)
         widget = QWidget()
         picwidget = category.rightPanel()
         widget.setLayout(picwidget.layout)
@@ -460,7 +482,15 @@ class MHMainWindow(QMainWindow):
             self.drawMorphPanel(text)
         elif self.tool_mode == 2:
             equip = self.equipment[self.category_mode]
-            self.drawEquipPanel(equip["func"], equip["name"])
+            text = "Character equipment, category: " + equip["name"]
+            self.drawEquipPanel(equip["func"], text)
+        elif self.tool_mode == 3:
+            if self.category_mode == 0:
+                equip = self.animation[self.category_mode]
+                text = "Pose and animation, category: " + equip["name"]
+                self.drawEquipPanel(equip["func"], text)
+            else:
+                self.rightColumn.setTitle("Not yet implemented")
         else:
             self.rightColumn.setTitle("Not yet implemented")
 
@@ -522,6 +552,9 @@ class MHMainWindow(QMainWindow):
             if elem["menu"] == s:
                 self.setToolModeAndPanel(2, n)
                 break
+
+    def anim_call(self):
+        print ("in animcall")
 
     def pref_call(self):
         """

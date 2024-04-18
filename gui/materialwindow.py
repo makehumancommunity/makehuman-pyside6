@@ -182,6 +182,7 @@ class MHAssetWindow(QWidget):
     def updateWidgets(self, asset, selected, empty):
         self.asset = asset
         self.emptyIcon = empty
+        self.icon = None
         if asset is None:
             self.origtags = ""
             self.tagedit.clearTags()

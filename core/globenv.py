@@ -131,7 +131,7 @@ class programInfo():
 
         # all folders that belong to a basemesh
         #
-        self.basefolders = [ "clothes", "eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue", "proxy" ]
+        self.basefolders = [ "clothes", "eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue", "proxy", "rigs" ]
 
         self.basename = None
         self.fileCache = None
@@ -627,16 +627,25 @@ class programInfo():
     def fileScanFoldersAttachObjects(self, subdir=None):
         """
         scanner for mhclo/proxy files checks in all basefolders + subdirs (only 1 level)
+        (.mhclo, .proxy, .mhskel)
         """
         if subdir is None:
             (latest, files) = self.subDirsBaseFolder(".mhclo", subdir)
             (latestproxy, proxies) = self.subDirsBaseFolder(".proxy", "proxy")
+            (latestrig, rigs) = self.subDirsBaseFolder(".mhskel", "rigs")
             if len(proxies) > 0:
                 files.extend(proxies)
                 if latestproxy > latest:
                     latest = latestproxy
+            if len(rigs) > 0:
+                files.extend(rigs)
+                if latestrig > latest:
+                    latest = latestrig
+
         elif subdir == "proxy":
             (latest, files) = self.subDirsBaseFolder(".proxy", "proxy")
+        elif subdir == "rigs":
+            (latest, files) = self.subDirsBaseFolder(".mhskel", "rigs")
         else:
             (latest, files) = self.subDirsBaseFolder(".mhclo", subdir)
         #
@@ -651,6 +660,19 @@ class programInfo():
                 thumbfile = filename + ".thumb"
                 if not os.path.isfile(thumbfile):
                     thumbfile = None
+
+                if extension == ".mhskel":
+                    json = self.readJSON(path)
+                    if json is None:
+                        self.logLine (1, "JSON error " + self.last_error)
+                    else:
+                        name = json["name"] if "name" in json else filename
+                        uuid = "skel_"+name
+                        author = "unknown"
+                        mtags = "|".join(json["tags"]).encode('ascii', 'ignore').lower().decode("utf-8") if "tags" in json else ""
+                        data.append([name, uuid, path, folder, None, thumbfile, author, mtags])
+                    continue
+
 
                 with open(path, 'r') as fp:
                     uuid = 0
@@ -781,7 +803,7 @@ class programInfo():
             name = self.path_usersess
             self.logLine (2, "Read session from " + name)
             self.session = self.readJSON(name)
-            if self.session == None:
+            if self.session is None:
                 self.logLine (1, "JSON error " + self.last_error)
 
         if self.session is None:
