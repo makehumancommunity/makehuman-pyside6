@@ -2,6 +2,7 @@ import os
 from core.target import Targets
 from core.attached_asset import attachedAsset
 from obj3d.object3d import object3d
+from obj3d.skeleton import skeleton
 from core.debug import memInfo, dumper
 from core.target import Modelling
 from gui.common import WorkerThread
@@ -329,6 +330,10 @@ class baseClass():
             self.env.fileScanFolderMHM()
         self.cachedInfo = self.env.getCacheData()
         return(self.cachedInfo)
+
+    def addSkeleton(self, path):
+        self.skeleton = skeleton(self.glob)
+        self.skeleton.loadJSON(path)
 
     def prepareClass(self):
         self.env.logLine(2, "Prepare class called with: " + self.env.basename)

@@ -241,6 +241,8 @@ class MHMainWindow(QMainWindow):
 
     def animCallback(self, selected, eqtype, multi):
         print ("animcallback called")
+        print (selected)
+        self.glob.baseClass.addSkeleton(selected.filename)
 
     def fileRequest(self, ftext, pattern, directory, save=None):
         """
