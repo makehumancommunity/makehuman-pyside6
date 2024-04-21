@@ -1,10 +1,11 @@
 import numpy as np
-from obj3d.bone import cBone
+from obj3d.bone import cBone, boneWeights
 
 class skeleton:
-    def __init__(self, glob):
+    def __init__(self, glob, name):
         self.glob = glob
         self.env  = glob.env
+        self.name = name
         self.newSkeleton()
 
     def newSkeleton(self):
@@ -12,6 +13,7 @@ class skeleton:
         self.planes = {}
         self.bones = {}      # list of cBones
         self.root = None     # our skeleton accepts one root bone, not more
+        self.mesh = self.glob.baseClass.baseMesh
 
     def loadJSON(self, path):
         json = self.env.readJSON(path)
@@ -39,7 +41,8 @@ class skeleton:
         if "planes" in json:
             self.planes = json["planes"]
 
-        # integrity test, all bones have a valid parent bone, one bone is root, rotation plane is valid, head, tail are available
+        # integrity test, all bones have a valid parent bone, one bone is root, rotation plane is valid,
+        # head, tail are available
         #
         j = json["bones"]
         for bone in j:
@@ -79,6 +82,17 @@ class skeleton:
             self.env.logLine(1, "Missing root bone (bone without parent) in " + path)
             return False
 
+        # read weights (either default or own)
+        #
+        weightname = json["weights_file"] if "weights_file" in json else "default_weights.mhw"
+        weightfile = self.env.existDataFile("rigs", self.env.basename, weightname)
+        if weightfile is None:
+            self.env.logLine(1, "Missing weight file " + weightname)
+            return False
+
+        bWeights = boneWeights(self.glob, self.root)
+        bWeights.loadJSON(weightfile)
+
         # array with ordered bones
         #
         orderedbones = [self.root]
@@ -98,7 +112,10 @@ class skeleton:
             rotplane = val["rotation_plane"] if "rotation_plane" in val else 0
             reference = val["reference"] if "reference" in val else None
             weights = val["weights_reference"] if "weights_reference" in val else None
-            cbone = cBone(self, bone, val["parent"], val["head"], val["tail"], rotplane, reference, weights)
-            self.bones[name] = cbone
+            cbone = cBone(self, bone, val, rotplane, reference, weights)
+            self.bones[bone] = cbone
 
-
+        """
+        for bone in  self.bones:
+            print (self.bones[bone])
+        """

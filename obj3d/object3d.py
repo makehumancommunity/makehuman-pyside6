@@ -253,6 +253,15 @@ class object3d:
         #self.calculateMaxAttachedFaces()
         self.calcNormals()
 
+    def getPosition(self, num):
+        return(self.coord[num])
+
+    def getMeanPosition(self, arr):
+        """
+        used for skeleton mainly, mean postion of an array
+        """
+        return (self.coord[arr].mean(axis=0))
+
     def resetMesh(self):
         self.gl_coord[:] = self.gl_coord_o[:] # get back the copy
 

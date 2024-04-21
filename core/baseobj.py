@@ -331,8 +331,8 @@ class baseClass():
         self.cachedInfo = self.env.getCacheData()
         return(self.cachedInfo)
 
-    def addSkeleton(self, path):
-        self.skeleton = skeleton(self.glob)
+    def addSkeleton(self, name, path):
+        self.skeleton = skeleton(self.glob, name)
         self.skeleton.loadJSON(path)
 
     def prepareClass(self):
