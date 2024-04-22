@@ -131,7 +131,7 @@ class programInfo():
 
         # all folders that belong to a basemesh
         #
-        self.basefolders = [ "clothes", "eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue", "proxy", "rigs" ]
+        self.basefolders = [ "clothes", "eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue", "proxy", "rigs", "poses" ]
 
         self.basename = None
         self.fileCache = None
@@ -630,22 +630,22 @@ class programInfo():
         (.mhclo, .proxy, .mhskel)
         """
         if subdir is None:
-            (latest, files) = self.subDirsBaseFolder(".mhclo", subdir)
-            (latestproxy, proxies) = self.subDirsBaseFolder(".proxy", "proxy")
-            (latestrig, rigs) = self.subDirsBaseFolder(".mhskel", "rigs")
-            if len(proxies) > 0:
-                files.extend(proxies)
-                if latestproxy > latest:
-                    latest = latestproxy
-            if len(rigs) > 0:
-                files.extend(rigs)
-                if latestrig > latest:
-                    latest = latestrig
+            assetdirs = [[ ".proxy", "proxy"], [ ".mhskel", "rigs" ], [".bvh", "poses"]]
+
+            (latest, files) = self.subDirsBaseFolder(".mhclo", None)
+            for elem in assetdirs:
+                (l, f) = self.subDirsBaseFolder(elem[0], elem[1])
+                if len(f) > 0:
+                    files.extend(f)
+                    if l > latest:
+                        latest = l
 
         elif subdir == "proxy":
             (latest, files) = self.subDirsBaseFolder(".proxy", "proxy")
         elif subdir == "rigs":
             (latest, files) = self.subDirsBaseFolder(".mhskel", "rigs")
+        elif subdir == "poses":
+            (latest, files) = self.subDirsBaseFolder(".bvh", "poses")
         else:
             (latest, files) = self.subDirsBaseFolder(".mhclo", subdir)
         #
@@ -671,6 +671,28 @@ class programInfo():
                         author = "unknown"
                         mtags = "|".join(json["tags"]).encode('ascii', 'ignore').lower().decode("utf-8") if "tags" in json else ""
                         data.append([name, uuid, path, folder, None, thumbfile, author, mtags])
+                    continue
+
+                elif extension == ".bvh":
+                    metafile = filename + ".meta"
+                    name = os.path.basename(filename)
+                    uuid = "bvh_" + filename
+                    author = "unknown"
+                    tags = []
+                    if os.path.isfile(metafile):
+                        with open(metafile, 'r') as fp:
+                            for line in fp:
+                                words = line.split()
+                                if len(words) < 2:
+                                    continue
+                                if words[0] == "name":
+                                    name = "_".join(words[1:]).encode('ascii', 'ignore').lower().decode("utf-8")
+                                elif words[0] == "tag":
+                                    tags.append(" ".join(words[1:]).encode('ascii', 'ignore').lower().decode("utf-8"))
+                                elif words[0] == "author":
+                                    author = " ".join(words[1:]).encode('ascii', 'ignore').lower().decode("utf-8")
+                    mtags = "|".join(tags)
+                    data.append([name, uuid, path, folder, None, thumbfile, author, mtags])
                     continue
 
 

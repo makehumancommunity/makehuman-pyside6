@@ -69,7 +69,7 @@ class MHMainWindow(QMainWindow):
         ]
         self.animation = [
                 { "func": None, "menu": None, "name": "rigs", "mode": 0 },
-                { "func": None, "menu": None, "name": "pose", "mode": 0 },
+                { "func": None, "menu": None, "name": "poses", "mode": 0 },
                 { "func": None, "menu": None, "name": "animation", "mode": 0 },
                 { "func": None, "menu": None, "name": "expression", "mode": 0 }
         ]
@@ -240,7 +240,8 @@ class MHMainWindow(QMainWindow):
             self.glob.baseClass.addAndDisplayAsset(selected.filename, eqtype, multi)
 
     def animCallback(self, selected, eqtype, multi):
-        self.glob.baseClass.addSkeleton(selected.name, selected.filename)
+        if eqtype == "rigs":
+            self.glob.baseClass.addSkeleton(selected.name, selected.filename)
 
     def fileRequest(self, ftext, pattern, directory, save=None):
         """
@@ -418,6 +419,10 @@ class MHMainWindow(QMainWindow):
                 self.leftColumn.setTitle("Rigs :: filter")
                 layout = self.animation[self.category_mode]["func"].leftPanel()
                 self.BaseBox.addLayout(layout)
+            elif self.category_mode == 1:
+                self.leftColumn.setTitle("Poses :: filter")
+                layout = self.animation[self.category_mode]["func"].leftPanel()
+                self.BaseBox.addLayout(layout)
             else:
                 self.leftColumn.setTitle("Not yet implemented")
 
@@ -485,7 +490,7 @@ class MHMainWindow(QMainWindow):
             text = "Character equipment, category: " + equip["name"]
             self.drawEquipPanel(equip["func"], text)
         elif self.tool_mode == 3:
-            if self.category_mode == 0:
+            if self.category_mode == 0 or self.category_mode == 1:
                 equip = self.animation[self.category_mode]
                 text = "Pose and animation, category: " + equip["name"]
                 self.drawEquipPanel(equip["func"], text)
