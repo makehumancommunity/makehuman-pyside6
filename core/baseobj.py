@@ -3,6 +3,7 @@ from core.target import Targets
 from core.attached_asset import attachedAsset
 from obj3d.object3d import object3d
 from obj3d.skeleton import skeleton
+from obj3d.animation import BVH
 from core.debug import memInfo, dumper
 from core.target import Modelling
 from gui.common import WorkerThread
@@ -334,6 +335,12 @@ class baseClass():
     def addSkeleton(self, name, path):
         self.skeleton = skeleton(self.glob, name)
         self.skeleton.loadJSON(path)
+
+    def addPose(self, name, path):
+        self.bvh = BVH(self.glob, name)
+        loaded, msg  = self.bvh.load(path)
+        if not loaded:
+            self.env.logLine(1, "BVH: " + path + " " + msg)
 
     def prepareClass(self):
         self.env.logLine(2, "Prepare class called with: " + self.env.basename)

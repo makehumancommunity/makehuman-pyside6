@@ -183,6 +183,8 @@ class MHMainWindow(QMainWindow):
 
         self.equip = tools_menu.addMenu("Equipment")
 
+        self.animenu = tools_menu.addMenu("Animation")
+
         if self.glob.baseClass is not None:
             self.createImageSelection()
 
@@ -217,7 +219,7 @@ class MHMainWindow(QMainWindow):
         for elem in self.animation:
             elem["func"] = ImageSelection(self, self.glob.baseClass.cachedInfo, elem["name"], elem["mode"], self.animCallback)
             elem["func"].prepare()
-            elem["menu"] = self.equip.addAction(elem["name"])
+            elem["menu"] = self.animenu.addAction(elem["name"])
             elem["menu"].triggered.connect(self.anim_call)
 
     def updateScene(self):
@@ -242,6 +244,8 @@ class MHMainWindow(QMainWindow):
     def animCallback(self, selected, eqtype, multi):
         if eqtype == "rigs":
             self.glob.baseClass.addSkeleton(selected.name, selected.filename)
+        elif eqtype == "poses":
+            self.glob.baseClass.addPose(selected.name, selected.filename)
 
     def fileRequest(self, ftext, pattern, directory, save=None):
         """
@@ -559,7 +563,11 @@ class MHMainWindow(QMainWindow):
                 break
 
     def anim_call(self):
-        print ("in animcall")
+        s = self.sender()
+        for n, elem in enumerate(self.animation):
+            if elem["menu"] == s:
+                self.setToolModeAndPanel(3, n)
+                break
 
     def pref_call(self):
         """
