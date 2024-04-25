@@ -13,6 +13,7 @@ from opengl.material import Material
 from opengl.buffers import OpenGlBuffers, RenderedObject
 from opengl.camera import Camera, Light
 from opengl.skybox import OpenGLSkyBox
+from opengl.prims import LineElements
 
 def GLVersion(initialized):
     glversion = {}
@@ -42,6 +43,7 @@ class OpenGLView(QOpenGLWidget):
         self.camera  = None
         self.skybox = None
         self.glob.openGLWindow = self
+        self.lines = None
 
     def textureFromMaterial(self, obj):
         if hasattr(obj.material, 'diffuseTexture'):
@@ -50,15 +52,19 @@ class OpenGLView(QOpenGLWidget):
             return(obj.material.emptyTexture(obj.material.diffuseColor))
         return(obj.material.emptyTexture())
 
+
+    def create2d(self):
+        self.lines = LineElements ("test", [[ 0.0, 0.0, 0.0],  [ 20.0, 0.0, 0.0],  [ 0.0, 0.0, 0.0], [ 0.0, 20.0, 0.0], [ 0.0, 0.0, 0.0], [ 0.0, 0.0, 20.0]])
+        self.lines.create(self.context(), self.mh_shaders._shaders[1])
+
     def createObject(self, obj):
         """
         creates a rendered object and inserts it to a list according to zdepth
         """
         glbuffer = OpenGlBuffers()
-        glbuffer.VertexBuffer(obj.gl_coord)
-        glbuffer.NormalBuffer(obj.gl_norm)
-        glbuffer.TexCoordBuffer(obj.gl_uvcoord)
+        glbuffer.GetBuffers(obj.gl_coord, obj.gl_norm, obj.gl_uvcoord)
         self.buffers.append(glbuffer)
+
         texture = self.textureFromMaterial(obj)
 
         cnt = 0
@@ -87,6 +93,7 @@ class OpenGLView(QOpenGLWidget):
         o_size = baseClass.baseMesh.getHeightInUnits() if baseClass is not None else 100
         glfunc = self.context().functions()
 
+        glfunc.glLineWidth(5.0)
         glfunc.glEnable(gl.GL_DEPTH_TEST)
         glfunc.glEnable(gl.GL_BLEND)
         #glfunc.glDisable(gl.GL_CULL_FACE)
@@ -95,15 +102,22 @@ class OpenGLView(QOpenGLWidget):
         self.mh_shaders = ShaderRepository(self.glob)
         id1 = self.mh_shaders.loadShaders("phong3l")
         print(id1)
+        self.fixcolor = self.mh_shaders.loadShaders("fixcolor")
+        print(self.fixcolor)
         self.skyshader = self.mh_shaders.loadShaders("skybox")
         print(self.skyshader)
 
         #
         # get positions of variables
         #
+        glfunc.glUseProgram(self.fixcolor)
+        self.mh_shaders.attribVertShader(1)
+        self.mh_shaders.getUniforms(1)
+
         glfunc.glUseProgram( id1)
         self.mh_shaders.attribVertShader()
         self.mh_shaders.getUniforms()
+
 
         self.light = Light(self.mh_shaders, self.glob)
         self.light.setShader()
@@ -114,8 +128,10 @@ class OpenGLView(QOpenGLWidget):
         if baseClass is not None:
             self.newMesh()
 
-        self.skybox = OpenGLSkyBox(self.env, self.mh_shaders._shaders[1], glfunc)
+        self.skybox = OpenGLSkyBox(self.env, self.mh_shaders._shaders[2], glfunc)
         self.skybox.create()
+        self.create2d()
+
 
     def createThumbnail(self):
         image = self.grabFramebuffer()
@@ -173,6 +189,10 @@ class OpenGLView(QOpenGLWidget):
             glfunc.glUseProgram(self.skyshader)
             self.skybox.setData(proj_view_matrix)
             self.skybox.draw()
+
+        if self.lines is not None:
+            glfunc.glUseProgram(self.fixcolor)
+            self.lines.draw(self.mh_shaders._shaders[1], proj_view_matrix)
 
     def Tweak(self):
         for glbuffer in self.buffers:
