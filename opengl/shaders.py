@@ -11,7 +11,7 @@ class ShaderPair(QOpenGLShaderProgram):
         self.uniforms = { "uMvpMatrix": -1, "uModelMatrix": -1, "uNormalMatrix": -1,
                 "lightPos1": -1, "lightPos2": -1, "lightPos3": -1,
                 "lightVol1": -1, "lightVol2": -1, "lightVol3": -1,
-                "ambientLight": -1, "lightWeight": -1, "viewPos": -1, "blinn": -1  }
+                "ambientLight": -1, "lightWeight": -1, "viewPos": -1, "blinn": -1}
         self.env = env
         self.frag_id = None
         self.vert_id = None
@@ -67,7 +67,7 @@ class ShaderRepository():
         shader = self._shaders[num]
         for key in shader.uniforms.keys():
             shader.uniforms[key] = shader.uniformLocation(key)
-
+        print ("shader: " + str(num))
         print (shader.uniforms)
 
     def setUniform(self, name, var, num=0):

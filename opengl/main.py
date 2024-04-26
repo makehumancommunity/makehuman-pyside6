@@ -13,7 +13,7 @@ from opengl.material import Material
 from opengl.buffers import OpenGlBuffers, RenderedObject
 from opengl.camera import Camera, Light
 from opengl.skybox import OpenGLSkyBox
-from opengl.prims import LineElements
+from opengl.prims import CoordinateSystem, Grid
 
 def GLVersion(initialized):
     glversion = {}
@@ -30,6 +30,7 @@ def GLVersion(initialized):
     #
     return(glversion)
 
+
 class OpenGLView(QOpenGLWidget):
     def __init__(self, glob):
         self.glob = glob
@@ -40,10 +41,10 @@ class OpenGLView(QOpenGLWidget):
         self.setMaximumSize(QSize(2000, 2000))
         self.buffers = []
         self.objects = []
+        self.prims = []
         self.camera  = None
         self.skybox = None
         self.glob.openGLWindow = self
-        self.lines = None
 
     def textureFromMaterial(self, obj):
         if hasattr(obj.material, 'diffuseTexture'):
@@ -53,9 +54,11 @@ class OpenGLView(QOpenGLWidget):
         return(obj.material.emptyTexture())
 
 
-    def create2d(self):
-        self.lines = LineElements ("test", [[ 0.0, 0.0, 0.0],  [ 20.0, 0.0, 0.0],  [ 0.0, 0.0, 0.0], [ 0.0, 20.0, 0.0], [ 0.0, 0.0, 0.0], [ 0.0, 0.0, 20.0]])
-        self.lines.create(self.context(), self.mh_shaders._shaders[1])
+    def createPrims(self):
+        coord = CoordinateSystem(10.0, self.context(), self.mh_shaders._shaders[1])
+        self.prims.append(coord)
+        grid = Grid(10.0, self.context(), self.mh_shaders._shaders[1])
+        self.prims.append(grid)
 
     def createObject(self, obj):
         """
@@ -93,7 +96,7 @@ class OpenGLView(QOpenGLWidget):
         o_size = baseClass.baseMesh.getHeightInUnits() if baseClass is not None else 100
         glfunc = self.context().functions()
 
-        glfunc.glLineWidth(5.0)
+        glfunc.glLineWidth(2.0)
         glfunc.glEnable(gl.GL_DEPTH_TEST)
         glfunc.glEnable(gl.GL_BLEND)
         #glfunc.glDisable(gl.GL_CULL_FACE)
@@ -130,7 +133,7 @@ class OpenGLView(QOpenGLWidget):
 
         self.skybox = OpenGLSkyBox(self.env, self.mh_shaders._shaders[2], glfunc)
         self.skybox.create()
-        self.create2d()
+        self.createPrims()
 
 
     def createThumbnail(self):
@@ -190,9 +193,9 @@ class OpenGLView(QOpenGLWidget):
             self.skybox.setData(proj_view_matrix)
             self.skybox.draw()
 
-        if self.lines is not None:
+        for obj in self.prims:
             glfunc.glUseProgram(self.fixcolor)
-            self.lines.draw(self.mh_shaders._shaders[1], proj_view_matrix)
+            obj.draw(self.mh_shaders._shaders[1], proj_view_matrix)
 
     def Tweak(self):
         for glbuffer in self.buffers:

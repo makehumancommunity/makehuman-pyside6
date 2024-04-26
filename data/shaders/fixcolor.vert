@@ -1,19 +1,21 @@
 #version 330
 
-attribute vec4 aPosition;
-attribute vec4 aNormal;
-attribute vec2 aTexCoord;
+
+layout (location = 0) in vec4 aPos;
+layout (location = 1) in vec3 col;
 
 uniform mat4 uMvpMatrix;
 uniform mat4 uModelMatrix;
-uniform mat4 uNormalMatrix;
 
-
-out vec3 vPosition;
+out VS_OUT {
+    vec3 FragPos;
+    vec3 Color;
+} vs_out;
 
 void main()
 {
-	gl_Position = uMvpMatrix * aPosition;
-	vPosition = vec3(uModelMatrix * aPosition);
+	gl_Position = uMvpMatrix * aPos;
+	vs_out.FragPos = vec3(uModelMatrix * aPos);
+	vs_out.Color = col;
 }
 

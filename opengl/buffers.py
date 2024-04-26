@@ -152,9 +152,9 @@ class RenderedLines:
         self.indices = indices
 
         self.vert_pos_buffer = glbuffers.vert_pos_buffer
+        self.color_buffer = glbuffers.normal_buffer
         self.mvp_matrix_location = shaders.uniforms["uMvpMatrix" ]
         self.model_matrix_location = shaders.uniforms["uModelMatrix"]
-        self.normal_matrix_location = shaders.uniforms["uNormalMatrix"]
 
         self.position = pos
 
@@ -171,27 +171,27 @@ class RenderedLines:
         shaderprog.bind()
         functions = self.context.functions()
 
-        # VAO, bind the position-buffer, normal-buffer and texture-coordinates to attribute 0, 1, 2
+        # VAO, bind the position-buffer, color-buffer and texture-coordinates to attribute 0, 1
         # these are the values changed per vertex
         #
         self.vert_pos_buffer.bind()
         shaderprog.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3)     # OpenGL glVertexAttribPointer
         shaderprog.enableAttributeArray(0)                      # OpenGL glEnableVertexAttribArray
 
+        self.color_buffer.bind()
+        shaderprog.setAttributeBuffer(1, gl.GL_FLOAT, 0, 3)
+        shaderprog.enableAttributeArray(1)
+
         self.model_matrix.setToIdentity()
         self.model_matrix.translate(self.position)
         self.model_matrix.scale(self.scale)
         self.mvp_matrix = proj_view_matrix * self.model_matrix
 
-        self.normal_matrix = self.model_matrix.inverted()
-        self.normal_matrix = self.normal_matrix[0].transposed()
-
-        # now set uMvpMatrix, uModelMatrix, uNormalMatrix
+        # now set uMvpMatrix, uModelMatrix
 
         shaderprog.bind()
         shaderprog.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)
         shaderprog.setUniformValue(self.model_matrix_location, self.model_matrix)
-        shaderprog.setUniformValue(self.normal_matrix_location, self.normal_matrix)
 
         indices = self.indices
         functions.glDrawElements(gl.GL_LINES, len(indices), gl.GL_UNSIGNED_INT, indices)

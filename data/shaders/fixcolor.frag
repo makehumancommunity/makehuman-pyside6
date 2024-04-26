@@ -1,10 +1,14 @@
 #version 330
 
+in VS_OUT {
+    vec3 FragPos;
+    vec3 Color;
+} fs_in;
 
-in vec3 vPosition;
+const float transp = 0.4;
 
 void main()
 {
-	gl_FragColor =  vec4(0.0, 0.0, 0.0, 1.0);
+	gl_FragColor =  vec4(fs_in.Color, transp);
 }
 
