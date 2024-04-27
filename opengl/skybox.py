@@ -64,11 +64,11 @@ class OpenGLSkyBox:
             self.texture.destroy()
 
 
-    def draw(self):
+    def draw(self, projection):
         self.prog.bind()
         self.func.glDepthFunc(gl.GL_LEQUAL);
         key = self.prog.uniformLocation("uModelMatrix")
-        self.prog.setUniformValue(key, self.projection)
+        self.prog.setUniformValue(key, projection)
         key = self.prog.uniformLocation("skybox")
 
         self.vbuffer.bind()
@@ -80,6 +80,3 @@ class OpenGLSkyBox:
         self.func.glDrawArrays(gl.GL_TRIANGLES, 0, 36)
         self.func.glDepthFunc(gl.GL_LESS)
 
-    def setData(self, projection):
-        self.projection = projection
-        

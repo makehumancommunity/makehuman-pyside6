@@ -31,7 +31,7 @@ class cBone():
         #
         self.headPos = np.zeros(3,dtype=np.float32)
         self.tailPos = np.zeros(3,dtype=np.float32)
-        self.setInitialJointPos()
+        self.setJointPos()
 
         # reference bones (used for mapped skeletons
         #
@@ -45,7 +45,7 @@ class cBone():
     def __str__(self):
         return (self.name + " Level: " + str(self.level) + " Children " + str(len(self.children)))
 
-    def setInitialJointPos(self):
+    def setJointPos(self):
         self.headPos[:] = self.skeleton.mesh.getMeanPosition(self.skeleton.jointVerts[self.head])
         self.tailPos[:] = self.skeleton.mesh.getMeanPosition(self.skeleton.jointVerts[self.tail])
 

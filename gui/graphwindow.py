@@ -85,7 +85,11 @@ class MHGraphicWindow(QWidget):
             ["Front", "front.png", self.front_button ],
             ["Right", "right.png", self.right_button ],
             ["Back",  "back.png",  self.back_button ],
-            ["Bottom","bottom.png",self.bottom_button ]
+            ["Bottom","bottom.png",self.bottom_button ],
+            ["Axes","grid.png",self.toggle_axes ],
+            ["Grid","grid.png",self.toggle_grid ],
+            ["Skybox","skybox.png",self.toggle_skybox ],
+            ["Visualize skeleton", "an_skeleton.png", self.toggle_objects ]
         ]
         button = IconButton(1, os.path.join(self.env.path_sysicon, elems[0][1]), elems[0][0], elems[0][2])
         vlayout.addWidget(button)
@@ -97,6 +101,15 @@ class MHGraphicWindow(QWidget):
 
         button = IconButton(1, os.path.join(self.env.path_sysicon, elems[5][1]), elems[5][0], elems[5][2])
         vlayout.addWidget(button)
+
+        # grid, axes
+        hlayout = QHBoxLayout()
+        for i in range(6,10):
+            button = IconButton(1, os.path.join(self.env.path_sysicon, elems[i][1]), elems[i][0], elems[i][2])
+            button.setChecked(False if i != 8 else True) # skybox is true
+            button.setCheckable(True)
+            hlayout.addWidget(button)
+        vlayout.addLayout(hlayout)
 
         # perspective button is a toggle
         #
@@ -244,6 +257,30 @@ class MHGraphicWindow(QWidget):
         self.view.customView(QVector3D(0, -1, 0))
         if self.debug:
             self.camChanged()
+
+    def toggle_grid(self):
+        b = self.sender()
+        v = b.isChecked()
+        b.setChecked(v)
+        self.view.togglePrims("grid", v)
+
+    def toggle_axes(self):
+        b = self.sender()
+        v = b.isChecked()
+        b.setChecked(v)
+        self.view.togglePrims("axes", v)
+
+    def toggle_skybox(self):
+        b = self.sender()
+        v = b.isChecked()
+        b.setChecked(v)
+        self.view.toggleSkybox(v)
+
+    def toggle_objects(self):
+        b = self.sender()
+        v = b.isChecked()
+        b.setChecked(v)
+        self.view.toggleObjects(v)
 
     def zoom(self, direction):
         self.view.modifyDistance(direction)

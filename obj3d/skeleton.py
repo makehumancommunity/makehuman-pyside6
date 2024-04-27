@@ -119,3 +119,8 @@ class skeleton:
         for bone in  self.bones:
             print (self.bones[bone])
         """
+
+    def newJointPos(self):
+        for bone in  self.bones:
+            self.bones[bone].setJointPos()
+

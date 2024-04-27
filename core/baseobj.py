@@ -43,6 +43,7 @@ class baseClass():
         self.glob = glob
         self.dirname = dirname        # contains dirname of the obj (to determine user or system space)
         self.baseMesh = None
+        self.skeleton = None
         self.baseInfo = None
         self.cachedInfo = []
         self.attachedAssets = []
@@ -333,8 +334,15 @@ class baseClass():
         return(self.cachedInfo)
 
     def addSkeleton(self, name, path):
+        if self.skeleton is not None:
+            self.glob.openGLWindow.delSkeleton()
         self.skeleton = skeleton(self.glob, name)
         self.skeleton.loadJSON(path)
+        self.glob.openGLWindow.addSkeleton()
+
+    def delSkeleton(self):
+        self.skeleton = None
+        self.glob.openGLWindow.delSkeleton()
 
     def addPose(self, name, path):
         self.bvh = BVH(self.glob, name)

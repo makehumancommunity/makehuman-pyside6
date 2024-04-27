@@ -13,7 +13,7 @@ from opengl.material import Material
 from opengl.buffers import OpenGlBuffers, RenderedObject
 from opengl.camera import Camera, Light
 from opengl.skybox import OpenGLSkyBox
-from opengl.prims import CoordinateSystem, Grid
+from opengl.prims import CoordinateSystem, Grid, BoneList
 
 def GLVersion(initialized):
     glversion = {}
@@ -41,7 +41,8 @@ class OpenGLView(QOpenGLWidget):
         self.setMaximumSize(QSize(2000, 2000))
         self.buffers = []
         self.objects = []
-        self.prims = []
+        self.objects_invisible = False
+        self.prims = {}
         self.camera  = None
         self.skybox = None
         self.glob.openGLWindow = self
@@ -53,12 +54,45 @@ class OpenGLView(QOpenGLWidget):
             return(obj.material.emptyTexture(obj.material.diffuseColor))
         return(obj.material.emptyTexture())
 
+    def delSkeleton(self):
+        if "skeleton" in self.prims:
+            self.prims["skeleton"].delete()
+            del self.prims["skeleton"]
+            self.Tweak()
+
+    def addSkeleton(self):
+        skeleton = self.glob.baseClass.skeleton
+        self.prims["skeleton"] = BoneList("skeleton", skeleton, self.context(), self.mh_shaders._shaders[1])
+        if self.objects_invisible is True:
+            self.togglePrims("skeleton", True)
+        self.Tweak()
+
+    def toggleObjects(self, status):
+        self.objects_invisible = status
+        if self.glob.baseClass is not None and self.glob.baseClass.skeleton is not None:
+            skeleton = self.glob.baseClass.skeleton
+            if self.objects_invisible is True:
+                skeleton.newJointPos()
+                self.prims["skeleton"].newGeometry()
+                self.togglePrims("skeleton", True)
+            else:
+                self.togglePrims("skeleton", False)
+            self.Tweak()
+
+
+    def toggleSkybox(self, status):
+        self.light.skybox = status
+        self.Tweak()
+
+    def togglePrims(self, name, status):
+        if name in self.prims:
+            self.prims[name].setVisible(status)
+            self.Tweak()
+
 
     def createPrims(self):
-        coord = CoordinateSystem(10.0, self.context(), self.mh_shaders._shaders[1])
-        self.prims.append(coord)
-        grid = Grid(10.0, self.context(), self.mh_shaders._shaders[1])
-        self.prims.append(grid)
+        self.prims["axes"] = CoordinateSystem("axes", 10.0, self.context(), self.mh_shaders._shaders[1])
+        self.prims["grid"] = Grid("grid", 10.0, self.context(), self.mh_shaders._shaders[1])
 
     def createObject(self, obj):
         """
@@ -96,31 +130,24 @@ class OpenGLView(QOpenGLWidget):
         o_size = baseClass.baseMesh.getHeightInUnits() if baseClass is not None else 100
         glfunc = self.context().functions()
 
-        glfunc.glLineWidth(2.0)
         glfunc.glEnable(gl.GL_DEPTH_TEST)
         glfunc.glEnable(gl.GL_BLEND)
         #glfunc.glDisable(gl.GL_CULL_FACE)
         glfunc.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
+        #
+        # load shaders and get  positions of variables 
+        #
         self.mh_shaders = ShaderRepository(self.glob)
-        id1 = self.mh_shaders.loadShaders("phong3l")
-        print(id1)
-        self.fixcolor = self.mh_shaders.loadShaders("fixcolor")
-        print(self.fixcolor)
-        self.skyshader = self.mh_shaders.loadShaders("skybox")
-        print(self.skyshader)
-
-        #
-        # get positions of variables
-        #
-        glfunc.glUseProgram(self.fixcolor)
-        self.mh_shaders.attribVertShader(1)
-        self.mh_shaders.getUniforms(1)
-
-        glfunc.glUseProgram( id1)
+        self.mh_shaders.loadShaders("phong3l")          # TODO: return Index 
         self.mh_shaders.attribVertShader()
         self.mh_shaders.getUniforms()
 
+        self.mh_shaders.loadShaders("fixcolor")
+        self.mh_shaders.attribVertShader(1)
+        self.mh_shaders.getUniforms(1)
+
+        self.mh_shaders.loadShaders("skybox")
 
         self.light = Light(self.mh_shaders, self.glob)
         self.light.setShader()
@@ -183,19 +210,22 @@ class OpenGLView(QOpenGLWidget):
         glfunc.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
         proj_view_matrix = self.camera.getProjViewMatrix()
         baseClass = self.glob.baseClass
-        if baseClass is not None:
+        if baseClass is not None and self.objects_invisible is False:
             start = 1 if baseClass.proxy is True else 0
             for obj in self.objects[start:]:
                 obj.draw(self.mh_shaders._shaders[0], proj_view_matrix)
 
         if self.light.skybox and self.skybox and self.camera.cameraPers:
-            glfunc.glUseProgram(self.skyshader)
-            self.skybox.setData(proj_view_matrix)
-            self.skybox.draw()
+            self.skybox.draw(proj_view_matrix)
 
-        for obj in self.prims:
-            glfunc.glUseProgram(self.fixcolor)
-            obj.draw(self.mh_shaders._shaders[1], proj_view_matrix)
+        if self.objects_invisible is True and "skeleton" in self.prims:
+            skeleton = self.glob.baseClass.skeleton
+            skeleton.newJointPos()
+            self.prims["skeleton"].newGeometry()
+
+        for name in self.prims:
+            self.prims[name].draw(self.mh_shaders._shaders[1], proj_view_matrix)
+
 
     def Tweak(self):
         for glbuffer in self.buffers:
@@ -228,6 +258,10 @@ class OpenGLView(QOpenGLWidget):
             glbuffer.Delete()
         self.objects = []
         self.buffers = []
+
+        if "skeleton" in self.prims:
+            self.prims["skeleton"].delete()
+            del self.prims["skeleton"]
 
         if self.glob.baseClass is not None:
             self.createObject(self.glob.baseClass.baseMesh)

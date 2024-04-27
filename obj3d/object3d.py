@@ -258,9 +258,16 @@ class object3d:
 
     def getMeanPosition(self, arr):
         """
-        used for skeleton mainly, mean postion of an array
+        used for skeleton mainly, mean postion of an array, based on gl_coord
         """
-        return (self.coord[arr].mean(axis=0))
+        mean = [ 0.0, 0.0, 0.0]
+        for i in arr:
+            m = i*3
+            mean[0] += self.gl_coord[m] 
+            mean[1] += self.gl_coord[m+1] 
+            mean[2] += self.gl_coord[m+2] 
+        n = len(arr)
+        return ([mean[0] / n, mean[1] / n, mean[2] / n] )
 
     def resetMesh(self):
         self.gl_coord[:] = self.gl_coord_o[:] # get back the copy
