@@ -119,8 +119,39 @@ class skeleton:
         for bone in  self.bones:
             print (self.bones[bone])
         """
+        self.calcRestMat()
+
+    def getNormal(self, plane_name):
+        """
+        planes are used counter-clockwise
+        returns normalized vector
+        """
+        if plane_name in self.planes:
+            v = [None, None, None]
+            for cnt, jointname in enumerate(self.planes[plane_name][:3]):
+                v[cnt] = np.asarray(self.mesh.getMeanPosition(self.jointVerts[jointname]), dtype=np.float32)
+            
+            diff = v[1]-v[0]
+            pvec = diff / np.linalg.norm(diff)
+            diff = v[2]-v[1]
+            yvec = diff / np.linalg.norm(diff)
+            cross = np.cross(yvec, pvec)
+            return (cross / np.linalg.norm(cross))
+        else:
+            return np.asarray([0,1,0], dtype=np.float32)
+
+    def calcRestMat(self):
+        for bone in self.bones:
+            self.bones[bone].calcRestMat()
 
     def newJointPos(self):
+        """
+        rest pose, skeleton changes
+        """
         for bone in  self.bones:
             self.bones[bone].setJointPos()
 
+    def setPose(self):
+        for bone in  self.bones:
+            bone.matPose = np.identity(4, dtype=np.float32)
+            invRest = np.linalg.inv(bone.matRestGlobal)

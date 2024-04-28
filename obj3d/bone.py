@@ -2,7 +2,7 @@
 import numpy as np
 
 class cBone():
-    def __init__(self, skel, name, val, roll=0, reference=None, weights=None):
+    def __init__(self, skel, name, val, localplane=0, reference=None, weights=None):
         """
         headPos and tailPos should be in world space coordinates (relative to root).
         parent should be None for a root bone.
@@ -25,7 +25,7 @@ class cBone():
 
         self.head = val["head"]
         self.tail = val["tail"]
-        self.roll = roll
+        self.localplane = localplane
 
         # coordinates for head and tail
         #
@@ -33,7 +33,7 @@ class cBone():
         self.tailPos = np.zeros(3,dtype=np.float32)
         self.setJointPos()
 
-        # reference bones (used for mapped skeletons
+        # reference bones (used for mapped skeletons)
         #
         if reference is not None:
             self.reference = reference
@@ -41,13 +41,70 @@ class cBone():
         if weights is not None:
             self.weightref = weights
 
+        self.matRestGlobal = None       # rest Pose, global position 4x4 Matrix of bone object
+        self.matRestRelative = None     # rest Pose, global position 4x4 Matrix of bone object
+        self.length = 0                 # length of bone
 
     def __str__(self):
         return (self.name + " Level: " + str(self.level) + " Children " + str(len(self.children)))
 
+    def getNormal(self):
+        """
+        return normal from skeleton
+        """
+        # TODO: better inside skeleton?!
+
+        normal = None
+        if isinstance(self.localplane, list):
+            print ("List:" + str(self.localplane))
+        elif isinstance(self.localplane, str):
+            normal = self.skeleton.getNormal(self.localplane)
+
+        if normal is None or np.allclose(normal, np.zeros(3), atol=1e-05):
+            normal = np.asarray([0.0, 1.0, 0.0], dtype=np.float32)
+
+        return (normal)
+
     def setJointPos(self):
         self.headPos[:] = self.skeleton.mesh.getMeanPosition(self.skeleton.jointVerts[self.head])
         self.tailPos[:] = self.skeleton.mesh.getMeanPosition(self.skeleton.jointVerts[self.tail])
+
+    def calcLocalRestMat(self, normal):
+
+        mat = np.identity(4, dtype=np.float32)
+
+        # create a normalized bone vector
+        #
+        diff = self.tailPos - self.headPos
+        self.length = np.linalg.norm(diff)
+        bone_direction = diff / self.length
+
+        # orthonormal base, perpendicular vector to normal / bone_direction needed (cross-product)
+        #
+        cross = np.cross(normal, bone_direction)
+        z_axis = cross / np.linalg.norm(cross)
+
+        # one axis missing, so same with z_axis / bone_direction
+        #
+        cross = np.cross(z_axis, bone_direction)
+        x_axis = cross / np.linalg.norm(cross)
+
+        # Now we construct our orthonormal base
+        mat[:3,0] = x_axis[:3]          # bone local X axis
+        mat[:3,1] = bone_direction[:3]  # bone local Y axis
+        mat[:3,2] = z_axis[:3]          # bone local Z axis
+        mat[:3,3] = self.headPos[:3]            # head position as translation
+        return mat
+
+
+    def calcRestMat(self):
+        normal = self.getNormal()
+        self.matRestGlobal = self.calcLocalRestMat(normal)
+        if self.parent:
+            self.matRestRelative = np.dot(np.linalg.inv(self.parent.matRestGlobal), self.matRestGlobal)
+        else:
+            self.matRestRelative = self.matRestGlobal
+
 
 
 class boneWeights():
