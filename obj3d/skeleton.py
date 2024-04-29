@@ -151,7 +151,11 @@ class skeleton:
         for bone in  self.bones:
             self.bones[bone].setJointPos()
 
-    def setPose(self):
+    def calcLocalPoseMat(self, poses):
+        for i, bone in  enumerate(self.bones):
+            self.bones[bone].calcLocalPoseMat(poses[i])
+
+    def calcGlobalPoseMat(self):
         for bone in  self.bones:
-            bone.matPose = np.identity(4, dtype=np.float32)
-            invRest = np.linalg.inv(bone.matRestGlobal)
+            self.bones[bone].calcGlobalPoseMat()
+

@@ -7,6 +7,7 @@ class cBone():
         headPos and tailPos should be in world space coordinates (relative to root).
         parent should be None for a root bone.
         """
+        self.glob = skel.glob
         self.name = name
         self.skeleton = skel
         self.children = []
@@ -42,7 +43,13 @@ class cBone():
             self.weightref = weights
 
         self.matRestGlobal = None       # rest Pose, global position 4x4 Matrix of bone object
-        self.matRestRelative = None     # rest Pose, global position 4x4 Matrix of bone object
+        self.matRestLocal = None        # rest Pose, relative (local)  position 4x4 Matrix of bone object
+
+        self.matPoseGlobal = None                       # global pose matrix
+        self.matPoseLocal = np.identity(4, np.float32)  # relative pose matrix
+
+        self.matPoseVerts = None                        # TODO not yet clear
+
         self.length = 0                 # length of bone
 
     def __str__(self):
@@ -101,9 +108,40 @@ class cBone():
         normal = self.getNormal()
         self.matRestGlobal = self.calcLocalRestMat(normal)
         if self.parent:
-            self.matRestRelative = np.dot(np.linalg.inv(self.parent.matRestGlobal), self.matRestGlobal)
+            self.matRestLocal = np.dot(np.linalg.inv(self.parent.matRestGlobal), self.matRestGlobal)
         else:
-            self.matRestRelative = self.matRestGlobal
+            self.matRestLocal = self.matRestGlobal
+
+    def calcLocalPoseMat(self, poseMat):
+        self.matPoseLocal = np.identity(4, dtype=np.float32)
+
+        # Calculate rotations
+        self.matPoseLocal[:3,:3] = poseMat[:3,:3]
+        invRest = np.linalg.inv(self.matRestGlobal)            # TODO precalculate this one time maybe
+        self.matPoseLocal = np.dot(np.dot(invRest, self.matPoseLocal), self.matRestGlobal)
+
+        # Add translations from original
+        if poseMat.shape[2] == 4:
+            # Note: we generally only have translations on the root bone
+            trans = poseMat[:3,3]
+            trans = np.dot(invRest[:3,:3], trans.T)  # Describe translation in bone-local axis directions
+            self.matPoseLocal[:3,3] = trans.T
+        else:
+            # No translation
+            self.matPoseLocal[:3,3] = [0, 0, 0]
+
+    def calcGlobalPoseMat(self):
+        if self.parent:
+            self.matPoseGlobal = np.dot(self.parent.matPoseGlobal, np.dot(self.matRestLocal, self.matPoseLocal))
+        else:
+            self.matPoseGlobal = np.dot(self.matRestLocal, self.matPoseLocal)
+
+        try:
+            self.matPoseVerts = np.dot(self.matPoseGlobal, np.linalg.inv(self.matRestGlobal))
+        except:
+            self.glob.env.logLine(1, "Cannot calculate pose verts matrix for bone " + self.name)
+            self.glob.env.logLine(1, "Non-singular rest matrix " + str(self.matRestGlobal))
+
 
 
 
