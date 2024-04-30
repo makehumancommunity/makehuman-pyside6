@@ -34,6 +34,11 @@ class cBone():
         self.tailPos = np.zeros(3,dtype=np.float32)
         self.setJointPos()
 
+        # same for posing
+        #
+        self.poseheadPos = np.zeros(3,dtype=np.float32)
+        self.posetailPos = np.zeros(3,dtype=np.float32)
+
         # reference bones (used for mapped skeletons)
         #
         if reference is not None:
@@ -116,12 +121,13 @@ class cBone():
         self.matPoseLocal = np.identity(4, dtype=np.float32)
 
         # Calculate rotations
+        print (poseMat)
         self.matPoseLocal[:3,:3] = poseMat[:3,:3]
         invRest = np.linalg.inv(self.matRestGlobal)            # TODO precalculate this one time maybe
         self.matPoseLocal = np.dot(np.dot(invRest, self.matPoseLocal), self.matRestGlobal)
 
         # Add translations from original
-        if poseMat.shape[2] == 4:
+        if poseMat.shape[1] == 4:
             # Note: we generally only have translations on the root bone
             trans = poseMat[:3,3]
             trans = np.dot(invRest[:3,:3], trans.T)  # Describe translation in bone-local axis directions
@@ -142,6 +148,15 @@ class cBone():
             self.glob.env.logLine(1, "Cannot calculate pose verts matrix for bone " + self.name)
             self.glob.env.logLine(1, "Non-singular rest matrix " + str(self.matRestGlobal))
 
+    def poseBone(self):
+        m = np.ones(4)
+        m[:3] = self.headPos
+        vec = np.dot(self.matPoseVerts, m.transpose())
+        self.poseheadPos = vec.transpose()[:3]
+        m = np.ones(4)
+        m[:3] = self.tailPos
+        vec = np.dot(self.matPoseVerts, m.transpose())
+        self.posetailPos = vec.transpose()[:3]
 
 
 

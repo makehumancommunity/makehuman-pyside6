@@ -345,10 +345,14 @@ class baseClass():
         self.glob.openGLWindow.delSkeleton()
 
     def addPose(self, name, path):
+        if self.skeleton is None:
+            return
         self.bvh = BVH(self.glob, name)
         loaded, msg  = self.bvh.load(path)
         if not loaded:
             self.env.logLine(1, "BVH: " + path + " " + msg)
+        else:
+            self.skeleton.pose(self.bvh.joints)
 
     def prepareClass(self):
         self.env.logLine(2, "Prepare class called with: " + self.env.basename)

@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 class BVHJoint():
     def __init__(self, name):
@@ -8,6 +9,7 @@ class BVHJoint():
         self.nChannels = 0
         self.children = []
         self.animdata = None
+        self.matrixPoses = None
 
         # which channels are used, will contain index [-1, -1, -1, 0, 1, 2] = Xrotation, Yrotation, Zrotation
         #
@@ -109,6 +111,27 @@ class BVH():
     def initFrames(self):
         for joint in self.bvhJointOrder:
             joint.animdata = np.zeros(shape=(self.frameCount, 6), dtype=np.float32)
+            joint.matrixPoses = np.zeros((self.frameCount,3,4), dtype=np.float32)
+            joint.matrixPoses[:,:3,:3] = np.identity(3, dtype=np.float32)
+
+
+    def eulerMatrix(self, ri, rj, rk):
+        M = np.identity(4)
+        si, sj, sk = math.sin(ri), math.sin(rj), math.sin(rk)
+        ci, cj, ck = math.cos(ri), math.cos(rj), math.cos(rk)
+        cc, cs = ci*ck, ci*sk
+        sc, ss = si*ck, si*sk
+
+        M[0, 0] = cj*ck
+        M[0, 1] = sj*sc-cs
+        M[0, 2] = sj*cc+ss
+        M[1, 0] = cj*sk
+        M[1, 1] = sj*ss+cc
+        M[1, 2] = sj*cs-sc
+        M[2, 0] = -sj
+        M[2, 1] = cj*si
+        M[2, 2] = cj*ci
+        return(M)
 
     def fillFrames(self, frame, data):
         #
@@ -122,6 +145,7 @@ class BVH():
                             r = 0.0
                         joint.animdata[frame, j ] = r
                 i += joint.nChannels
+                joint.matrixPoses[frame,:3,:3] = self.eulerMatrix(joint.animdata[frame, 3], joint.animdata[frame, 4], joint.animdata[frame, 5])[:3,:3]
 
 
     def debugJoints(self):
