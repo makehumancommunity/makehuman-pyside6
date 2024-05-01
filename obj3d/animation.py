@@ -9,7 +9,6 @@ class BVHJoint():
         self.nChannels = 0
         self.children = []
         self.animdata = None
-        self.matrixPoses = None
 
         # which channels are used, will contain index [-1, -1, -1, 0, 1, 2] = Xrotation, Yrotation, Zrotation
         #
@@ -18,6 +17,28 @@ class BVHJoint():
         # offset
         #
         self.offset = np.zeros(3,dtype=np.float32)  # fixed relative offset
+        self.position = np.zeros(3,dtype=np.float32)  # global position
+        self.matRestLocal = None
+        self.matRestGlobal = None
+
+        self.matrixPoses = None
+
+    def calculateRestMat(self):
+
+        # Calculate absolute joint position
+        if self.parent:
+            self.position = np.add(self.parent.position, self.offset)
+        else:
+            self.position = self.offset[:]
+
+        # Create relative rest matrix for joint (only translation)
+        self.matRestLocal = np.identity(4, dtype=np.float32)
+        self.matRestLocal[:3,3] = self.offset
+
+        # Create world rest matrix for joint (only translation)
+        self.matRestGlobal = np.identity(4, dtype=np.float32)
+        self.matRestGlobal[:3,3] = self.position
+
 
     def __repr__(self):
         output = self.name if self.name is not None else "end-site"
@@ -33,6 +54,7 @@ class BVH():
         self.bvhJointOrder = []
         self.joints = {}
         self.frameCount = 1 # dummy frame
+        self.z_up = True
 
     def keyParam(self, key, fp):
         param = fp.readline().split()
@@ -75,7 +97,10 @@ class BVH():
 
         # Calculate position from offset
         #
-        joint.offset = [param[0], param[1], param[2]]
+        if self.z_up:
+            joint.offset = [float(param[0]), float(param[2]), float(param[1])]
+        else:
+            joint.offset = [float(param[0]), float(param[1]), float(param[2])]
 
         (err, msg ) = self.getChannelOrder(joint, fp)
         if err is False:
@@ -97,7 +122,11 @@ class BVH():
                 (param, msg ) = self.keyParam('OFFSET', fp)
                 if param is None:
                     return (False, msg)
-                child.offset = [param[0], param[1], param[2]]
+                if self.z_up:
+                    child.offset = [float(param[0]), float(param[2]), float(param[1])]
+                else:
+                    child.offset = [float(param[0]), float(param[1]), float(param[2])]
+
                 (param, msg ) = self.keyParam('}', fp)
                 if param is None:
                     return (False, msg)
@@ -146,11 +175,20 @@ class BVH():
                         joint.animdata[frame, j ] = r
                 i += joint.nChannels
                 joint.matrixPoses[frame,:3,:3] = self.eulerMatrix(joint.animdata[frame, 3], joint.animdata[frame, 4], joint.animdata[frame, 5])[:3,:3]
+                #
+                # TODO check blender data for x-pos/y-pos etc
+                #
+                if joint.parent is None:
+                    joint.matrixPoses[frame,:3,3] = [joint.animdata[frame, 0], joint.animdata[frame, 1], joint.animdata[frame, 2]]
 
 
     def debugJoints(self):
         for joint in self.bvhJointOrder:
             print (joint)
+
+    def calcBVHRestMat(self):
+        for joint in self.bvhJointOrder:
+            joint.calculateRestMat()
 
     def load(self, filename):
         self.env.logLine(1, "Load pose " + filename)
@@ -169,6 +207,10 @@ class BVH():
             (err, msg ) = self.readJointHierarchy(root, fp)
             if err is False:
                 return (False, msg)
+
+            # calculate BVH rest matrix and offset
+            #
+            self.calcBVHRestMat()
 
             (param, msg ) = self.keyParam('MOTION', fp)
             if param is None:

@@ -109,7 +109,7 @@ class cBone():
         return mat
 
 
-    def calcRestMat(self):
+    def calcRestMatFromSkeleton(self):
         normal = self.getNormal()
         self.matRestGlobal = self.calcLocalRestMat(normal)
         if self.parent:
@@ -117,11 +117,11 @@ class cBone():
         else:
             self.matRestLocal = self.matRestGlobal
 
+
     def calcLocalPoseMat(self, poseMat):
         self.matPoseLocal = np.identity(4, dtype=np.float32)
 
         # Calculate rotations
-        print (poseMat)
         self.matPoseLocal[:3,:3] = poseMat[:3,:3]
         invRest = np.linalg.inv(self.matRestGlobal)            # TODO precalculate this one time maybe
         self.matPoseLocal = np.dot(np.dot(invRest, self.matPoseLocal), self.matRestGlobal)
@@ -130,6 +130,7 @@ class cBone():
         if poseMat.shape[1] == 4:
             # Note: we generally only have translations on the root bone
             trans = poseMat[:3,3]
+            print (self.name + " " + str(trans))
             trans = np.dot(invRest[:3,:3], trans.T)  # Describe translation in bone-local axis directions
             self.matPoseLocal[:3,3] = trans.T
         else:

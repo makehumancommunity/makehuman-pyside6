@@ -68,15 +68,12 @@ class OpenGLView(QOpenGLWidget):
         self.Tweak()
 
     def toggleObjects(self, status):
+        """
+        makes objects invisible and switches skeleton to on
+        """
         self.objects_invisible = status
         if self.glob.baseClass is not None and self.glob.baseClass.skeleton is not None:
-            skeleton = self.glob.baseClass.skeleton
-            if self.objects_invisible is True:
-                skeleton.newJointPos()
-                self.prims["skeleton"].newGeometry()
-                self.togglePrims("skeleton", True)
-            else:
-                self.togglePrims("skeleton", False)
+            self.togglePrims("skeleton", self.objects_invisible)
             self.Tweak()
 
 
@@ -220,8 +217,9 @@ class OpenGLView(QOpenGLWidget):
 
         if self.objects_invisible is True and "skeleton" in self.prims:
             skeleton = self.glob.baseClass.skeleton
+            bvh = self.glob.baseClass.bvh
             skeleton.newJointPos()
-            self.prims["skeleton"].newGeometry()
+            self.prims["skeleton"].newGeometry(bvh is not None)
 
         for name in self.prims:
             self.prims[name].draw(self.mh_shaders._shaders[1], proj_view_matrix)

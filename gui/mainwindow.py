@@ -248,7 +248,11 @@ class MHMainWindow(QMainWindow):
             else:
                 self.glob.baseClass.addSkeleton(selected.name, selected.filename)
         elif eqtype == "poses":
-            self.glob.baseClass.addPose(selected.name, selected.filename)
+            if selected.status == 0:
+                self.glob.baseClass.delPose()
+            else:
+                self.glob.baseClass.addPose(selected.name, selected.filename)
+            self.graph.view.Tweak()
 
     def fileRequest(self, ftext, pattern, directory, save=None):
         """

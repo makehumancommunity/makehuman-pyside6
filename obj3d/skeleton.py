@@ -142,7 +142,7 @@ class skeleton:
 
     def calcRestMat(self):
         for bone in self.bones:
-            self.bones[bone].calcRestMat()
+            self.bones[bone].calcRestMatFromSkeleton()
 
     def newJointPos(self):
         """

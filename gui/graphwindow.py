@@ -86,10 +86,10 @@ class MHGraphicWindow(QWidget):
             ["Right", "right.png", self.right_button ],
             ["Back",  "back.png",  self.back_button ],
             ["Bottom","bottom.png",self.bottom_button ],
-            ["Axes","grid.png",self.toggle_axes ],
+            ["Axes","3dcoord.png",self.toggle_axes ],
             ["Grid","grid.png",self.toggle_grid ],
             ["Skybox","skybox.png",self.toggle_skybox ],
-            ["Visualize skeleton", "an_skeleton.png", self.toggle_objects ]
+            ["Visualize skeleton", "ghost.png", self.toggle_objects ]
         ]
         button = IconButton(1, os.path.join(self.env.path_sysicon, elems[0][1]), elems[0][0], elems[0][2])
         vlayout.addWidget(button)

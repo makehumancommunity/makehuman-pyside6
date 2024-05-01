@@ -41,9 +41,10 @@ class baseClass():
     def __init__(self, glob, name, dirname):
         self.env = glob.env
         self.glob = glob
-        self.dirname = dirname        # contains dirname of the obj (to determine user or system space)
+        self.dirname = dirname      # contains dirname of the obj (to determine user or system space)
         self.baseMesh = None
         self.skeleton = None
+        self.bvh = None             # indicates that object is posed
         self.baseInfo = None
         self.cachedInfo = []
         self.attachedAssets = []
@@ -353,6 +354,9 @@ class baseClass():
             self.env.logLine(1, "BVH: " + path + " " + msg)
         else:
             self.skeleton.pose(self.bvh.joints)
+
+    def delPose(self):
+        self.bvh = None
 
     def prepareClass(self):
         self.env.logLine(2, "Prepare class called with: " + self.env.basename)
