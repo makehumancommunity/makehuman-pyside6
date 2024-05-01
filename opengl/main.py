@@ -84,6 +84,10 @@ class OpenGLView(QOpenGLWidget):
     def togglePrims(self, name, status):
         if name in self.prims:
             self.prims[name].setVisible(status)
+            if name == "grid":
+                baseClass = self.glob.baseClass
+                o_size = baseClass.baseMesh.getHeightInUnits() if baseClass is not None else 100
+                self.prims[name].newGeometry(-o_size/2)
             self.Tweak()
 
 

@@ -55,6 +55,7 @@ class BVH():
         self.joints = {}
         self.frameCount = 1 # dummy frame
         self.z_up = True
+        self.pi_mult = math.pi / 180.0
 
     def keyParam(self, key, fp):
         param = fp.readline().split()
@@ -98,7 +99,7 @@ class BVH():
         # Calculate position from offset
         #
         if self.z_up:
-            joint.offset = [float(param[0]), float(param[2]), float(param[1])]
+            joint.offset = [float(param[0]), float(param[2]), -float(param[1])]
         else:
             joint.offset = [float(param[0]), float(param[1]), float(param[2])]
 
@@ -123,7 +124,7 @@ class BVH():
                 if param is None:
                     return (False, msg)
                 if self.z_up:
-                    child.offset = [float(param[0]), float(param[2]), float(param[1])]
+                    child.offset = [float(param[0]), float(param[2]), -float(param[1])]
                 else:
                     child.offset = [float(param[0]), float(param[1]), float(param[2])]
 
@@ -164,6 +165,7 @@ class BVH():
 
     def fillFrames(self, frame, data):
         #
+        # works only for XYZ joint order (rotation)
         i = 0
         for joint in self.bvhJointOrder:
             if joint.nChannels > 0:
@@ -174,9 +176,16 @@ class BVH():
                             r = 0.0
                         joint.animdata[frame, j ] = r
                 i += joint.nChannels
-                joint.matrixPoses[frame,:3,:3] = self.eulerMatrix(joint.animdata[frame, 3], joint.animdata[frame, 4], joint.animdata[frame, 5])[:3,:3]
+                x = self.pi_mult * joint.animdata[frame, 3]
                 #
-                # TODO check blender data for x-pos/y-pos etc
+                if self.z_up:
+                    y = self.pi_mult * joint.animdata[frame, 5]
+                    z = -self.pi_mult * joint.animdata[frame, 4]
+                else:
+                    y = self.pi_mult * joint.animdata[frame, 4]
+                    z = self.pi_mult * joint.animdata[frame, 5]
+
+                joint.matrixPoses[frame,:3,:3] = self.eulerMatrix(x, y, z)[:3,:3]
                 #
                 if joint.parent is None:
                     joint.matrixPoses[frame,:3,3] = [joint.animdata[frame, 0], joint.animdata[frame, 1], joint.animdata[frame, 2]]
@@ -185,6 +194,12 @@ class BVH():
     def debugJoints(self):
         for joint in self.bvhJointOrder:
             print (joint)
+            #print (joint.name)
+            #print (joint.matrixPoses)
+            #print (joint.matRestLocal)
+            #print (joint.matRestGlobal)
+
+
 
     def calcBVHRestMat(self):
         for joint in self.bvhJointOrder:
