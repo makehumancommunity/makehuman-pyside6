@@ -130,7 +130,7 @@ class cBone():
         if poseMat.shape[1] == 4:
             # Note: we generally only have translations on the root bone
             trans = poseMat[:3,3]
-            print (self.name + " " + str(trans))
+            # print (self.name + " " + str(trans))
             trans = np.dot(invRest[:3,:3], trans.T)  # Describe translation in bone-local axis directions
             self.matPoseLocal[:3,3] = trans.T
         else:

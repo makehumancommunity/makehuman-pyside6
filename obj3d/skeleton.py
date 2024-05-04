@@ -159,9 +159,9 @@ class skeleton:
         for bone in  self.bones:
             self.bones[bone].calcGlobalPoseMat()
 
-    def pose(self, joints):
+    def pose(self, joints, num=0):
         for elem in joints:
             if elem in self.bones:
-                self.bones[elem].calcLocalPoseMat(joints[elem].matrixPoses[0])
+                self.bones[elem].calcLocalPoseMat(joints[elem].matrixPoses[num])
                 self.bones[elem].calcGlobalPoseMat()
                 self.bones[elem].poseBone()

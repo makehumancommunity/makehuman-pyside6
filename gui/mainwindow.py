@@ -11,6 +11,7 @@ from gui.memwindow import  MHMemWindow
 from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport
+from gui.poseactions import AnimPlayer
 from gui.slider import ScaleComboArray
 from gui.imageselector import ImageSelection
 from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, MHGroupBox, IconButton
@@ -39,13 +40,16 @@ class MHMainWindow(QMainWindow):
         self.log_window = None
         self.prog_window = None     # will hold the progress bar
 
-        self.rightColumn = None
         self.leftColumn = None
+        self.LeftBox = None         # layouts to fill
+        self.lastClass = None       # needed for close functions
+
+        self.rightColumn = None
+        self.ToolBox = None
+
         self.graph = None
         self.qTree = None
 
-        self.BaseBox = None         # layouts to fill
-        self.ToolBox = None
         self.ButtonBox = None
         self.CategoryBox = None
         self.baseSelector = None
@@ -333,7 +337,7 @@ class MHMainWindow(QMainWindow):
 
         # left side base panel
         #
-        self.BaseBox = QVBoxLayout()
+        self.LeftBox = QVBoxLayout()
         self.leftColumn = MHGroupBox("Base")
         self.leftColumn.setMinimumWidth(300)
         self.leftColumn.setMaximumWidth(400)
@@ -341,7 +345,7 @@ class MHMainWindow(QMainWindow):
 
         v2Layout = QVBoxLayout()
         v2Layout.addWidget(b2group)
-        v2Layout.addLayout(self.leftColumn.MHLayout(self.BaseBox))
+        v2Layout.addLayout(self.leftColumn.MHLayout(self.LeftBox))
 
         hLayout.addLayout(v2Layout)
 
@@ -386,26 +390,26 @@ class MHMainWindow(QMainWindow):
         if (self.tool_mode == 0 and self.category_mode == 0) or env.basename is None:
             self.leftColumn.setTitle("Base mesh :: selection")
             self.baseSelector = BaseSelect(self, self.selectmesh_call)
-            self.BaseBox.addLayout(self.baseSelector)
-            self.BaseBox.addStretch()
+            self.LeftBox.addLayout(self.baseSelector)
+            self.LeftBox.addStretch()
             return
-        
+
         if self.tool_mode == 0:
             if self.category_mode == 1:
                 self.leftColumn.setTitle("Load file :: filter")
                 layout = self.charselect.leftPanel()
-                self.BaseBox.addLayout(layout)
+                self.LeftBox.addLayout(layout)
             elif self.category_mode == 2:
                 self.leftColumn.setTitle("Save file :: additional parameters")
                 self.saveForm = SaveMHMForm(self.glob, self.graph.view, self.charselect, self.setWindowTitle)
-                self.BaseBox.addLayout(self.saveForm)
+                self.LeftBox.addLayout(self.saveForm)
             elif self.category_mode == 3:
                 self.leftColumn.setTitle("Export file :: additional parameters")
             elif self.category_mode == 4:
                 self.leftColumn.setTitle("Import file :: additional parameters")
                 dlform = DownLoadImport(self, self.graph.view, self.setWindowTitle)
-                self.BaseBox.addLayout(dlform)
-            self.BaseBox.addStretch()
+                self.LeftBox.addLayout(dlform)
+            self.LeftBox.addStretch()
             return
 
         
@@ -414,33 +418,37 @@ class MHMainWindow(QMainWindow):
                 self.leftColumn.setTitle("Modify character :: categories")
                 self.qTree = MHTreeView(self.glob.targetCategories, "Modelling", self.redrawNewCategory, None)
                 self.targetfilter = self.qTree.getStartPattern()
-                self.BaseBox.addWidget(self.qTree)
+                self.LeftBox.addWidget(self.qTree)
                 row = self.buttonRow(self.model_buttons)
-                self.BaseBox.addLayout(row)
+                self.LeftBox.addLayout(row)
             else:
                 self.env.logLine(1, self.env.last_error )
 
         elif self.tool_mode == 2:
             self.leftColumn.setTitle("Character equipment :: filter")
             layout = self.equipment[self.category_mode]["func"].leftPanel()
-            self.BaseBox.addLayout(layout)
+            self.LeftBox.addLayout(layout)
 
         elif self.tool_mode == 3:
             if self.category_mode == 0:
                 self.leftColumn.setTitle("Rigs :: filter")
                 layout = self.animation[self.category_mode]["func"].leftPanel()
-                self.BaseBox.addLayout(layout)
+                self.LeftBox.addLayout(layout)
             elif self.category_mode == 1:
                 self.leftColumn.setTitle("Poses :: filter")
                 layout = self.animation[self.category_mode]["func"].leftPanel()
-                self.BaseBox.addLayout(layout)
+                self.LeftBox.addLayout(layout)
+            elif self.category_mode == 2:
+                self.leftColumn.setTitle("Animation Player")
+                self.lastClass = AnimPlayer(self.glob, self.graph.view)
+                self.LeftBox.addLayout(self.lastClass)
             else:
                 self.leftColumn.setTitle("Not yet implemented")
 
         else:
             self.leftColumn.setTitle("Not yet implemented")
 
-        self.BaseBox.addStretch()
+        self.LeftBox.addStretch()
 
 
     def drawMorphPanel(self, text=""):
@@ -529,7 +537,9 @@ class MHMainWindow(QMainWindow):
 
     def setToolModeAndPanel(self, tool, category):
         if self.tool_mode != tool or self.category_mode != category:
-            self.emptyLayout(self.BaseBox)
+            if self.lastClass is not None:
+                self.lastClass.cleanup()
+            self.emptyLayout(self.LeftBox)
             self.emptyLayout(self.ToolBox)
             self.emptyLayout(self.CategoryBox)
             self.tool_mode = tool
@@ -716,9 +726,9 @@ class MHMainWindow(QMainWindow):
             self.drawRightPanel()
             self.ToolBox.update()
 
-            self.emptyLayout(self.BaseBox)
+            self.emptyLayout(self.LeftBox)
             self.drawLeftPanel()
-            self.BaseBox.update()
+            self.LeftBox.update()
             self.graph.setSizeInfo()
 
             self.graph.update()

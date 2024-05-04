@@ -21,7 +21,7 @@ class BVHJoint():
         self.matRestLocal = None
         self.matRestGlobal = None
 
-        self.matrixPoses = None
+        self.matrixPoses = None         # location/rotation matrices for complete animation
 
     def calculateRestMat(self):
 
@@ -53,9 +53,12 @@ class BVH():
         self.channelname = {"Xposition":0, "Yposition":1, "Zposition":2, "Xrotation":3, "Yrotation":4, "Zrotation":5}
         self.bvhJointOrder = []
         self.joints = {}
-        self.frameCount = 1 # dummy frame
-        self.z_up = True
+        self.frameCount = 1     # one frame at least (could be rest pose), will contain number of frames
+        self.currentFrame = 0  # is used for animplayer
         self.pi_mult = math.pi / 180.0
+
+        self.dislocation = False        # allow dislocation of bones (usually only root can be moved), also face has no dislocation
+        self.z_up = True                # read in different direction
 
     def keyParam(self, key, fp):
         param = fp.readline().split()
@@ -86,6 +89,11 @@ class BVH():
         joint.nChannels = nChannels
         return (True, "okay")
 
+    def getOffset(self, param):
+        if self.z_up:
+            return ([float(param[0]), float(param[2]), -float(param[1])])
+        else:
+            return ([float(param[0]), float(param[1]), float(param[2])])
 
     def readJointHierarchy(self, joint, fp):
         (param, msg ) = self.keyParam('{', fp)
@@ -98,11 +106,7 @@ class BVH():
 
         # Calculate position from offset
         #
-        if self.z_up:
-            joint.offset = [float(param[0]), float(param[2]), -float(param[1])]
-        else:
-            joint.offset = [float(param[0]), float(param[1]), float(param[2])]
-
+        joint.offset = self.getOffset(param)
         (err, msg ) = self.getChannelOrder(joint, fp)
         if err is False:
             return (False, msg)
@@ -123,11 +127,8 @@ class BVH():
                 (param, msg ) = self.keyParam('OFFSET', fp)
                 if param is None:
                     return (False, msg)
-                if self.z_up:
-                    child.offset = [float(param[0]), float(param[2]), -float(param[1])]
-                else:
-                    child.offset = [float(param[0]), float(param[1]), float(param[2])]
 
+                child.offset = self.getOffset(param)
                 (param, msg ) = self.keyParam('}', fp)
                 if param is None:
                     return (False, msg)
@@ -145,7 +146,7 @@ class BVH():
             joint.matrixPoses[:,:3,:3] = np.identity(3, dtype=np.float32)
 
 
-    def eulerMatrix(self, ri, rj, rk):
+    def eulerMatrixXYZ(self, ri, rj, rk):
         M = np.identity(4)
         si, sj, sk = math.sin(ri), math.sin(rj), math.sin(rk)
         ci, cj, ck = math.cos(ri), math.cos(rj), math.cos(rk)
@@ -163,7 +164,20 @@ class BVH():
         M[2, 2] = cj*ci
         return(M)
 
-    def fillFrames(self, frame, data):
+    def eulerMatrix(self, x, y, z, s="xyz"):
+        if s == "xyz":
+            return self.eulerMatrixXYZ(x, y, z)
+        elif s == "xzy":
+            return self.eulerMatrixXYZ(x, z, y)
+        elif s == "yxz":
+            return self.eulerMatrixXYZ(y, x, z)
+        elif s == "yzx":
+            return self.eulerMatrixXYZ(y, z, x)
+        elif s == "zxy":
+            return self.eulerMatrixXYZ(z, x, y)
+        return self.eulerMatrixXYZ(z, y, x)
+
+    def calcLocRotMat(self, frame, data):
         #
         # works only for XYZ joint order (rotation)
         i = 0
@@ -185,17 +199,31 @@ class BVH():
                     y = self.pi_mult * joint.animdata[frame, 4]
                     z = self.pi_mult * joint.animdata[frame, 5]
 
-                joint.matrixPoses[frame,:3,:3] = self.eulerMatrix(x, y, z)[:3,:3]
+                joint.matrixPoses[frame,:3,:3] = self.eulerMatrix(x, y, z, "xyz")[:3,:3]
                 #
-                if joint.parent is None:
+                if joint.parent is None or self.dislocation:
                     joint.matrixPoses[frame,:3,3] = [joint.animdata[frame, 0], joint.animdata[frame, 1], joint.animdata[frame, 2]]
 
 
+    def debugChanged(self):
+        np.set_printoptions(precision=3, suppress=True)
+        restmatrix= np.zeros((3,4), dtype=np.float32)
+        restmatrix[:3,:3] = np.identity(3, dtype=np.float32)
+        print ("Frame: " + str(self.currentFrame))
+        for joint in self.bvhJointOrder:
+            m = np.round(joint.matrixPoses[self.currentFrame], decimals=3)
+            if not np.array_equiv(m,restmatrix):
+                if np.where(~m.any(axis=0))[0] == 3:
+                    s = list(m[:3,:3].flatten())
+                else:
+                    s = list(m.flatten())
+                print("\"" + joint.name + "\": " + str(s))
+
     def debugJoints(self):
         for joint in self.bvhJointOrder:
-            print (joint)
-            #print (joint.name)
-            #print (joint.matrixPoses)
+            #print (joint)
+            print (joint.name)
+            print (joint.matrixPoses)
             #print (joint.matRestLocal)
             #print (joint.matRestGlobal)
 
@@ -246,8 +274,7 @@ class BVH():
             for i in range(self.frameCount):
                 words = fp.readline().split()
                 data = [float(word) for word in words]
-                self.fillFrames(i, data)
+                self.calcLocRotMat(i, data)
 
-        self.debugJoints()
         return (True, "Okay")
 

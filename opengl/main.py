@@ -1,6 +1,6 @@
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
 from PySide6.QtWidgets import QSizePolicy
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QSize, Qt, QTimer
 from PySide6.QtGui import QMatrix4x4, QVector3D, QOpenGLContext
 
 # try to keep only constants here
@@ -46,6 +46,9 @@ class OpenGLView(QOpenGLWidget):
         self.camera  = None
         self.skybox = None
         self.glob.openGLWindow = self
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.nextFrame)
+        self.blocked = False
 
     def textureFromMaterial(self, obj):
         if hasattr(obj.material, 'diffuseTexture'):
@@ -59,6 +62,29 @@ class OpenGLView(QOpenGLWidget):
             self.prims["skeleton"].delete()
             del self.prims["skeleton"]
             self.Tweak()
+
+    def startTimer(self):
+        self.timer.start(40)
+
+    def stopTimer(self):
+        self.timer.stop()
+        self.blocked = False
+
+    def nextFrame(self):
+        if self.blocked:
+            return
+        self.blocked = True
+        skeleton = self.glob.baseClass.skeleton
+        bvh = self.glob.baseClass.bvh
+        skeleton.pose(bvh.joints, bvh.currentFrame)
+        if bvh.currentFrame < (bvh.frameCount-1):
+            bvh.currentFrame += 1
+        else:
+            bvh.currentFrame = 0
+        self.paintGL()
+        self.update()
+        self.blocked = False
+
 
     def addSkeleton(self):
         skeleton = self.glob.baseClass.skeleton

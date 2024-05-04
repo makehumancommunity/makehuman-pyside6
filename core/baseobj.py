@@ -345,6 +345,11 @@ class baseClass():
         self.skeleton = None
         self.glob.openGLWindow.delSkeleton()
 
+    def showPose(self):
+        self.skeleton.pose(self.bvh.joints, self.bvh.currentFrame)
+        #self.bvh.debugChanged()
+        self.glob.openGLWindow.Tweak()
+
     def addPose(self, name, path):
         if self.skeleton is None:
             return
@@ -353,7 +358,7 @@ class baseClass():
         if not loaded:
             self.env.logLine(1, "BVH: " + path + " " + msg)
         else:
-            self.skeleton.pose(self.bvh.joints)
+            self.showPose()
 
     def delPose(self):
         self.bvh = None
