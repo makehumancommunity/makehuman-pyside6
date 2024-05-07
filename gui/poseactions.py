@@ -3,6 +3,19 @@ from gui.common import IconButton, WorkerThread
 import os
 import time
 
+class AnimMode():
+    def __init__(self, glob, view):
+        self.glob = glob
+        self.view = view
+        self.mesh = glob.baseClass.baseMesh
+        self.mesh.createWCopy()
+
+    def leave(self):
+        self.mesh.resetFromCopy()
+        self.glob.baseClass.updateAttachedAssets()
+        self.view.Tweak()
+
+
 class AnimPlayer(QVBoxLayout):
     """
     create a form with anim-player buttons (dummy)
@@ -12,21 +25,27 @@ class AnimPlayer(QVBoxLayout):
         env = glob.env
         self.view = view
         self.bc  = glob.baseClass
+        self.mesh = self.bc.baseMesh
         self.anim = self.bc.bvh
         super().__init__()
 
         ilayout = QHBoxLayout()
         ilayout.addWidget(IconButton(1,  os.path.join(env.path_sysicon, "minus.png"), "previous frame", self.prevframe))
         ilayout.addWidget(IconButton(2,  os.path.join(env.path_sysicon, "plus.png"), "next frame", self.nextframe))
-        loopbutton = IconButton(3,  os.path.join(env.path_sysicon, "reset.png"), "toggle animation", self.loop)
-        ilayout.addWidget(loopbutton)
-        loopbutton.setChecked(False)
-        loopbutton.setCheckable(True)
+        self.loopbutton = IconButton(3,  os.path.join(env.path_sysicon, "reset.png"), "toggle animation", self.loop)
+        self.loopbutton.setCheckable(True)
+        ilayout.addWidget(self.loopbutton)
         self.addLayout(ilayout)
 
+    def enter(self):
+        self.loopbutton.setChecked(False)
+        self.mesh.createWCopy()
 
-    def cleanup(self):
-         self.view.stopTimer()
+    def leave(self):
+        self.view.stopTimer()
+        self.mesh.resetFromCopy()
+        self.bc.updateAttachedAssets()
+        self.view.Tweak()
 
     def prevframe(self):
         if self.anim is None:

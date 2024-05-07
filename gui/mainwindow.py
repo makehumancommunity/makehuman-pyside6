@@ -11,7 +11,7 @@ from gui.memwindow import  MHMemWindow
 from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport
-from gui.poseactions import AnimPlayer
+from gui.poseactions import AnimPlayer, AnimMode
 from gui.slider import ScaleComboArray
 from gui.imageselector import ImageSelection
 from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, MHGroupBox, IconButton
@@ -436,11 +436,13 @@ class MHMainWindow(QMainWindow):
                 self.LeftBox.addLayout(layout)
             elif self.category_mode == 1:
                 self.leftColumn.setTitle("Poses :: filter")
+                self.lastClass = AnimMode(self.glob, self.graph.view)
                 layout = self.animation[self.category_mode]["func"].leftPanel()
                 self.LeftBox.addLayout(layout)
             elif self.category_mode == 2:
                 self.leftColumn.setTitle("Animation Player")
                 self.lastClass = AnimPlayer(self.glob, self.graph.view)
+                self.lastClass.enter()
                 self.LeftBox.addLayout(self.lastClass)
             else:
                 self.leftColumn.setTitle("Not yet implemented")
@@ -538,7 +540,8 @@ class MHMainWindow(QMainWindow):
     def setToolModeAndPanel(self, tool, category):
         if self.tool_mode != tool or self.category_mode != category:
             if self.lastClass is not None:
-                self.lastClass.cleanup()
+                self.lastClass.leave()
+                self.lastClass = None
             self.emptyLayout(self.LeftBox)
             self.emptyLayout(self.ToolBox)
             self.emptyLayout(self.CategoryBox)

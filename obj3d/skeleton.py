@@ -12,6 +12,7 @@ class skeleton:
         self.jointVerts = {} # vertices for position (median calculation)
         self.planes = {}
         self.bones = {}      # list of cBones
+        self.bWeights = None
         self.root = None     # our skeleton accepts one root bone, not more
         self.mesh = self.glob.baseClass.baseMesh
 
@@ -90,8 +91,8 @@ class skeleton:
             self.env.logLine(1, "Missing weight file " + weightname)
             return False
 
-        bWeights = boneWeights(self.glob, self.root)
-        bWeights.loadJSON(weightfile)
+        self.bWeights = boneWeights(self.glob, self.root)
+        self.bWeights.loadJSON(weightfile)
 
         # array with ordered bones
         #
@@ -159,9 +160,38 @@ class skeleton:
         for bone in  self.bones:
             self.bones[bone].calcGlobalPoseMat()
 
+    def skinMesh(self):
+        vmapping = self.bWeights.bWeights
+
+        coords = np.zeros((self.mesh.n_origverts,3), float)        # own vector
+        l = int(len(self.mesh.gl_coord) / 3)
+
+        meshCoords = np.ones((l, 4), dtype=np.float32)
+        meshCoords[:,:3] = np.reshape(self.mesh.gl_coord_w, (l,3))
+
+        for bname in vmapping:
+            bone = self.bones[bname]
+            #
+            # TODO: should not be None in the end
+            #
+            if bone.matPoseVerts is not None:
+                verts, weights = vmapping[bname]
+                vec = np.dot(bone.matPoseVerts, meshCoords[verts].transpose())
+                vec *= weights
+                coords[verts] += vec.transpose()[:,:3]
+
+        m = coords.flatten()
+        self.mesh.gl_coord[:self.mesh.n_origverts*3] = m[:]
+        self.mesh.overflowCorrection(self.mesh.gl_coord)
+
+
+
     def pose(self, joints, num=0):
         for elem in joints:
             if elem in self.bones:
                 self.bones[elem].calcLocalPoseMat(joints[elem].matrixPoses[num])
                 self.bones[elem].calcGlobalPoseMat()
                 self.bones[elem].poseBone()
+
+        self.skinMesh()
+        self.glob.baseClass.updateAttachedAssets()

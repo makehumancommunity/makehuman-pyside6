@@ -33,7 +33,7 @@ class object3d:
         self.gl_coord = []    # will contain flattened gl-Buffer (these are coordinates to be changed)
         self.gl_coord_o = []  # will contain a copy of unchanged positions (TODO base mesh only ?)
 
-        self.gl_coord_w = []  # will contain a copy of unchanged positions (working mode with targets)
+        self.gl_coord_w = []  # will contain a copy of unchanged positions (working mode with targets) & for posing
         self.gl_coord_mn = []  # will contain buffer for work with macros containing all changes except the macros
         self.gl_coord_mm = []  # will contain buffer for work with macros containing all changes of the macros
 
@@ -272,6 +272,12 @@ class object3d:
     def resetMesh(self):
         self.gl_coord[:] = self.gl_coord_o[:] # get back the copy
 
+    def createWCopy(self):
+        self.gl_coord_w[:] = self.gl_coord[:]
+
+    def resetFromCopy(self):
+        self.gl_coord[:] = self.gl_coord_w[:]
+
     def hideVertices(self, verts):
         numind = len(self.gl_icoord) -2
         w = np.resize(verts, self.n_verts)
@@ -321,7 +327,7 @@ class object3d:
         called when starting work with one slider, a copy without the value
         of this slider is created.
         """
-        self.gl_coord_w[:] = self.gl_coord[:]
+        self.createWCopy()
         if factor == 0.0:
             return
         else:
