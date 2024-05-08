@@ -76,13 +76,12 @@ class OpenGLView(QOpenGLWidget):
         self.blocked = True
         skeleton = self.glob.baseClass.skeleton
         bvh = self.glob.baseClass.bvh
-        skeleton.pose(bvh.joints, bvh.currentFrame)
+        skeleton.pose(bvh.joints, bvh.currentFrame, self.objects_invisible)
         if bvh.currentFrame < (bvh.frameCount-1):
             bvh.currentFrame += 1
         else:
             bvh.currentFrame = 0
-        self.paintGL()
-        self.update()
+        self.Tweak()
         self.blocked = False
 
 
@@ -246,9 +245,8 @@ class OpenGLView(QOpenGLWidget):
             self.skybox.draw(proj_view_matrix)
 
         if self.objects_invisible is True and "skeleton" in self.prims:
-            skeleton = self.glob.baseClass.skeleton
+            #skeleton = self.glob.baseClass.skeleton
             bvh = self.glob.baseClass.bvh
-            skeleton.newJointPos()
             self.prims["skeleton"].newGeometry(bvh is not None)
 
         for name in self.prims:

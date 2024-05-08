@@ -186,12 +186,14 @@ class skeleton:
 
 
 
-    def pose(self, joints, num=0):
-        for elem in joints:
-            if elem in self.bones:
+    def pose(self, joints, num=0, bones_only=False):
+        for elem in self.bones:
+            if elem in joints:
                 self.bones[elem].calcLocalPoseMat(joints[elem].matrixPoses[num])
-                self.bones[elem].calcGlobalPoseMat()
-                self.bones[elem].poseBone()
 
-        self.skinMesh()
-        self.glob.baseClass.updateAttachedAssets()
+            self.bones[elem].calcGlobalPoseMat()
+            self.bones[elem].poseBone()
+
+        if not bones_only:
+            self.skinMesh()
+            self.glob.baseClass.updateAttachedAssets()
