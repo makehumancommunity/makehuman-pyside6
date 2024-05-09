@@ -131,7 +131,7 @@ class programInfo():
 
         # all folders that belong to a basemesh
         #
-        self.basefolders = [ "clothes", "eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue", "proxy", "rigs", "poses" ]
+        self.basefolders = [ "clothes", "eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue", "proxy", "rigs", "poses", "expressions" ]
 
         self.basename = None
         self.fileCache = None
@@ -630,7 +630,7 @@ class programInfo():
         (.mhclo, .proxy, .mhskel)
         """
         if subdir is None:
-            assetdirs = [[ ".proxy", "proxy"], [ ".mhskel", "rigs" ], [".bvh", "poses"]]
+            assetdirs = [[ ".proxy", "proxy"], [ ".mhskel", "rigs" ], [".mhpose", "expressions"], [".bvh", "poses"]]
 
             (latest, files) = self.subDirsBaseFolder(".mhclo", None)
             for elem in assetdirs:
@@ -644,6 +644,8 @@ class programInfo():
             (latest, files) = self.subDirsBaseFolder(".proxy", "proxy")
         elif subdir == "rigs":
             (latest, files) = self.subDirsBaseFolder(".mhskel", "rigs")
+        elif subdir == "expressions":
+            (latest, files) = self.subDirsBaseFolder(".mhpose", "expressions")
         elif subdir == "poses":
             (latest, files) = self.subDirsBaseFolder(".bvh", "poses")
         else:
@@ -661,14 +663,14 @@ class programInfo():
                 if not os.path.isfile(thumbfile):
                     thumbfile = None
 
-                if extension == ".mhskel":
+                if extension == ".mhskel" or extension == ".mhpose":
                     json = self.readJSON(path)
                     if json is None:
                         self.logLine (1, "JSON error " + self.last_error)
                     else:
                         name = json["name"] if "name" in json else filename
-                        uuid = "skel_"+name
-                        author = "unknown"
+                        uuid = extension[3:] + "_"+name
+                        author = json["author"] if "author" in json else "unknown"
                         mtags = "|".join(json["tags"]).encode('ascii', 'ignore').lower().decode("utf-8") if "tags" in json else ""
                         data.append([name, uuid, path, folder, None, thumbfile, author, mtags])
                     continue

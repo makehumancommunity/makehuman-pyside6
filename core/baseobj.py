@@ -3,7 +3,7 @@ from core.target import Targets
 from core.attached_asset import attachedAsset
 from obj3d.object3d import object3d
 from obj3d.skeleton import skeleton
-from obj3d.animation import BVH
+from obj3d.animation import BVH, MHPose, FaceUnits
 from core.debug import memInfo, dumper
 from core.target import Modelling
 from gui.common import WorkerThread
@@ -43,8 +43,6 @@ class baseClass():
         self.glob = glob
         self.dirname = dirname      # contains dirname of the obj (to determine user or system space)
         self.baseMesh = None
-        self.skeleton = None
-        self.bvh = None             # indicates that object is posed
         self.baseInfo = None
         self.cachedInfo = []
         self.attachedAssets = []
@@ -64,6 +62,10 @@ class baseClass():
         self.tags = [] 
         self.photo = None
         self.uuid = None
+        self.skeleton = None
+        self.bvh = None             # indicates that object is posed
+        self.expression = None      # indicates that expressions are used
+        self.faceunits  = None      # indicates that face-units are initalized
 
     def noAssetsUsed(self):
         for elem in self.cachedInfo:
@@ -362,6 +364,29 @@ class baseClass():
 
     def delPose(self):
         self.bvh = None
+
+    def addExpression(self, name, path):
+        if self.skeleton is None:
+            return
+
+        if self.faceunits is None:
+            m = FaceUnits(self.glob)
+            loaded, msg = m.load()
+            if not loaded:
+                self.env.logLine(1, "faceUnits: " + path + " " + msg)
+                return
+            self.faceunits = m
+
+        self.expression = MHPose(self.glob, self.faceunits, name)
+        loaded, msg  = self.expression.load(path)
+        if not loaded:
+            self.env.logLine(1, "BVH: " + path + " " + msg)
+        else:
+            #self.showPose()
+            pass
+
+    def delExpression(self):
+        self.expression = None
 
     def prepareClass(self):
         self.env.logLine(2, "Prepare class called with: " + self.env.basename)

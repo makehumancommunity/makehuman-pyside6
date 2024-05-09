@@ -278,3 +278,50 @@ class BVH():
 
         return (True, "Okay")
 
+class MHPose():
+    def __init__(self, glob, faceunits, name):
+        self.glob = glob
+        self.env = glob.env
+        self.name = name
+        self.units = faceunits.units
+
+    def load(self, filename):
+        self.env.logLine(1, "Load pose " + filename)
+        pose = self.env.readJSON(filename)
+        if pose is None:
+            return (False, self.env.last_error)
+
+        for elem in pose["unit_poses"]:
+            weight = pose["unit_poses"][elem]
+            print (elem, weight)
+            if elem in self.units:
+                m = self.units[elem]
+                for bone in m:
+                    print ("    " + str(bone))
+        return (True, "Okay")
+
+class FaceUnits():
+    def __init__(self, glob):
+        self.glob = glob
+        self.env = glob.env
+        self.units = None
+        self.bonemask = []
+
+    def load(self):
+        filename =self.env.existDataFile("base", self.env.basename, "face-poses.json")
+        if filename is None:
+            return (False)
+
+        self.env.logLine(1, "Load pose " + filename)
+        faceunits = self.env.readJSON(filename)
+        if faceunits is None:
+            return (False, self.env.last_error)
+
+        # create a bone mask
+        for elem in faceunits:
+            for bone in faceunits[elem]:
+                if bone not in self.bonemask:
+                    self.bonemask.append(bone)
+        self.units = faceunits
+        return (True, "Okay")
+

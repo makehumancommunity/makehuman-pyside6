@@ -75,7 +75,7 @@ class MHMainWindow(QMainWindow):
                 { "func": None, "menu": None, "name": "rigs", "mode": 0 },
                 { "func": None, "menu": None, "name": "poses", "mode": 0 },
                 { "func": None, "menu": None, "name": "animation", "mode": 0 },
-                { "func": None, "menu": None, "name": "expression", "mode": 0 }
+                { "func": None, "menu": None, "name": "expressions", "mode": 0 }
         ]
 
         self.model_buttons = [ 
@@ -256,6 +256,12 @@ class MHMainWindow(QMainWindow):
                 self.glob.baseClass.delPose()
             else:
                 self.glob.baseClass.addPose(selected.name, selected.filename)
+            self.graph.view.Tweak()
+        elif eqtype == "expressions":
+            if selected.status == 0:
+                self.glob.baseClass.delExpression()
+            else:
+                self.glob.baseClass.addExpression(selected.name, selected.filename)
             self.graph.view.Tweak()
 
     def fileRequest(self, ftext, pattern, directory, save=None):
@@ -444,6 +450,10 @@ class MHMainWindow(QMainWindow):
                 self.lastClass = AnimPlayer(self.glob, self.graph.view)
                 self.lastClass.enter()
                 self.LeftBox.addLayout(self.lastClass)
+            elif self.category_mode == 3:
+                self.leftColumn.setTitle("Expressions :: filter")
+                layout = self.animation[self.category_mode]["func"].leftPanel()
+                self.LeftBox.addLayout(layout)
             else:
                 self.leftColumn.setTitle("Not yet implemented")
 
@@ -511,7 +521,7 @@ class MHMainWindow(QMainWindow):
             text = "Character equipment, category: " + equip["name"]
             self.drawEquipPanel(equip["func"], text)
         elif self.tool_mode == 3:
-            if self.category_mode == 0 or self.category_mode == 1:
+            if self.category_mode == 0 or self.category_mode == 1 or self.category_mode == 3:
                 equip = self.animation[self.category_mode]
                 text = "Pose and animation, category: " + equip["name"]
                 self.drawEquipPanel(equip["func"], text)

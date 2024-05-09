@@ -121,7 +121,7 @@ class AssetPack():
 
                 dirs = root.split(os.sep)
                 category = dirs[0]
-                if category in ["clothes", "eyes", "eyelashes", "eyebrows", "hair", "skins", "teeth", "tongue", "proxymeshes", "rigs", "poses"]:
+                if category in ["clothes", "eyes", "eyelashes", "eyebrows", "hair", "skins", "teeth", "tongue", "proxymeshes", "rigs", "poses", "expressions"]:
                     # proxy is renamed
                     #
                     if category == "proxymeshes":
