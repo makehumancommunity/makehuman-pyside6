@@ -365,17 +365,22 @@ class baseClass():
     def delPose(self):
         self.bvh = None
 
-    def addExpression(self, name, path):
-        if self.skeleton is None:
-            return
-
+    def getFaceUnits(self):
         if self.faceunits is None:
             m = FaceUnits(self.glob)
             loaded, msg = m.load()
             if not loaded:
                 self.env.logLine(1, "faceUnits: " + path + " " + msg)
-                return
+                return (None)
             self.faceunits = m
+        return (self.faceunits)
+ 
+    def addExpression(self, name, path):
+        if self.skeleton is None:
+            return
+
+        if self.getFaceUnits() is None:
+           return
 
         self.expression = MHPose(self.glob, self.faceunits, name)
         loaded, msg  = self.expression.load(path)

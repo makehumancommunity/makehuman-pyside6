@@ -11,7 +11,7 @@ from gui.memwindow import  MHMemWindow
 from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport
-from gui.poseactions import AnimPlayer, AnimMode
+from gui.poseactions import AnimPlayer, AnimMode, AnimExpressionEdit
 from gui.slider import ScaleComboArray
 from gui.imageselector import ImageSelection
 from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, MHGroupBox, IconButton
@@ -56,6 +56,7 @@ class MHMainWindow(QMainWindow):
 
         self.in_close = False
         self.targetfilter = None
+        self.expressionfilter = None
         self.bckproc = None         # background process is running
 
         self.tool_mode = 0          # 0 = files, 1 = modelling, 2 = equipment, 3 = pose, 4 render
@@ -455,13 +456,29 @@ class MHMainWindow(QMainWindow):
                 layout = self.animation[self.category_mode]["func"].leftPanel()
                 self.LeftBox.addLayout(layout)
             else:
-                self.leftColumn.setTitle("Not yet implemented")
+                self.leftColumn.setTitle("Expressions :: editor")
+                self.lastClass = AnimExpressionEdit(self.glob, self.graph.view)
+                filterparam = self.glob.baseClass.getFaceUnits().createFilterDict()
+                self.qTree = MHTreeView(filterparam, "Expressions", self.redrawNewExpression, None)
+                self.targetfilter = self.qTree.getStartPattern()
+                self.LeftBox.addWidget(self.qTree)
 
         else:
             self.leftColumn.setTitle("Not yet implemented")
 
         self.LeftBox.addStretch()
 
+    def drawExpressionPanel(self, text=""):
+        self.rightColumn.setTitle("Create Expression, category: " + text)
+        widget = QWidget()
+        sweep = os.path.join(self.glob.env.path_sysicon, "sweep.png")
+        expressions = self.lastClass.fillExpressions()
+        self.exprArray = ScaleComboArray(widget, expressions, self.expressionfilter, sweep)
+        widget.setLayout(self.exprArray.layout)
+        scrollArea = QScrollArea()
+        scrollArea.setWidget(widget)
+        scrollArea.setWidgetResizable(True)
+        self.ToolBox.addWidget(scrollArea)
 
     def drawMorphPanel(self, text=""):
         self.rightColumn.setTitle("Modify character, category: " + text)
@@ -525,6 +542,8 @@ class MHMainWindow(QMainWindow):
                 equip = self.animation[self.category_mode]
                 text = "Pose and animation, category: " + equip["name"]
                 self.drawEquipPanel(equip["func"], text)
+            elif self.category_mode == 4:
+                self.drawExpressionPanel(text)
             else:
                 self.rightColumn.setTitle("Not yet implemented")
         else:
@@ -753,6 +772,15 @@ class MHMainWindow(QMainWindow):
         self.emptyLayout(self.ToolBox)
         self.targetfilter = category
         self.drawMorphPanel(text)
+        self.ToolBox.update()
+
+    def redrawNewExpression(self, category, text=None):
+        print (category)
+        if text is None:
+            text =self.qTree.getLastHeadline()
+        self.emptyLayout(self.ToolBox)
+        self.expressionfilter = category
+        self.drawExpressionPanel(text)
         self.ToolBox.update()
 
     def finished_bckproc(self):

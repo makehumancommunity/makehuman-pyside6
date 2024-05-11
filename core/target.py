@@ -1,4 +1,5 @@
 from gui.common import WorkerThread
+from gui.slider import ScaleComboItem
 from core.targetcat import TargetCategories
 import os
 import sys
@@ -21,28 +22,22 @@ class MacroTree:
         return (str(self.names) + " " + str(self.values))
 
 
-class Modelling:
+class Modelling(ScaleComboItem):
     def __init__(self, glob, name, icon):
+
+        super().__init__(name, icon)    # inherit attributs
         self.glob     = glob
         self.obj      = glob.baseClass
 
-        self.name = name
-        self.icon = icon
-        self.tip  = "Select or modify"
-        self.selected = False
-        self.value = 0.0
-        self.default = 0.0
         self.incr = None    # target "incr"
         self.decr = None    # target "decr"
         self.macro = None   # macro target
         self.m_influence = []   # all influences
         self.barycentric = None # map slider
-        self.opposite = True # two.directional slider
+        self.opposite = True # change to True
         self.mapSlider = None # filled from mapslider function
         self.sym = None       # symmetric side (left, right)
         self.isRSide = False    # bool for side
-        self.displayname = name
-        self.group = None
         self.pattern = "None"
 
     def __str__(self):
@@ -320,7 +315,6 @@ class Modelling:
         print (self.m_influence)
         m = self.glob.targetMacros['macrodef']
         m_influence = list(range(0,len(m)))
-        #self.macroCalculation(self.m_influence)
         self.macroCalculation(m_influence)
         self.obj.updateAttachedAssets()
 

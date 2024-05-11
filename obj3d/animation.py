@@ -305,23 +305,42 @@ class FaceUnits():
         self.glob = glob
         self.env = glob.env
         self.units = None
+        self.filterparam = None
+        self.groups   = []
         self.bonemask = []
+
+    def __str__(self):
+        return(str(self.units.keys()))
+
+    def createFilterDict(self):
+        self.filterparam = { "Face": {"group": "main", "items": [] }}
+
+        for elem in self.groups:
+            self.filterparam["Face"]["items"].append({"title": elem.capitalize(), "cat": elem})
+        return (self.filterparam)
 
     def load(self):
         filename =self.env.existDataFile("base", self.env.basename, "face-poses.json")
         if filename is None:
             return (False)
 
-        self.env.logLine(1, "Load pose " + filename)
+        self.env.logLine(1, "Load face units " + filename)
         faceunits = self.env.readJSON(filename)
         if faceunits is None:
             return (False, self.env.last_error)
 
-        # create a bone mask
+        # create a bone mask and collect groups
+
         for elem in faceunits:
-            for bone in faceunits[elem]:
-                if bone not in self.bonemask:
-                    self.bonemask.append(bone)
+            if "group" in faceunits[elem]:
+                g = faceunits[elem]["group"]
+                if g not in self.groups:
+                    self.groups.append(g)
+
+            if "bones" in faceunits[elem]:
+                for bone in faceunits[elem]["bones"]:
+                    if bone not in self.bonemask:
+                        self.bonemask.append(bone)
         self.units = faceunits
         return (True, "Okay")
 

@@ -7,6 +7,24 @@ from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, Q
 from gui.mapslider import MapBaryCentricCombo
 
 
+class ScaleComboItem:
+    def __init__(self, name, icon):
+        self.name = name
+        self.icon = icon
+        self.tip  = "Select to modify"
+        self.selected = False
+        self.value = 0.0
+        self.default = 0.0
+        self.opposite = False # two.directional slider?
+        self.displayname = name
+        self.group = None
+
+    def callback(self):
+        print ("Empty Callback")
+
+    def initialize(self):
+        print ("Empty Init")
+
 class ScalePictureButton(QPushButton):
     def __init__(self, name, icon, tip):
         self.icon = icon
@@ -218,14 +236,14 @@ class ScaleComboArray(QWidget):
         super(ScaleComboArray, self).__init__(parent=parent)
         self.layout=QVBoxLayout(self)
         self.scaleComboArray = []
-        self.resetIcon = QIcon(sweep) #mainwidget.style().standardIcon(QStyle.SP_DialogResetButton)
+        self.resetIcon = QIcon(sweep)
         cnt = 0
         for elem in modelling:
             if filterparam is None or elem.group == filterparam:
 
                 # special case of barycentric slider first
                 #
-                if elem.barycentric is not None:
+                if hasattr(elem, "barycentric") and elem.barycentric is not None:
                     texts = [d['text'] for d in elem.barycentric]
                     values = [d['value'] for d in elem.barycentric]
 

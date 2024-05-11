@@ -1,5 +1,7 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel
 from gui.common import IconButton, WorkerThread
+from gui.slider import ScaleComboItem
+from obj3d.animation import FaceUnits
 import os
 import time
 
@@ -74,4 +76,48 @@ class AnimPlayer(QVBoxLayout):
         else:
             self.view.stopTimer()
         b.setChecked(v)
+
+class ExpressionItem(ScaleComboItem):
+    def __init__(self, glob, name, icon, expression):
+        super().__init__(name, icon)    # inherit attributs
+        self.glob = glob
+        if "group" in expression:
+            self.group = "main|" + expression["group"]
+
+    def initialize(self):
+        print ("In ExpressionItem initialize")
+        print (self.name)
+
+    def callback(self):
+        print ("In ExpressionItem callback")
+        print (self.name)
+
+
+class AnimExpressionEdit():
+    def __init__(self, glob, view):
+        self.glob = glob
+        self.view = view
+        self.mesh = glob.baseClass.baseMesh
+        self.mesh.createWCopy()
+
+    def fillExpressions(self):
+        expressions = []
+
+        funits = self.glob.baseClass.getFaceUnits()
+        if funits is None:
+            return (expressions)
+
+        default_icon = os.path.join(self.glob.env.path_sysicon, "empty_target.png")
+        for elem in funits.units.keys():
+            expression = funits.units[elem]
+            if "bones" in expression:
+                expressions.append(ExpressionItem(self.glob, elem, default_icon, expression))
+        return(expressions)
+
+
+    def leave(self):
+        self.mesh.resetFromCopy()
+        self.glob.baseClass.updateAttachedAssets()
+        self.view.Tweak()
+
 
