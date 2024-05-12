@@ -385,10 +385,9 @@ class baseClass():
         self.expression = MHPose(self.glob, self.faceunits, name)
         loaded, msg  = self.expression.load(path)
         if not loaded:
-            self.env.logLine(1, "BVH: " + path + " " + msg)
+            self.env.logLine(1, "mhpose: " + path + " " + msg)
         else:
-            #self.showPose()
-            pass
+            self.skeleton.posebyBlends(self.expression.blends)
 
     def delExpression(self):
         self.expression = None

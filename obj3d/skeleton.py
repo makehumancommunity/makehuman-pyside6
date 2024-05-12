@@ -199,16 +199,36 @@ class skeleton:
             self.skinMesh()
             self.glob.baseClass.updateAttachedAssets()
 
-    def pose_bymat(self, posemat, value, bones_only=False):
-        value = value / 100
-        for elem in self.bones:
-            if elem in posemat:
-                q1 =  mquat.quaternionSlerpFromMatrix(posemat[elem], value)
-                mat = mquat.quaternionToRotMatrix(q1)
-                self.bones[elem].calcLocalPoseMat(mat)
+    def posebyBlends(self, blends, bones_only=False):
+        """
+        function used for expressions
+        """
+        if len(blends) == 0:
+            return
 
-            self.bones[elem].calcGlobalPoseMat()
-            self.bones[elem].poseBone()
+        # check bonewise if blend is used, then use quaternions-lerp with ratio to pose
+        # in case the bone is posed by more than one posemat, multiply quaternion matrices
+        #
+        for bone in self.bones:
+            modbone = False
+            for blend in blends:
+                posemat = blend[0]
+                ratio = blend[1] / 100
+                if bone in posemat:
+                    if modbone is True:
+                        q2 = mquat.quaternionLerpFromMatrix(posemat[bone], ratio)
+                        q1 = mquat.quaternionMult(q1, q2)
+                    else:
+                        q1 = mquat.quaternionLerpFromMatrix(posemat[bone], ratio)
+                    modbone = True
+
+            if modbone is True:
+                print ("changed " + bone)
+                mat = mquat.quaternionToRotMatrix(q1)
+                self.bones[bone].calcLocalPoseMat(mat)
+
+            self.bones[bone].calcGlobalPoseMat()
+            self.bones[bone].poseBone()
 
         if not bones_only:
             self.skinMesh()

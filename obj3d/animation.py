@@ -285,6 +285,7 @@ class MHPose():
         self.env = glob.env
         self.name = name
         self.units = faceunits.units
+        self.blends = []
 
     def load(self, filename):
         self.env.logLine(1, "Load pose " + filename)
@@ -296,9 +297,10 @@ class MHPose():
             weight = pose["unit_poses"][elem]
             print (elem, weight)
             if elem in self.units:
-                m = self.units[elem]
-                for bone in m:
-                    print ("    " + str(bone))
+                if "bones" in self.units[elem]:
+                    m = self.units[elem]["bones"]
+                    self.blends.append([m, weight])
+
         return (True, "Okay")
 
 class FaceUnits():
@@ -345,6 +347,5 @@ class FaceUnits():
                     if bone not in self.bonemask:
                         self.bonemask.append(bone)
         self.units = faceunits
-        print (faceunits)
         return (True, "Okay")
 

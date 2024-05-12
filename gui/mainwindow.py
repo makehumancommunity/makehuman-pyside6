@@ -453,6 +453,7 @@ class MHMainWindow(QMainWindow):
                 self.LeftBox.addLayout(self.lastClass)
             elif self.category_mode == 3:
                 self.leftColumn.setTitle("Expressions :: filter")
+                self.lastClass = AnimMode(self.glob, self.graph.view)
                 layout = self.animation[self.category_mode]["func"].leftPanel()
                 self.LeftBox.addLayout(layout)
             else:

@@ -69,7 +69,7 @@ def quaternionMult(quaternion1, quaternion0):
                          x1*y0 - y1*x0 + z1*w0 + w1*z0], dtype=np.float64)
 
 
-def quaternionSlerp(quat0, quat1, fraction, shortestpath=True):
+def quaternionLerp(quat0, quat1, fraction, shortestpath=True):
     """
     Return spherical linear interpolation between two quaternions.
 
@@ -113,7 +113,7 @@ def quaternionSlerp(quat0, quat1, fraction, shortestpath=True):
     return q0
 
 
-def quaternionSlerpFromMatrix(mat, fraction, shortestpath=True):
+def quaternionLerpFromMatrix(mat, fraction, shortestpath=True):
     """
     do a slerp from Restmatix
     """
@@ -121,4 +121,4 @@ def quaternionSlerpFromMatrix(mat, fraction, shortestpath=True):
     m[:3, :3] = mat
     quat0 = np.asarray([1,0,0,0], dtype=np.float32)
     quat1 = quaternionFromMatrix(m)
-    return (quaternionSlerp(quat0, quat1, fraction, shortestpath))
+    return (quaternionLerp(quat0, quat1, fraction, shortestpath))

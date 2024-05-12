@@ -25,7 +25,6 @@ class AnimPlayer(QVBoxLayout):
     def __init__(self, glob, view):
         self.glob = glob
         env = glob.env
-        self.view = view
         self.bc  = glob.baseClass
         self.mesh = self.bc.baseMesh
         self.anim = self.bc.bvh
@@ -78,21 +77,16 @@ class AnimPlayer(QVBoxLayout):
         b.setChecked(v)
 
 class ExpressionItem(ScaleComboItem):
-    def __init__(self, glob, view, name, icon, expression):
+    def __init__(self, glob, name, icon, callback, expression):
         super().__init__(name, icon)    # inherit attributs
         self.glob = glob
-        self.view = view
+        self.callback = callback
         self.mat = expression["bones"]
         if "group" in expression:
             self.group = "main|" + expression["group"]
 
     def initialize(self):
         print ("In ExpressionItem initialize" + self.name)
-
-    def callback(self):
-        print ("In ExpressionItem " + self.name)
-        self.glob.baseClass.skeleton.pose_bymat(self.mat, self.value)
-        self.view.Tweak()
 
 
 
@@ -102,9 +96,10 @@ class AnimExpressionEdit():
         self.view = view
         self.mesh = glob.baseClass.baseMesh
         self.mesh.createWCopy()
+        self.expressions = []
 
     def fillExpressions(self):
-        expressions = []
+        self.expressions = []
 
         funits = self.glob.baseClass.getFaceUnits()
         if funits is None:
@@ -114,9 +109,17 @@ class AnimExpressionEdit():
         for elem in funits.units.keys():
             expression = funits.units[elem]
             if "bones" in expression:
-                expressions.append(ExpressionItem(self.glob, self.view, elem, default_icon, expression))
-        return(expressions)
+                self.expressions.append(ExpressionItem(self.glob, elem, default_icon, self.changedExpressions, expression))
+        return(self.expressions)
 
+    def changedExpressions(self):
+        blends = []
+        for elem in self.expressions:
+            if elem.value != 0.0:
+                print (elem.name + " is changed")
+                blends.append([elem.mat, elem.value])
+        self.glob.baseClass.skeleton.posebyBlends(blends)
+        self.view.Tweak()
 
     def leave(self):
         self.mesh.resetFromCopy()
