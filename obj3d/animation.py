@@ -299,7 +299,7 @@ class MHPose():
             if elem in self.units:
                 if "bones" in self.units[elem]:
                     m = self.units[elem]["bones"]
-                    self.blends.append([m, weight])
+                    self.blends.append([m, weight * 100])
 
         return (True, "Okay")
 

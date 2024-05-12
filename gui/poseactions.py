@@ -24,6 +24,7 @@ class AnimPlayer(QVBoxLayout):
     """
     def __init__(self, glob, view):
         self.glob = glob
+        self.view = view
         env = glob.env
         self.bc  = glob.baseClass
         self.mesh = self.bc.baseMesh
