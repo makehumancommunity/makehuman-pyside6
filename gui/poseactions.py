@@ -78,19 +78,22 @@ class AnimPlayer(QVBoxLayout):
         b.setChecked(v)
 
 class ExpressionItem(ScaleComboItem):
-    def __init__(self, glob, name, icon, expression):
+    def __init__(self, glob, view, name, icon, expression):
         super().__init__(name, icon)    # inherit attributs
         self.glob = glob
+        self.view = view
+        self.mat = expression["bones"]
         if "group" in expression:
             self.group = "main|" + expression["group"]
 
     def initialize(self):
-        print ("In ExpressionItem initialize")
-        print (self.name)
+        print ("In ExpressionItem initialize" + self.name)
 
     def callback(self):
-        print ("In ExpressionItem callback")
-        print (self.name)
+        print ("In ExpressionItem " + self.name)
+        self.glob.baseClass.skeleton.pose_bymat(self.mat, self.value)
+        self.view.Tweak()
+
 
 
 class AnimExpressionEdit():
@@ -111,7 +114,7 @@ class AnimExpressionEdit():
         for elem in funits.units.keys():
             expression = funits.units[elem]
             if "bones" in expression:
-                expressions.append(ExpressionItem(self.glob, elem, default_icon, expression))
+                expressions.append(ExpressionItem(self.glob, self.view, elem, default_icon, expression))
         return(expressions)
 
 

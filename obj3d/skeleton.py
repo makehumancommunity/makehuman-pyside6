@@ -1,5 +1,6 @@
 import numpy as np
 from obj3d.bone import cBone, boneWeights
+import core.math as mquat
 
 class skeleton:
     def __init__(self, glob, name):
@@ -197,3 +198,19 @@ class skeleton:
         if not bones_only:
             self.skinMesh()
             self.glob.baseClass.updateAttachedAssets()
+
+    def pose_bymat(self, posemat, value, bones_only=False):
+        value = value / 100
+        for elem in self.bones:
+            if elem in posemat:
+                q1 =  mquat.quaternionSlerpFromMatrix(posemat[elem], value)
+                mat = mquat.quaternionToRotMatrix(q1)
+                self.bones[elem].calcLocalPoseMat(mat)
+
+            self.bones[elem].calcGlobalPoseMat()
+            self.bones[elem].poseBone()
+
+        if not bones_only:
+            self.skinMesh()
+            self.glob.baseClass.updateAttachedAssets()
+

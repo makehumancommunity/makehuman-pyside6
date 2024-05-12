@@ -181,6 +181,7 @@ class BVH():
         #
         # works only for XYZ joint order (rotation)
         i = 0
+        order = "xyz"
         for joint in self.bvhJointOrder:
             if joint.nChannels > 0:
                 for j, m in enumerate(joint.channelorder):
@@ -199,7 +200,7 @@ class BVH():
                     y = self.pi_mult * joint.animdata[frame, 4]
                     z = self.pi_mult * joint.animdata[frame, 5]
 
-                joint.matrixPoses[frame,:3,:3] = self.eulerMatrix(x, y, z, "xyz")[:3,:3]
+                joint.matrixPoses[frame,:3,:3] = self.eulerMatrix(x, y, z, order)[:3,:3]
                 #
                 if joint.parent is None or self.dislocation:
                     joint.matrixPoses[frame,:3,3] = [joint.animdata[frame, 0], joint.animdata[frame, 1], joint.animdata[frame, 2]]
@@ -329,7 +330,7 @@ class FaceUnits():
         if faceunits is None:
             return (False, self.env.last_error)
 
-        # create a bone mask and collect groups
+        # create a bone mask and collect groups, convert to posematrix
 
         for elem in faceunits:
             if "group" in faceunits[elem]:
@@ -338,9 +339,12 @@ class FaceUnits():
                     self.groups.append(g)
 
             if "bones" in faceunits[elem]:
-                for bone in faceunits[elem]["bones"]:
+                g =  faceunits[elem]["bones"]
+                for bone in g:
+                    g[bone] = np.asarray(g[bone], dtype=np.float32).reshape(3,3)
                     if bone not in self.bonemask:
                         self.bonemask.append(bone)
         self.units = faceunits
+        print (faceunits)
         return (True, "Okay")
 
