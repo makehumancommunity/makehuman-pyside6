@@ -74,7 +74,7 @@ class OpenGLView(QOpenGLWidget):
         if self.blocked:
             return
         self.blocked = True
-        skeleton = self.glob.baseClass.skeleton
+        skeleton = self.glob.baseClass.pose_skeleton
         bvh = self.glob.baseClass.bvh
         skeleton.pose(bvh.joints, bvh.currentFrame, self.objects_invisible)
         if bvh.currentFrame < (bvh.frameCount-1):
@@ -87,6 +87,11 @@ class OpenGLView(QOpenGLWidget):
 
     def addSkeleton(self):
         skeleton = self.glob.baseClass.skeleton
+
+        if "skeleton" in self.prims:
+            self.prims["skeleton"].delete()
+            del self.prims["skeleton"]
+
         self.prims["skeleton"] = BoneList("skeleton", skeleton, self.context(), self.mh_shaders._shaders[1])
         if self.objects_invisible is True:
             self.togglePrims("skeleton", True)
@@ -292,6 +297,8 @@ class OpenGLView(QOpenGLWidget):
         if self.glob.baseClass is not None:
             self.createObject(self.glob.baseClass.baseMesh)
             self.addAssets()
+            if self.glob.baseClass.skeleton is not None:
+                self.addSkeleton()
             self.setCameraCenter()
             self.paintGL()
             self.update()

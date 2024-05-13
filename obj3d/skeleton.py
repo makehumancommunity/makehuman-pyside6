@@ -206,7 +206,7 @@ class skeleton:
         if len(blends) == 0:
             return
 
-        # check bonewise if blend is used, then use quaternions-lerp with ratio to pose
+        # check bonewise if blend is used, then use quaternionsSlerpFromMatrix with ratio to pose
         # in case the bone is posed by more than one posemat, multiply quaternion matrices
         #
         for bone in self.bones:
@@ -216,10 +216,10 @@ class skeleton:
                 ratio = blend[1] / 100
                 if bone in posemat:
                     if modbone is True:
-                        q2 = mquat.quaternionLerpFromMatrix(posemat[bone], ratio)
+                        q2 = mquat.quaternionSlerpFromMatrix(posemat[bone], ratio)
                         q1 = mquat.quaternionMult(q1, q2)
                     else:
-                        q1 = mquat.quaternionLerpFromMatrix(posemat[bone], ratio)
+                        q1 = mquat.quaternionSlerpFromMatrix(posemat[bone], ratio)
                     modbone = True
 
             if modbone is True:

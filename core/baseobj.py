@@ -14,6 +14,7 @@ class MakeHumanModel():
         self.uuid = None
         self.version = None
         self.skinMaterial = None
+        self.skeleton = None
         self.modifiers = []
         self.attached = []
         self.materials = []
@@ -63,6 +64,8 @@ class baseClass():
         self.photo = None
         self.uuid = None
         self.skeleton = None
+        self.pose_skeleton = None
+        self.pose_skelpath = None
         self.bvh = None             # indicates that object is posed
         self.expression = None      # indicates that expressions are used
         self.faceunits  = None      # indicates that face-units are initalized
@@ -100,7 +103,7 @@ class baseClass():
                 continue
 
             key = words[0]
-            if key in ["version", "uuid", "skinMaterial"]:
+            if key in ["version", "uuid", "skinMaterial", "skeleton"]:
                 setattr (loaded, key, words[1])
             elif key == "name":
                 loaded.name = " ".join(words[1:])
@@ -156,6 +159,15 @@ class baseClass():
             if matfilename is not None:
                 self.baseMesh.loadMaterial(matfilename)
                 self.skinMaterial = matfilename
+
+        if loaded.skeleton is not None:
+            skelpath = self.env.existDataFile("rigs", self.env.basename, loaded.skeleton)
+            if skelpath is not None:
+                #if self.pose_skelpath is not None:
+                print ("Skeleton Path " + skelpath)
+                self.skeleton = skeleton(self.glob, loaded.skeleton)
+                self.skeleton.loadJSON(skelpath)
+                self.markAssetByFileName(skelpath, True)
 
         print(loaded)
 
@@ -222,7 +234,12 @@ class baseClass():
         for elem in self.attachedAssets:
             if  elem.materialsource is not None:
                 fp.write ("material " + elem.name + " " +  elem.uuid + " " + elem.materialsource + "\n")
-        
+ 
+        # skeleton
+        #
+        if self.skeleton is not None:
+            fp.write ("skeleton " + self.skeleton.name + "\n")
+
         fp.close()
 
     def calculateDeletedVerts(self):
@@ -339,16 +356,23 @@ class baseClass():
     def addSkeleton(self, name, path):
         if self.skeleton is not None:
             self.glob.openGLWindow.delSkeleton()
-        self.skeleton = skeleton(self.glob, name)
-        self.skeleton.loadJSON(path)
+
+        # reuse pose-skeleton in case of identical selection
+        if self.pose_skelpath == path:
+            self.skeleton = self.pose_skeleton
+        else:
+            self.skeleton = skeleton(self.glob, name)
+            self.skeleton.loadJSON(path)
+        self.markAssetByFileName(path, True)
         self.glob.openGLWindow.addSkeleton()
 
-    def delSkeleton(self):
+    def delSkeleton(self, path):
         self.skeleton = None
+        self.markAssetByFileName(path, False)
         self.glob.openGLWindow.delSkeleton()
 
     def showPose(self):
-        self.skeleton.pose(self.bvh.joints, self.bvh.currentFrame)
+        self.pose_skeleton.pose(self.bvh.joints, self.bvh.currentFrame)
         #self.bvh.debugChanged()
         self.glob.openGLWindow.Tweak()
 
@@ -387,7 +411,7 @@ class baseClass():
         if not loaded:
             self.env.logLine(1, "mhpose: " + path + " " + msg)
         else:
-            self.skeleton.posebyBlends(self.expression.blends)
+            self.pose_skeleton.posebyBlends(self.expression.blends)
 
     def delExpression(self):
         self.expression = None
@@ -436,6 +460,16 @@ class baseClass():
         target.loadTargets()
         self.attachedAssets = []
 
+        # load preselected skeleton
+        if "pose-skeleton" in self.baseInfo:
+            skelname = self.baseInfo["pose-skeleton"]
+            self.pose_skelpath = self.env.existDataFile("rigs", self.env.basename, skelname)
+            if self.pose_skelpath is not None:
+                print ("Skeleton Path " + self.pose_skelpath)
+                self.pose_skeleton = skeleton(self.glob, skelname)
+                self.pose_skeleton.loadJSON(self.pose_skelpath)
+                self.skeleton = self.pose_skeleton  # preset skeleton
+
         # set here or/and in mhm
         #
         if "modifier-presets" in self.baseInfo:
@@ -446,6 +480,11 @@ class baseClass():
             self.loadMHMFile(mhmfile)
         else:
             self.baseMesh.loadMaterial(None)
+
+        # no assets, mark skeleton appended if a skeleton exists
+        #
+        if self.skeleton:
+            self.markAssetByFileName(self.pose_skelpath, True)
         memInfo()
         return (True)
 

@@ -119,7 +119,7 @@ class AnimExpressionEdit():
             if elem.value != 0.0:
                 print (elem.name + " is changed")
                 blends.append([elem.mat, elem.value])
-        self.glob.baseClass.skeleton.posebyBlends(blends)
+        self.glob.baseClass.pose_skeleton.posebyBlends(blends)
         self.view.Tweak()
 
     def leave(self):

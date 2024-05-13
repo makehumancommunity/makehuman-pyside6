@@ -249,7 +249,7 @@ class MHMainWindow(QMainWindow):
     def animCallback(self, selected, eqtype, multi):
         if eqtype == "rigs":
             if selected.status == 0:
-                self.glob.baseClass.delSkeleton()
+                self.glob.baseClass.delSkeleton(selected.filename)
             else:
                 self.glob.baseClass.addSkeleton(selected.name, selected.filename)
         elif eqtype == "poses":

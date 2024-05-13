@@ -2,10 +2,11 @@ import math
 import numpy as np
 
 """
-quaternion_matrix = quaternionToRotMatrix (3x3) ?
-quaternion_from_matrix
-quaternion_slerp
-quaternion_multiply
+quaternionToRotMatrix           Return homogeneous rotation matrix from quaternion.
+quaternionFromMatrix            Return quaternion from rotation matrix.
+quaternionMult                  Return multiplication of two quaternions.
+quaternionSlerp                 Return spherical linear interpolation between two quaternions.
+quaternionSlerpFromMatrix       do a slerp from Restmatix by ratio
 """
 
 _EPS = np.finfo(float).eps * 4.0
@@ -69,7 +70,7 @@ def quaternionMult(quaternion1, quaternion0):
                          x1*y0 - y1*x0 + z1*w0 + w1*z0], dtype=np.float64)
 
 
-def quaternionLerp(quat0, quat1, fraction, shortestpath=True):
+def quaternionSlerp(quat0, quat1, fraction, shortestpath=True):
     """
     Return spherical linear interpolation between two quaternions.
 
@@ -113,7 +114,7 @@ def quaternionLerp(quat0, quat1, fraction, shortestpath=True):
     return q0
 
 
-def quaternionLerpFromMatrix(mat, fraction, shortestpath=True):
+def quaternionSlerpFromMatrix(mat, fraction, shortestpath=True):
     """
     do a slerp from Restmatix
     """
@@ -121,4 +122,4 @@ def quaternionLerpFromMatrix(mat, fraction, shortestpath=True):
     m[:3, :3] = mat
     quat0 = np.asarray([1,0,0,0], dtype=np.float32)
     quat1 = quaternionFromMatrix(m)
-    return (quaternionLerp(quat0, quat1, fraction, shortestpath))
+    return (quaternionSlerp(quat0, quat1, fraction, shortestpath))

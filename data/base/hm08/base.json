@@ -10,6 +10,7 @@
         	"pointed": "triangle",
         	"square": "round"
 	},
+	"pose-skeleton": "default.mhskel",
 	"mhm": "base.mhm",
 	"modifier-presets": {
 		"macrodetails/Gender": 0.5,
