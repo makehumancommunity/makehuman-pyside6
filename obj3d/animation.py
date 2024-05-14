@@ -50,6 +50,7 @@ class BVH():
         self.glob = glob
         self.env = glob.env
         self.name = name
+        self.filename = None
         self.channelname = {"Xposition":0, "Yposition":1, "Zposition":2, "Xrotation":3, "Yrotation":4, "Zrotation":5}
         self.bvhJointOrder = []
         self.joints = {}
@@ -235,6 +236,7 @@ class BVH():
             joint.calculateRestMat()
 
     def load(self, filename):
+        self.filename = filename
         self.env.logLine(1, "Load pose " + filename)
 
         with open(filename, "r", encoding='utf-8') as fp:
@@ -284,10 +286,12 @@ class MHPose():
         self.glob = glob
         self.env = glob.env
         self.name = name
+        self.filename = None
         self.units = faceunits.units
         self.blends = []
 
     def load(self, filename):
+        self.filename = filename
         self.env.logLine(1, "Load pose " + filename)
         pose = self.env.readJSON(filename)
         if pose is None:

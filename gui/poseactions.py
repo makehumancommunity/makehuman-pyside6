@@ -9,12 +9,18 @@ class AnimMode():
     def __init__(self, glob, view):
         self.glob = glob
         self.view = view
+        self.baseClass = glob.baseClass
         self.mesh = glob.baseClass.baseMesh
         self.mesh.createWCopy()
+        if self.baseClass.bvh:
+            self.baseClass.showPose()
+        if self.baseClass.expression:
+            self.baseClass.pose_skeleton.posebyBlends(self.baseClass.expression.blends, self.baseClass.faceunits.bonemask)
+            self.view.Tweak()
 
     def leave(self):
         self.mesh.resetFromCopy()
-        self.glob.baseClass.updateAttachedAssets()
+        self.baseClass.updateAttachedAssets()
         self.view.Tweak()
 
 
@@ -95,8 +101,10 @@ class AnimExpressionEdit():
     def __init__(self, glob, view):
         self.glob = glob
         self.view = view
+        self.baseClass = glob.baseClass
         self.mesh = glob.baseClass.baseMesh
         self.mesh.createWCopy()
+        self.baseClass.pose_skeleton.restPose()
         self.expressions = []
 
     def fillExpressions(self):
@@ -119,12 +127,12 @@ class AnimExpressionEdit():
             if elem.value != 0.0:
                 print (elem.name + " is changed")
                 blends.append([elem.mat, elem.value])
-        self.glob.baseClass.pose_skeleton.posebyBlends(blends)
+        self.baseClass.pose_skeleton.posebyBlends(blends, None)
         self.view.Tweak()
 
     def leave(self):
         self.mesh.resetFromCopy()
-        self.glob.baseClass.updateAttachedAssets()
+        self.baseClass.updateAttachedAssets()
         self.view.Tweak()
 
 

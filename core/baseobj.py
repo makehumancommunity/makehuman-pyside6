@@ -376,18 +376,31 @@ class baseClass():
         #self.bvh.debugChanged()
         self.glob.openGLWindow.Tweak()
 
+    def showPoseAndExpression(self):
+        if self.bvh:
+            self.pose_skeleton.pose(self.bvh.joints, self.bvh.currentFrame)
+        if self.expression:
+            self.pose_skeleton.posebyBlends(self.expression.blends, self.faceunits.bonemask )
+
     def addPose(self, name, path):
         if self.skeleton is None:
             return
+        if self.bvh is not None:
+            self.markAssetByFileName(self.bvh.filename, False)
         self.bvh = BVH(self.glob, name)
         loaded, msg  = self.bvh.load(path)
         if not loaded:
             self.env.logLine(1, "BVH: " + path + " " + msg)
         else:
-            self.showPose()
+            self.showPoseAndExpression()
+            self.markAssetByFileName(path, True)
 
-    def delPose(self):
+    def delPose(self, path):
         self.bvh = None
+        self.markAssetByFileName(path, False)
+        self.pose_skeleton.restPose()
+        self.showPoseAndExpression()
+        self.glob.openGLWindow.Tweak()
 
     def getFaceUnits(self):
         if self.faceunits is None:
@@ -406,15 +419,22 @@ class baseClass():
         if self.getFaceUnits() is None:
            return
 
+        if self.expression is not None:
+            self.markAssetByFileName(self.expression.filename, False)
+
         self.expression = MHPose(self.glob, self.faceunits, name)
         loaded, msg  = self.expression.load(path)
         if not loaded:
             self.env.logLine(1, "mhpose: " + path + " " + msg)
         else:
-            self.pose_skeleton.posebyBlends(self.expression.blends)
+            self.showPoseAndExpression()
+            self.markAssetByFileName(path, True)
 
-    def delExpression(self):
+    def delExpression(self, path):
         self.expression = None
+        self.showPoseAndExpression()
+        self.markAssetByFileName(path, False)
+        self.glob.openGLWindow.Tweak()
 
     def prepareClass(self):
         self.env.logLine(2, "Prepare class called with: " + self.env.basename)

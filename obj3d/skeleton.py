@@ -153,6 +153,7 @@ class skeleton:
         for bone in  self.bones:
             self.bones[bone].setJointPos()
 
+
     def calcLocalPoseMat(self, poses):
         for i, bone in  enumerate(self.bones):
             self.bones[bone].calcLocalPoseMat(poses[i])
@@ -160,6 +161,7 @@ class skeleton:
     def calcGlobalPoseMat(self):
         for bone in  self.bones:
             self.bones[bone].calcGlobalPoseMat()
+
 
     def skinMesh(self):
         vmapping = self.bWeights.bWeights
@@ -185,7 +187,14 @@ class skeleton:
         self.mesh.gl_coord[:self.mesh.n_origverts*3] = m[:]
         self.mesh.overflowCorrection(self.mesh.gl_coord)
 
-
+    def restPose(self, bones_only=False):
+        for bone in self.bones:
+            self.bones[bone].restPose()
+            self.bones[bone].calcGlobalPoseMat()
+            self.bones[bone].poseBone()
+        if not bones_only:
+            self.skinMesh()
+            self.glob.baseClass.updateAttachedAssets()
 
     def pose(self, joints, num=0, bones_only=False):
         for elem in self.bones:
@@ -199,9 +208,9 @@ class skeleton:
             self.skinMesh()
             self.glob.baseClass.updateAttachedAssets()
 
-    def posebyBlends(self, blends, bones_only=False):
+    def posebyBlends(self, blends, mask, bones_only=False):
         """
-        function used for expressions
+        function used for expressions, with mask set all unchanged bones will be set to rest position
         """
         if len(blends) == 0:
             return
@@ -209,12 +218,14 @@ class skeleton:
         # check bonewise if blend is used, then use quaternionsSlerpFromMatrix with ratio to pose
         # in case the bone is posed by more than one posemat, multiply quaternion matrices
         #
+        found = {}
         for bone in self.bones:
             modbone = False
             for blend in blends:
                 posemat = blend[0]
                 ratio = blend[1] / 100
                 if bone in posemat:
+                    found[bone] = True
                     if modbone is True:
                         q2 = mquat.quaternionSlerpFromMatrix(posemat[bone], ratio)
                         q1 = mquat.quaternionMult(q1, q2)
@@ -223,12 +234,19 @@ class skeleton:
                     modbone = True
 
             if modbone is True:
-                print ("changed " + bone)
+                # print ("changed " + bone)
                 mat = mquat.quaternionToRotMatrix(q1)
                 self.bones[bone].calcLocalPoseMat(mat)
 
             self.bones[bone].calcGlobalPoseMat()
             self.bones[bone].poseBone()
+
+        if mask is not None:
+            for bone in mask:
+                if bone not in found:
+                    self.bones[bone].restPose()
+                    self.bones[bone].calcGlobalPoseMat()
+                    self.bones[bone].poseBone()
 
         if not bones_only:
             self.skinMesh()

@@ -241,12 +241,14 @@ class MHMainWindow(QMainWindow):
 
 
     def equipCallback(self, selected, eqtype, multi):
+        self.glob.project_changed = True
         if selected.status == 0:
             self.glob.baseClass.delAsset(selected.filename)
         elif selected.status == 1:
             self.glob.baseClass.addAndDisplayAsset(selected.filename, eqtype, multi)
 
     def animCallback(self, selected, eqtype, multi):
+        self.glob.project_changed = True
         if eqtype == "rigs":
             if selected.status == 0:
                 self.glob.baseClass.delSkeleton(selected.filename)
@@ -254,13 +256,13 @@ class MHMainWindow(QMainWindow):
                 self.glob.baseClass.addSkeleton(selected.name, selected.filename)
         elif eqtype == "poses":
             if selected.status == 0:
-                self.glob.baseClass.delPose()
+                self.glob.baseClass.delPose(selected.filename)
             else:
                 self.glob.baseClass.addPose(selected.name, selected.filename)
             self.graph.view.Tweak()
         elif eqtype == "expressions":
             if selected.status == 0:
-                self.glob.baseClass.delExpression()
+                self.glob.baseClass.delExpression(selected.filename)
             else:
                 self.glob.baseClass.addExpression(selected.name, selected.filename)
             self.graph.view.Tweak()

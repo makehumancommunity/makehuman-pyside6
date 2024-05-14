@@ -118,6 +118,9 @@ class cBone():
             self.matRestLocal = self.matRestGlobal
 
 
+    def restPose(self):
+        self.matPoseLocal = np.identity(4, dtype=np.float32)
+
     def calcLocalPoseMat(self, poseMat):
         self.matPoseLocal = np.identity(4, dtype=np.float32)
 
