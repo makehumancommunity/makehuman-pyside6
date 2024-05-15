@@ -123,7 +123,7 @@ def importWaveFront(path, obj):
     uv_values = np.zeros (shape=(n_uvs+n_verts, 2), dtype=np.float32)  # n_uvs+n_verts should be sufficient for the longest possible buffer
 
     for g in groups:
-        if len(groups[g]["uv"]) > 0:
+        if "uv" in groups[g] and len(groups[g]["uv"]) > 0:
             gi = groups[g]["v"]
             guv = groups[g]["uv"]
 

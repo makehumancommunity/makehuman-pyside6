@@ -77,6 +77,9 @@ class QTreeMain(QTreeView):
     def getLastHeadline(self):
         return(self.lastHeadline)
 
+    def getLastCategory(self):
+        return(self.lastcategory)
+
     def getValue(self, val):
         """
         print value on screen and remember parentindex for collapsing
@@ -133,6 +136,9 @@ class MHTreeView(QWidget):
 
     def getLastHeadline(self):
         return(self.mt.getLastHeadline())
+
+    def getLastCategory(self):
+        return(self.mt.getLastCategory())
 
     def getStartPattern(self):
         return (self.start)

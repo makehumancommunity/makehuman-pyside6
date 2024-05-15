@@ -1,7 +1,7 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit
 from gui.common import IconButton, WorkerThread
 from gui.slider import ScaleComboItem
-from obj3d.animation import FaceUnits
+from obj3d.animation import FaceUnits, MHPose
 import os
 import time
 
@@ -98,17 +98,76 @@ class ExpressionItem(ScaleComboItem):
 
 
 class AnimExpressionEdit():
-    def __init__(self, glob, view):
+    def __init__(self, parent, glob, view):
         self.glob = glob
         self.view = view
+        self.env = glob.env
+        self.parent = parent
         self.baseClass = glob.baseClass
         self.mesh = glob.baseClass.baseMesh
         self.mesh.createWCopy()
         self.baseClass.pose_skeleton.restPose()
         self.expressions = []
 
+    def addClassWidgets(self):
+        layout = QVBoxLayout()
+
+        # name
+        #
+        layout.addWidget(QLabel("Pose name:"))
+        self.editname = QLineEdit()
+        layout.addWidget(self.editname)
+
+        layout.addWidget(QLabel("Description:"))
+        self.description = QLineEdit()
+        layout.addWidget(self.description)
+
+        layout.addWidget(QLabel("Tags:"))
+        self.tagsline = QLineEdit()
+        layout.addWidget(self.tagsline)
+
+        layout.addWidget(QLabel("Author:"))
+        self.author = QLineEdit()
+        layout.addWidget(self.author)
+
+        layout.addWidget(QLabel("License:"))
+        self.license = QLineEdit()
+        layout.addWidget(self.license)
+
+        ilayout = QHBoxLayout()
+        ilayout.addWidget(IconButton(1,  os.path.join(self.env.path_sysicon, "f_load.png"), "load pose", self.loadButton))
+        ilayout.addWidget(IconButton(2,  os.path.join(self.env.path_sysicon, "f_save.png"), "save pose", self.saveButton))
+        ilayout.addWidget(IconButton(3,  os.path.join(self.env.path_sysicon, "reset.png"), "reset pose", self.resetButton))
+        layout.addLayout(ilayout)
+        return (layout)
+
+    def loadButton(self):
+        directory = self.env.stdUserPath("expressions")
+        filename = self.parent.fileRequest("Expressions", "expression files (*.mhpose)", directory)
+        if filename is not None:
+            pose = MHPose(self.glob, self.glob.baseClass.getFaceUnits(), "dummy")
+            pose.load(filename)
+            self.editname.setText(pose.name)
+            self.description.setText(pose.description)
+            self.tagsline.setText(";".join(pose.tags))
+            self.author.setText(pose.author)
+            self.license.setText(pose.license)
+
+    def saveButton(self):
+        directory = self.env.stdUserPath("expressions")
+        filename = self.parent.fileRequest("Expressions", "expression files (*.mhpose)", directory, save=".mhpose")
+        if filename is not None:
+            print ("Save " + filename)
+
+    def resetButton(self):
+        self.resetExpressionSliders()
+        self.parent.redrawNewExpression(None)
+        self.baseClass.pose_skeleton.restPose()
+        self.view.Tweak()
+
     def fillExpressions(self):
-        self.expressions = []
+        if len(self.expressions) > 0:
+            return(self.expressions)
 
         funits = self.glob.baseClass.getFaceUnits()
         if funits is None:
@@ -120,6 +179,10 @@ class AnimExpressionEdit():
             if "bones" in expression:
                 self.expressions.append(ExpressionItem(self.glob, elem, default_icon, self.changedExpressions, expression))
         return(self.expressions)
+
+    def resetExpressionSliders(self):
+        for elem in self.expressions:
+            elem.value = 0.0
 
     def changedExpressions(self):
         blends = []

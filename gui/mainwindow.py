@@ -460,11 +460,13 @@ class MHMainWindow(QMainWindow):
                 self.LeftBox.addLayout(layout)
             else:
                 self.leftColumn.setTitle("Expressions :: editor")
-                self.lastClass = AnimExpressionEdit(self.glob, self.graph.view)
+                self.lastClass = AnimExpressionEdit(self, self.glob, self.graph.view)
                 filterparam = self.glob.baseClass.getFaceUnits().createFilterDict()
                 self.qTree = MHTreeView(filterparam, "Expressions", self.redrawNewExpression, None)
                 self.targetfilter = self.qTree.getStartPattern()
                 self.LeftBox.addWidget(self.qTree)
+                layout = self.lastClass.addClassWidgets()
+                self.LeftBox.addLayout(layout)
 
         else:
             self.leftColumn.setTitle("Not yet implemented")
@@ -778,7 +780,8 @@ class MHMainWindow(QMainWindow):
         self.ToolBox.update()
 
     def redrawNewExpression(self, category, text=None):
-        print (category)
+        if category is None:
+            category =self.qTree.getLastCategory()
         if text is None:
             text =self.qTree.getLastHeadline()
         self.emptyLayout(self.ToolBox)

@@ -305,6 +305,12 @@ class MHPose():
                     m = self.units[elem]["bones"]
                     self.blends.append([m, weight * 100])
 
+        for elem in ("name", "author", "description", "tags", "license"):
+            if elem in pose:
+                setattr (self, elem, pose[elem])
+            else:
+                setattr (self, elem, "")
+        
         return (True, "Okay")
 
 class FaceUnits():

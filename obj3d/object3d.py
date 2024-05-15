@@ -244,8 +244,13 @@ class object3d:
         if self.is_base:
             self.gl_coord_w = self.gl_coord.copy()          # basemesh: create another one for working
 
+        # for no UV map, use an empty array
+        #
         if self.n_fuvs > 0:
             self.gl_uvcoord = self.uvs.flatten()
+        else:
+            self.gl_uvcoord = np.zeros(2 * self.n_glverts, dtype=np.float32)
+
 
         #del self.uvs           # save memory
         #del self.fvert
