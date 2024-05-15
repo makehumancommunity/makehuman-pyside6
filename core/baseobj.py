@@ -50,6 +50,7 @@ class baseClass():
         self.env.logLine(2, "New baseClass: " + name)
         self.env.basename = name
         self.name = name                # will hold the character name
+        self.pose_skeleton = None
         self.reset()
         memInfo()
 
@@ -64,7 +65,6 @@ class baseClass():
         self.photo = None
         self.uuid = None
         self.skeleton = None
-        self.pose_skeleton = None
         self.pose_skelpath = None
         self.bvh = None             # indicates that object is posed
         self.expression = None      # indicates that expressions are used
