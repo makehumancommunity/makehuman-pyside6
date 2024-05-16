@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit
-from gui.common import IconButton, WorkerThread
+from gui.common import IconButton, WorkerThread, ErrorBox
 from gui.slider import ScaleComboItem
 from obj3d.animation import FaceUnits, MHPose
 import os
@@ -12,6 +12,8 @@ class AnimMode():
         self.baseClass = glob.baseClass
         self.mesh = glob.baseClass.baseMesh
         self.mesh.createWCopy()
+        self.baseClass.pose_skeleton.newJointPos()
+        self.baseClass.pose_skeleton.restPose()
         if self.baseClass.bvh:
             self.baseClass.showPose()
         if self.baseClass.expression:
@@ -47,6 +49,7 @@ class AnimPlayer(QVBoxLayout):
 
     def enter(self):
         self.loopbutton.setChecked(False)
+        self.baseClass.pose_skeleton.newJointPos()
         self.mesh.createWCopy()
 
     def leave(self):
@@ -106,6 +109,7 @@ class AnimExpressionEdit():
         self.baseClass = glob.baseClass
         self.mesh = glob.baseClass.baseMesh
         self.mesh.createWCopy()
+        self.baseClass.pose_skeleton.newJointPos()
         self.baseClass.pose_skeleton.restPose()
         self.expressions = []
 
@@ -115,7 +119,7 @@ class AnimExpressionEdit():
         # name
         #
         layout.addWidget(QLabel("Pose name:"))
-        self.editname = QLineEdit()
+        self.editname = QLineEdit("Pose")
         layout.addWidget(self.editname)
 
         layout.addWidget(QLabel("Description:"))
@@ -131,7 +135,7 @@ class AnimExpressionEdit():
         layout.addWidget(self.author)
 
         layout.addWidget(QLabel("License:"))
-        self.license = QLineEdit()
+        self.license = QLineEdit("CC0")
         layout.addWidget(self.license)
 
         ilayout = QHBoxLayout()
@@ -146,18 +150,47 @@ class AnimExpressionEdit():
         filename = self.parent.fileRequest("Expressions", "expression files (*.mhpose)", directory)
         if filename is not None:
             pose = MHPose(self.glob, self.glob.baseClass.getFaceUnits(), "dummy")
-            pose.load(filename)
+            (res, text) =  pose.load(filename)
+            if res is False:
+                ErrorBox(self.parent.central_widget, text)
+                return
+            self.baseClass.pose_skeleton.restPose()
             self.editname.setText(pose.name)
             self.description.setText(pose.description)
             self.tagsline.setText(";".join(pose.tags))
             self.author.setText(pose.author)
             self.license.setText(pose.license)
+            for elem in self.expressions:
+                if elem.name in pose.poses:
+                    elem.value =  pose.poses[elem.name] * 100
+            self.parent.redrawNewExpression(None)
+            self.baseClass.pose_skeleton.posebyBlends(pose.blends, self.baseClass.faceunits.bonemask)
+            self.view.Tweak()
 
     def saveButton(self):
         directory = self.env.stdUserPath("expressions")
         filename = self.parent.fileRequest("Expressions", "expression files (*.mhpose)", directory, save=".mhpose")
         if filename is not None:
             print ("Save " + filename)
+            name = self.editname.text()
+            if name == "":
+                name= "pose"
+            tags = self.tagsline.text().split(";")
+            unit_poses = {}
+            cnt = 0
+            for elem in self.expressions:
+                if elem.value != 0.0:
+                    unit_poses[elem.name] = elem.value / 100
+                    cnt += 1
+            if cnt == 0:
+                ErrorBox(self.parent.central_widget, "No changes to save as pose.")
+                return
+            savepose = MHPose(self.glob, self.glob.baseClass.getFaceUnits(), name)
+            json = {"name": name, "author": self.author.text(),
+                    "licence": self.license.text(), "description": self.description.text(),
+                    "tags": tags, "unit_poses": unit_poses }
+            if savepose.save(filename, json) is False:
+                ErrorBox(self.parent.central_widget, self.env.last_error)
 
     def resetButton(self):
         self.resetExpressionSliders()

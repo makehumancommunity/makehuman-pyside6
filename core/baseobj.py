@@ -163,7 +163,6 @@ class baseClass():
         if loaded.skeleton is not None:
             skelpath = self.env.existDataFile("rigs", self.env.basename, loaded.skeleton)
             if skelpath is not None:
-                #if self.pose_skelpath is not None:
                 print ("Skeleton Path " + skelpath)
                 self.skeleton = skeleton(self.glob, loaded.skeleton)
                 self.skeleton.loadJSON(skelpath)

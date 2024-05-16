@@ -286,13 +286,17 @@ class MHPose():
         self.glob = glob
         self.env = glob.env
         self.name = name
+        self.description =""
+        self.license =""
+        self.author =""
         self.filename = None
         self.units = faceunits.units
         self.blends = []
+        self.tags = []
+        self.poses = {}
 
     def load(self, filename):
         self.filename = filename
-        self.env.logLine(1, "Load pose " + filename)
         pose = self.env.readJSON(filename)
         if pose is None:
             return (False, self.env.last_error)
@@ -300,6 +304,7 @@ class MHPose():
         for elem in pose["unit_poses"]:
             weight = pose["unit_poses"][elem]
             print (elem, weight)
+            self.poses[elem] = weight
             if elem in self.units:
                 if "bones" in self.units[elem]:
                     m = self.units[elem]["bones"]
@@ -312,6 +317,10 @@ class MHPose():
                 setattr (self, elem, "")
         
         return (True, "Okay")
+
+    def save(self, filename, json):
+        json["name"] = self.name
+        return(self.env.writeJSON(filename, json))
 
 class FaceUnits():
     def __init__(self, glob):
@@ -337,7 +346,6 @@ class FaceUnits():
         if filename is None:
             return (False)
 
-        self.env.logLine(1, "Load face units " + filename)
         faceunits = self.env.readJSON(filename)
         if faceunits is None:
             return (False, self.env.last_error)
