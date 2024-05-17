@@ -20,7 +20,7 @@ class QTreeMain(QTreeView):
     def __init__(self, data, callback_redraw, autocollapse=True):
         super().__init__()
 
-        self.autocollapse = True
+        self.autocollapse = autocollapse
         self.setHeaderHidden(True)
         self.lastparentindex = None
         self.lastcategory = None
@@ -111,11 +111,13 @@ class MHTreeView(QWidget):
         gbox.setObjectName("subwindow")
 
         layout = QVBoxLayout()
-        self.b1 = QCheckBox("Collapse non selected branches")
-        self.b1.stateChanged.connect(self.btnstate)
         self.mt = QTreeMain(data, callback_redraw, autocollapse)
-        self.b1.setChecked(autocollapse)
-        layout.addWidget(self.b1)
+        if autocollapse is not None:
+            self.b1 = QCheckBox("Collapse non selected branches")
+            self.b1.stateChanged.connect(self.btnstate)
+            self.b1.setChecked(autocollapse)
+            layout.addWidget(self.b1)
+
         layout.addWidget(self.mt)
         gbox.setLayout(layout)
 

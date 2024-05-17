@@ -1,4 +1,6 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QGridLayout
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
 from gui.common import IconButton, WorkerThread, ErrorBox
 from gui.slider import ScaleComboItem
 from obj3d.animation import FaceUnits, MHPose
@@ -112,31 +114,44 @@ class AnimExpressionEdit():
         self.baseClass.pose_skeleton.newJointPos()
         self.baseClass.pose_skeleton.restPose()
         self.expressions = []
+        self.thumbimage = None
 
     def addClassWidgets(self):
         layout = QVBoxLayout()
 
+        # photo
+        #
+        ilayout = QHBoxLayout()
+        ilayout.addWidget(IconButton(10,  os.path.join(self.env.path_sysicon, "camera.png"), "create thumbnail", self.thumbnail))
+        self.imglabel=QLabel()
+        self.displayPixmap()
+        ilayout.addWidget(self.imglabel, alignment=Qt.AlignRight)
+        layout.addLayout(ilayout)
+
         # name
         #
-        layout.addWidget(QLabel("Pose name:"))
+        ilayout = QGridLayout()
+        ilayout.addWidget(QLabel("Pose name:"), 0, 0)
         self.editname = QLineEdit("Pose")
-        layout.addWidget(self.editname)
+        ilayout.addWidget(self.editname, 0, 1)
+
+        ilayout.addWidget(QLabel("Author:"), 1, 0)
+        self.author = QLineEdit()
+        ilayout.addWidget(self.author, 1, 1)
+
+        ilayout.addWidget(QLabel("License:"), 2, 0)
+        self.license = QLineEdit("CC0")
+        ilayout.addWidget(self.license, 2, 1)
+        layout.addLayout(ilayout)
 
         layout.addWidget(QLabel("Description:"))
         self.description = QLineEdit()
         layout.addWidget(self.description)
 
-        layout.addWidget(QLabel("Tags:"))
+        layout.addWidget(QLabel("Tags: (separate by ';')"))
         self.tagsline = QLineEdit()
         layout.addWidget(self.tagsline)
 
-        layout.addWidget(QLabel("Author:"))
-        self.author = QLineEdit()
-        layout.addWidget(self.author)
-
-        layout.addWidget(QLabel("License:"))
-        self.license = QLineEdit("CC0")
-        layout.addWidget(self.license)
 
         ilayout = QHBoxLayout()
         ilayout.addWidget(IconButton(1,  os.path.join(self.env.path_sysicon, "f_load.png"), "load pose", self.loadButton))
@@ -144,6 +159,17 @@ class AnimExpressionEdit():
         ilayout.addWidget(IconButton(3,  os.path.join(self.env.path_sysicon, "reset.png"), "reset pose", self.resetButton))
         layout.addLayout(ilayout)
         return (layout)
+
+    def displayPixmap(self):
+        if self.thumbimage is None:
+            pixmap = QPixmap(os.path.join(self.glob.env.path_sysicon, "empty_models.png"))
+        else:
+            pixmap = QPixmap.fromImage(self.thumbimage)
+        self.imglabel.setPixmap(pixmap)
+
+    def thumbnail(self):
+        self.thumbimage = self.view.createThumbnail()
+        self.displayPixmap()
 
     def loadButton(self):
         directory = self.env.stdUserPath("expressions")
@@ -191,6 +217,11 @@ class AnimExpressionEdit():
                     "tags": tags, "unit_poses": unit_poses }
             if savepose.save(filename, json) is False:
                 ErrorBox(self.parent.central_widget, self.env.last_error)
+
+            if self.thumbimage is not None:
+                iconpath = filename[:-7] + ".thumb"
+                self.thumbimage.save(iconpath, "PNG", -1)
+
 
     def resetButton(self):
         self.resetExpressionSliders()
