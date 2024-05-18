@@ -462,7 +462,7 @@ class MHMainWindow(QMainWindow):
                 self.leftColumn.setTitle("Expressions :: editor")
                 self.lastClass = AnimExpressionEdit(self, self.glob, self.graph.view)
                 filterparam = self.glob.baseClass.getFaceUnits().createFilterDict()
-                self.qTree = MHTreeView(filterparam, "Expressions", self.redrawNewExpression, None, autocollapse=None)
+                self.qTree = MHTreeView(filterparam, "Expressions", self.redrawNewExpression, None)
                 self.expressionfilter = self.qTree.getStartPattern()
                 self.LeftBox.addWidget(self.qTree)
                 layout = self.lastClass.addClassWidgets()
@@ -668,6 +668,7 @@ class MHMainWindow(QMainWindow):
     def finishLoad(self):
         self.graph.view.addAssets()
         self.graph.view.newSkin(self.glob.baseClass.baseMesh)
+        self.graph.view.addSkeleton()
         self.graph.view.Tweak()
         self.setWindowTitle(self.glob.baseClass.name)
         self.glob.mhViewport.setSizeInfo()
@@ -780,6 +781,7 @@ class MHMainWindow(QMainWindow):
         self.ToolBox.update()
 
     def redrawNewExpression(self, category, text=None):
+        print (category)
         if category is None:
             category =self.qTree.getLastCategory()
         if text is None:

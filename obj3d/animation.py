@@ -335,10 +335,9 @@ class FaceUnits():
         return(str(self.units.keys()))
 
     def createFilterDict(self):
-        self.filterparam = { "Face": {"group": "main", "items": [] }}
-
+        self.filterparam = []
         for elem in self.groups:
-            self.filterparam["Face"]["items"].append({"title": elem.capitalize(), "cat": elem})
+            self.filterparam.append(elem)
         return (self.filterparam)
 
     def load(self):

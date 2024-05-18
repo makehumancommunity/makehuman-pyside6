@@ -94,12 +94,12 @@ class Grid(LineElements):
         super().newGeometry(self.setGrid(ground))
 
 class BoneList(LineElements):
-    def __init__(self, name, skeleton, context, shaders):
+    def __init__(self, name, skeleton, col, context, shaders):
         self.skeleton = skeleton
         lines = []
         for bone in skeleton.bones:
             lines.extend ([skeleton.bones[bone].headPos, skeleton.bones[bone].tailPos])
-        super().__init__(name, lines, [1.0, 1.0, 1.0])
+        super().__init__(name, lines, col)
         self.create(context, shaders, width=3.0)
 
     def newGeometry(self,posed=True):

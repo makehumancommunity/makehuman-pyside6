@@ -160,14 +160,6 @@ class baseClass():
                 self.baseMesh.loadMaterial(matfilename)
                 self.skinMaterial = matfilename
 
-        if loaded.skeleton is not None:
-            skelpath = self.env.existDataFile("rigs", self.env.basename, loaded.skeleton)
-            if skelpath is not None:
-                print ("Skeleton Path " + skelpath)
-                self.skeleton = skeleton(self.glob, loaded.skeleton)
-                self.skeleton.loadJSON(skelpath)
-                self.markAssetByFileName(skelpath, True)
-
         print(loaded)
 
         # now load attached meshes
@@ -185,6 +177,16 @@ class baseClass():
             self.glob.Targets.setTargetByName(name, value)
 
         self.applyAllTargets()
+
+        # skeleton after applying targets
+        #
+        if loaded.skeleton is not None:
+            skelpath = self.env.existDataFile("rigs", self.env.basename, loaded.skeleton)
+            if skelpath is not None:
+                print ("Skeleton Path " + skelpath)
+                self.skeleton = skeleton(self.glob, loaded.skeleton)
+                self.skeleton.loadJSON(skelpath)
+                self.markAssetByFileName(skelpath, True)
 
         # finally mark MHM as used
         #
@@ -431,8 +433,9 @@ class baseClass():
 
     def delExpression(self, path):
         self.expression = None
-        self.showPoseAndExpression()
         self.markAssetByFileName(path, False)
+        self.pose_skeleton.restPose()
+        self.showPoseAndExpression()
         self.glob.openGLWindow.Tweak()
 
     def prepareClass(self):
@@ -484,7 +487,7 @@ class baseClass():
             skelname = self.baseInfo["pose-skeleton"]
             self.pose_skelpath = self.env.existDataFile("rigs", self.env.basename, skelname)
             if self.pose_skelpath is not None:
-                print ("Skeleton Path " + self.pose_skelpath)
+                print ("Pose-Skeleton Path " + self.pose_skelpath)
                 self.pose_skeleton = skeleton(self.glob, skelname)
                 self.pose_skeleton.loadJSON(self.pose_skelpath)
                 self.skeleton = self.pose_skeleton  # preset skeleton

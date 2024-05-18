@@ -8,6 +8,9 @@ import os
 import time
 
 class AnimMode():
+    """
+    used for Poses, Expressions
+    """
     def __init__(self, glob, view):
         self.glob = glob
         self.view = view
@@ -16,6 +19,7 @@ class AnimMode():
         self.mesh.createWCopy()
         self.baseClass.pose_skeleton.newJointPos()
         self.baseClass.pose_skeleton.restPose()
+        self.view.addSkeleton(True)
         if self.baseClass.bvh:
             self.baseClass.showPose()
         if self.baseClass.expression:
@@ -25,6 +29,7 @@ class AnimMode():
     def leave(self):
         self.mesh.resetFromCopy()
         self.baseClass.updateAttachedAssets()
+        self.view.addSkeleton(False)
         self.view.Tweak()
 
 
@@ -51,12 +56,14 @@ class AnimPlayer(QVBoxLayout):
 
     def enter(self):
         self.loopbutton.setChecked(False)
-        self.baseClass.pose_skeleton.newJointPos()
+        self.view.addSkeleton(True)
+        self.bc.pose_skeleton.newJointPos()
         self.mesh.createWCopy()
 
     def leave(self):
         self.view.stopTimer()
         self.mesh.resetFromCopy()
+        self.view.addSkeleton(False)
         self.bc.updateAttachedAssets()
         self.view.Tweak()
 
@@ -95,7 +102,7 @@ class ExpressionItem(ScaleComboItem):
         self.callback = callback
         self.mat = expression["bones"]
         if "group" in expression:
-            self.group = "main|" + expression["group"]
+            self.group = expression["group"]
 
     def initialize(self):
         print ("In ExpressionItem initialize" + self.name)
@@ -111,10 +118,12 @@ class AnimExpressionEdit():
         self.baseClass = glob.baseClass
         self.mesh = glob.baseClass.baseMesh
         self.mesh.createWCopy()
+        self.view.addSkeleton(True)
         self.baseClass.pose_skeleton.newJointPos()
         self.baseClass.pose_skeleton.restPose()
         self.expressions = []
         self.thumbimage = None
+        self.view.Tweak()
 
     def addClassWidgets(self):
         layout = QVBoxLayout()
@@ -142,15 +151,18 @@ class AnimExpressionEdit():
         ilayout.addWidget(QLabel("License:"), 2, 0)
         self.license = QLineEdit("CC0")
         ilayout.addWidget(self.license, 2, 1)
+
+        ilayout.addWidget(QLabel("Tags:"), 3, 0)
+        # hint = (separate by ';')
+        self.tagsline = QLineEdit()
+        self.tagsline.setToolTip("tags to filter, use semicolon to separate if more than one")
+        ilayout.addWidget(self.tagsline, 3, 1)
         layout.addLayout(ilayout)
 
         layout.addWidget(QLabel("Description:"))
         self.description = QLineEdit()
         layout.addWidget(self.description)
 
-        layout.addWidget(QLabel("Tags: (separate by ';')"))
-        self.tagsline = QLineEdit()
-        layout.addWidget(self.tagsline)
 
 
         ilayout = QHBoxLayout()
@@ -260,6 +272,7 @@ class AnimExpressionEdit():
     def leave(self):
         self.mesh.resetFromCopy()
         self.baseClass.updateAttachedAssets()
+        self.view.addSkeleton(False)
         self.view.Tweak()
 
 

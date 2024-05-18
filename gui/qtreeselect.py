@@ -15,7 +15,7 @@ class JsonItem(QStandardItem):
 
 class QTreeMain(QTreeView):
     """
-    Main selection of a tree with only one sub-category
+    Main selection of a tree with only one sub-category or as a list
     """
     def __init__(self, data, callback_redraw, autocollapse=True):
         super().__init__()
@@ -32,13 +32,17 @@ class QTreeMain(QTreeView):
         self.rootNode = treeModel.invisibleRootItem()
 
         for elem in data:
-            layer1 = JsonItem(elem)
-            self.rootNode.appendRow(layer1)
-            group =  data[elem]["group"] if "group" in data[elem] else "default"
-            if "items" in data[elem]:
-                l = data[elem]["items"]
-                for sublayer in l:
-                    layer1.appendRow(JsonItem(sublayer["title"], group + "|" + sublayer["cat"]))
+            if isinstance(data, dict):
+                layer1 = JsonItem(elem)
+                self.rootNode.appendRow(layer1)
+                group =  data[elem]["group"] if "group" in data[elem] else "default"
+                if "items" in data[elem]:
+                    l = data[elem]["items"]
+                    for sublayer in l:
+                        layer1.appendRow(JsonItem(sublayer["title"], group + "|" + sublayer["cat"]))
+            else:
+                layer1 = JsonItem(elem.capitalize(), elem)
+                self.rootNode.appendRow(layer1)
 
         self.setModel(treeModel)
         self.collapseAll()
@@ -98,7 +102,10 @@ class QTreeMain(QTreeView):
 
                 self.lastparentindex = pindex
             if item.cat is not None and self.lastcategory != item.cat:
-                self.lastHeadline = newp.text + ", " + item.text
+                if newp is None:
+                    self.lastHeadline = item.text
+                else:
+                    self.lastHeadline = newp.text + ", " + item.text
                 self.callback_redraw(item.cat, self.lastHeadline)
                 self.lastcategory = item.cat
         
@@ -112,7 +119,7 @@ class MHTreeView(QWidget):
 
         layout = QVBoxLayout()
         self.mt = QTreeMain(data, callback_redraw, autocollapse)
-        if autocollapse is not None:
+        if isinstance(data, dict):
             self.b1 = QCheckBox("Collapse non selected branches")
             self.b1.stateChanged.connect(self.btnstate)
             self.b1.setChecked(autocollapse)
@@ -129,6 +136,8 @@ class MHTreeView(QWidget):
 
     def _getStartColumn(self, data):
         if len(data) > 0:
+            if isinstance(data, list):
+                return(data[0])
             name = next(iter(data))
             elem = data[name]
             if "items" in elem:

@@ -85,14 +85,19 @@ class OpenGLView(QOpenGLWidget):
         self.blocked = False
 
 
-    def addSkeleton(self):
-        skeleton = self.glob.baseClass.skeleton
+    def addSkeleton(self, pose=False):
+        if pose:
+            skeleton = self.glob.baseClass.pose_skeleton
+            col = [1.0, 0.5, 0.0]
+        else:
+            skeleton = self.glob.baseClass.skeleton 
+            col = [1.0, 1.0, 1.0]
 
         if "skeleton" in self.prims:
             self.prims["skeleton"].delete()
             del self.prims["skeleton"]
 
-        self.prims["skeleton"] = BoneList("skeleton", skeleton, self.context(), self.mh_shaders._shaders[1])
+        self.prims["skeleton"] = BoneList("skeleton", skeleton, col, self.context(), self.mh_shaders._shaders[1])
         if self.objects_invisible is True:
             self.togglePrims("skeleton", True)
         self.Tweak()
@@ -114,10 +119,18 @@ class OpenGLView(QOpenGLWidget):
     def togglePrims(self, name, status):
         if name in self.prims:
             self.prims[name].setVisible(status)
-            if name == "grid":
-                baseClass = self.glob.baseClass
-                o_size = baseClass.baseMesh.getHeightInUnits() if baseClass is not None else 100
-                self.prims[name].newGeometry(-o_size/2)
+            if status is True:
+                if name == "grid":
+                    baseClass = self.glob.baseClass
+                    o_size = baseClass.baseMesh.getHeightInUnits() if baseClass is not None else 100
+                    self.prims[name].newGeometry(-o_size/2)
+                elif name == "skeleton":
+                    posed = (self.glob.baseClass.bvh is not None) or (self.glob.baseClass.expression is not None)
+                    if posed:
+                        self.glob.baseClass.pose_skeleton.newJointPos()
+                    else:
+                        self.glob.baseClass.skeleton.newJointPos()
+                    self.prims[name].newGeometry(posed)
             self.Tweak()
 
 
@@ -251,8 +264,8 @@ class OpenGLView(QOpenGLWidget):
 
         if self.objects_invisible is True and "skeleton" in self.prims:
             #skeleton = self.glob.baseClass.skeleton
-            bvh = self.glob.baseClass.bvh
-            self.prims["skeleton"].newGeometry(bvh is not None)
+            posed = (self.glob.baseClass.bvh is not None) or (self.glob.baseClass.expression is not None)
+            self.prims["skeleton"].newGeometry(posed)
 
         for name in self.prims:
             self.prims[name].draw(self.mh_shaders._shaders[1], proj_view_matrix)
@@ -298,7 +311,7 @@ class OpenGLView(QOpenGLWidget):
             self.createObject(self.glob.baseClass.baseMesh)
             self.addAssets()
             if self.glob.baseClass.skeleton is not None:
-                self.addSkeleton()
+                self.addSkeleton(False)
             self.setCameraCenter()
             self.paintGL()
             self.update()
