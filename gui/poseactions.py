@@ -17,7 +17,7 @@ class AnimMode():
         self.baseClass = glob.baseClass
         self.mesh = glob.baseClass.baseMesh
         self.mesh.createWCopy()
-        self.baseClass.pose_skeleton.newJointPos()
+        self.baseClass.pose_skeleton.newGeometry()
         self.baseClass.pose_skeleton.restPose()
         self.view.addSkeleton(True)
         if self.baseClass.bvh:
@@ -57,7 +57,7 @@ class AnimPlayer(QVBoxLayout):
     def enter(self):
         self.loopbutton.setChecked(False)
         self.view.addSkeleton(True)
-        self.bc.pose_skeleton.newJointPos()
+        self.bc.pose_skeleton.newGeometry()
         self.mesh.createWCopy()
 
     def leave(self):
@@ -119,7 +119,7 @@ class AnimExpressionEdit():
         self.mesh = glob.baseClass.baseMesh
         self.mesh.createWCopy()
         self.view.addSkeleton(True)
-        self.baseClass.pose_skeleton.newJointPos()
+        self.baseClass.pose_skeleton.newGeometry()
         self.baseClass.pose_skeleton.restPose()
         self.expressions = []
         self.thumbimage = None

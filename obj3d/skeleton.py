@@ -146,13 +146,13 @@ class skeleton:
         for bone in self.bones:
             self.bones[bone].calcRestMatFromSkeleton()
 
-    def newJointPos(self):
+    def newGeometry(self):
         """
-        rest pose, skeleton changes
+        geometry changes, recalculate joint positions + rest matrix
         """
         for bone in  self.bones:
             self.bones[bone].setJointPos()
-
+        self.calcRestMat()
 
     def calcLocalPoseMat(self, poses):
         for i, bone in  enumerate(self.bones):

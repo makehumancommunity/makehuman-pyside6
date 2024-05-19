@@ -76,7 +76,8 @@ class MHMainWindow(QMainWindow):
                 { "func": None, "menu": None, "name": "rigs", "mode": 0 },
                 { "func": None, "menu": None, "name": "poses", "mode": 0 },
                 { "func": None, "menu": None, "name": "animation", "mode": 0 },
-                { "func": None, "menu": None, "name": "expressions", "mode": 0 }
+                { "func": None, "menu": None, "name": "expressions", "mode": 0 },
+                { "func": None, "menu": None, "name": "expression editor", "mode": 0 }
         ]
 
         self.model_buttons = [ 
@@ -495,30 +496,12 @@ class MHMainWindow(QMainWindow):
             scrollArea = QScrollArea()
             scrollArea.setWidget(widget)
             scrollArea.setWidgetResizable(True)
-
             self.ToolBox.addWidget(scrollArea)
 
-    def drawCharSelectPanel(self):
-        self.rightColumn.setTitle("Character MHM Files")
-        widget = QWidget()
-        picwidget = self.charselect.rightPanel()
-        widget.setLayout(picwidget.layout)
-        scrollArea = QScrollArea()
-        scrollArea.setWidget(widget)
-        scrollArea.setWidgetResizable(True)
-        scrollArea.setHorizontalScrollBarPolicy( Qt.ScrollBarAlwaysOff )
-        self.ToolBox.addWidget(scrollArea)
-
-    def drawEquipPanel(self, category, text):
+    def drawImageSelector(self, category, text, buttonmask=3):
         self.rightColumn.setTitle(text)
-        widget = QWidget()
-        picwidget = category.rightPanel()
-        widget.setLayout(picwidget.layout)
-        scrollArea = QScrollArea()
-        scrollArea.setWidget(widget)
-        scrollArea.setWidgetResizable(True)
-        scrollArea.setHorizontalScrollBarPolicy( Qt.ScrollBarAlwaysOff )
-        self.ToolBox.addWidget(scrollArea)
+        layout = category.rightPanel(buttonmask)
+        self.ToolBox.addLayout(layout)
 
     def drawRightPanel(self, text="None"):
         #
@@ -531,7 +514,7 @@ class MHMainWindow(QMainWindow):
                     return
                 self.rightColumn.setTitle("No additional infomation")
             elif self.category_mode == 1:
-                self.drawCharSelectPanel()
+                self.drawImageSelector(self.charselect, "Character MHM Files", 0)
             elif self.category_mode == 4:
                 self.rightColumn.setTitle("No additional infomation")
             else:
@@ -541,12 +524,12 @@ class MHMainWindow(QMainWindow):
         elif self.tool_mode == 2:
             equip = self.equipment[self.category_mode]
             text = "Character equipment, category: " + equip["name"]
-            self.drawEquipPanel(equip["func"], text)
+            self.drawImageSelector(equip["func"], text)
         elif self.tool_mode == 3:
             if self.category_mode == 0 or self.category_mode == 1 or self.category_mode == 3:
                 equip = self.animation[self.category_mode]
                 text = "Pose and animation, category: " + equip["name"]
-                self.drawEquipPanel(equip["func"], text)
+                self.drawImageSelector(equip["func"], text, 1)
             elif self.category_mode == 4:
                 self.drawExpressionPanel(text)
             else:

@@ -97,9 +97,10 @@ class OpenGLView(QOpenGLWidget):
             self.prims["skeleton"].delete()
             del self.prims["skeleton"]
 
-        self.prims["skeleton"] = BoneList("skeleton", skeleton, col, self.context(), self.mh_shaders._shaders[1])
-        if self.objects_invisible is True:
-            self.togglePrims("skeleton", True)
+        if skeleton is not None:
+            self.prims["skeleton"] = BoneList("skeleton", skeleton, col, self.context(), self.mh_shaders._shaders[1])
+            if self.objects_invisible is True:
+                self.togglePrims("skeleton", True)
         self.Tweak()
 
     def toggleObjects(self, status):
@@ -127,9 +128,9 @@ class OpenGLView(QOpenGLWidget):
                 elif name == "skeleton":
                     posed = (self.glob.baseClass.bvh is not None) or (self.glob.baseClass.expression is not None)
                     if posed:
-                        self.glob.baseClass.pose_skeleton.newJointPos()
+                        self.glob.baseClass.pose_skeleton.newGeometry()
                     else:
-                        self.glob.baseClass.skeleton.newJointPos()
+                        self.glob.baseClass.skeleton.newGeometry()
                     self.prims[name].newGeometry(posed)
             self.Tweak()
 

@@ -784,6 +784,10 @@ class ImageSelection():
             v1layout.addLayout(shortcuts)
         #v1layout.addWidget(QLabel("Filter:"))
         v1layout.addLayout(slayout)
+
+        return(v1layout)
+
+    def rightPanelButtons(self, bitmask):
         hlayout = QHBoxLayout()
         resize = os.path.join(self.env.path_sysicon, "resize.png" )
         sizebutton = IconButton(0, resize, "Resize thumbnails", self.scaleImages)
@@ -794,25 +798,35 @@ class ImageSelection():
         hlayout.addWidget(rescanbutton)
         hlayout.addStretch()
 
-        infopath = os.path.join(self.env.path_sysicon, "information.png" )
-        infobutton = IconButton(0, infopath, "Change asset information", self.assetCallback)
-        hlayout.addWidget(infobutton)
+        if bitmask & 1:
+            infopath = os.path.join(self.env.path_sysicon, "information.png" )
+            infobutton = IconButton(0, infopath, "Change asset information", self.assetCallback)
+            hlayout.addWidget(infobutton)
 
-        matpath = os.path.join(self.env.path_sysicon, "materials.png" )
-        matbutton = IconButton(0, matpath, "Change material", self.materialCallback)
-        hlayout.addWidget(matbutton)
+        if bitmask & 2:
+            matpath = os.path.join(self.env.path_sysicon, "materials.png" )
+            matbutton = IconButton(0, matpath, "Change material", self.materialCallback)
+            hlayout.addWidget(matbutton)
 
-        v1layout.addLayout(hlayout)
+        return (hlayout)
 
-        return(v1layout)
-
-    def rightPanel(self):
+    def rightPanel(self, bitmask=3):
         """
-        draw tools Panel
+        draw right Panel
         """
+        layout = QVBoxLayout()
+        layout.addLayout(self.rightPanelButtons(bitmask))
+
+        widget = QWidget()
         self.picwidget = PicSelectWidget(self, self.asset_category, self.picButtonChanged, self.infobox.setInformation)
         self.filterview.setPicLayout(self.picwidget.layout)
         self.picwidget.populate(None, None)
         self.changeStatus()
-        return(self.picwidget)
+        widget.setLayout(self.picwidget.layout)
+        scrollArea = QScrollArea()
+        scrollArea.setWidget(widget)
+        scrollArea.setWidgetResizable(True)
+        scrollArea.setHorizontalScrollBarPolicy( Qt.ScrollBarAlwaysOff )
+        layout.addWidget(scrollArea)
+        return(layout)
 
