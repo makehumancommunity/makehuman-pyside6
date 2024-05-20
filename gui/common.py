@@ -1,7 +1,7 @@
 import os
 from PySide6.QtWidgets import (
         QLabel, QDialogButtonBox, QVBoxLayout, QDialog, QProgressDialog, QWidget, QApplication, QMessageBox, QFrame,
-        QHBoxLayout, QLineEdit, QPushButton, QComboBox
+        QHBoxLayout, QLineEdit, QPushButton, QComboBox, QProgressBar
         )
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QThread, Signal, QSize
@@ -9,6 +9,17 @@ from PySide6.QtCore import Qt, QThread, Signal, QSize
 def ErrorBox(qw, text):
     button = QMessageBox.critical(qw, "An error occured!", text, buttons=QMessageBox.Close)
     dlg = QMessageBox()
+
+class clickableProgressBar(QProgressBar):
+    """
+    progressBar which is clicked can be use to open an active slider
+    """
+    def __init__(self, callback, parent=None):
+        self.callback = callback
+        QProgressBar.__init__(self, parent)
+
+    def mousePressEvent(self, event):
+        self.callback()
 
 class IconButton(QPushButton):
     def __init__(self, funcid, path, tip, func):

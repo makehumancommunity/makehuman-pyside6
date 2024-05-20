@@ -5,6 +5,7 @@ from PySide6.QtGui import QPainter, QPixmap, QPen, QIcon
 
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QSlider, QStyle, QStyleOptionSlider, QLabel, QPushButton, QSizePolicy, QDoubleSpinBox, QProgressBar, QFrame, QColorDialog
 from gui.mapslider import MapBaryCentricCombo
+from gui.common import clickableProgressBar
 
 
 class ScaleComboItem:
@@ -44,16 +45,7 @@ class ScalePictureButton(QPushButton):
 
     def paintEvent(self, e):
         painter = QPainter(self)
-        if self.isChecked():
-            painter.drawPixmap(0, 0, self.picture)
-            pen = QPen()
-            pen.setColor(Qt.yellow)
-            pen.setWidth(5)
-
-            painter.setPen(pen)
-            painter.drawRect(self.rect())
-        else:
-            painter.drawPixmap(0, 0, self.picture)
+        painter.drawPixmap(0, 0, self.picture)
 
 class ScaleCombo(QWidget):
     def __init__(self, elem, minimum, maximum, step=1, parent=None, update=None):
@@ -105,7 +97,7 @@ class ScaleCombo(QWidget):
         add progress bar as indicator
         """
         self.comboLayout.setContentsMargins(self.margin,0, self.margin,0 )
-        self.gvalue = QProgressBar()
+        self.gvalue = clickableProgressBar(self.selectButtonPressed)
         self.gvalue.setRange(self.min,self.max)
         self.gvalue.setValue(self.elem.value)
         self.gvalue.setMaximumHeight(15)
@@ -138,8 +130,6 @@ class ScaleCombo(QWidget):
         self.slider.setValue(self.elem.value)
         self.slider.setTickPosition(QSlider.TicksBelow)
         self.slider.setTickInterval(self.step)
-        #self.slider.setStyleSheet("QSlider { background-color:#c0c0c0;}")
-        #self.slider.setStyleSheet("QSlider { background-color: transparent;} QSlider::groove:horizontal {height: 8px; background-color: #d7801a;}")
         self.slider.valueChanged.connect(self.sliderValueChanged)
 
     def sliderValueChanged(self):
