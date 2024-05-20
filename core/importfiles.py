@@ -2,6 +2,7 @@ from io import BytesIO
 from urllib.request import Request, urlopen
 from urllib.error import URLError
 from zipfile import ZipFile
+import numpy as np
 import os
 import sys
 import shutil
@@ -138,4 +139,66 @@ class AssetPack():
                     print (sourcename)
                     print (destname)
                     shutil.copyfile(sourcename, destname)
+
+class TargetASCII():
+    """
+    the class should also support stand-alone compressor
+    """
+
+    def __init__(self):
+        pass
+
+    def load(self, filename):
+        data = []
+        dtype = [('index','u4'),('vector','(3,)f4')]
+        try:
+            fd = open(filename, 'r', encoding='utf-8')
+        except:
+            return (False, None)
+        else:
+            for line in fd:
+                line = line.strip()
+                if line.startswith('#'):
+                    continue
+                translationData = line.split()
+                if len(translationData) != 4:
+                    continue
+                vertIndex = int(translationData[0])
+                translationVector = (float(translationData[1]), float(translationData[2]), float(translationData[3]))
+                data.append((vertIndex, translationVector))
+            return(True, np.asarray(data, dtype=dtype))
+
+    def saveCompressed(self, filename, content):
+        f = open(filename, "wb")
+        np.savez_compressed(f, **content)
+        f.close()
+
+    def scanDir(self, path):
+        result = []
+        for root, dirs, files in os.walk(path, topdown=True):
+            for name in files:
+                if name.endswith(".target"):
+                    result.append(os.path.join(root, name))
+
+        return(result)
+
+    def loadAllTargets(self, path, verbose=0):
+        content = {}
+        l = len(path)
+        alltargets = self.scanDir(path)
+        for filename in alltargets:
+            if verbose >0:
+                print ("loading: " + filename)
+            (res, arr) = self.load(filename)
+            if res is True:
+                if filename.startswith(path):
+                    name = filename[l+1:]
+                    content[name] = arr
+        return (content)
+
+    def compressAllTargets(self, sourcefolder, destfile, verbose=0):
+        content = self.loadAllTargets(sourcefolder, verbose)
+        if verbose > 0:
+            print ("save compressed: " + destfile)
+        self.saveCompressed(destfile, content)
 

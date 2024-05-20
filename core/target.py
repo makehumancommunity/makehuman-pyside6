@@ -1,6 +1,8 @@
 from gui.common import WorkerThread
 from gui.slider import ScaleComboItem
 from core.targetcat import TargetCategories
+from core.importfiles import TargetASCII
+
 import os
 import sys
 import json
@@ -390,10 +392,9 @@ class Morphtarget:
     handle a single target
     """
     def __init__(self, env, name):
-        self.dtype = [('index','u4'),('vector','(3,)f4')]
         self.name = name
         self.raw  = None
-        self.verts= None
+        self.verts= []
         self.data = []
         self.env  = env
 
@@ -413,25 +414,15 @@ class Morphtarget:
                 return
 
         filename = os.path.join(path, self.name) + ".target"
-        try:
-            fd = open(filename, 'r', encoding='utf-8')
-        except:
+        self.env.logLine(8, "Load: " + filename)
+
+        ta = TargetASCII()
+        (res, self.raw) = ta.load(filename)
+        if res is False:
             self.env.logLine(1, "Cannot load:" + filename)
-        else:
-            self.env.logLine(8, "Load: " + filename)
-            for line in fd:
-                line = line.strip()
-                if line.startswith('#'):
-                    continue
-                translationData = line.split()
-                if len(translationData) != 4:
-                    continue
-                vertIndex = int(translationData[0])
-                translationVector = (float(translationData[1]), float(translationData[2]), float(translationData[3]))
-                self.data.append((vertIndex, translationVector))
-            self.raw = np.asarray(self.data, dtype=self.dtype)
-            self.verts = self.raw['index']
-            self.data = self.raw['vector']
+            return
+        self.verts = self.raw['index']
+        self.data = self.raw['vector']
 
     def releaseNumpy(self):
         if self.raw is not None:
@@ -582,38 +573,21 @@ class Targets:
         :parm bck_proc: unused pointer to background process
         :param args: [0][0] 1 = system, 2 = user (3 is both)
         """
-        # get a content list of all targets and add them to either system content or user content
+        # need to load all targets again
         #
-        # TODO; check files ...
+        # TODO; check files ... refresh targets
     
         sys_user = args[0][0]
-        contentsys = {}
-        contentuser = {}
-        for target in self.glob.macroRepo.values():
-            contentsys[target.name] = target.raw
-        for target in self.glob.targetRepo.values():
-            if target.group is not None and target.group.startswith("user|"):
-                if target.incr is not None:
-                    contentuser[target.incr.name] = target.incr.raw
-                if target.decr is not None:
-                    contentuser[target.decr.name] = target.decr.raw
-            else:
-                if target.incr is not None:
-                    contentsys[target.incr.name] = target.incr.raw
-                if target.decr is not None:
-                    contentsys[target.decr.name] = target.decr.raw
-
+        ta = TargetASCII()
         if sys_user & 1:
-            sysbinpath = self.env.stdSysPath("target", "compressedtargets.npz")
-            f = open(sysbinpath, "wb")
-            np.savez_compressed(f, **contentsys)
-            f.close()
+            sourcefolder = self.env.stdSysPath("target")
+            destfile = self.env.stdSysPath("target", "compressedtargets.npz")
+            ta.compressAllTargets(sourcefolder, destfile)
 
         if sys_user & 2:
-            userbinpath = self.env.stdUserPath("target", "compressedtargets.npz")
-            f = open(userbinpath, "wb")
-            np.savez_compressed(f, **contentuser)
-            f.close()
+            sourcefolder = self.env.stdUserPath("target")
+            destfile = self.env.stdUserPath("target", "compressedtargets.npz")
+            ta.compressAllTargets(sourcefolder, destfile)
 
     def reset(self, colors=False):
         for target in self.modelling_targets:

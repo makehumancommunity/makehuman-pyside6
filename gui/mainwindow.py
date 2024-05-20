@@ -821,23 +821,22 @@ class MHMainWindow(QMainWindow):
         elems_compressed = 0
         elems_untouched = 0
         for elem in bc.cachedInfo:
-            # do not compress models
-            if elem.folder == "models":
-                continue
-            syspath = elem.path.startswith(self.env.path_sysdata)
-            if syspath == system:
-                okay = False
-                if force or self.env.isSourceFileNewer(elem.mhbin_file, elem.path):
-                    self.prog_window.setLabelText(elem.folder + ": create binary " + os.path.split(elem.path)[1])
 
-                    attach = attachedAsset(self.glob, elem.folder)
-                    (okay, err) = attach.mhcloToMHBin(elem.path)
-                    if not okay:
-                        bckproc.finishmsg = err
-                        return
-                    elems_compressed += 1
-                else:
-                    elems_untouched += 1
+            if elem.folder in ["clothes", "eyebrows", "eyelashes", "eyes", "hair", "proxy", "teeth", "tongue"]:
+                syspath = elem.path.startswith(self.env.path_sysdata)
+                if syspath == system:
+                    okay = False
+                    if force or self.env.isSourceFileNewer(elem.mhbin_file, elem.path):
+                        self.prog_window.setLabelText(elem.folder + ": create binary " + os.path.split(elem.path)[1])
+
+                        attach = attachedAsset(self.glob, elem.folder)
+                        (okay, err) = attach.mhcloToMHBin(elem.path)
+                        if not okay:
+                            bckproc.finishmsg = err
+                            return
+                        elems_compressed += 1
+                    else:
+                        elems_untouched += 1
 
         bckproc.finishmsg = "Binaries created: " + str(elems_compressed) + "\nEntries up-to-date before: " + str(elems_untouched)
         return
