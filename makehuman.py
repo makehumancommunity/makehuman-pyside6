@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 # -*- coding: utf-8 -*-
+#!/usr/bin/python3
 
 import argparse, textwrap
 import os

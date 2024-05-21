@@ -394,6 +394,7 @@ class baseClass():
         if self.skeleton is None:
             return
         if self.bvh is not None:
+            self.pose_skeleton.restPose()
             self.markAssetByFileName(self.bvh.filename, False)
         self.bvh = BVH(self.glob, name)
         loaded, msg  = self.bvh.load(path)
@@ -429,6 +430,7 @@ class baseClass():
 
         if self.expression is not None:
             self.markAssetByFileName(self.expression.filename, False)
+            self.pose_skeleton.restPose()
 
         self.expression = MHPose(self.glob, self.faceunits, name)
         loaded, msg  = self.expression.load(path)

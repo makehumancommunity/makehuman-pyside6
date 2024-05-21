@@ -127,10 +127,6 @@ class OpenGLView(QOpenGLWidget):
                     self.prims[name].newGeometry(-o_size/2)
                 elif name == "skeleton":
                     posed = (self.glob.baseClass.bvh is not None) or (self.glob.baseClass.expression is not None)
-                    if posed:
-                        self.glob.baseClass.pose_skeleton.newGeometry()
-                    else:
-                        self.glob.baseClass.skeleton.newGeometry()
                     self.prims[name].newGeometry(posed)
             self.Tweak()
 
