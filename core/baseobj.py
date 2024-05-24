@@ -259,12 +259,12 @@ class baseClass():
                     verts = elem.deleteVerts.copy()
                     elem.obj.notHidden()
                 else:
-                    print ("Join: " + elem.name)
+                    print ("Join + new delete verts: " + elem.name)
                     elem.obj.hideApproxVertices(elem, self.baseMesh, verts)
                     verts |= elem.deleteVerts
             else:
                 if verts is not None:
-                    print ("Join: " + elem.name)
+                    print ("Join no new delete verts: " + elem.name)
                     elem.obj.hideApproxVertices(elem, self.baseMesh, verts)
                 else:
                     elem.obj.notHidden()

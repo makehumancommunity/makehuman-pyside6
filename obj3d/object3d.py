@@ -309,11 +309,15 @@ class object3d:
         self.gl_hicoord = np.zeros(len(self.gl_icoord), dtype=np.uint32)
         scnt = 0
         dcnt = 0
+
         w = np.resize(verts, base.n_verts)
+        for (source, dest) in base.overflow:
+            w[dest] = w[source]
+
         ref = np.resize(asset.ref_vIdxs,(self.n_verts,3))
         for (source, dest) in self.overflow:
-            w[dest] = w[source]
             ref[dest] = ref[source]
+
         numind = len(self.gl_icoord) -2
         while scnt < numind:
             n1 = self.gl_icoord[scnt]
