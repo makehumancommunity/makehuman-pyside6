@@ -139,7 +139,7 @@ def importObjValues(npzfile, obj):
     return (True, None)
 
 def importObj3dBinary(path, obj):
-    print ("read binary " + path)
+    obj.env.logLine(8, "Read binary: " + path)
     npzfile = np.load(path)
     return(importObjValues(npzfile, obj))
 

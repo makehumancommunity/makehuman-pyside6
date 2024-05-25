@@ -6,6 +6,7 @@ from gui.materialwindow import  MHMaterialWindow
 from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, IconButton, MHTagEdit
 import os
 from core.importfiles import AssetPack
+from core.export_gltf import gltfExport
 
 class BaseSelect(QVBoxLayout):
     def __init__(self, parent, callback):
@@ -180,6 +181,30 @@ class SaveMHMForm(QVBoxLayout):
         self.bc.photo = self.view.createThumbnail()
         self.displayPixmap()
 
+class ExportPanel(QVBoxLayout):
+
+    def __init__(self, parent):
+        super().__init__()
+        self.parent = parent
+        self.glob = parent.glob
+        self.env = self.glob.env
+        self.exportbuttons = [
+                { "button": None, "icon": "gltf_sym.png", "tip": "export as GLTF2/GLB", "func": self.exportgltf},
+                { "button": None, "icon": "stl_sym.png", "tip": "export as STL (Stereolithography)", "func": self.exportstl}
+        ]
+        for n, b in enumerate(self.exportbuttons):
+            b["button"] = IconButton(n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"], 130)
+            self.addWidget(b["button"])
+
+        self.addStretch()
+
+    def exportgltf(self):
+        print ("export GLTF called")
+        gltf = gltfExport()
+        gltf.addNodes(self.glob.baseClass)
+
+    def exportstl(self):
+        print ("export STL called")
 
 class DownLoadImport(QVBoxLayout):
     def __init__(self, parent, view, displaytitle):

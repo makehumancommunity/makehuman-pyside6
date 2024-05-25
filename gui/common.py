@@ -22,14 +22,14 @@ class clickableProgressBar(QProgressBar):
         self.callback()
 
 class IconButton(QPushButton):
-    def __init__(self, funcid, path, tip, func):
+    def __init__(self, funcid, path, tip, func, fsize=36):
         self._funcid = funcid
         icon  = QIcon(path)
         super().__init__()
         self.setIcon(icon)
-        self.setIconSize(QSize(36,36))
+        self.setIconSize(QSize(fsize,fsize))
         self.setCheckable(True)
-        self.setFixedSize(40,40)
+        self.setFixedSize(fsize+4,fsize+4)
         self.setToolTip(tip)
         if func is not None:
             self.clicked.connect(func)

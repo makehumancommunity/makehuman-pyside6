@@ -120,7 +120,7 @@ def importWaveFront(path, obj):
     n_uvs = len(uvs)
     vertex_uv = np.full(n_verts, -1, dtype=np.uint32)
 
-    uv_values = np.zeros (shape=(n_uvs+n_verts, 2), dtype=np.float32)  # n_uvs+n_verts should be sufficient for the longest possible buffer
+    uv_values = np.zeros (shape=(n_verts*2, 2), dtype=np.float32)  # n_uvs+n_verts should be sufficient for the longest possible buffer
 
     for g in groups:
         if "uv" in groups[g] and len(groups[g]["uv"]) > 0:

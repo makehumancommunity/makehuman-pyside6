@@ -10,7 +10,7 @@ from gui.infowindow import  MHInfoWindow
 from gui.memwindow import  MHMemWindow
 from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
-from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport
+from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport, ExportPanel
 from gui.poseactions import AnimPlayer, AnimMode, AnimExpressionEdit
 from gui.slider import ScaleComboArray
 from gui.imageselector import ImageSelection
@@ -503,6 +503,11 @@ class MHMainWindow(QMainWindow):
         layout = category.rightPanel(buttonmask)
         self.ToolBox.addLayout(layout)
 
+    def drawExportPanel(self, text):
+        self.rightColumn.setTitle(text)
+        layout = ExportPanel(self)
+        self.ToolBox.addLayout(layout)
+
     def drawRightPanel(self, text="None"):
         #
         # works according to tool_mode and category_mode
@@ -515,6 +520,8 @@ class MHMainWindow(QMainWindow):
                 self.rightColumn.setTitle("No additional infomation")
             elif self.category_mode == 1:
                 self.drawImageSelector(self.charselect, "Character MHM Files", 0)
+            elif self.category_mode == 3:
+                self.drawExportPanel("Export character")
             elif self.category_mode == 4:
                 self.rightColumn.setTitle("No additional infomation")
             else:

@@ -193,7 +193,7 @@ class TargetASCII():
             if res is True:
                 if filename.startswith(path):
                     name = filename[l+1:]
-                    content[name] = arr
+                    content[name[:-7]] = arr
         return (content)
 
     def compressAllTargets(self, sourcefolder, destfile, verbose=0):

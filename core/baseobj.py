@@ -142,7 +142,7 @@ class baseClass():
         # set absolute path for material
         #
         for elem in loaded.attached:
-            print (self.env.basename, elem.type, elem.name, elem.relmaterial)
+            # print (self.env.basename, elem.type, elem.name, elem.relmaterial)
             if elem.relmaterial is not None:
                 matfilename = self.env.existFileInBaseFolder(self.env.basename, elem.type, elem.name, elem.relmaterial)
                 if matfilename is not None:
@@ -186,7 +186,7 @@ class baseClass():
                 if self.pose_skelpath == skelpath:  # reuse pose-skeleton
                     self.skeleton = self.pose_skeleton
                 else:
-                    print ("Skeleton Path " + skelpath)
+                    # print ("Skeleton Path " + skelpath)
                     self.skeleton = skeleton(self.glob, loaded.skeleton)
                     self.skeleton.loadJSON(skelpath)
                     self.markAssetByFileName(skelpath, True)
@@ -300,7 +300,7 @@ class baseClass():
 
 
     def addAsset(self, path, eqtype, materialpath=None, materialsource=None):
-        print ("Attach: " + path + " of " + eqtype)
+        # print ("Attach: " + path + " of " + eqtype)
         attach = attachedAsset(self.glob, eqtype)
         attach.load(path)
         if attach is None:
@@ -496,7 +496,7 @@ class baseClass():
             skelname = self.baseInfo["pose-skeleton"]
             self.pose_skelpath = self.env.existDataFile("rigs", self.env.basename, skelname)
             if self.pose_skelpath is not None:
-                print ("Pose-Skeleton Path " + self.pose_skelpath)
+                # print ("Pose-Skeleton Path " + self.pose_skelpath)
                 self.pose_skeleton = skeleton(self.glob, skelname)
                 self.pose_skeleton.loadJSON(self.pose_skelpath)
                 self.skeleton = self.pose_skeleton  # preset skeleton
