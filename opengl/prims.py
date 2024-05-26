@@ -56,11 +56,10 @@ class CoordinateSystem(LineElements):
         self.create(context, shaders, width)
 
 class Grid(LineElements):
-    def __init__(self, name, size, context, shaders):
+    def __init__(self, name, size, ground, context, shaders):
         lines = []
         cols = []
         self.border = int(size)
-        ground = -8.0
         lines = self.setGrid(ground)
         # add colors one time
         #

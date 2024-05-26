@@ -123,8 +123,8 @@ class OpenGLView(QOpenGLWidget):
             if status is True:
                 if name == "grid":
                     baseClass = self.glob.baseClass
-                    o_size = baseClass.baseMesh.getHeightInUnits() if baseClass is not None else 100
-                    self.prims[name].newGeometry(-o_size/2)
+                    zmin = baseClass.baseMesh.getZMin() if baseClass is not None else 100
+                    self.prims[name].newGeometry(zmin)
                 elif name == "skeleton":
                     posed = (self.glob.baseClass.bvh is not None) or (self.glob.baseClass.expression is not None)
                     self.prims[name].newGeometry(posed)
@@ -133,7 +133,8 @@ class OpenGLView(QOpenGLWidget):
 
     def createPrims(self):
         self.prims["axes"] = CoordinateSystem("axes", 10.0, self.context(), self.mh_shaders._shaders[1])
-        self.prims["grid"] = Grid("grid", 10.0, self.context(), self.mh_shaders._shaders[1])
+        zmin = self.glob.baseClass.baseMesh.getZMin()
+        self.prims["grid"] = Grid("grid", 10.0, zmin, self.context(), self.mh_shaders._shaders[1])
 
     def createObject(self, obj):
         """

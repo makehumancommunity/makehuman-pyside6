@@ -259,7 +259,11 @@ class object3d:
         self.calcNormals()
 
     def getPosition(self, num):
-        return(self.coord[num])
+        """
+        get position of one vertex based on gl_coord
+        """
+        m = self.gl_coord[num*3]
+        return (m[0], m[1], m[2])
 
     def getMeanPosition(self, arr):
         """
@@ -484,10 +488,15 @@ class object3d:
     def precalculateDimension(self):
         """
         calculate numbers of vertices, which are on the outside for later use
+        do that only for visible groups
         """
-        a = self.gl_coord.reshape((int(len(self.gl_coord)/3),3))
-        self.max_index = np.argmax(a, axis=0)
-        self.min_index  = np.argmin(a, axis=0)
+        coord = np.zeros((self.n_origverts, 3), dtype=np.float32)
+        for i in range (0, self.n_glverts):
+            cnt = self.gl_icoord[i]
+            if cnt < self.n_origverts:
+                coord[cnt] = self.coord[cnt]
+        self.max_index = np.argmax(coord, axis=0)
+        self.min_index  = np.argmin(coord, axis=0)
 
     def getCenterWidth(self):
         return ((self.gl_coord[self.max_index[0]*3]+self.gl_coord[self.min_index[0]*3])/2.0)
@@ -502,6 +511,9 @@ class object3d:
         a =  self.gl_coord
         n = [ self.getCenterWidth(),  self.getCenterHeight(), self.getCenterDepth() ]
         return (n)
+
+    def getZMin(self):
+        return (self.gl_coord[self.min_index[1]*3+1])
 
     def getHeightInUnits(self):
         return (self.gl_coord[self.max_index[1]*3+1]-self.gl_coord[self.min_index[1]*3+1])

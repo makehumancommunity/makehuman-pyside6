@@ -30,6 +30,9 @@ class gltfExport:
         return (json.dumps(self.json, indent=3))
 
     def nodeName(self, filename):
+        if filename is None:
+            return("generic")
+
         fname = os.path.basename(filename)
         return(os.path.splitext(fname)[0])
 
@@ -46,9 +49,9 @@ class gltfExport:
 
         i = 1
         for elem in baseclass.attachedAssets:
-            self.json["nodes"].append({"name": self.nodeName(elem.filename) })
+            self.json["nodes"].append({"name": self.nodeName(elem.filename), "mesh": i })
             self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": i }, "material": i, "mode": 4 }]})
-            self.json["materials"].append({"name": self.nodeName(elem.materialsource)})
+            self.json["materials"].append({"name": self.nodeName(elem.material)})
             children.append(i)
             i += 1
 
