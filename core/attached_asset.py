@@ -289,6 +289,8 @@ class attachedAsset:
                 self.importBinary(binfile)
                 self.obj.filename = filename
                 self.obj.initMaterial(filename)
+                if self.type == "hair":
+                    self.z_depth = 255
                 self.obj.setZDepth(self.z_depth)
                 return (True, None)
             use_ascii = True

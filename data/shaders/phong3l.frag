@@ -62,6 +62,7 @@ void main()
 		spec3 = pow(max(dot(viewDir, reflectDir), 0.0), lightWeight[1]) / l3;
 	}
 	vec3 specular = specw * vec3(lightVol1) * spec1 + specw * vec3(lightVol2) * spec2 + specw * vec3(lightVol3) * spec3;
+	if (transp < 0.01) discard;
 	FragColor = vec4(ambient + diffuse + specular, transp);
 }
 

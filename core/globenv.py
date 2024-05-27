@@ -740,7 +740,7 @@ class programInfo():
         if reread is True:
             data = []
             for (folder, path) in files:
-                print (path)
+                self.logLine(8, "Check '" + path + "'")
                 (filename, extension) = os.path.splitext(path)
                 thumbfile = filename + ".thumb"
                 if not os.path.isfile(thumbfile):
