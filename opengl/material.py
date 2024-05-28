@@ -26,10 +26,11 @@ class MH_Image(QImage):
         
 
 class Material:
-    def __init__(self, glob, objdir):
+    def __init__(self, glob, objdir, eqtype):
         self.glob = glob
         self.env = glob.env
         self.objdir = objdir
+        self.type = eqtype
         self.tags = []
         self._textures = []
         self.default()
@@ -50,11 +51,28 @@ class Material:
             return (path)
 
         # try to get rid of first directory of filename
+        #
         if "/" in filename:
-            filename = "/".join (filename.split("/")[1:])
-            path = os.path.join(self.objdir, filename)
+            fname = "/".join (filename.split("/")[1:])
+            path = os.path.join(self.objdir, fname)
             if os.path.isfile(path):
                 return (path)
+
+        # try an "absolute" method when it starts with the type name like "clothes"
+        # then delete clothes 
+        # in both cases try directly in asset folders
+
+        if filename.startswith(self.type):
+            if "/" in filename:
+                filename = "/".join (filename.split("/")[1:])
+
+        path = os.path.join(self.env.stdSysPath(self.type), filename)
+        if os.path.isfile(path):
+            return (path)
+
+        path = os.path.join(self.env.stdUserPath(self.type), filename)
+        if os.path.isfile(path):
+            return (path)
             
         return None
 

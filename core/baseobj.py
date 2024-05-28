@@ -465,7 +465,7 @@ class baseClass():
 
         name = os.path.join(self.dirname, "base.obj")
 
-        self.baseMesh = object3d(self.glob, self.baseInfo)
+        self.baseMesh = object3d(self.glob, self.baseInfo, "base")
         (res, err) = self.baseMesh.load(name)
         if res is False:
             del self.baseMesh

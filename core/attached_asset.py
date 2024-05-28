@@ -285,7 +285,7 @@ class attachedAsset:
             newer = self.env.isSourceFileNewer(binfile, filename)
             if not newer and os.path.isfile(binfile):
                 self.filename = filename
-                self.obj = object3d(self.glob, None)
+                self.obj = object3d(self.glob, None, self.type)
                 self.importBinary(binfile)
                 self.obj.filename = filename
                 self.obj.initMaterial(filename)
@@ -298,7 +298,7 @@ class attachedAsset:
         (res, err) = self.textLoad(filename)
         if res is True:
             print ("Object is:" + self.obj_file)
-            obj = object3d(self.glob, None)
+            obj = object3d(self.glob, None, self.type)
             (res, err) = obj.load(self.obj_file, use_ascii)
             if res is True:
                 self.obj = obj

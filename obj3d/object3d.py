@@ -4,10 +4,11 @@ from opengl.material import Material
 import os
 
 class object3d:
-    def __init__(self, glob, baseinfo ):
+    def __init__(self, glob, baseinfo, eqtype ):
  
         self.glob = glob
         self.env  = glob.env     # needed for globals
+        self.type = eqtype      # equipmentype
         self.openGL   = None    # openGL pointer
         self.filename = None    # original file name
         self.name = None    # will contain object name derived from loaded file
@@ -76,7 +77,7 @@ class object3d:
         self.z_depth = z_depth
 
     def initMaterial(self, filename):
-        self.material = Material(self.glob, os.path.dirname(filename))
+        self.material = Material(self.glob, os.path.dirname(filename), self.type)
 
     def loadMaterial(self, pathname):
         """

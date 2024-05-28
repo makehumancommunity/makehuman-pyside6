@@ -33,7 +33,7 @@ def importWaveFront(path, obj):
         groupnames.append("mh_default")
         g = groups["mh_default"] = {"v": [], "uv": [] }
 
-
+        max_uv = 0
         for line in f:
             ln += 1
             words = line.split()
@@ -67,7 +67,10 @@ def importWaveFront(path, obj):
                     vInd.append(vindex)
 
                     if len(columns) > 1 and columns[1] != '':
-                        uvInd.append(int(columns[1]) - 1)
+                        uc = int(columns[1])
+                        if uc > max_uv:
+                            max_uv = uc
+                        uvInd.append(uc - 1)
 
                 g["v"].append(vInd)
                 fcnt += 1
@@ -120,7 +123,11 @@ def importWaveFront(path, obj):
     n_uvs = len(uvs)
     vertex_uv = np.full(n_verts, -1, dtype=np.uint32)
 
-    uv_values = np.zeros (shape=(n_verts*4, 2), dtype=np.float32)  # should be sufficient for the longest possible buffer
+    uvsize = n_verts*3      # pre-calculate size of uv-buffer
+    if max_uv > uvsize:
+        uvsize = max_uv
+
+    uv_values = np.zeros (shape=(uvsize, 2), dtype=np.float32)  # should be sufficient for the longest possible buffer
 
     for g in groups:
         if "uv" in groups[g] and len(groups[g]["uv"]) > 0:
