@@ -4,13 +4,13 @@ import os
 # TODO could be that this might change to a primary index later using uuid
 #
 class FileCache:
-    def __init__(self, name):
-        print ("Initializing: " + name)
+    def __init__(self, env, name):
+        self.env = env
         self.con = sqlite3.connect(name)
         self.cur = self.con.cursor()
         self.name = name
         self.time = int(os.stat(name).st_mtime)
-        print (self.time)
+        self.env.logTime(self.time, "last change repository: " + name)
 
     def createCache(self, latest, subdir=None):
         """
@@ -20,24 +20,24 @@ class FileCache:
         """
         res = self.cur.execute("SELECT name FROM sqlite_master WHERE name='userinformation'")
         if res.fetchone() is None:
-            print ("Need to create user table")
+            self.env.logLine(8, "Need to create user table")
             self.cur.execute("CREATE TABLE userinformation(uuid, tags)")
 
         res = self.cur.execute("SELECT name FROM sqlite_master WHERE name='filecache'")
         if res.fetchone() is None:
-            print ("Need to create table")
+            self.env.logLine(8, "Need to create filecache table")
             self.cur.execute("CREATE TABLE filecache(name, uuid, path, folder, obj_file, thumbfile, author, tags)")
             return(True)
 
         if subdir is None:
             if latest > self.time:
-                print ("Need to cleanup file table")
+                self.env.logLine(8, "Delete current filecache completely")
                 self.cur.execute("DELETE FROM filecache")
                 return (True)
             else:
                 return(False)
         else:
-            print("DELETE FROM filecache where folder = " +  subdir)
+            self.env.logLine(8, "Delete folder '" + subdir + "' from filecache")
             self.cur.execute("DELETE FROM filecache where folder = ?", (subdir,))
             self.con.commit()
             return (True)

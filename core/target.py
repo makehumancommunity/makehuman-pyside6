@@ -531,7 +531,7 @@ class Targets:
         for x in target_env:
             bintargets = os.path.join(x["targetpath"], "compressedtargets.npz")
             if os.path.exists(bintargets):
-                print (bintargets + " are available")
+                self.env.logLine(8, "Load binary targets: " + bintargets)
                 x["targets"] = np.load(bintargets)
 
         # load macrotargets (atm only system path)

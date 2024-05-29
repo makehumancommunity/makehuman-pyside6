@@ -52,6 +52,10 @@ def main():
         print (env.last_error)
         exit (20)
 
+    if args.version:
+        env.showVersion()
+        exit(0)
+
     glob = globalObjects(env)
     if not glob.readShaderInitJSON():
         print (env.last_error)

@@ -21,7 +21,6 @@ def GLVersion(initialized):
 
     if initialized:
         glversion["card"] = gl.glGetString(gl.GL_VERSION).decode("utf-8")
-    print (glversion)
     # print (gl.glGetString(gl.GL_VERSION)) TODO, add context etc.
     #
     # no shaders support will be outside this file

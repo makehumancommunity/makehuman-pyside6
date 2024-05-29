@@ -1,10 +1,10 @@
 {
-	"name": "MakeHuman [test]",
+	"name": "MakeHuman",
 	"author": "black punkduck, elvaerwyn",
 	"version": [2, 0, 1],
-	"copyright": "Copyright ... and listed authors",
+	"copyright": "(C) 2024 by MakeHuman Team, http://www.makehumancommunity.org",
 	"maintainer": "black punkduck",
-	"status": "only development",
+	"status": "development, use with care",
     	"url_fileserver": "files.makehumancommunity.org",
 	"url_assetpacks": "http://static.makehumancommunity.org/assets/assetpacks.html",
     	"url_systemassets": "asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip",

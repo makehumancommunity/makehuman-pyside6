@@ -33,7 +33,6 @@ def importWaveFront(path, obj):
         groupnames.append("mh_default")
         g = groups["mh_default"] = {"v": [], "uv": [] }
 
-        max_uv = 0
         for line in f:
             ln += 1
             words = line.split()
@@ -68,8 +67,6 @@ def importWaveFront(path, obj):
 
                     if len(columns) > 1 and columns[1] != '':
                         uc = int(columns[1])
-                        if uc > max_uv:
-                            max_uv = uc
                         uvInd.append(uc - 1)
 
                 g["v"].append(vInd)
@@ -123,7 +120,8 @@ def importWaveFront(path, obj):
     n_uvs = len(uvs)
     vertex_uv = np.full(n_verts, -1, dtype=np.uint32)
 
-    uvsize = n_verts*3      # pre-calculate size of uv-buffer
+    uvsize = n_verts*3      # try to find a buffer sufficient for the uv-values
+    max_uv = n_uvs * 3 
     if max_uv > uvsize:
         uvsize = max_uv
 

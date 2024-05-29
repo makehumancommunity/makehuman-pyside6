@@ -3,6 +3,7 @@ import sys
 import os
 import re
 import locale
+import time
 import json
 import glob
 from uuid import uuid4
@@ -144,7 +145,7 @@ class programInfo():
         self.path_sys = path_sys
  
         uenv = UserEnvironment()
-        (self.sys_platform, self.osindex, self.ostype, self.latform_version) = uenv.GetPlatform()
+        (self.sys_platform, self.osindex, self.ostype, self.platform_version) = uenv.GetPlatform()
         (self.platform_machine, self.platform_processor, self.platform_release) = uenv.GetHardware()
 
         # create user configfolder if not there, if that is impossible terminate
@@ -181,6 +182,11 @@ class programInfo():
         print debug information, should contain all information
         """
         return  json.dumps(self.__dict__, indent=4, sort_keys=True)
+
+    def showVersion(self):
+        print (self.release_info["name"] + " Version " + ".".join(str(x) for x in self.release_info["version"]))
+        print ("Status: " + self.release_info["status"])
+        print ("Copyright: " + self.release_info["copyright"])
 
     def pathToUnicode(self, path: str) -> str:
         """
@@ -472,7 +478,7 @@ class programInfo():
 
     def initFileCache(self):
         dbname = self.stdUserPath("dbcache", "repository.db")
-        self.fileCache = FileCache(dbname)
+        self.fileCache = FileCache(self, dbname)
 
     def reDirect(self, log=False):
         """
@@ -621,7 +627,9 @@ class programInfo():
                                 latest = mod
                             filenames.append([folder, aname1])
 
-        print ("Latest: " + str(latest))
+        if self.verbose & 8:
+            scanned = "all subdirs" if subdir is None else subdir
+            self.logTime(latest, "Last change: " + scanned)
         return(latest, filenames)
 
     def fileScanFoldersAttachObjects(self, subdir=None):
@@ -653,7 +661,7 @@ class programInfo():
         #
         # check date of db?
         reread = self.fileCache.createCache(latest, subdir)
-        print ("Reread is " + str(reread))
+        self.logLine (8, "Recreate repo is " + str(reread))
         if reread is True:
             data = []
             for (folder, path) in files:
@@ -735,7 +743,6 @@ class programInfo():
         namematch = []
         subdir = "models"
         (latest, files) = self.subDirsBaseFolder(".mhm", subdir)
-        print (latest)
         reread = self.fileCache.createCache(latest, subdir)
         if reread is True:
             data = []
@@ -814,6 +821,14 @@ class programInfo():
         """
         if self.verbose & level:
             print ("[" + str(level) + "] " + line)
+
+    def logTime(self, ctime, line):
+        """
+        write time to logfile
+        """
+        if self.verbose & 8:
+            outtime = time.strftime("%Y/%m/%d %H:%M:%S ", time.localtime(ctime))
+            print ("[8] " + outtime + line)
 
     def loadSession(self):
         """
