@@ -155,12 +155,12 @@ class baseClass():
 
         if loaded.skinMaterial is not None:
             self.skinMaterialName = loaded.skinMaterial
-            matfilename = self.env.existDataFile("skins", self.env.basename, os.path.basename(loaded.skinMaterial))
+            matfilename = self.baseMesh.getMaterialPath(self.skinMaterialName)  # different method (check in "skins")
             if matfilename is not None:
                 self.baseMesh.loadMaterial(matfilename)
                 self.skinMaterial = matfilename
 
-        print(loaded)
+        # print(loaded)
 
         # now load attached meshes
         #

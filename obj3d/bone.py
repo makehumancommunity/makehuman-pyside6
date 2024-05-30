@@ -244,7 +244,6 @@ class boneWeights():
 
         for key in ["name", "version", "description"]:
             if key in json:
-                print(json[key])
                 setattr (self, key, json[key])
 
         if not "weights" in json:

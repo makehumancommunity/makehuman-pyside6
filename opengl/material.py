@@ -61,16 +61,19 @@ class Material:
         # try an "absolute" method when it starts with the type name like "clothes"
         # then delete clothes 
         # in both cases try directly in asset folders
+        # for base mesh default is skins
+        #
+        itype = "skins" if self.type == "base" else self.type
 
-        if filename.startswith(self.type):
+        if filename.startswith(itype):
             if "/" in filename:
                 filename = "/".join (filename.split("/")[1:])
 
-        path = os.path.join(self.env.stdSysPath(self.type), filename)
+        path = os.path.join(self.env.stdSysPath(itype), filename)
         if os.path.isfile(path):
             return (path)
 
-        path = os.path.join(self.env.stdUserPath(self.type), filename)
+        path = os.path.join(self.env.stdUserPath(itype), filename)
         if os.path.isfile(path):
             return (path)
             

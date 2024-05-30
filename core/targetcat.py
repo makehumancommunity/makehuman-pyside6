@@ -12,22 +12,21 @@ class TargetCategories:
         self.basename = self.env.basename
         self.mod_cat = 0
         self.mod_modelling = 0
-        self.mod_latest = 0
         self.user_targets = []
         self.icon_repos = []
 
-    def addUserTarget(self, folder, subfolder, filename ):
+    def addUserTarget(self, folder, subfolder, filename, latest ):
         if subfolder is None:
             fname = os.path.join(folder, filename)
         else:
             fname = os.path.join(folder, subfolder, filename)
             filename = os.path.join(subfolder, filename)
         mod = int(os.stat(fname).st_mtime)
-        if mod > self.mod_latest:
-            self.env.logLine(8, "Newer modification time detected: " + filename + " " + str(mod))
-            self.mod_latest = mod
         self.user_targets.append(filename[:-7])
-
+        if mod > latest:
+            self.env.logTime(mod, "Newer modification time detected for: " + filename)
+            return (True)
+        return(False)
 
     def formatModellingEntry(self, user_mod, cats, folder, filename):
         """
@@ -78,22 +77,25 @@ class TargetCategories:
             if iconname in self.icon_repos:
                 user_mod[elem]["icon"] = iconname
 
-    def getIcons(self, folder):
+    def getIcons(self, folder, latest):
         dirs = os.listdir(folder)
+        rescan = False
         for ifile in dirs:
             if ifile.endswith(".png"):
                 fname = os.path.join(folder, ifile)
                 mod = int(os.stat(fname).st_mtime)
-                if mod > self.mod_latest:
-                    self.env.logLine(8, "Newer modification time detected: " + ifile + " " + str(mod))
-                    self.mod_latest = mod
                 self.icon_repos.append(ifile)
+                if mod > latest:
+                    self.env.logTime(mod, "Newer modification time detected for: " + ifile)
+                    rescan = True
+        return (rescan)
 
-    def getAListOfTargets(self, folder):
+    def getAListOfTargets(self, folder, latest):
         """
         allow two layers as a maximum
         """
         dirs = os.listdir(folder)
+        rescan = False
         for ifile in dirs:
 
             fname = os.path.join(folder, ifile)
@@ -101,7 +103,7 @@ class TargetCategories:
             # read names of the icons
             #
             if ifile == "icons":
-                self.getIcons(fname)
+                rescan |= self.getIcons(fname, latest)
                 continue
 
             # we don't do it recursive to avoid more than two layers
@@ -110,10 +112,12 @@ class TargetCategories:
                 dir2s = os.listdir(fname)
                 for ifile2 in dir2s:
                     if ifile2.endswith(".target"):
-                        self.addUserTarget(folder, ifile, ifile2)
+                        rescan |= self.addUserTarget(folder, ifile, ifile2, latest)
 
             elif ifile.endswith(".target"):
-                self.addUserTarget(folder, None, ifile)
+                rescan |= self.addUserTarget(folder, None, ifile, latest)
+
+        return (rescan)
 
 
     def createJStruct(self, categories):
@@ -169,7 +173,7 @@ class TargetCategories:
         catfilename = os.path.join(targetpath, "target_cat.json")
         if os.path.isfile(catfilename):
             self.mod_cat = int(os.stat(catfilename).st_mtime)
-            self.env.logLine(8, "User target category file exists and last modified: " + str(self.mod_cat))
+            self.env.logTime(self.mod_cat, "last change of User target category file")
         else:
             self.env.logLine(8, "User target category file does not exists")
             self.mod_cat = 0
@@ -179,14 +183,17 @@ class TargetCategories:
         modfilename = os.path.join(targetpath, "modelling.json")
         if os.path.isfile(modfilename):
             self.mod_modelling = int(os.stat(modfilename).st_mtime)
-            self.env.logLine(8, "User target modelling file exists and last modified: " + str(self.mod_modelling))
+            self.env.logTime(self.mod_modelling, "last change of User target modelling.json")
         else:
             self.env.logLine(8, "User target modelling file does not exists")
+            self.mod_modelling = 0
+
+        lastcreated = self.mod_cat if self.mod_cat < self.mod_modelling else self.mod_modelling
 
         # now scan targets
         #
-        self.getAListOfTargets(targetpath)
-        if self.mod_latest > self.mod_cat or self.mod_latest > self.mod_modelling:
+        rescan = self.getAListOfTargets(targetpath, lastcreated)
+        if rescan:
             (json_cat_object, json_mod_object) = self.createJStruct(self.user_targets)
             self.env.writeJSON(catfilename, json_cat_object)
             self.env.logLine(8, "New user target category file written")

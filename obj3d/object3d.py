@@ -79,6 +79,11 @@ class object3d:
     def initMaterial(self, filename):
         self.material = Material(self.glob, os.path.dirname(filename), self.type)
 
+    def getMaterialPath(self, filename):
+        if filename is not None and self.material is not None:
+            return(self.material.isExistent(filename))
+        return (None)
+
     def loadMaterial(self, pathname):
         """
         use a relative path to object
@@ -421,7 +426,7 @@ class object3d:
         targets = self.glob.Targets.modelling_targets
         for target in targets:
             if target.value != 0.0 and target.macro is None:
-                print ("Set " + target.name)
+                # print ("Set " + target.name)
                 self.setTarget(target.value / 100, target.decr, target.incr)
 
         # overflow vertices
@@ -441,8 +446,6 @@ class object3d:
         """
         updates a special buffer for a macro target
         """
-        print ("+++ Add a target")
-
         m = target.data.ravel()
         verts = target.verts * 3
 

@@ -228,7 +228,7 @@ class Modelling(ScaleComboItem):
                 if elem in components:
                     pattern = components[elem]["pattern"]
                     values  = components[elem]["values"]
-                    print ("\t\tPattern:" +  str(pattern) + " " + str(values))
+                    # print ("\t\tPattern:" +  str(pattern) + " " + str(values))
 
                     if "steps" not in components[elem]:
 
@@ -243,16 +243,15 @@ class Modelling(ScaleComboItem):
                             current = self.glob.targetRepo[p]
                             b = current.barycentric[i]["value"]
                             if b > 0.001:
-                                print ("\t\tCurrent value " + v + " " + str(b))
+                                # print ("\t\tCurrent value " + v + " " + str(b))
                                 m.insert(v, b)
                         weightarray.append(m)
                     else:
                         steps = components[elem]["steps"]
                         if pattern not in self.glob.targetRepo:
                             continue
-                        #print (self.glob.targetRepo[pattern])
                         current = self.glob.targetRepo[pattern].value / 100
-                        print ("\t\tCurrent " + str(current) + " Divisions: " + str(len(steps)))
+                        # print ("\t\tCurrent " + str(current) + " Divisions: " + str(len(steps)))
 
                         for i in range(0,len(steps)-1):
                             if current > steps[i+1]:
@@ -284,10 +283,10 @@ class Modelling(ScaleComboItem):
                 if name in l and l[name] is not None:
                     if l[name] in sortedtargets:
                         sortedtargets[l[name]] += elem["factor"]
-                        print(name + " add to existent factor")
+                        print(" Add: " + name)
                     else:
                         sortedtargets[l[name]] = elem["factor"]
-                        print(name + " is new")
+                        print(" New: " + name)
                 else:
                     pass
 
@@ -295,7 +294,7 @@ class Modelling(ScaleComboItem):
         #
         for elem in sortedtargets:
             if elem in self.glob.macroRepo:
-                print (elem, round(sortedtargets[elem],2))
+                print ("  + " + str(round(sortedtargets[elem],2)) + " " + elem)
                 self.obj.baseMesh.addTargetToMacroBuffer(sortedtargets[elem], self.glob.macroRepo[elem])
         self.obj.baseMesh.addMacroBuffer()
 
@@ -367,7 +366,7 @@ class Modelling(ScaleComboItem):
                 self.glob.parallel.finished.connect(self.finished_bckproc)
 
         elif self.incr is not None or self.decr is not None:
-            print("change " + self.name)
+            # print("change " + self.name)
             self.obj.updateByTarget(factor, self.decr, self.incr)
 
             # in case symmetry is switched on, set sym-side + value
@@ -603,7 +602,6 @@ class Targets:
         """
         if key in self.glob.targetRepo:
             t = self.glob.targetRepo[key]
-            print (" >>> Found target: " + key)
             if t.barycentric is not None:
                 for l in t.barycentric:
                     if l["name"] == key:
@@ -611,6 +609,7 @@ class Targets:
             else:
                 t.value = float(value) * 100.0
         else:
+            self.env.logLine (2, "Missing target:" + key)
             self.glob.missingTargets.append(key)
 
     def modifierPresets(self, presets):
