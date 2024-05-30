@@ -1,4 +1,5 @@
 import numpy as np
+import core.math as mquat
 import math
 
 class BVHJoint():
@@ -147,42 +148,11 @@ class BVH():
             joint.matrixPoses[:,:3,:3] = np.identity(3, dtype=np.float32)
 
 
-    def eulerMatrixXYZ(self, ri, rj, rk):
-        M = np.identity(4)
-        si, sj, sk = math.sin(ri), math.sin(rj), math.sin(rk)
-        ci, cj, ck = math.cos(ri), math.cos(rj), math.cos(rk)
-        cc, cs = ci*ck, ci*sk
-        sc, ss = si*ck, si*sk
-
-        M[0, 0] = cj*ck
-        M[0, 1] = sj*sc-cs
-        M[0, 2] = sj*cc+ss
-        M[1, 0] = cj*sk
-        M[1, 1] = sj*ss+cc
-        M[1, 2] = sj*cs-sc
-        M[2, 0] = -sj
-        M[2, 1] = cj*si
-        M[2, 2] = cj*ci
-        return(M)
-
-    def eulerMatrix(self, x, y, z, s="xyz"):
-        if s == "xyz":
-            return self.eulerMatrixXYZ(x, y, z)
-        elif s == "xzy":
-            return self.eulerMatrixXYZ(x, z, y)
-        elif s == "yxz":
-            return self.eulerMatrixXYZ(y, x, z)
-        elif s == "yzx":
-            return self.eulerMatrixXYZ(y, z, x)
-        elif s == "zxy":
-            return self.eulerMatrixXYZ(z, x, y)
-        return self.eulerMatrixXYZ(z, y, x)
-
     def calcLocRotMat(self, frame, data):
         #
-        # works only for XYZ joint order (rotation)
+        # works only for YZX joint order (rotation)
         i = 0
-        order = "xyz"
+        order = "yzx"       # original yzx 
         for joint in self.bvhJointOrder:
             if joint.nChannels > 0:
                 for j, m in enumerate(joint.channelorder):
@@ -195,13 +165,12 @@ class BVH():
                 x = self.pi_mult * joint.animdata[frame, 3]
                 #
                 if self.z_up:
-                    y = self.pi_mult * joint.animdata[frame, 5]
-                    z = -self.pi_mult * joint.animdata[frame, 4]
+                    y = -self.pi_mult * joint.animdata[frame, 4]
                 else:
                     y = self.pi_mult * joint.animdata[frame, 4]
-                    z = self.pi_mult * joint.animdata[frame, 5]
+                z = self.pi_mult * joint.animdata[frame, 5]
 
-                joint.matrixPoses[frame,:3,:3] = self.eulerMatrix(x, y, z, order)[:3,:3]
+                joint.matrixPoses[frame,:3,:3] = mquat.eulerMatrix(z, y, x, order)[:3,:3]
                 #
                 if joint.parent is None or self.dislocation:
                     joint.matrixPoses[frame,:3,3] = [joint.animdata[frame, 0], joint.animdata[frame, 1], joint.animdata[frame, 2]]
@@ -221,14 +190,16 @@ class BVH():
                     s = list(m.flatten())
                 print("\"" + joint.name + "\": " + str(s))
 
-    def debugJoints(self):
+    def debugJoints(self, name):
         for joint in self.bvhJointOrder:
-            #print (joint)
-            print (joint.name)
-            print (joint.matrixPoses)
-            #print (joint.matRestLocal)
-            #print (joint.matRestGlobal)
-
+            if joint.name == name:
+                print (joint.name)
+                print (joint.offset)
+                print (joint.position)
+                print (joint.matRestLocal)
+                print (joint.matRestGlobal)
+                print (joint.animdata)
+                print (joint.matrixPoses)
 
 
     def calcBVHRestMat(self):
@@ -279,6 +250,7 @@ class BVH():
                 data = [float(word) for word in words]
                 self.calcLocRotMat(i, data)
 
+        # self.debugJoints("lowerarm02.L")
         return (True, "Okay")
 
 class MHPose():

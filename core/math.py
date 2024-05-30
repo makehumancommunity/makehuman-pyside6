@@ -11,6 +11,39 @@ quaternionSlerpFromMatrix       do a slerp from Restmatix by ratio
 
 _EPS = np.finfo(float).eps * 4.0
 
+def eulerMatrixXYZ(ri, rj, rk, i, j, k):
+    M = np.identity(4)
+    si, sj, sk = math.sin(ri), math.sin(rj), math.sin(rk)
+    ci, cj, ck = math.cos(ri), math.cos(rj), math.cos(rk)
+    cc, cs = ci*ck, ci*sk
+    sc, ss = si*ck, si*sk
+
+    M[i, i] = cj*ck
+    M[i, j] = sj*sc-cs
+    M[i, k] = sj*cc+ss
+    M[j, i] = cj*sk
+    M[j, j] = sj*ss+cc
+    M[j, k] = sj*cs-sc
+    M[k, i] = -sj
+    M[k, j] = cj*si
+    M[k, k] = cj*ci
+    return(M)
+
+
+def eulerMatrix(x, y, z, s="xyz"):
+    if s == "xyz":
+        return eulerMatrixXYZ(x, y, z, 0, 1, 2)
+    elif s == "xzy":
+        return eulerMatrixXYZ(-x, -y, -z, 0, 2, 1)
+    elif s == "yzx":
+        return eulerMatrixXYZ(x, y, z, 1, 2, 0)
+    elif s == "yxz":
+        return eulerMatrixXYZ(-x, -y, -z, 1, 0, 2)
+    elif s == "zxy":
+        return eulerMatrixXYZ(x, y, z, 2, 0, 1)
+    # zyx
+    return eulerMatrixXYZ(-x, -y, -z, 2, 1, 0)
+
 def quaternionToRotMatrix(quaternion):
     """
     Return homogeneous rotation matrix from quaternion.
