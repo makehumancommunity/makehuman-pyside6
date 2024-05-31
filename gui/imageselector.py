@@ -684,12 +684,20 @@ class ImageSelection():
         self.picwidget.populate(None, None)
         self.changeStatus()
 
-    def getSelectedByFilename(self):
+    def getSelectFromAttachedAssets(self):
         selected = self.picwidget.getSelected()
         if selected is not None:
             for elem in self.parent.glob.baseClass.attachedAssets:
                 if elem.filename == selected.filename:
                     return(elem, selected)
+        return(None, None)
+
+    def getSelectedFromRepo(self):
+        selected = self.picwidget.getSelected()
+        if selected is not None:
+            elem = self.parent.glob.baseClass.getAssetByFilename(selected.filename)
+            if elem is not None:
+                return(elem, selected)
         return(None, None)
 
     def materialCallback(self, status=False, update=False):
@@ -702,7 +710,7 @@ class ImageSelection():
         if update and (self.parent.material_window is None or self.parent.material_window.isVisible() is False):
             return
 
-        found, dummy = self.getSelectedByFilename()
+        found, dummy = self.getSelectFromAttachedAssets()
         if found is None:
             if self.parent.material_window is not None and self.parent.material_window.isVisible():
                 self.parent.material_window.updateWidgets([], None)
@@ -731,7 +739,7 @@ class ImageSelection():
 
     def changeTags(self, asset, iconpath):
         for elem in self.asset_category:
-            if elem.filename == asset.filename:
+            if elem.filename == asset.path:
                 newtags= self.completeTags(elem.name, asset.tags)
                 elem.newTags(newtags)
                 self.infobox.setInformation(elem)
@@ -746,7 +754,7 @@ class ImageSelection():
         if update and (self.parent.asset_window is None or self.parent.asset_window.isVisible() is False):
             return
 
-        found, selected  = self.getSelectedByFilename()
+        found, selected  = self.getSelectedFromRepo()
         if found is None:
             if self.parent.asset_window is not None and self.parent.asset_window.isVisible():
                 self.parent.asset_window.updateWidgets(None, None, self.emptyIcon)
@@ -755,7 +763,7 @@ class ImageSelection():
         if self.parent.asset_window is None:
             self.parent.asset_window = MHAssetWindow(self.parent, self.changeTags, found, selected, self.emptyIcon, self.tagproposals)
         else:
-            self.parent.asset_window.updateWidgets(found, selected, self.emptyIcon)
+            self.parent.asset_window.updateWidgets(found, selected, self.emptyIcon, self.tagproposals)
 
         mw = self.parent.asset_window
         mw.show()

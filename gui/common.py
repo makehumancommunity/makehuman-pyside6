@@ -91,6 +91,8 @@ class MHTagEdit(QVBoxLayout):
             plusbutton = IconButton(0, plus, "Add predefined tag to own tags", self.addPredefinedTag)
             ilayout.addWidget(plusbutton)
             self.addLayout(ilayout)
+        else:
+            self.combobox = None
 
         self.tags  = []
         for l in range(self.numtags):
@@ -98,6 +100,11 @@ class MHTagEdit(QVBoxLayout):
             self.tags[l].editingFinished.connect(self.reorderTags)
             self.addWidget(self.tags[l])
         self.displayTags()
+
+    def newPredefinedTags(self, predefined):
+        if self.combobox is not None:
+            self.combobox.clear()
+            self.combobox.addItems(predefined)
 
     def displayTags(self):
         for l in range(self.numtags):

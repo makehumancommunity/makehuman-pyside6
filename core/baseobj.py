@@ -74,6 +74,12 @@ class baseClass():
         for elem in self.cachedInfo:
             elem.used = False
 
+    def getAssetByFilename(self, path):
+        for elem in self.cachedInfo:
+            if elem.path == path:
+                return (elem)
+        return(None)
+
     def markAssetByFileName(self, path, value):
         for elem in self.cachedInfo:
             if elem.path == path:

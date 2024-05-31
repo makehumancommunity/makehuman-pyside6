@@ -1,0 +1,12 @@
+{
+	"activity": ["Fighting", "Gesture", "Kneeling", "Laying", "Running",  "Sitting", "Standing", "Walking" ],
+	"situation": ["Reference-pose", "Fashion", "Profession", "Sport"],
+	"GuessName": {
+                "fight": "activity:fighting"
+        },
+	"Translate": {
+                "Game": "=situation:reference-pose",
+                "Action": "=activity:fighting"
+	}
+
+}

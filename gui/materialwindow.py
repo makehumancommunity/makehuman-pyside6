@@ -179,7 +179,7 @@ class MHAssetWindow(QWidget):
         for row in rows:
             self.owntags =row[0].split("|")
 
-    def updateWidgets(self, asset, selected, empty):
+    def updateWidgets(self, asset, selected, empty, proposals=[]):
         self.asset = asset
         self.emptyIcon = empty
         self.icon = None
@@ -191,6 +191,7 @@ class MHAssetWindow(QWidget):
             self.tagsFromDB()
             self.tagedit.newTags(self.owntags, self.origlist)
             self.thumb = selected.icon
+        self.tagedit.newPredefinedTags(proposals)
         self.setName()
         self.tagbox.setPlainText(self.origtags)
         self.displayPixmap()
@@ -209,7 +210,8 @@ class MHAssetWindow(QWidget):
             print (self.asset.tags)
             iconpath = None
             if self.icon is not None:
-                iconpath = self.asset.filename[:-6] + ".thumb"
+                iconpath, extension = os.path.splitext(self.asset.path)
+                iconpath += ".thumb"
                 print ("Save icon as " + iconpath)
                 self.icon.save(iconpath, "PNG", -1)
                 self.env.fileCache.updateParamInfo(self.asset.uuid, iconpath)

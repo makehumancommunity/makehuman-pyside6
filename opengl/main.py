@@ -63,7 +63,7 @@ class OpenGLView(QOpenGLWidget):
             self.Tweak()
 
     def startTimer(self):
-        self.timer.start(40)
+        self.timer.start(10)
 
     def stopTimer(self):
         self.timer.stop()

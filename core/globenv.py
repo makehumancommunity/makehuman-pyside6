@@ -90,7 +90,7 @@ class globalObjects():
 
         return (True)
 
-class mhPrefetchElem():
+class cacheRepoEntry():
     def __init__(self, name, uuid, path, folder, obj_file, thumbfile, author, tag):
         self.name = name
         self.uuid = uuid
@@ -787,7 +787,7 @@ class programInfo():
         rows, match = self.fileCache.listCacheMatch()
         for row in rows:
             tags = (match[row[1]] if row[1] in match else row[7]).split("|")
-            data.append(mhPrefetchElem(row[0], row[1], row[2], row[3], row[4], row[5], row[6], tags))
+            data.append(cacheRepoEntry(row[0], row[1], row[2], row[3], row[4], row[5], row[6], tags))
         return (data)
 
     def dictFillGaps(self, standard, testdict):

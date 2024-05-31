@@ -1,0 +1,6 @@
+{
+	"neutral": ["Phonemes"],
+	"positive": ["Amusement", "Courage", "Delight", "Interest", "Surprise" ],
+	"negative": ["Anger", "Boredom", "Disgust", "Doubt", "Fear", "Sadness", "Tension" ]
+
+}
