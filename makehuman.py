@@ -27,6 +27,7 @@ def main():
     parser.add_argument("--noshaders", action="store_true", help="disable shaders")
     parser.add_argument("--multisampling", action="store_true", help="enable multisampling (used for anti-aliasing and alpha-to-coverage transparency rendering)")
     parser.add_argument("-l", action="store_true", help="force to write to log file")
+    parser.add_argument("-b", "--base", type=str, help="preselect base mesh use 'none' for no preselection")
     parser.add_argument("-A", '--admin', action="store_true", help="Support administrative tasks ('Admin'). Command will write into program folder, where makehuman is installed.")
     parser.add_argument("-v", "--verbose",  type=int, default = 1, help= textwrap.dedent('''\
             bitwise verbose option (add values)
@@ -72,8 +73,18 @@ def main():
     if app.setStyles(theme) is False:
         env.logLine(1, env.last_error)
 
+    if args.base:
+        if args.base == "none":
+            env.basename = None
+        else:
+            env.basename = args.base
+
     if env.basename is not None:
         dirname  = env.existDataDir("base", env.basename)
+        if dirname is None:
+            print("Basemesh " + env.basename + " does not exist")
+            exit(22)
+
         base = baseClass(glob, env.basename, dirname)
         base.prepareClass()
 

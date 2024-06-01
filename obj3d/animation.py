@@ -208,7 +208,7 @@ class BVH():
 
     def load(self, filename):
         self.filename = filename
-        self.env.logLine(1, "Load pose " + filename)
+        self.env.logLine(8, "Load pose " + filename)
 
         with open(filename, "r", encoding='utf-8') as fp:
             # starts with HIERARCHIE 

@@ -106,14 +106,16 @@ class Camera():
         print ("Reset:")
         print (self)
 
-    def setCenter(self, center):
+    def setCenter(self, center, size):
+        self.o_height = size
+        self.calculateVerticalAngle()
         self.lookAt = QVector3D(center[0], center[1], center[2])
         self.center = self.lookAt.__copy__()
+        self.setFocalLength(50)
         self.cameraHeight = center[1]
-        self.cameraDist = center[2] + self.start_dist
-        self.cameraPos =  QVector3D(0, self.cameraHeight, self.cameraDist)
+        self.cameraDist = self.cameraPos.z()
         self.updateViewMatrix()
-        print ("Set Center: " + str(center))
+        print ("Set Center: " + str(center) + ", Size: " + str(size))
         print (self)
 
     def customView(self, direction):
@@ -276,8 +278,8 @@ class Light():
         #
         # volume of scene in units
         #
-        self.min_coords = [-25.0, -10.0, -25.0 ]
-        self.max_coords = [25.0, 10.0, 25.0 ]
+        self.min_coords = [-25.0, -15.0, -25.0 ]
+        self.max_coords = [25.0, 15.0, 25.0 ]
 
         self.glclearcolor = QVector4D()
         self.ambientLight = QVector4D()

@@ -122,7 +122,7 @@ class OpenGLView(QOpenGLWidget):
             if status is True:
                 if name == "grid":
                     baseClass = self.glob.baseClass
-                    zmin = baseClass.baseMesh.getZMin() if baseClass is not None else 100
+                    zmin = baseClass.baseMesh.getZMin() if self.glob.baseClass is not None else 20
                     self.prims[name].newGeometry(zmin)
                 elif name == "skeleton":
                     posed = (self.glob.baseClass.bvh is not None) or (self.glob.baseClass.expression is not None)
@@ -132,7 +132,7 @@ class OpenGLView(QOpenGLWidget):
 
     def createPrims(self):
         self.prims["axes"] = CoordinateSystem("axes", 10.0, self.context(), self.mh_shaders._shaders[1])
-        zmin = self.glob.baseClass.baseMesh.getZMin()
+        zmin = self.glob.baseClass.baseMesh.getZMin() if self.glob.baseClass is not None else 20
         self.prims["grid"] = Grid("grid", 10.0, zmin, self.context(), self.mh_shaders._shaders[1])
 
     def createObject(self, obj):
@@ -168,7 +168,7 @@ class OpenGLView(QOpenGLWidget):
 
         self.env.GL_Info = GLVersion(True)
         baseClass = self.glob.baseClass
-        o_size = baseClass.baseMesh.getHeightInUnits() if baseClass is not None else 100
+        o_size = baseClass.baseMesh.getHeightInUnits() if baseClass is not None else 20
         glfunc = self.context().functions()
 
         glfunc.glEnable(gl.GL_DEPTH_TEST)
@@ -275,8 +275,8 @@ class OpenGLView(QOpenGLWidget):
         self.update()
 
     def setCameraCenter(self):
-        baseClass = self.glob.baseClass
-        self.camera.setCenter(baseClass.baseMesh.getCenter())
+        baseMesh = self.glob.baseClass.baseMesh
+        self.camera.setCenter(baseMesh.getCenter(), baseMesh.getHeightInUnits())
 
     def noAssets(self):
         for glbuffer in self.buffers[1:]:

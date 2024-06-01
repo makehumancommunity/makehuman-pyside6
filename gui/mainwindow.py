@@ -355,7 +355,7 @@ class MHMainWindow(QMainWindow):
 
         v2Layout = QVBoxLayout()
         v2Layout.addWidget(b2group)
-        v2Layout.addLayout(self.leftColumn.MHLayout(self.LeftBox))
+        v2Layout.addLayout(self.leftColumn.MHLayout(self.LeftBox),1)
 
         hLayout.addLayout(v2Layout)
 
@@ -373,7 +373,7 @@ class MHMainWindow(QMainWindow):
         #
         if self.env.g_attach is True:
             frame = MHGroupBox("Viewport")
-            hLayout.addLayout(frame.MHLayout(gLayout))
+            hLayout.addLayout(frame.MHLayout(gLayout),3)
 
         # right side, ToolBox
         #
@@ -381,8 +381,8 @@ class MHMainWindow(QMainWindow):
         self.drawRightPanel()
         self.rightColumn = MHGroupBox("No additional infomation")
         self.rightColumn.setMinimumWidth(500)
-        self.rightColumn.setMaximumWidth(500)
-        hLayout.addLayout(self.rightColumn.MHLayout(self.ToolBox))
+        #self.rightColumn.setMaximumWidth(500)
+        hLayout.addLayout(self.rightColumn.MHLayout(self.ToolBox), 2)
 
         #
         self.central_widget.setLayout(hLayout)
@@ -513,6 +513,8 @@ class MHMainWindow(QMainWindow):
         # works according to tool_mode and category_mode
         #
         print (self.tool_mode, self.category_mode)
+        if self.glob.baseClass is None:
+            return
         if self.tool_mode == 0:
             if self.category_mode == 0:
                 if self.rightColumn is None:
@@ -656,6 +658,7 @@ class MHMainWindow(QMainWindow):
         self.glob.baseClass.loadMHMFile(args[0][0])
 
     def finishLoad(self):
+        self.graph.view.setCameraCenter()
         self.graph.view.addAssets()
         self.graph.view.newSkin(self.glob.baseClass.baseMesh)
         self.graph.view.addSkeleton()
@@ -884,7 +887,9 @@ class MHMainWindow(QMainWindow):
                 print ("Close event")
             return
 
-        self.glob.baseClass.delProxy()
+        if self.glob.baseClass is not None:
+            self.glob.baseClass.delProxy()
+
         if self.graph is not None:
             self.graph.cleanUp()
 

@@ -199,7 +199,8 @@ class baseClass():
 
         # recalculate pose-skeleton
         #
-        self.pose_skeleton.newGeometry()
+        if self.pose_skeleton is not None:
+            self.pose_skeleton.newGeometry()
 
         # finally mark MHM as used
         #
@@ -311,6 +312,8 @@ class baseClass():
         attach.load(path)
         if attach is None:
             return (None)
+
+        self.markAssetByFileName(path, True)
         if eqtype == "proxy":
             attach.material = self.skinMaterial
             attach.materialsource = materialsource
@@ -354,7 +357,6 @@ class baseClass():
 
         asset = self.addAsset(path, eqtype)
         if asset is not None:
-            self.markAssetByFileName(path, True)
             asset.obj.approxByTarget(asset, self.baseMesh)
             self.glob.openGLWindow.createObject(asset.obj)
             self.glob.openGLWindow.Tweak()
