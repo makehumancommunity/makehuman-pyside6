@@ -455,7 +455,7 @@ class baseClass():
         self.showPoseAndExpression()
         self.glob.openGLWindow.Tweak()
 
-    def prepareClass(self):
+    def prepareClass(self, modelfile=None):
         self.env.logLine(2, "Prepare class called with: " + self.env.basename)
 
         filename = os.path.join(self.dirname, "base.json")
@@ -513,12 +513,15 @@ class baseClass():
         #
         if "modifier-presets" in self.baseInfo:
             target.modifierPresets (self.baseInfo["modifier-presets"])
-
-        if "mhm" in self.baseInfo:
+        
+        if modelfile is not None:
+            self.loadMHMFile(modelfile)
+        elif "mhm" in self.baseInfo:
             mhmfile = os.path.join(self.dirname, self.baseInfo["mhm"])
             self.loadMHMFile(mhmfile)
         else:
             self.baseMesh.loadMaterial(None)
+
 
         # no assets, mark skeleton appended if a skeleton exists
         #

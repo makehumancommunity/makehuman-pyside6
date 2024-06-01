@@ -26,6 +26,7 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
 
     # optional arguments
+    parser.add_argument("model", type=str, nargs='?', help="name of an mhm model file (use with base mesh")
     parser.add_argument('-V', '--version', action='store_true',  help="Show version and License")
     parser.add_argument("--noshaders", action="store_true", help="disable shaders")
     parser.add_argument("--multisampling", action="store_true", help="enable multisampling (used for anti-aliasing and alpha-to-coverage transparency rendering)")
@@ -82,18 +83,36 @@ def main():
         else:
             env.basename = args.base
 
+    if env.basename is not None:
+        dirname  = env.existDataDir("base", env.basename)
+        if dirname is None:
+            print("Base mesh " + env.basename + " does not exist")
+            exit(22)
+
+    modelfile = None
+    if args.model is not None:
+        if env.basename is None:
+            print("Cannot load a model with undefined base mesh")
+            exit(23)
+        if not args.model.endswith(".mhm"):
+            args.model += ".mhm"
+
+        modelpath = env.stdUserPath("models")
+        modelfile  = env.existDataFile("models", env.basename, args.model)
+        if modelfile is None:
+            print("File '" + args.model + "' does not exist in: " + str(modelpath))
+            exit(24)
+
+
+    # splash screen
+    #
     loading = MHInfoWindow(glob)
     loading.show()
     app.processEvents(QEventLoop.AllEvents)
 
     if env.basename is not None:
-        dirname  = env.existDataDir("base", env.basename)
-        if dirname is None:
-            print("Basemesh " + env.basename + " does not exist")
-            exit(22)
-
         base = baseClass(glob, env.basename, dirname)
-        base.prepareClass()
+        base.prepareClass(modelfile)
 
     mainwin = MHMainWindow(glob)
     mainwin.show()
