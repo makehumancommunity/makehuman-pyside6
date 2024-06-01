@@ -7,8 +7,11 @@ from time import sleep
 
 from PySide6.QtWidgets import QApplication
 
+from PySide6.QtCore import QEventLoop
+
 from core.globenv import programInfo, globalObjects
 from gui.mainwindow import  MHMainWindow
+from gui.infowindow import  MHInfoWindow
 from gui.application import  MHApplication
 from core.baseobj import baseClass
 
@@ -79,6 +82,10 @@ def main():
         else:
             env.basename = args.base
 
+    loading = MHInfoWindow(glob)
+    loading.show()
+    app.processEvents(QEventLoop.AllEvents)
+
     if env.basename is not None:
         dirname  = env.existDataDir("base", env.basename)
         if dirname is None:
@@ -90,6 +97,8 @@ def main():
 
     mainwin = MHMainWindow(glob)
     mainwin.show()
+    mainwin.move(app.topLeftCentered(mainwin))
+    loading.close()
     #
     # all we need from openGL is now existent (get initial values)
     #

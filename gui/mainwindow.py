@@ -736,6 +736,32 @@ class MHMainWindow(QMainWindow):
         self.glob.baseClass.parApplyTargets()
         #self.graph.view.Tweak()
 
+    def loadNewClass(self, basename, filename=None):
+        print (basename, filename)
+        if filename is None:
+            dirname  = self.env.existDataDir("base", basename)
+        else:
+            dirname = os.path.dirname(filename)
+
+        base = baseClass(self.glob, basename, dirname)
+        okay = base.prepareClass()
+        if not okay:
+            ErrorBox(self.central_widget, self.env.last_error)
+            return
+
+        self.graph.view.newMesh()
+        self.createImageSelection()
+        self.emptyLayout(self.ToolBox)
+        self.drawRightPanel()
+        self.ToolBox.update()
+
+        self.emptyLayout(self.LeftBox)
+        self.drawLeftPanel()
+        self.LeftBox.update()
+        self.graph.setSizeInfo()
+
+        self.graph.update()
+
     def selectmesh_call(self):
         (base, filename) = self.baseSelector.getSelectedItem()
         if base is not None:
@@ -744,25 +770,7 @@ class MHMainWindow(QMainWindow):
                 return
             if self.changesLost("New basemesh") == 0:
                 return
-            dirname = os.path.dirname(filename)
-            base = baseClass(self.glob, base, dirname)
-            okay = base.prepareClass()
-            if not okay:
-                ErrorBox(self.central_widget, self.env.last_error)
-                return
-
-            self.graph.view.newMesh()
-            self.createImageSelection()
-            self.emptyLayout(self.ToolBox)
-            self.drawRightPanel()
-            self.ToolBox.update()
-
-            self.emptyLayout(self.LeftBox)
-            self.drawLeftPanel()
-            self.LeftBox.update()
-            self.graph.setSizeInfo()
-
-            self.graph.update()
+            self.loadNewClass(base, filename)
 
     def redrawNewCategory(self, category, text=None):
         print (category)

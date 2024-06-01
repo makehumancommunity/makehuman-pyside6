@@ -9,6 +9,7 @@ class MHInfoWindow(QWidget):
     """
     def __init__(self, glob):
         super().__init__()
+        self.glob = glob
         env = glob.env
         rel = env.release_info
         version = ".".join(str(l) for l in env.release_info["version"])
@@ -22,10 +23,13 @@ class MHInfoWindow(QWidget):
         layout.addWidget(lbl)
         layout.addWidget(title)
         self.setLayout(layout)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-        center = glob.app.getCenter()
-        self.move(center - self.frameGeometry().center())   # not really center ;)
-
+        self.setWindowFlags(Qt.SplashScreen | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        #
+        # display in screen center
+        #
+    def show(self):
+        super().show()
+        self.move(self.glob.app.topLeftCentered(self))
 
     def mousePressEvent(self, event):
         self.close()

@@ -37,3 +37,9 @@ class MHApplication(QApplication):
 
     def getCenter(self):
         return(QScreen.availableGeometry(self.primaryScreen()).center())
+
+    def topLeftCentered(self, widget):
+        screen_center =  self.getCenter()
+        geom = widget.frameGeometry()
+        geom.moveCenter(screen_center)
+        return(geom.topLeft())
