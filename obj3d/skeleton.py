@@ -167,7 +167,7 @@ class skeleton:
         vmapping = self.bWeights.bWeights
 
         coords = np.zeros((self.mesh.n_origverts,3), float)        # own vector
-        l = int(len(self.mesh.gl_coord) / 3)
+        l = len(self.mesh.gl_coord) // 3
 
         meshCoords = np.ones((l, 4), dtype=np.float32)
         meshCoords[:,:3] = np.reshape(self.mesh.gl_coord_w, (l,3))

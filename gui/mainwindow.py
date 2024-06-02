@@ -2,8 +2,8 @@ from PySide6.QtWidgets import (
         QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFrame, QGroupBox, QListWidget, QLabel,
         QAbstractItemView, QSizePolicy, QScrollArea, QFileDialog, QDialogButtonBox, QMessageBox
         )
-from PySide6.QtGui import QIcon, QCloseEvent, QAction
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QIcon, QCloseEvent, QAction, QDesktopServices
+from PySide6.QtCore import QSize, Qt, QUrl
 from gui.prefwindow import  MHPrefWindow
 from gui.logwindow import  MHLogWindow
 from gui.infowindow import  MHInfoWindow
@@ -20,7 +20,6 @@ from core.baseobj import baseClass
 from core.attached_asset import attachedAsset
 
 import os
-from time import sleep
 
 class MHMainWindow(QMainWindow):
     """
@@ -59,7 +58,7 @@ class MHMainWindow(QMainWindow):
         self.expressionfilter = None
         self.bckproc = None         # background process is running
 
-        self.tool_mode = 0          # 0 = files, 1 = modelling, 2 = equipment, 3 = pose, 4 render
+        self.tool_mode = 0          # 0 = files, 1 = modelling, 2 = equipment, 3 = pose, 4 = render, 10 = help
         self.category_mode = 0      # the categories according to tool_mode
 
         self.equipment = [
@@ -188,8 +187,15 @@ class MHMainWindow(QMainWindow):
         morph_act.triggered.connect(self.morph_call)
 
         self.equip = tools_menu.addMenu("Equipment")
-
         self.animenu = tools_menu.addMenu("Animation")
+
+        help_menu = menu_bar.addMenu("&Help")
+        if "support_urls" in self.env.release_info:
+            for elem in self.env.release_info["support_urls"]:
+                urlname = self.env.release_info["support_urls"][elem]
+                if urlname in self.env.release_info:
+                    entry = help_menu.addAction(elem)
+                    entry.triggered.connect(self.help_call)
 
         if self.glob.baseClass is not None:
             self.createImageSelection()
@@ -522,6 +528,8 @@ class MHMainWindow(QMainWindow):
                 self.rightColumn.setTitle("No additional infomation")
             elif self.category_mode == 1:
                 self.drawImageSelector(self.charselect, "Character MHM Files", 0)
+            elif self.category_mode == 2:
+                self.drawImageSelector(self.charselect, "Character MHM Files (select to get data)", 0)
             elif self.category_mode == 3:
                 self.drawExportPanel("Export character")
             elif self.category_mode == 4:
@@ -686,6 +694,9 @@ class MHMainWindow(QMainWindow):
                 self.newCharacter(filename)
 
     def loadByIconCallback(self, asset, eqtype, multi):
+        if self.category_mode == 2:
+            print ("add data for: " + asset.filename)
+            return
         if asset.status != 1:
             return
         if self.changesLost("Load character"):
@@ -879,6 +890,15 @@ class MHMainWindow(QMainWindow):
 
     def regenerate_user3dobjs(self):
         self.compressObjsWorker(False, True)
+
+    def help_call(self):
+        """
+        open an URL
+        """
+        s = self.sender().text()
+        urlname = self.env.release_info["support_urls"][s]
+        if urlname in self.env.release_info:
+            QDesktopServices.openUrl(QUrl(self.env.release_info[urlname], QUrl.TolerantMode))
 
     def quit_call(self, event=None):
         """

@@ -108,6 +108,7 @@ def main():
     #
     loading = MHInfoWindow(glob)
     loading.show()
+    sleep(0.5)
     app.processEvents(QEventLoop.AllEvents)
 
     if env.basename is not None:

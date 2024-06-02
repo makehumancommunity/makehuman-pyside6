@@ -5,8 +5,24 @@
 	"copyright": "(C) 2024 by MakeHuman Team, http://www.makehumancommunity.org",
 	"maintainer": "black punkduck",
 	"status": "development, use with care",
-    	"url_fileserver": "files.makehumancommunity.org",
-	"url_assetpacks": "http://static.makehumancommunity.org/assets/assetpacks.html",
+	"url_mhcommunity": "http://www.makehumancommunity.org",
+	"url_mhfacebook":  "https://www.facebook.com/makehuman",
+	"url_mhfaq":       "http://www.makehumancommunity.org/wiki/FAQ:Index",
+	"url_mhforum":     "http://www.makehumancommunity.org/forum",
+	"url_mhwiki":      "http://www.makehumancommunity.org/wiki/Main_Page",
+	"url_mhpatreon":   "https://www.patreon.com/makehuman",
+	"url_mhreguests":  "http://www.makehumancommunity.org/content/bugtracker.html",
+    	"url_fileserver":  "files.makehumancommunity.org",
+	"url_assetpacks":  "http://static.makehumancommunity.org/assets/assetpacks.html",
     	"url_systemassets": "asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip",
-    	"standardmesh" : "hm08"
+    	"standardmesh" : "hm08",
+	"support_urls": {
+		"Website": "url_mhcommunity",
+		"FaceBook page": "url_mhfacebook",
+		"FAQ": "url_mhfaq",
+		"Forum": "url_mhforum",
+		"Wiki": "url_mhwiki",
+		"Patreon": "url_mhpatreon",
+		"Report Bug": "url_mhrequests"
+	}
 }

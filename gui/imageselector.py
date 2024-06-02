@@ -557,6 +557,7 @@ class ImageSelection():
         self.type = eqtype
         self.selmode = selmode
         self.callback = callback
+        self.infobox = None
         self.tagproposals = []
         self.tagreplace = {}
         self.tagfromname = {}
@@ -826,8 +827,10 @@ class ImageSelection():
         layout.addLayout(self.rightPanelButtons(bitmask))
 
         widget = QWidget()
-        self.picwidget = PicSelectWidget(self, self.asset_category, self.picButtonChanged, self.infobox.setInformation)
-        self.filterview.setPicLayout(self.picwidget.layout)
+        infocallback = self.infobox.setInformation if self.infobox is not None else None
+        self.picwidget = PicSelectWidget(self, self.asset_category, self.picButtonChanged, infocallback)
+        if infocallback is not None:
+            self.filterview.setPicLayout(self.picwidget.layout)
         self.picwidget.populate(None, None)
         self.changeStatus()
         widget.setLayout(self.picwidget.layout)
