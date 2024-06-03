@@ -1,16 +1,22 @@
 import os
 import json
+import struct
 import numpy as np
 
 class gltfExport:
     def __init__(self):
 
+        # all constants used
+        #
         self.TRIANGLES = 4
         self.UNSIGNED_INT = 5125
         self.FLOAT = 5126
         self.ARRAY_BUFFER = 34962          # usually positions
         self.ELEMENT_ARRAY_BUFFER = 34963  # usually indices
-
+        self.GLTF_VERSION = 2
+        self.MAGIC = b'glTF'
+        self.JSON = "JSON"
+        self.BIN  = "BIN\x00"
 
         self.json = {}
         self.json["asset"] = {"generator": "makehuman2", "version": "2.0" }    # copyright maybe
@@ -44,6 +50,7 @@ class gltfExport:
         self.json["images"] = []
 
         self.bufferoffset = 0
+        self.buffers = []       # will hold the pointers
 
     def __str__(self):
         return (json.dumps(self.json, indent=3))
@@ -64,6 +71,7 @@ class gltfExport:
 
         self.bufferview_cnt += 1
         self.json["bufferViews"].append({"buffer": 0, "byteOffset": self.bufferoffset, "byteLength": length, "target": target })
+        self.buffers.append(data)
         self.bufferoffset += length
         return(self.bufferview_cnt)
 
@@ -144,3 +152,56 @@ class gltfExport:
         
         self.json["buffers"].append({"byteLength": self.bufferoffset})
         print (self)
+
+
+    def binSave(self):
+        #
+        # binary glTF is:
+        # 4 byte magic, 4 byte version + 4 byte length over all (which is the header)
+        # JSON chunk:
+        # chunklenght 4 Byte, chunk type JSON, chunkData (4 Byte boundaries, padding)
+        # BIN chunk:
+        # chunklenght 4 Byte, chunk type JSON, chunkData (4 Byte boundaries, padding)
+
+
+        #TODO do we need an _ExtendedEncoder for JSON?
+
+        version = struct.pack('<I', self.GLTF_VERSION)
+        length = 12         # header length (always fix 12 bytes)
+
+        jsondata = json.dumps(self.json, indent=None, allow_nan=False, skipkeys=True, separators=(',', ':')).encode("utf-8")
+
+        # now pad json data to align with 4
+        #
+        pad = len(jsondata) % 4
+        if pad != 0:
+            jsondata += b' ' * (4-pad)
+        
+        lenjson = len(jsondata)
+        length += (8 + lenjson) # add header + json-blob to length
+        chunkjsonlen = struct.pack('<I', lenjson)
+        #print (jsondata)
+
+        # now the binary buffer. try to work with pointers here
+        # the number of maximum used data is in bufferoffset
+        # padding is not needed, we only use uint and float
+
+        lenbin = self.bufferoffset
+
+        length += (8 + lenbin) # add header + bin-blob to length
+        chunkbinlen = struct.pack('<I', lenbin)
+
+        completelength = struct.pack('<I', length)
+
+        with open("/tmp/test.glb", 'wb') as f:
+            f.write(self.MAGIC)
+            f.write(version)
+            f.write(completelength)
+            f.write(bytes(self.JSON, "utf-8"))
+            f.write(chunkjsonlen)
+            f.write(jsondata)
+            f.write(bytes(self.BIN, "utf-8"))
+            f.write(chunkbinlen)
+            for elem in self.buffers:
+                f.write(bytes(elem))
+

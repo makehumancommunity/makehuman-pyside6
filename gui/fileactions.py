@@ -202,6 +202,7 @@ class ExportPanel(QVBoxLayout):
         print ("export GLTF called")
         gltf = gltfExport()
         gltf.addNodes(self.glob.baseClass)
+        gltf.binSave()
 
     def exportstl(self):
         print ("export STL called")
