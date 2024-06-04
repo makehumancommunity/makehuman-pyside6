@@ -15,7 +15,7 @@ class gltfExport:
         self.ELEMENT_ARRAY_BUFFER = 34963  # usually indices
         self.GLTF_VERSION = 2
         self.MAGIC = b'glTF'
-        self.JSON = "JSON"
+        self.JSON = b'JSON'
         self.BIN  = "BIN\x00"
 
         self.json = {}
@@ -118,9 +118,13 @@ class gltfExport:
         self.json["accessors"].append({"bufferView": buf, "componentType": self.UNSIGNED_INT, "count": cnt, "type": "SCALAR", "min": [minimum], "max": [maximum]})
         return(self.accessor_cnt)
 
+    def pbrMaterial(self):
+        return ({ "baseColorFactor": [ 0.5, 0.5, 0.5, 1.0 ], "metallicFactor": 0.5, "roughnessFactor": 0.5 })
+
     def addMaterial(self, name):
         self.material_cnt += 1
-        self.json["materials"].append({"name": self.nodeName(name)})
+        material = self.pbrMaterial()       # dummy
+        self.json["materials"].append({"name": self.nodeName(name), "pbrMetallicRoughness": material})
         return (self.material_cnt)
 
     def addMesh(self, obj, nodenumber):
@@ -129,6 +133,7 @@ class gltfExport:
         texcoord = self.addTPosAccessor(obj)
         ind = self.addIndAccessor(obj)
         self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "TEXCOORD_0": texcoord  }, "indices": ind, "material": nodenumber, "mode": self.TRIANGLES }]})
+        return (self.mesh_cnt)
 
     def addNodes(self, baseclass):
         #
@@ -154,7 +159,7 @@ class gltfExport:
         print (self)
 
 
-    def binSave(self):
+    def binSave(self, filename):
         #
         # binary glTF is:
         # 4 byte magic, 4 byte version + 4 byte length over all (which is the header)
@@ -193,15 +198,15 @@ class gltfExport:
 
         completelength = struct.pack('<I', length)
 
-        with open("/tmp/test.glb", 'wb') as f:
+        with open(filename, 'wb') as f:
             f.write(self.MAGIC)
             f.write(version)
             f.write(completelength)
-            f.write(bytes(self.JSON, "utf-8"))
             f.write(chunkjsonlen)
+            f.write(self.JSON)
             f.write(jsondata)
-            f.write(bytes(self.BIN, "utf-8"))
             f.write(chunkbinlen)
+            f.write(bytes(self.BIN, "utf-8"))
             for elem in self.buffers:
                 f.write(bytes(elem))
 

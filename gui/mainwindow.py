@@ -10,7 +10,7 @@ from gui.infowindow import  MHInfoWindow
 from gui.memwindow import  MHMemWindow
 from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
-from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport, ExportPanel
+from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport, ExportLeftPanel, ExportRightPanel
 from gui.poseactions import AnimPlayer, AnimMode, AnimExpressionEdit
 from gui.slider import ScaleComboArray
 from gui.imageselector import ImageSelection
@@ -421,6 +421,8 @@ class MHMainWindow(QMainWindow):
                 self.LeftBox.addLayout(self.saveForm)
             elif self.category_mode == 3:
                 self.leftColumn.setTitle("Export file :: additional parameters")
+                self.exportForm = ExportLeftPanel(self.glob)
+                self.LeftBox.addLayout(self.exportForm)
             elif self.category_mode == 4:
                 self.leftColumn.setTitle("Import file :: additional parameters")
                 dlform = DownLoadImport(self, self.graph.view, self.setWindowTitle)
@@ -509,9 +511,9 @@ class MHMainWindow(QMainWindow):
         layout = category.rightPanel(buttonmask)
         self.ToolBox.addLayout(layout)
 
-    def drawExportPanel(self, text):
+    def drawExportPanel(self, connector, text):
         self.rightColumn.setTitle(text)
-        layout = ExportPanel(self)
+        layout = ExportRightPanel(self, connector)
         self.ToolBox.addLayout(layout)
 
     def drawRightPanel(self, text="None"):
@@ -531,7 +533,7 @@ class MHMainWindow(QMainWindow):
             elif self.category_mode == 2:
                 self.drawImageSelector(self.charselect, "Character MHM Files (select to get data)", 0)
             elif self.category_mode == 3:
-                self.drawExportPanel("Export character")
+                self.drawExportPanel(self.exportForm, "Export character")
             elif self.category_mode == 4:
                 self.rightColumn.setTitle("No additional infomation")
             else:

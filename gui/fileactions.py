@@ -181,31 +181,84 @@ class SaveMHMForm(QVBoxLayout):
         self.bc.photo = self.view.createThumbnail()
         self.displayPixmap()
 
-class ExportPanel(QVBoxLayout):
+class ExportLeftPanel(QVBoxLayout):
+    """
+    create a form with filename (+ other features later)
+    """
+    def __init__(self, glob):
+        self.glob = glob
+        self.bc  = glob.baseClass
+        self.export_type = ".glb"
+        super().__init__()
 
-    def __init__(self, parent):
+        # filename
+        #
+        self.addWidget(QLabel("\nFilename:"))
+        self.filename = QLineEdit(self.bc.name + self.export_type)
+        self.filename.editingFinished.connect(self.newfilename)
+        self.addWidget(self.filename)
+        self.exportbutton=QPushButton("Export")
+        self.exportbutton.clicked.connect(self.exportfile)
+        self.addWidget(self.exportbutton)
+
+    def setExportType(self, etype):
+        self.export_type = etype
+        self.newfilename()
+
+    def newfilename(self):
+        """
+        not empty, always ends with mhm
+        """
+        text = self.filename.text()
+        if not text.endswith(self.export_type):
+            text = os.path.splitext(text)[0]
+            self.filename.setText(text + self.export_type)
+
+    def exportfile(self):
+        """
+        path calculation, save file, save icon
+        """
+        path = self.glob.env.stdUserPath("exports", self.filename.text())
+        print ("I should save: " + path)
+        if self.export_type == ".glb":
+            gltf = gltfExport()
+            gltf.addNodes(self.bc)
+            gltf.binSave(path)
+        else:
+            print ("not yet implemented")
+
+
+class ExportRightPanel(QVBoxLayout):
+    def __init__(self, parent, connector):
         super().__init__()
         self.parent = parent
         self.glob = parent.glob
         self.env = self.glob.env
-        self.exportbuttons = [
+        self.leftPanel = connector
+        self.exportimages = [
                 { "button": None, "icon": "gltf_sym.png", "tip": "export as GLTF2/GLB", "func": self.exportgltf},
                 { "button": None, "icon": "stl_sym.png", "tip": "export as STL (Stereolithography)", "func": self.exportstl}
         ]
-        for n, b in enumerate(self.exportbuttons):
+        for n, b in enumerate(self.exportimages):
             b["button"] = IconButton(n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"], 130)
             self.addWidget(b["button"])
 
+        self.setChecked(0)
         self.addStretch()
+
+    def setChecked(self, num):
+        for i, elem in enumerate(self.exportimages):
+            elem["button"].setChecked(i==num)
 
     def exportgltf(self):
         print ("export GLTF called")
-        gltf = gltfExport()
-        gltf.addNodes(self.glob.baseClass)
-        gltf.binSave()
+        self.leftPanel.setExportType(".glb")
+        self.setChecked(0)
 
     def exportstl(self):
         print ("export STL called")
+        self.leftPanel.setExportType(".stl")
+        self.setChecked(1)
 
 class DownLoadImport(QVBoxLayout):
     def __init__(self, parent, view, displaytitle):

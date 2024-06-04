@@ -79,7 +79,7 @@ class globalObjects():
                 return
 
     def generateBaseSubDirs(self, basename):
-        for name in self.env.basefolders + ["skins", "models", "target", "dbcache"]:
+        for name in self.env.basefolders + ["exports", "skins", "models", "target", "dbcache"]:
             folder = os.path.join(self.env.path_userdata, name, basename)
             if not os.path.isdir(folder):
                 try:
@@ -465,7 +465,7 @@ class programInfo():
 
         # subfolder inside userdata, so usually base folder + special ones
         #
-        for name in self.basefolders + ["themes", "skins", "models", "target", "dbcache" ]:
+        for name in self.basefolders + ["themes", "exports","skins", "models", "target", "dbcache" ]:
             folder = os.path.join(userdata, name)
             if not os.path.isdir(folder):
                 try:
