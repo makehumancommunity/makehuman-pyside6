@@ -34,6 +34,7 @@ class Material:
         self.tags = []
         self._textures = []
         self.default()
+        self.name = None
 
     def __str__(self):
         return(dumper(self))

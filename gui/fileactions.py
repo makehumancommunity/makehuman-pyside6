@@ -218,10 +218,11 @@ class ExportLeftPanel(QVBoxLayout):
         """
         path calculation, save file, save icon
         """
-        path = self.glob.env.stdUserPath("exports", self.filename.text())
-        print ("I should save: " + path)
+        folder = self.glob.env.stdUserPath("exports")
         if self.export_type == ".glb":
-            gltf = gltfExport()
+            gltf = gltfExport(folder)
+            path = os.path.join(folder, self.filename.text())
+            print ("I should save: " + path)
             gltf.addNodes(self.bc)
             gltf.binSave(path)
         else:

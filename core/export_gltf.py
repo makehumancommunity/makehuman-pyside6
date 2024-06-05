@@ -2,9 +2,15 @@ import os
 import json
 import struct
 import numpy as np
+import shutil
 
 class gltfExport:
-    def __init__(self):
+    def __init__(self, exportfolder):
+
+        # subfolder for textures
+        #
+        self.imagefolder = "textures"
+        self.exportfolder = exportfolder
 
         # all constants used
         #
@@ -17,10 +23,22 @@ class gltfExport:
         self.MAGIC = b'glTF'
         self.JSON = b'JSON'
         self.BIN  = "BIN\x00"
+        #
+        # for image and sampler
+        self.MAGFILTER = 9729   # Linear Magnification filter
+        self.MINFILTER = 9987   # LINEAR_MIPMAP_LINEAR
+        self.REPEAT = 10497
+        self.IMAGEJPEG = 'image/jpeg'
+        self.IMAGEPNG = "image/png"
+
 
         self.json = {}
         self.json["asset"] = {"generator": "makehuman2", "version": "2.0" }    # copyright maybe
         self.json["scenes"] = [ {"name": "makehuman2 export", "nodes": [] } ]  # one scene contains all nodes
+
+        self.json["samplers"] = [ { "magFilter": self.MAGFILTER, "minFilter": self.MINFILTER, # fixed sampler (one for all)
+            "wrapS": self.REPEAT, "wrapT" : self.REPEAT } ]
+
         self.json["scene"] = 0 # fixed number (we only have on scene)
 
         self.json["nodes"] = [] # list of nodes
@@ -41,13 +59,16 @@ class gltfExport:
         self.json["skins"] = []
         #self.json["animations"] = []       # buffer?
 
-        # texture and material (samplers are not needed)
+        # texture and material
         #
         self.json["materials"] = []
         self.material_cnt = -1
 
         self.json["textures"] = []
+        self.texture_cnt = -1
+
         self.json["images"] = []
+        self.image_cnt = -1
 
         self.bufferoffset = 0
         self.buffers = []       # will hold the pointers
@@ -118,13 +139,47 @@ class gltfExport:
         self.json["accessors"].append({"bufferView": buf, "componentType": self.UNSIGNED_INT, "count": cnt, "type": "SCALAR", "min": [minimum], "max": [maximum]})
         return(self.accessor_cnt)
 
-    def pbrMaterial(self):
-        return ({ "baseColorFactor": [ 0.5, 0.5, 0.5, 1.0 ], "metallicFactor": 0.5, "roughnessFactor": 0.5 })
+    def pbrMaterial(self, color):
+        return ({ "baseColorFactor": [ color[0], color[1], color[2], 1.0 ], "metallicFactor": 0.5, "roughnessFactor": 0.5 })
 
-    def addMaterial(self, name):
+    def copyImage(self, source, dest):
+        print ("Need to copy " + source + " to " + dest)
+
+        if not os.path.exists(dest):
+            os.mkdir(dest)
+
+        dest = os.path.join(dest, os.path.basename(source))
+        shutil.copyfile(source, dest)
+
+
+    def addImage(self, image):
+        self.image_cnt += 1
+        destination = os.path.join(self.exportfolder, self.imagefolder)
+        self.copyImage(image, destination)
+        uri = os.path.join(self.imagefolder, os.path.basename(image))
+        self.json["images"].append({"uri": uri})
+        return(self.image_cnt)
+
+    def addTexture(self, texture):
+        self.texture_cnt += 1
+        image = self.addImage(texture)
+        self.json["textures"].append({"sampler": 0, "source": image})
+        return ({ "baseColorTexture": { "index": self.texture_cnt }, "alphaMode": "BLEND",  "metallicFactor": 0.5, "roughnessFactor": 0.5 })
+
+    def addMaterial(self, material):
+        """
+        :param material:  material from opengl.material
+        """
         self.material_cnt += 1
-        material = self.pbrMaterial()       # dummy
-        self.json["materials"].append({"name": self.nodeName(name), "pbrMetallicRoughness": material})
+        name = material.name if  material.name is not None else "generic"
+        if material.has_imagetexture:
+            print ("we need a texture")
+            print (material.diffuseTexture)
+            pbr = self.addTexture(material.diffuseTexture)
+        else:   
+            pbr = self.pbrMaterial(material.diffuseColor)
+
+        self.json["materials"].append({"name": self.nodeName(name), "pbrMetallicRoughness": pbr})
         return (self.material_cnt)
 
     def addMesh(self, obj, nodenumber):
@@ -140,15 +195,16 @@ class gltfExport:
         # add the basemesh itself, the other nodes will be children
         # here one node will always have one mesh
         #
-        mat  = self.addMaterial(baseclass.skinMaterialName)
-        mesh = self.addMesh(baseclass.baseMesh, mat)
-        self.json["nodes"].append({"name": self.nodeName(baseclass.baseMesh.filename), "mesh": mesh,  "children": []  })
+        baseobject = baseclass.baseMesh
+        mat  = self.addMaterial(baseobject.material)
+        mesh = self.addMesh(baseobject, mat)
+        self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh,  "children": []  })
         self.json["scenes"][0]["nodes"].append(0)
         children = self.json["nodes"][0]["children"]
 
         i = 1
         for elem in baseclass.attachedAssets:
-            mat =  self.addMaterial(elem.material)
+            mat =  self.addMaterial(elem.obj.material)
             mesh = self.addMesh(elem.obj, mat)
             self.json["nodes"].append({"name": self.nodeName(elem.filename), "mesh": mesh })
             children.append(i)
