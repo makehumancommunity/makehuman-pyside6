@@ -421,7 +421,7 @@ class MHMainWindow(QMainWindow):
                 self.LeftBox.addLayout(self.saveForm)
             elif self.category_mode == 3:
                 self.leftColumn.setTitle("Export file :: additional parameters")
-                self.exportForm = ExportLeftPanel(self.glob)
+                self.exportForm = ExportLeftPanel(self)
                 self.LeftBox.addLayout(self.exportForm)
             elif self.category_mode == 4:
                 self.leftColumn.setTitle("Import file :: additional parameters")

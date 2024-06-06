@@ -185,9 +185,10 @@ class ExportLeftPanel(QVBoxLayout):
     """
     create a form with filename (+ other features later)
     """
-    def __init__(self, glob):
-        self.glob = glob
-        self.bc  = glob.baseClass
+    def __init__(self, parent):
+        self.parent = parent
+        self.glob = parent.glob
+        self.bc  = parent.glob.baseClass
         self.export_type = ".glb"
         super().__init__()
 
@@ -220,11 +221,14 @@ class ExportLeftPanel(QVBoxLayout):
         """
         folder = self.glob.env.stdUserPath("exports")
         if self.export_type == ".glb":
-            gltf = gltfExport(folder)
             path = os.path.join(folder, self.filename.text())
-            print ("I should save: " + path)
-            gltf.addNodes(self.bc)
-            gltf.binSave(path)
+
+            gltf = gltfExport(self.glob, folder)
+            if gltf.binSave(self.bc, path):
+                QMessageBox.information(self.parent, "Done!", "Character exported as " + path)
+            else:
+                ErrorBox(self.parent, self.glob.env.last_error)
+
         else:
             print ("not yet implemented")
 

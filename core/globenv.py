@@ -6,6 +6,7 @@ import locale
 import time
 import json
 import glob
+import shutil
 from uuid import uuid4
 from gui.application import QTVersion
 from opengl.main import GLVersion
@@ -81,12 +82,8 @@ class globalObjects():
     def generateBaseSubDirs(self, basename):
         for name in self.env.basefolders + ["exports", "skins", "models", "target", "dbcache"]:
             folder = os.path.join(self.env.path_userdata, name, basename)
-            if not os.path.isdir(folder):
-                try:
-                    os.mkdir(folder)
-                except OSError as error:
-                    self.env.last_error = str(error)
-                    return (False)
+            if self.env.mkdir(folder) is False:
+                return (False)
 
         return (True)
 
@@ -220,6 +217,28 @@ class programInfo():
         if path is None:
             return None
         return self.pathToUnicode(os.path.normpath(path).replace("\\", "/"))
+
+    def mkdir(self,folder):
+        if not os.path.isdir(folder):
+            if os.path.isfile(folder):
+                self.last_error = "File exists instead of folder " + folder
+                return (False)
+            try:
+                os.mkdir(folder)
+            except OSError as error:
+                self.last_error = str(error)
+                return (False)
+        return True
+
+    def copyfile(self, source, dest):
+        try:
+            shutil.copyfile(source, dest)
+        except IOError as error:
+            self.last_error = "Unable to copy file. " + str(error)
+            return False
+        
+        return (True)
+
 
     def readJSON(self, path: str) -> dict:
         """
@@ -449,17 +468,9 @@ class programInfo():
         in case of error set last_error
         """
         for folder in [self.path_home, self.path_error, self.path_userdata]:
-            if not os.path.isdir(folder):
-                if os.path.isfile(folder):
-                    self.last_error = "File exists instead of folder " + folder
-                    return (False)
-                else:
-                    try:
-                        os.mkdir(folder)
-                    except:
-                        self.last_error = "cannot create folder " + folder
-                        return (False)
-                    self.logLine(2, folder + " created")
+            if self.mkdir(folder) is False:
+                return False
+            self.logLine(2, folder + " created")
 
         userdata = self.path_userdata
 
@@ -467,12 +478,8 @@ class programInfo():
         #
         for name in self.basefolders + ["themes", "exports","skins", "models", "target", "dbcache" ]:
             folder = os.path.join(userdata, name)
-            if not os.path.isdir(folder):
-                try:
-                    os.mkdir(folder)
-                except:
-                    self.last_error = "cannot create folder " + folder
-                    return (False)
+            if self.mkdir(folder) is False:
+                return (False)
 
         return (True)
 

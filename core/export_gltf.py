@@ -2,15 +2,15 @@ import os
 import json
 import struct
 import numpy as np
-import shutil
 
 class gltfExport:
-    def __init__(self, exportfolder):
+    def __init__(self, glob, exportfolder):
 
         # subfolder for textures
         #
         self.imagefolder = "textures"
         self.exportfolder = exportfolder
+        self.env = glob.env
 
         # all constants used
         #
@@ -110,6 +110,19 @@ class gltfExport:
         self.json["accessors"].append({"bufferView": buf, "componentType": self.FLOAT, "count": cnt, "type": "VEC3", "min": minimum, "max": maximum})
         return(self.accessor_cnt)
 
+    def addNormAccessor(self, obj):
+        self.accessor_cnt += 1
+
+        cnt = len(obj.gl_norm) // 3
+        meshCoords = np.reshape(obj.gl_norm, (cnt,3))
+        minimum = meshCoords.min(axis=0).tolist()
+        maximum = meshCoords.max(axis=0).tolist()
+
+        data = obj.gl_norm.tobytes()
+        buf = self.addBufferView(self.ARRAY_BUFFER, data)
+        self.json["accessors"].append({"bufferView": buf, "componentType": self.FLOAT, "count": cnt, "type": "VEC3", "min": minimum, "max": maximum})
+        return(self.accessor_cnt)
+
     def addTPosAccessor(self, obj):
         self.accessor_cnt += 1
 
@@ -145,24 +158,29 @@ class gltfExport:
     def copyImage(self, source, dest):
         print ("Need to copy " + source + " to " + dest)
 
-        if not os.path.exists(dest):
-            os.mkdir(dest)
+        if self.env.mkdir(dest) is False:
+            return False
 
         dest = os.path.join(dest, os.path.basename(source))
-        shutil.copyfile(source, dest)
+        return (self.env.copyfile(source, dest))
 
 
     def addImage(self, image):
         self.image_cnt += 1
         destination = os.path.join(self.exportfolder, self.imagefolder)
-        self.copyImage(image, destination)
+        okay = self.copyImage(image, destination)
+        if not okay:
+            return (False, -1)
+
         uri = os.path.join(self.imagefolder, os.path.basename(image))
         self.json["images"].append({"uri": uri})
-        return(self.image_cnt)
+        return(True, self.image_cnt)
 
     def addTexture(self, texture):
         self.texture_cnt += 1
-        image = self.addImage(texture)
+        (okay, image) = self.addImage(texture)
+        if not okay:
+            return (None)
         self.json["textures"].append({"sampler": 0, "source": image})
         return ({ "baseColorTexture": { "index": self.texture_cnt }, "alphaMode": "BLEND",  "metallicFactor": 0.5, "roughnessFactor": 0.5 })
 
@@ -179,6 +197,8 @@ class gltfExport:
         else:   
             pbr = self.pbrMaterial(material.diffuseColor)
 
+        if pbr is None:
+            return(-1)
         self.json["materials"].append({"name": self.nodeName(name), "pbrMetallicRoughness": pbr})
         return (self.material_cnt)
 
@@ -186,8 +206,9 @@ class gltfExport:
         self.mesh_cnt += 1
         pos = self.addPosAccessor(obj)
         texcoord = self.addTPosAccessor(obj)
+        norm = self.addNormAccessor(obj)
         ind = self.addIndAccessor(obj)
-        self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "TEXCOORD_0": texcoord  }, "indices": ind, "material": nodenumber, "mode": self.TRIANGLES }]})
+        self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "NORMAL": norm, "TEXCOORD_0": texcoord  }, "indices": ind, "material": nodenumber, "mode": self.TRIANGLES }]})
         return (self.mesh_cnt)
 
     def addNodes(self, baseclass):
@@ -197,6 +218,9 @@ class gltfExport:
         #
         baseobject = baseclass.baseMesh
         mat  = self.addMaterial(baseobject.material)
+        if mat == -1:
+            return (False)
+
         mesh = self.addMesh(baseobject, mat)
         self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh,  "children": []  })
         self.json["scenes"][0]["nodes"].append(0)
@@ -205,6 +229,8 @@ class gltfExport:
         i = 1
         for elem in baseclass.attachedAssets:
             mat =  self.addMaterial(elem.obj.material)
+            if mat == -1:
+                return (False)
             mesh = self.addMesh(elem.obj, mat)
             self.json["nodes"].append({"name": self.nodeName(elem.filename), "mesh": mesh })
             children.append(i)
@@ -213,9 +239,10 @@ class gltfExport:
         
         self.json["buffers"].append({"byteLength": self.bufferoffset})
         print (self)
+        return (True)
 
 
-    def binSave(self, filename):
+    def binSave(self, baseclass, filename):
         #
         # binary glTF is:
         # 4 byte magic, 4 byte version + 4 byte length over all (which is the header)
@@ -223,7 +250,9 @@ class gltfExport:
         # chunklenght 4 Byte, chunk type JSON, chunkData (4 Byte boundaries, padding)
         # BIN chunk:
         # chunklenght 4 Byte, chunk type JSON, chunkData (4 Byte boundaries, padding)
-
+        self.env.last_error ="okay"
+        if self.addNodes(baseclass) is False:
+            return False
 
         #TODO do we need an _ExtendedEncoder for JSON?
 
@@ -254,15 +283,20 @@ class gltfExport:
 
         completelength = struct.pack('<I', length)
 
-        with open(filename, 'wb') as f:
-            f.write(self.MAGIC)
-            f.write(version)
-            f.write(completelength)
-            f.write(chunkjsonlen)
-            f.write(self.JSON)
-            f.write(jsondata)
-            f.write(chunkbinlen)
-            f.write(bytes(self.BIN, "utf-8"))
-            for elem in self.buffers:
-                f.write(bytes(elem))
+        try:
+            with open(filename, 'wb') as f:
+                f.write(self.MAGIC)
+                f.write(version)
+                f.write(completelength)
+                f.write(chunkjsonlen)
+                f.write(self.JSON)
+                f.write(jsondata)
+                f.write(chunkbinlen)
+                f.write(bytes(self.BIN, "utf-8"))
+                for elem in self.buffers:
+                    f.write(bytes(elem))
 
+        except IOError as error: 
+            self.env.last_error = str(error)
+            return False
+        return True
