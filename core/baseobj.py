@@ -212,7 +212,8 @@ class baseClass():
         try:
             fp = open(filename, "w", encoding="utf-8", errors='ignore')
         except IOError as err:
-            return (False, str(err))
+            self.env.last_error = str(err)
+            return (False)
 
         # create version as string, name from self.name or filename
         #
@@ -256,6 +257,7 @@ class baseClass():
             fp.write ("skeleton " + self.skeleton.name + "\n")
 
         fp.close()
+        return (True)
 
     def calculateDeletedVerts(self):
         verts = None

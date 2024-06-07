@@ -45,6 +45,7 @@ class OpenGLView(QOpenGLWidget):
         self.camera  = None
         self.skybox = None
         self.glob.openGLWindow = self
+        self.framefeedback = None
         self.timer = QTimer()
         self.timer.timeout.connect(self.nextFrame)
         self.blocked = False
@@ -62,10 +63,13 @@ class OpenGLView(QOpenGLWidget):
             del self.prims["skeleton"]
             self.Tweak()
 
-    def startTimer(self):
+    def startTimer(self, framefeedback):
+        self.framefeedback = framefeedback
         self.timer.start(10)
 
     def stopTimer(self):
+        if self.framefeedback is not None:
+            self.framefeedback()
         self.timer.stop()
         self.blocked = False
 
@@ -75,6 +79,9 @@ class OpenGLView(QOpenGLWidget):
         self.blocked = True
         skeleton = self.glob.baseClass.pose_skeleton
         bvh = self.glob.baseClass.bvh
+        # this slows animation down, better way?
+        #if self.framefeedback is not None:
+        #    self.framefeedback()
         skeleton.pose(bvh.joints, bvh.currentFrame, self.objects_invisible)
         if bvh.currentFrame < (bvh.frameCount-1):
             bvh.currentFrame += 1

@@ -759,7 +759,11 @@ class programInfo():
                 thumbfile = filename + ".thumb"
                 if not os.path.isfile(thumbfile):
                     thumbfile = None
-            
+
+                # skip directories
+                if not os.path.isfile(path):
+                    continue
+
                 with open(path, 'r') as fp:
                     uuid = 0
                     name = None

@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEd
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from gui.common import IconButton, WorkerThread, ErrorBox
-from gui.slider import ScaleComboItem
+from gui.slider import ScaleComboItem, SimpleSlider
 from obj3d.animation import FaceUnits, MHPose
 import os
 import time
@@ -46,13 +46,33 @@ class AnimPlayer(QVBoxLayout):
         self.anim = self.bc.bvh
         super().__init__()
 
+        vlayout = QVBoxLayout()
+        if self.anim:
+            name = self.anim.name
+            frames = self.anim.frameCount
+        else:
+            name = "(no animation loaded)"
+            frames = 0
+
+        vlayout.addWidget(QLabel("Animation: " + name))
+        vlayout.addWidget(QLabel("Frames: " + str(frames)))
+
         ilayout = QHBoxLayout()
-        ilayout.addWidget(IconButton(1,  os.path.join(env.path_sysicon, "minus.png"), "previous frame", self.prevframe))
-        ilayout.addWidget(IconButton(2,  os.path.join(env.path_sysicon, "plus.png"), "next frame", self.nextframe))
-        self.loopbutton = IconButton(3,  os.path.join(env.path_sysicon, "reset.png"), "toggle animation", self.loop)
+
+        ilayout.addWidget(IconButton(1,  os.path.join(env.path_sysicon, "playerfirstimage.png"), "first frame", self.firstframe))
+        ilayout.addWidget(IconButton(2,  os.path.join(env.path_sysicon, "playerprevimage.png"), "previous frame", self.prevframe))
+        ilayout.addWidget(IconButton(3,  os.path.join(env.path_sysicon, "playernextimage.png"), "next frame", self.nextframe))
+        ilayout.addWidget(IconButton(4,  os.path.join(env.path_sysicon, "playerlastimage.png"), "last frame", self.lastframe))
+        self.loopbutton = IconButton(5,  os.path.join(env.path_sysicon, "reset.png"), "toggle animation", self.loop)
         self.loopbutton.setCheckable(True)
         ilayout.addWidget(self.loopbutton)
-        self.addLayout(ilayout)
+        vlayout.addLayout(ilayout)
+        if frames > 0:
+            self.frameSlider = SimpleSlider("Frame number: ", 0, frames-1, self.frameChanged, minwidth=250)
+            self.frameSlider.setSliderValue(self.anim.currentFrame)
+            vlayout.addWidget(self.frameSlider )
+
+        self.addLayout(vlayout)
 
     def enter(self):
         self.loopbutton.setChecked(False)
@@ -67,21 +87,38 @@ class AnimPlayer(QVBoxLayout):
         self.bc.updateAttachedAssets()
         self.view.Tweak()
 
-    def prevframe(self):
+    def setFrame(self, value):
         if self.anim is None:
             print ("No file loaded")
             return
-        if self.anim.currentFrame > 0:
-            self.anim.currentFrame -= 1
-            self.bc.showPose()
+
+        if value < 0:
+            return
+
+        if value >= self.anim.frameCount:
+            return
+
+        self.anim.currentFrame = value
+        self.frameSlider.setSliderValue(value)
+        self.bc.showPose()
+
+    def frameChanged(self, value):
+        self.setFrame(int(value))
+
+    def firstframe(self):
+        self.setFrame(0)
+
+    def prevframe(self):
+        self.setFrame(self.anim.currentFrame - 1)
 
     def nextframe(self):
-        if self.anim is None:
-            print ("No file loaded")
-            return
-        if self.anim.currentFrame < self.anim.frameCount -1:
-            self.anim.currentFrame += 1
-            self.bc.showPose()
+        self.setFrame(self.anim.currentFrame + 1)
+
+    def lastframe(self):
+        self.setFrame(self.anim.frameCount -1)
+
+    def frameFeedback(self):
+        self.frameSlider.setSliderValue(self.anim.currentFrame)
 
     def loop(self):
         if self.anim is None:
@@ -90,7 +127,7 @@ class AnimPlayer(QVBoxLayout):
         b = self.sender()
         v = b.isChecked()
         if v:
-            self.view.startTimer()
+            self.view.startTimer(self.frameFeedback)
         else:
             self.view.stopTimer()
         b.setChecked(v)

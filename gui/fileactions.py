@@ -1,4 +1,8 @@
-from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QAbstractItemView, QLineEdit, QLabel, QMessageBox, QRadioButton
+from PySide6.QtWidgets import (
+    QWidget, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QAbstractItemView, QLineEdit, QLabel,
+    QMessageBox, QRadioButton, QDialogButtonBox
+    )
+
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPixmap
 from gui.imageselector import MHPictSelectable, PicSelectWidget
@@ -75,11 +79,12 @@ class SaveMHMForm(QVBoxLayout):
     """
     create a form with name, tags, uuid, thumbnail, filename
     """
-    def __init__(self, glob, view, characterselection, displaytitle):
+    def __init__(self, parent, view, characterselection, displaytitle):
         self.view = view
-        self.glob = glob
-        env = glob.env
-        self.bc  = glob.baseClass
+        self.parent = parent
+        self.glob = parent.glob
+        env = self.glob.env
+        self.bc  = self.glob.baseClass
         self.displaytitle = displaytitle
         super().__init__()
 
@@ -130,11 +135,22 @@ class SaveMHMForm(QVBoxLayout):
 
     def savefile(self):
         """
-        path calculation, save file, save icon
+        path calculation
+        ask if is already exists
+        save file, save icon
         """
         path = self.glob.env.stdUserPath("models", self.filename.text())
         self.bc.tags = self.tagedit.getTags()
-        self.bc.saveMHMFile(path)
+        if os.path.isfile(path):
+            dbox = DialogBox("Replace " + path + "?", QDialogButtonBox.Ok)
+            confirmed = dbox.exec()
+            if confirmed != 1:
+                return
+
+        if self.bc.saveMHMFile(path):
+            QMessageBox.information(self.parent, "Done!", "Character saved as " + path)
+        else:
+            ErrorBox(self.parent, self.glob.env.last_error)
         if self.bc.photo is not None:
             iconpath = path[:-4] + ".thumb"
             self.bc.photo.save(iconpath, "PNG", -1)
@@ -176,10 +192,35 @@ class SaveMHMForm(QVBoxLayout):
             pixmap = QPixmap.fromImage(self.bc.photo)
         self.imglabel.setPixmap(pixmap)
 
-
     def thumbnail(self):
         self.bc.photo = self.view.createThumbnail()
         self.displayPixmap()
+
+    def addDataFromSelected(self, asset):
+        """
+        copies data from a selected asset to filename
+        """
+        self.filename.setText(asset.basename)
+        self.editname.setText(asset.name)
+        #
+        # tags: last 3 tags are name, filename, author, tags with ';' only take last element
+        #
+        tags = []
+        for elem in asset.tags[:-3]:
+            if ":" in elem:
+                elem = elem.split(":")[-1]
+            tags.append(elem)
+        self.tagedit.newTags(tags, None)
+
+        # generate the icon from selected icon
+        #
+        if asset.icon is not None:
+            pixmap = QPixmap(asset.icon)
+            self.bc.photo = pixmap.toImage()
+        else:
+            self.bc.photo = None
+        self.displayPixmap()
+
 
 class ExportLeftPanel(QVBoxLayout):
     """

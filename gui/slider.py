@@ -276,7 +276,7 @@ class ScaleComboArray(QWidget):
             current.comboUpdate(True)
 
 class SimpleSlider(QWidget):
-    def __init__(self, labeltext, minimum, maximum, callback, parent=None, vertical=False):
+    def __init__(self, labeltext, minimum, maximum, callback, parent=None, vertical=False, minwidth=159):
         super().__init__()
         self.labeltext = labeltext
         self.callback = callback
@@ -296,7 +296,7 @@ class SimpleSlider(QWidget):
             layout.addWidget(self.slider)
             self.slider.setTickPosition(QSlider.TicksBelow)
             self.slider.setTickInterval(10)
-            self.slider.setMinimumWidth(150)
+            self.slider.setMinimumWidth(minwidth)
             
         self.slider.setMinimum(minimum)
         self.slider.setMaximum(maximum)

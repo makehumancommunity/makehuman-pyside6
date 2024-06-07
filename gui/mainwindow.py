@@ -417,7 +417,7 @@ class MHMainWindow(QMainWindow):
                 self.LeftBox.addLayout(layout)
             elif self.category_mode == 2:
                 self.leftColumn.setTitle("Save file :: additional parameters")
-                self.saveForm = SaveMHMForm(self.glob, self.graph.view, self.charselect, self.setWindowTitle)
+                self.saveForm = SaveMHMForm(self, self.graph.view, self.charselect, self.setWindowTitle)
                 self.LeftBox.addLayout(self.saveForm)
             elif self.category_mode == 3:
                 self.leftColumn.setTitle("Export file :: additional parameters")
@@ -696,9 +696,13 @@ class MHMainWindow(QMainWindow):
                 self.newCharacter(filename)
 
     def loadByIconCallback(self, asset, eqtype, multi):
+
+        # in case of save add data into formular only
+        #
         if self.category_mode == 2:
-            print ("add data for: " + asset.filename)
+            self.saveForm.addDataFromSelected(asset)
             return
+
         if asset.status != 1:
             return
         if self.changesLost("Load character"):

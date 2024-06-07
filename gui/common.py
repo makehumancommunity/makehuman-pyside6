@@ -130,7 +130,8 @@ class MHTagEdit(QVBoxLayout):
 
     def newTags(self, tags, copyfrom):
         self.edittags = tags
-        self.sourcetags = copyfrom
+        if copyfrom is not None:
+            self.sourcetags = copyfrom
         self.displayTags()
 
     def addPredefinedTag(self):
