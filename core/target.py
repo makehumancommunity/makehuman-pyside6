@@ -341,7 +341,7 @@ class Modelling(ScaleComboItem):
         if self.value != self._last_value:
             self.callback()
         else:
-            self.glob.mhViewport.setSizeInfo()
+            self.glob.midColumn.setSizeInfo()
             self.glob.project_changed = True
 
     def callback(self):
@@ -379,7 +379,7 @@ class Modelling(ScaleComboItem):
                 else:
                     print ("Target missing")
             self.glob.project_changed = True
-            self.glob.mhViewport.setSizeInfo()
+            self.glob.midColumn.setSizeInfo()
             self.glob.openGLWindow.Tweak()
 
     #def __del__(self):

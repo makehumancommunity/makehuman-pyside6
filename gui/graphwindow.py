@@ -58,19 +58,15 @@ class NavigationEvent(QObject):
 
 class MHGraphicWindow(QWidget):
     """
-    the graphic window, either attached or as an own window
+    the graphic window
     init creates widget itself, then createLayout is called
     """
 
-    def __init__(self, parent, glob):
-        self.parent = parent
+    def __init__(self, glob):
         self.glob = glob
         self.env = glob.env
-        self.attached =self.env.g_attach
         self.debug = False
-        print ("Attach " + str(self.attached))
         super().__init__()
-        glob.mhViewport = self
         #
         # keyboard actions
         #
@@ -169,10 +165,10 @@ class MHGraphicWindow(QWidget):
             self.setSizeInfo()
         vlayout.addWidget(self.sizeInfo)
 
-    """
-    creates layout for 3d window
-    """
     def createLayout(self):
+        """
+        creates layout for 3d window
+        """
         self.view = OpenGLView(self.glob)          # must be saved in self!
         hlayout = QHBoxLayout()
         hlayout.addWidget(self.view)
@@ -182,51 +178,8 @@ class MHGraphicWindow(QWidget):
         self.debugInfos(vlayout)
         vlayout.addStretch()
         self.objInfos(vlayout)
-
-        if self.attached is True:
-            self.disconnectbutton = QPushButton("Disconnect")
-            self.disconnectbutton.clicked.connect(self.disconnect_button)
-            self.disconnectbutton.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-            vlayout.addWidget(self.disconnectbutton)
-            hlayout.addLayout(vlayout)
-        else:
-            self.connectbutton = QPushButton("Connect")
-            self.connectbutton.clicked.connect(self.connect_button)
-            self.connectbutton.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-            vlayout.addWidget(self.connectbutton)
-            hlayout.addLayout(vlayout)
-            self.setLayout(hlayout)
-            self.setWindowTitle("3D View")
-            self.setWindowFlags(self.windowFlags() & ~Qt.WindowCloseButtonHint)
-            self.resize (750, 650)
-
+        hlayout.addLayout(vlayout)
         return (hlayout)
-
-    def connect_button(self):
-        """
-        connect the window to main window
-        """
-        print ("connect pressed")
-        self.env.g_attach = True
-        self.cleanUp()
-        self.parent.base_call()
-        self.parent.createCentralWidget()
-        self.close()
-        self.destroy()
-        self.parent.updateScene()
-
-    def disconnect_button(self):
-        """
-        disconnect the window from main window
-        """
-        print ("disconnect pressed")
-        self.env.g_attach = False
-        self.cleanUp()
-        self.parent.base_call()
-        self.parent.createCentralWidget()
-        self.parent.show()
-        self.destroy()
-        self.parent.updateScene()
 
     def back_button(self):
         self.view.customView(QVector3D(0, 0, -1))
@@ -333,13 +286,6 @@ class MHGraphicWindow(QWidget):
         self.focusSlider.setEnabled(v)
         b.setChecked(v)
         self.view.togglePerspective(v)
-
-    def show(self):
-        """
-        show window (only when not attached)
-        """
-        if self.attached is False:
-            super().show()
 
     def cleanUp(self):
         self.glob.freeTextures()

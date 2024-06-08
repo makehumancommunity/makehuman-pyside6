@@ -20,7 +20,7 @@ class globalObjects():
         self.app = None
         self.shaderInit = None
         self.openGLWindow = None
-        self.mhViewport = None
+        self.midColumn    = None
         self.baseClass = None
         self.textures = {}
         self.reset()
@@ -312,7 +312,6 @@ class programInfo():
         #
         defaultconf = {
             "basename": None,
-            "graphicalgui_attached": False,
             "noSampleBuffers": False,
             "noShaders": False,
             "redirect_messages": True,
@@ -454,7 +453,6 @@ class programInfo():
 
         # set further parameters from configuration
         #
-        self.g_attach = self.config["graphicalgui_attached"]
         self.basename = self.config["basename"]
 
         # read last session on demand

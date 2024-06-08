@@ -225,7 +225,7 @@ class MHMainWindow(QMainWindow):
             elem["menu"] = self.equip.addAction(elem["name"])
             elem["menu"].triggered.connect(self.equip_call)
 
-        self.charselect = ImageSelection(self, self.glob.baseClass.cachedInfo, "models", 2, self.loadByIconCallback, 3)
+        self.charselect = ImageSelection(self, self.glob.baseClass.cachedInfo, "models", 0, self.loadByIconCallback, 3)
         self.charselect.prepare()
 
         for elem in self.animation:
@@ -234,14 +234,6 @@ class MHMainWindow(QMainWindow):
             elem["menu"] = self.animenu.addAction(elem["name"])
             elem["menu"].triggered.connect(self.anim_call)
 
-    def updateScene(self):
-        if self.scene_window:
-            self.scene_window.destroy()
-            del self.scene_window
-            self.scene_window = None
-            #self.scene_window.newView(self.graph.view)
-            #print ("Scene Window open")
-
     def setWindowTitle(self, text):
         title = self.env.release_info["name"] + " (" + text + ")"
         super().setWindowTitle(title)
@@ -249,6 +241,9 @@ class MHMainWindow(QMainWindow):
 
     def equipCallback(self, selected, eqtype, multi):
         self.glob.project_changed = True
+        if isinstance(selected, str):
+            self.glob.baseClass.delAsset(selected)
+            return
         if selected.status == 0:
             self.glob.baseClass.delAsset(selected.filename)
         elif selected.status == 1:
@@ -329,7 +324,7 @@ class MHMainWindow(QMainWindow):
 
     def createCentralWidget(self):
         """
-        create central widget, shown by default or by using connect/disconnect button from graphics window
+        create central widget containing 3 columns
         """
         env = self.env
         self.central_widget = QWidget()
@@ -367,7 +362,7 @@ class MHMainWindow(QMainWindow):
 
         # create window for internal or external use
         #
-        self.graph = MHGraphicWindow(self, self.glob)
+        self.glob.midColumn = self.graph = MHGraphicWindow(self.glob)
         gLayout = self.graph.createLayout()
         #
         # keyboard
@@ -375,11 +370,10 @@ class MHMainWindow(QMainWindow):
         self.eventFilter = NavigationEvent(self.graph)
         self.installEventFilter(self.eventFilter)
 
-        # in case of being attached, add external window in layout
+        # add view in layout
         #
-        if self.env.g_attach is True:
-            frame = MHGroupBox("Viewport")
-            hLayout.addLayout(frame.MHLayout(gLayout),3)
+        frame = MHGroupBox("Viewport")
+        hLayout.addLayout(frame.MHLayout(gLayout),3)
 
         # right side, ToolBox
         #
@@ -529,7 +523,7 @@ class MHMainWindow(QMainWindow):
                     return
                 self.rightColumn.setTitle("No additional infomation")
             elif self.category_mode == 1:
-                self.drawImageSelector(self.charselect, "Character MHM Files", 0)
+                self.drawImageSelector(self.charselect, "Character MHM Files", 4)
             elif self.category_mode == 2:
                 self.drawImageSelector(self.charselect, "Character MHM Files (select to get data)", 0)
             elif self.category_mode == 3:
@@ -543,12 +537,12 @@ class MHMainWindow(QMainWindow):
         elif self.tool_mode == 2:
             equip = self.equipment[self.category_mode]
             text = "Character equipment, category: " + equip["name"]
-            self.drawImageSelector(equip["func"], text)
+            self.drawImageSelector(equip["func"], text, 15)
         elif self.tool_mode == 3:
             if self.category_mode == 0 or self.category_mode == 1 or self.category_mode == 3:
                 equip = self.animation[self.category_mode]
                 text = "Pose and animation, category: " + equip["name"]
-                self.drawImageSelector(equip["func"], text, 1)
+                self.drawImageSelector(equip["func"], text, 13)
             elif self.category_mode == 4:
                 self.drawExpressionPanel(text)
             else:
@@ -591,13 +585,6 @@ class MHMainWindow(QMainWindow):
                 self.markSelectedButtons(buttons, buttons[category])
             self.drawLeftPanel()
             self.drawRightPanel()
-
-    def show(self):
-        """
-        also shows graphic screen
-        """
-        self.graph.show()
-        super().show()
 
     def deb_cam(self):
         self.graph.setDebug(self.deb_act.isChecked())
@@ -674,7 +661,7 @@ class MHMainWindow(QMainWindow):
         self.graph.view.addSkeleton()
         self.graph.view.Tweak()
         self.setWindowTitle(self.glob.baseClass.name)
-        self.glob.mhViewport.setSizeInfo()
+        self.graph.setSizeInfo()
         self.glob.parallel = None
 
     def newCharacter(self, filename):

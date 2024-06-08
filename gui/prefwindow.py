@@ -99,12 +99,6 @@ class MHPrefWindow(QWidget):
             self.cb_keep.setChecked(True)
         se_layout.addWidget(self.cb_keep)
         sess.setLayout(se_layout)
-
-        self.cb_attach = QCheckBox("attach graphical window to main window")
-        if env.config["graphicalgui_attached"] is True:
-            self.cb_attach.setChecked(True)
-        se_layout.addWidget(self.cb_attach)
-        sess.setLayout(se_layout)
         layout.addWidget(sess)
 
         # buttons for cancel and save
@@ -150,7 +144,6 @@ class MHPrefWindow(QWidget):
         env.config["remember_session"] = self.cb_keep.isChecked()
         env.config["units"] = self.u_metric.text().lower() if self.u_metric.isChecked() else self.u_imperial.text().lower()
         env.config["remember_session"] = self.cb_keep.isChecked()
-        env.config["graphicalgui_attached"] = self.cb_attach.isChecked()
 
         env.path_home = env.config["path_home"] = self.ql_path_home.text()
         #
