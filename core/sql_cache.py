@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import json
 #
 # TODO could be that this might change to a primary index later using uuid
 #
@@ -80,6 +81,39 @@ class FileCache:
         self.con.commit()
         self.time = int(os.stat(self.name).st_mtime)
 
+    def exportUserInfo(self, filename):
+        lines = self.listUserInfo()
+        json_db = {}
+        for line in lines:
+            key = line[0].replace('"', '')
+            value = line[1].replace('"', '')
+            json_db[key] = value
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(json_db, f, ensure_ascii=False, indent=4)
+        except OSError as error:
+            self.env.last_error = str(error)
+            return False
+        return True
+
+    def importUserInfo(self, filename):
+        json = self.env.readJSON(filename)
+        if json is None:
+            return False
+        for key in json:
+            if not isinstance(key, str):
+                self.env.last_error = "Bad file, UUID must be string"
+                return False
+            if not isinstance(json[key], str):
+                self.env.last_error = "Bad file, tags must be string"
+                return False
+
+        self.env.logLine(8, "Delete user information completely")
+        self.cur.execute("DELETE FROM userinformation")
+        for key in json:
+            self.insertParamUser(key, json[key])
+        return True
+        
     def __del__(self):
         self.cur.close()
 

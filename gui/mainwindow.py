@@ -180,6 +180,13 @@ class MHMainWindow(QMainWindow):
             rsystar_act = regenerate.addAction("System 3d Objects")
             rsystar_act.triggered.connect(self.regenerate_sys3dobjs)
 
+        set_menu.addSeparator()
+        exportuserdb = set_menu.addAction("Backup User Database")
+        exportuserdb.triggered.connect(self.exportUserDB)
+
+        importuserdb = set_menu.addAction("Restore User Database")
+        importuserdb.triggered.connect(self.importUserDB)
+
         tools_menu = menu_bar.addMenu("&Tools")
         base_act = tools_menu.addAction("Change Base")
         base_act.triggered.connect(self.base_call)
@@ -677,10 +684,7 @@ class MHMainWindow(QMainWindow):
 
     def loadmhm_call(self):
         if self.glob.baseClass is not None:
-            if self.changesLost("Load character"):
-                directory = self.env.stdUserPath("models")
-                filename = self.fileRequest("Model", "Model files (*.mhm)", directory)
-                self.newCharacter(filename)
+            self.setToolModeAndPanel(0, 1)
 
     def loadByIconCallback(self, asset, eqtype, multi):
 
@@ -697,10 +701,7 @@ class MHMainWindow(QMainWindow):
 
     def savemhm_call(self):
         if self.glob.baseClass is not None:
-            directory = self.env.stdUserPath("models")
-            filename = self.fileRequest("Model", "Model files (*.mhm)", directory, save=".mhm")
-            if filename is not None:
-                self.glob.baseClass.saveMHMFile(filename)
+            self.setToolModeAndPanel(0, 2)
 
     def initParams(self):
         self.graph.getFocusText()
@@ -883,6 +884,30 @@ class MHMainWindow(QMainWindow):
 
     def regenerate_user3dobjs(self):
         self.compressObjsWorker(False, True)
+
+    def exportUserDB(self):
+        if self.glob.baseClass is None:
+            return
+        directory = self.env.stdUserPath()
+        filename = self.fileRequest("Database export for backup", "Json-files (*.json)", directory, save=".json")
+        if filename is not None:
+            if self.env.fileCache.exportUserInfo(filename):
+                QMessageBox.information(self.central_widget, "Done!", "User database exported as " + filename)
+            else:
+                ErrorBox(self.central_widget, self.env.last_error)
+
+    def importUserDB(self):
+        if self.glob.baseClass is None:
+            return
+        directory = self.env.stdUserPath()
+        filename = self.fileRequest("Database import to restore tags", "Json-files (*.json)", directory)
+        if filename is not None:
+            if self.env.fileCache.importUserInfo(filename):
+                QMessageBox.information(self.central_widget, "Done!", "User database restored, please restart program.")
+                #self.glob.baseClass.scanAssets()
+                # TODO: better way?
+            else:
+                ErrorBox(self.central_widget, self.env.last_error)
 
     def help_call(self):
         """

@@ -506,7 +506,10 @@ class programInfo():
                 return(os.path.join(self.path_sysdata, category, self.basename))
         return None
 
-    def stdUserPath(self, category, filename=None):
+    def stdUserPath(self, category=None, filename=None):
+        if category is None:
+            return (self.path_userdata)
+
         if self.basename is not None:
             if filename:
                 return(os.path.join(self.path_userdata, category, self.basename, filename))
@@ -691,7 +694,7 @@ class programInfo():
                 elif extension == ".bvh":
                     metafile = filename + ".meta"
                     name = os.path.basename(filename)
-                    uuid = "bvh_" + filename
+                    uuid = "bvh_" + name
                     author = "unknown"
                     tags = []
                     if os.path.isfile(metafile):
