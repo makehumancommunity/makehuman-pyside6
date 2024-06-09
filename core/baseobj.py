@@ -285,18 +285,47 @@ class baseClass():
         else:
             self.baseMesh.hideVertices(verts)
 
-    def delAsset(self, filename):
+    def isLinkedByFilename(self, filename):
+        elem = self.getAttachedByFilename(filename)
+        if elem is not None:
+            return (elem)
+        if self.bvh:
+            if filename == self.bvh.filename:
+                return (self.bvh)
+        if self.expression:
+            if filename == self.expression.filename:
+                return (self.expression)
+        if self.skeleton:
+            if filename == self.skeleton.filename:
+                return (self.skeleton)
+        return(None)
+
+    def getAttachedByFilename(self, filename):
         for elem in self.attachedAssets:
             if elem.filename == filename:
-                self.glob.openGLWindow.deleteObject(elem.obj)
-                self.attachedAssets.remove(elem)
-                self.markAssetByFileName(filename, False)
-                if elem.deleteVerts is not None:
-                    print ("Need to recalculate base and other meshes because vertices are visible again")
-                    self.calculateDeletedVerts()
-                if elem.type == "proxy":
-                    self.proxy  = None
-                break
+                return(elem)
+        return (None)
+
+    def countAttachedByType(self, itype):
+        cnt = 0
+        for elem in self.attachedAssets:
+            if elem.type == itype:
+                cnt += 1
+        return (cnt)
+
+    def delAsset(self, filename):
+        elem = self.getAttachedByFilename(filename)
+        if elem is None:
+            return
+
+        self.glob.openGLWindow.deleteObject(elem.obj)
+        self.attachedAssets.remove(elem)
+        self.markAssetByFileName(filename, False)
+        if elem.deleteVerts is not None:
+            print ("Need to recalculate base and other meshes because vertices are visible again")
+            self.calculateDeletedVerts()
+            if elem.type == "proxy":
+                self.proxy  = None
 
     def delProxy(self):
         for elem in self.attachedAssets:
@@ -347,9 +376,8 @@ class baseClass():
         """
         # avoid same asset (should not happen)
         #
-        for elem in  self.attachedAssets:
-            if elem.filename == path:
-                return
+        if self.getAttachedByFilename(path) is not None:
+            return
 
         if multi is False:
             for elem in self.attachedAssets:

@@ -139,21 +139,13 @@ class PicFlowLayout(QLayout):
         self.wList = list()
 
     def refreshAllWidgets(self, current=None):
-        if self.selmode == 1:
-            for widget in self.wList:
-                widget.update()
-        else:
-            for widget in self.wList:
-                if widget is not current and widget.asset.status > 0:
-                    # print("item " + widget.text + " toggle")
-                    widget.asset.status = 0
-                    widget.update()
+        for widget in self.wList:
+            widget.update()
 
     def deselectAllWidgets(self):
         for widget in self.wList:
              widget.asset.status = 0
              widget.update()
-
 
     def horizontalSpacing(self) -> int:
         if self.m_hSpace >= 0:
@@ -575,6 +567,11 @@ class ImageSelection():
         self.scaleindex = scale
         self.imagescale = self.scales[scale]
         self.rightpanelbuttons = []
+        self.button_none = None
+        self.button_info = None
+        self.button_add = None
+        self.button_delete = None
+        self.button_mat = None
         if not os.path.isfile(self.emptyIcon):
             self.emptyIcon = os.path.join(self.env.path_sysdata, "icons", "noidea.png")
 
@@ -667,22 +664,34 @@ class ImageSelection():
     def picButtonChanged(self, asset):
         multi = (self.selmode == 1)
         print ("********** changed:" + asset.name + " ************")
-        print (asset.status)
-        if multi is True:
-            m = asset.status
-            self.changeStatus()
-            asset.status = m
 
+        # yellow 
         if asset.status == 1:
-            self.enableButtons(True)
             self.materialCallback(update=True)
             self.assetCallback(update=True)
+
+            # set all yellow ones back to green or nothing
+            #
+            self.changeStatus()
+            asset.status = 1
+            self.picwidget.refreshAllWidgets()
+
+        # deselect
+        #
         elif asset.status == 0:
-            self.enableButtons(False)
-            self.callback(asset, self.type, multi)
+            found = self.parent.glob.baseClass.getAttachedByFilename(asset.filename)
+            if multi is True:
+                asset.status = 2 if found is not None else 0
+            else:
+                if found:
+                    self.callback(asset, self.type, multi)
+
+        self.refreshButtons()
 
         if self.type == "models":
-            if len(self.rightpanelbuttons) == 0:
+            print ("in models")
+            if self.button_add is None:
+                print ("add is none")
                 self.callback(asset, self.type, False)
 
     def scaleImages(self):
@@ -711,9 +720,10 @@ class ImageSelection():
     def getSelectFromAttachedAssets(self):
         selected = self.picwidget.getSelected()
         if selected is not None:
-            for elem in self.parent.glob.baseClass.attachedAssets:
-                if elem.filename == selected.filename:
-                    return(elem, selected)
+            elem = self.parent.glob.baseClass.getAttachedByFilename(selected.filename)
+            if elem is not None:
+                return(elem, selected)
+
         return(None, None)
 
     def getSelectedFromRepo(self):
@@ -728,18 +738,23 @@ class ImageSelection():
         (elem, asset) = self.getSelectedFromRepo()
         multi = (self.selmode == 1)
         self.callback(asset, self.type, multi)
+        self.changeStatus()
         if multi:
             asset.status = 2
+        else:
+            asset.status = 1
+        self.refreshButtons()
+        self.picwidget.refreshAllWidgets()
 
     def deleteCallback(self):
         (elem, asset) = self.getSelectedFromRepo()
-        if asset is None or asset.status == 1:
+        if asset is None:
             return
         asset.status = 0
         multi = (self.selmode == 1)
         self.callback(asset, self.type, multi)
-        self.enableButtons(False)
         self.changeStatus()
+        self.refreshButtons()
         self.picwidget.refreshAllWidgets()
 
     def noneCallback(self):
@@ -758,8 +773,8 @@ class ImageSelection():
                 return
             print (asset.filename)
             asset.status = 0
-            self.callback(asset, self.type, multi)  # for clothes all clothes
-        self.enableButtons(False)
+            self.callback(asset, self.type, multi)
+        self.refreshButtons()
         self.picwidget.deselectAllWidgets()
 
     def materialCallback(self, status=False, update=False):
@@ -860,37 +875,39 @@ class ImageSelection():
     def rightPanelButtons(self, bitmask):
         hlayout = QHBoxLayout()
 
-        self.rightpanelbuttons = []
-
         if bitmask & 4:
             path = os.path.join(self.env.path_sysicon, "use.png" )
-            loadbutton = IconButton(0, path, "Load/Use asset", self.loadCallback)
-            hlayout.addWidget(loadbutton)
-            self.rightpanelbuttons.append(loadbutton)
+            self.button_add = IconButton(0, path, "Load/Use asset", self.loadCallback)
+            hlayout.addWidget(self.button_add )
+        else:
+            self.button_add = None
 
         if bitmask & 8:
             if self.selmode == 1:
-                path = os.path.join(self.env.path_sysicon, "delete.png" )
-                delbutton = IconButton(0, path, "Drop this asset", self.deleteCallback)
-                hlayout.addWidget(delbutton)
-                self.rightpanelbuttons.append(delbutton)
+                path = os.path.join(self.env.path_sysicon, "none.png" )
+                self.button_none = IconButton(0, path, "Drop all assets", self.noneCallback)
+                hlayout.addWidget(self.button_none)
 
-            path = os.path.join(self.env.path_sysicon, "none.png" )
-            nonebutton = IconButton(0, path, "Drop all assets", self.noneCallback)
-            hlayout.addWidget(nonebutton)
-            self.rightpanelbuttons.append(nonebutton)
+            path = os.path.join(self.env.path_sysicon, "delete.png" )
+            self.button_delete = IconButton(0, path, "Drop this asset", self.deleteCallback)
+            hlayout.addWidget(self.button_delete)
+        else:
+            self.button_none = None
+            self.button_delete = None
 
         if bitmask & 1:
             path = os.path.join(self.env.path_sysicon, "information.png" )
-            infobutton = IconButton(0, path, "Change asset information", self.assetCallback)
-            hlayout.addWidget(infobutton)
-            self.rightpanelbuttons.append(infobutton)
+            self.button_info = IconButton(0, path, "Change asset information", self.assetCallback)
+            hlayout.addWidget(self.button_info )
+        else:
+            self.button_info = None
 
         if bitmask & 2:
             path = os.path.join(self.env.path_sysicon, "materials.png" )
-            matbutton = IconButton(0, path, "Change material", self.materialCallback)
-            hlayout.addWidget(matbutton)
-            self.rightpanelbuttons.append(matbutton)
+            self.button_mat = IconButton(0, path, "Change material", self.materialCallback)
+            hlayout.addWidget(self.button_mat)
+        else:
+            self.button_mat = None
 
         hlayout.addStretch()
 
@@ -904,9 +921,42 @@ class ImageSelection():
 
         return (hlayout)
 
-    def enableButtons(self, mode):
-        for elem in self.rightpanelbuttons:
-            elem.setEnabled(mode)
+    def refreshButtons(self):
+
+        # none button: enabled when one asset is supplied
+        #
+        if self.button_none:
+            cnt = self.parent.glob.baseClass.countAttachedByType(self.type)
+            self.button_none.setEnabled(cnt != 0)
+
+        # must be yellow (selected) for add and info
+        #
+        selected = self.picwidget.getSelected()
+        if self.button_info:
+            self.button_info.setEnabled(selected is not None)
+
+        # must be selected and supplied for delete, material
+        # reuse selected
+
+        if self.selmode == 1:
+            if self.button_add:
+                self.button_add.setEnabled(selected is not None)
+
+        used = False
+        if selected is not None:
+            if self.parent.glob.baseClass.isLinkedByFilename(selected.filename) is not None:
+                used  = True
+
+        if self.selmode == 0:
+            if self.button_add:
+                self.button_add.setEnabled((selected is not None)  and not used)
+
+        if self.button_delete:
+            self.button_delete.setEnabled(used)
+
+        if self.button_mat:
+            self.button_mat.setEnabled(used)
+
 
     def rightPanel(self, bitmask=3):
         """
@@ -929,6 +979,6 @@ class ImageSelection():
         scrollArea.setHorizontalScrollBarPolicy( Qt.ScrollBarAlwaysOff )
         layout.addWidget(scrollArea)
         (elem, asset) = self.getSelectedFromRepo()
-        self.enableButtons(asset is not None)
+        self.refreshButtons()
         return(layout)
 

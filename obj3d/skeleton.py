@@ -16,6 +16,7 @@ class skeleton:
         self.bWeights = None
         self.root = None     # our skeleton accepts one root bone, not more
         self.mesh = self.glob.baseClass.baseMesh
+        self.filename = None
 
     def loadJSON(self, path):
         json = self.env.readJSON(path)
@@ -122,6 +123,7 @@ class skeleton:
             print (self.bones[bone])
         """
         self.calcRestMat()
+        self.filename = path
 
     def getNormal(self, plane_name):
         """
