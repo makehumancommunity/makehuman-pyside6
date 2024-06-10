@@ -86,7 +86,7 @@ class baseClass():
                 elem.used = value
                 return
 
-    def loadMHMFile(self, filename):
+    def loadMHMFile(self, filename, verbose=None):
         """
         will usually load an mhm-file
         after load all filenames are absolute paths
@@ -98,6 +98,9 @@ class baseClass():
             return (False, str(err))
 
         self.attachedAssets = []
+
+        if verbose is not None:
+            verbose.setLabelText("Load " + filename)
 
         loaded = MakeHumanModel()
         for line in fp:
@@ -165,6 +168,8 @@ class baseClass():
             if matfilename is not None:
                 self.baseMesh.loadMaterial(matfilename)
                 self.skinMaterial = matfilename
+                if verbose is not None:
+                    verbose.setLabelText("Load " + matfilename)
 
         # print(loaded)
 
@@ -172,6 +177,8 @@ class baseClass():
         #
         for elem in loaded.attached:
             if elem.path is not None:
+                if verbose is not None:
+                    verbose.setLabelText("Attach " + elem.path)
                 self.addAsset(elem.path, elem.type, elem.material, elem.relmaterial)
 
         # reset all targets and mesh, reset missing targets
@@ -182,6 +189,8 @@ class baseClass():
             name, value = elem.split()
             self.glob.Targets.setTargetByName(name, value)
 
+        if verbose is not None:
+            verbose.setLabelText("Apply Targets")
         self.applyAllTargets()
 
         # skeleton after applying targets
@@ -192,7 +201,8 @@ class baseClass():
                 if self.pose_skelpath == skelpath:  # reuse pose-skeleton
                     self.skeleton = self.pose_skeleton
                 else:
-                    # print ("Skeleton Path " + skelpath)
+                    if verbose is not None:
+                        verbose.setLabelText("Load: " + skelpath)
                     self.skeleton = skeleton(self.glob, loaded.skeleton)
                     self.skeleton.loadJSON(skelpath)
                     self.markAssetByFileName(skelpath, True)
@@ -544,6 +554,7 @@ class baseClass():
         if "modifier-presets" in self.baseInfo:
             target.modifierPresets (self.baseInfo["modifier-presets"])
         
+        self.glob.openGLBlock = True
         if modelfile is not None:
             self.loadMHMFile(modelfile)
         elif "mhm" in self.baseInfo:
@@ -551,6 +562,7 @@ class baseClass():
             self.loadMHMFile(mhmfile)
         else:
             self.baseMesh.loadMaterial(None)
+        self.glob.openGLBlock = False
 
 
         # no assets, mark skeleton appended if a skeleton exists

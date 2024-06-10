@@ -659,13 +659,18 @@ class MHMainWindow(QMainWindow):
         return(confirmed)
 
     def parallelLoad(self, bckproc, *args):
-        self.glob.baseClass.loadMHMFile(args[0][0])
+        self.glob.baseClass.loadMHMFile(args[0][0], self.prog_window)
+        # self.prog_window.setLabelText(elem.folder + ": create binary " + os.path.split(elem.path)[1])
 
     def finishLoad(self):
         self.graph.view.setCameraCenter()
         self.graph.view.addAssets()
         self.graph.view.newSkin(self.glob.baseClass.baseMesh)
         self.graph.view.addSkeleton()
+        if self.prog_window is not None:
+            self.prog_window.progress.close()
+            self.prog_window = None
+        self.glob.openGLBlock = False
         self.graph.view.Tweak()
         self.setWindowTitle(self.glob.baseClass.name)
         self.graph.setSizeInfo()
@@ -674,9 +679,12 @@ class MHMainWindow(QMainWindow):
     def newCharacter(self, filename):
         if filename is not None and self.glob.parallel is None:
             self.setToolModeAndPanel(0, 0)
+            self.glob.openGLBlock = True
             self.graph.view.noAssets()
             self.glob.freeTextures()
             self.glob.baseClass.reset()
+            self.prog_window = MHBusyWindow("Load character", "start")
+            self.prog_window.progress.forceShow()
             self.glob.parallel = WorkerThread(self.parallelLoad, filename)
             self.glob.parallel.start()
             self.glob.parallel.finished.connect(self.finishLoad)
@@ -754,6 +762,7 @@ class MHMainWindow(QMainWindow):
             ErrorBox(self.central_widget, self.env.last_error)
             return
 
+        self.glob.openGLBlock = True
         self.graph.view.newMesh()
         self.createImageSelection()
         self.emptyLayout(self.ToolBox)
@@ -766,6 +775,7 @@ class MHMainWindow(QMainWindow):
         self.graph.setSizeInfo()
 
         self.graph.update()
+        self.glob.openGLBlock = False
 
     def selectmesh_call(self):
         (base, filename) = self.baseSelector.getSelectedItem()

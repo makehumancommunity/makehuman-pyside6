@@ -20,6 +20,7 @@ class globalObjects():
         self.app = None
         self.shaderInit = None
         self.openGLWindow = None
+        self.openGLBlock  = False
         self.midColumn    = None
         self.baseClass = None
         self.textures = {}

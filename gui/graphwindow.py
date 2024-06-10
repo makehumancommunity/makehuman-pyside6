@@ -170,6 +170,7 @@ class MHGraphicWindow(QWidget):
         creates layout for 3d window
         """
         self.view = OpenGLView(self.glob)          # must be saved in self!
+        self.glob.openGLWindow = self.view
         hlayout = QHBoxLayout()
         hlayout.addWidget(self.view)
 

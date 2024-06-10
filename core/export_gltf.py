@@ -182,11 +182,12 @@ class gltfExport:
         if not okay:
             return (None)
         self.json["textures"].append({"sampler": 0, "source": image})
-        return ({ "baseColorTexture": { "index": self.texture_cnt }, "alphaMode": "BLEND",  "metallicFactor": 0.5, "roughnessFactor": 0.5 })
+        return ({ "baseColorTexture": { "index": self.texture_cnt }, "metallicFactor": 0.5, "roughnessFactor": 0.5 })
 
     def addMaterial(self, material):
         """
         :param material:  material from opengl.material
+        TODO: alphaMode, alphaCutoff, doubleSided
         """
         self.material_cnt += 1
         name = material.name if  material.name is not None else "generic"
@@ -199,7 +200,10 @@ class gltfExport:
 
         if pbr is None:
             return(-1)
-        self.json["materials"].append({"name": self.nodeName(name), "pbrMetallicRoughness": pbr})
+        if material.has_imagetexture:
+            self.json["materials"].append({"name": self.nodeName(name), "alphaMode":"BLEND", "doubleSided":True, "pbrMetallicRoughness": pbr})
+        else:   
+            self.json["materials"].append({"name": self.nodeName(name), "pbrMetallicRoughness": pbr})
         return (self.material_cnt)
 
     def addMesh(self, obj, nodenumber):

@@ -44,7 +44,6 @@ class OpenGLView(QOpenGLWidget):
         self.prims = {}
         self.camera  = None
         self.skybox = None
-        self.glob.openGLWindow = self
         self.framefeedback = None
         self.timer = QTimer()
         self.timer.timeout.connect(self.nextFrame)
@@ -252,6 +251,9 @@ class OpenGLView(QOpenGLWidget):
         self.update()
 
     def paintGL(self):
+        if self.glob.openGLBlock:
+            # print ("open GL is blocked")
+            return 
         glfunc = self.context().functions()
         c = self.light.glclearcolor
         glfunc.glClearColor(c.x(), c.y(), c.z(), c.w())
