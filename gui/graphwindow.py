@@ -1,5 +1,5 @@
 from PySide6.QtCore import QSize, Qt, QObject, QEvent
-from PySide6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QSlider
+from PySide6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QSlider, QCheckBox
 from PySide6.QtGui import QVector3D, QColor, QIcon
 from core.baseobj import baseClass
 from gui.common import IconButton
@@ -87,6 +87,18 @@ class MHGraphicWindow(QWidget):
             ["Skybox","skybox.png",self.toggle_skybox ],
             ["Visualize skeleton", "ghost.png", self.toggle_objects ]
         ]
+
+        # hidden geometry
+        #
+        hidden= QCheckBox("show hidden geometry")
+        hidden.setLayoutDirection(Qt.LeftToRight)
+        hidden.toggled.connect(self.changeHidden)
+        if self.glob.baseClass is not None and self.glob.baseClass.hide_verts is False:
+            hidden.setChecked(True)
+        hidden.setToolTip('do not delete vertices under clothes')
+        vlayout.addWidget(hidden )
+
+
         button = IconButton(1, os.path.join(self.env.path_sysicon, elems[0][1]), elems[0][0], elems[0][2])
         vlayout.addWidget(button)
         hlayout = QHBoxLayout()
@@ -117,6 +129,15 @@ class MHGraphicWindow(QWidget):
 
         self.focusSlider = SimpleSlider("Focal Length: ", 15, 200, self.focusChanged)
         vlayout.addWidget(self.focusSlider )
+
+
+
+    def changeHidden(self, param):
+        if self.glob.baseClass is None:
+            return
+        self.glob.baseClass.hide_verts = not param
+        self.glob.baseClass.calculateDeletedVerts()
+        self.view.Tweak()
 
     def getFocusText(self):
         cam = self.view.getCamera()

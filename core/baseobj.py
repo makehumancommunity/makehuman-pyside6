@@ -69,6 +69,7 @@ class baseClass():
         self.bvh = None             # indicates that object is posed
         self.expression = None      # indicates that expressions are used
         self.faceunits  = None      # indicates that face-units are initalized
+        self.hide_verts = True      # hide vertices
 
     def noAssetsUsed(self):
         for elem in self.cachedInfo:
@@ -270,6 +271,12 @@ class baseClass():
         return (True)
 
     def calculateDeletedVerts(self):
+        if self.hide_verts is False:
+            for elem in self.attachedAssets:
+                elem.obj.notHidden()
+            self.baseMesh.notHidden()
+            return
+
         verts = None
         for elem in reversed(self.attachedAssets):
             if elem.deleteVerts is not None:
@@ -345,7 +352,6 @@ class baseClass():
                 self.markAssetByFileName(elem.filename, False)
                 self.proxy  = None
                 break
-
 
     def addAsset(self, path, eqtype, materialpath=None, materialsource=None):
         # print ("Attach: " + path + " of " + eqtype)

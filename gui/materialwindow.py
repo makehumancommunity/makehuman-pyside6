@@ -77,6 +77,10 @@ class MHMaterialWindow(QWidget):
                 self.parent.graph.view.Tweak()
                 self.oldmaterial = matelem.filename
 
+        self.picwidget.layout.deselectAllWidgets()
+        matelem.status = 1
+        self.picwidget.layout.refreshAllWidgets()
+
     def updateWidgets(self, materials, asset):
         self.materials = materials
         self.asset = asset

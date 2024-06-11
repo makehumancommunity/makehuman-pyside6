@@ -138,7 +138,7 @@ class PicFlowLayout(QLayout):
         self.itemList = list()
         self.wList = list()
 
-    def refreshAllWidgets(self, current=None):
+    def refreshAllWidgets(self):
         for widget in self.wList:
             widget.update()
 
@@ -253,7 +253,7 @@ class PicFlowLayout(QLayout):
             #print ("button released")
             current.asset.status = 0
         self.callback(current.asset)
-        self.refreshAllWidgets(current)
+        self.refreshAllWidgets()
 
     def redisplayWidgets(self, ruleset=None, filtfunc=None):
         self.removeAllWidgets()
@@ -346,8 +346,8 @@ class PicSelectWidget(QWidget):
         """
         self.layout.removeAllWidgets()
 
-    def refreshAllWidgets(self, current=None):
-        self.layout.refreshAllWidgets(current)
+    def refreshAllWidgets(self):
+        self.layout.refreshAllWidgets()
 
     def deselectAllWidgets(self):
         self.layout.deselectAllWidgets()
