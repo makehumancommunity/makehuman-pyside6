@@ -707,11 +707,11 @@ class ImageSelection():
         - remove widgets
         - prepare new Repo (tags), send new repo and populate widget
         """
-        self.assetrepo = self.parent.glob.baseClass.scanAssets(self.type)
+        self.assetrepo = self.parent.glob.rescanAssets(self.type)
 
         self.picwidget.layout.removeAllWidgets()
         for elem in self.parent.glob.baseClass.attachedAssets:
-            self.parent.glob.baseClass.markAssetByFileName(elem.filename, True)
+            self.parent.glob.markAssetByFileName(elem.filename, True)
         self.prepareRepo()
         self.picwidget.layout.newAssetList(self.asset_category)
         self.picwidget.populate(None, None)
@@ -729,7 +729,7 @@ class ImageSelection():
     def getSelectedFromRepo(self):
         selected = self.picwidget.getSelected()
         if selected is not None:
-            elem = self.parent.glob.baseClass.getAssetByFilename(selected.filename)
+            elem = self.parent.glob.getAssetByFilename(selected.filename)
             if elem is not None:
                 return(elem, selected)
         return(None, None)

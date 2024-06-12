@@ -82,7 +82,7 @@ class object3d:
     def getMaterialPath(self, filename):
         if filename is not None and self.material is not None:
             return(self.material.isExistent(filename))
-        return (None)
+        return None
 
     def loadMaterial(self, pathname):
         """
@@ -99,6 +99,11 @@ class object3d:
              self.material.freeTextures()
         self.initMaterial(self.filename)
         return(self.material.loadMatFile(pathname))
+
+    def getMaterialFilename(self):
+        if self.material is not None:
+            return(self.material.getCurrentMatFilename())
+        return None
 
     def exportBinary(self):
         filename = self.filename[:-4] + ".mhbin" if self.filename.endswith(".obj") else self.filename + ".mhbin"

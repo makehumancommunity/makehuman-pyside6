@@ -107,12 +107,15 @@ class MHAssetWindow(QWidget):
         self.asset = asset
         self.view = self.parent.graph.view
         self.emptyIcon = empty
+        self.matPath = None
         print(selected)
         self.icon = None
         self.thumb = selected.icon
         self.origtags = ""
         self.origlist = []
         self.owntags = []
+
+        self.currentMatPath(selected.filename)
 
         layout = QVBoxLayout()
         self.nameLabel = QLabel()
@@ -154,6 +157,25 @@ class MHAssetWindow(QWidget):
         self.setLayout(layout)
 
     def displayPixmap(self):
+        #
+        # different materials are used like this
+        # if we have a material, generate name of thumbnail
+        # if the thumbnail is the same as the standard material we have "no material"
+        # then test if file is existent, use empty icon or own icon
+        #
+        if self.matPath is not None:
+            if self.matPath.endswith(".mhmat"):
+                matthumb = self.matPath[:-6] + ".thumb"
+                print ("Matfile would be: " + matthumb)
+                if matthumb == self.thumb:
+                    print ("but is the standard thumb")
+                    self.matPath = None
+                else:
+                    if os.path.isfile(matthumb):
+                        self.thumb = matthumb
+                    else:
+                        self.thumb = None
+
         if self.icon is None:
             if self.thumb is None:
                 pixmap = QPixmap(self.emptyIcon)
@@ -183,6 +205,13 @@ class MHAssetWindow(QWidget):
         for row in rows:
             self.owntags =row[0].split("|")
 
+    def currentMatPath(self, filename):
+        attached = self.glob.baseClass.getAttachedByFilename(filename)
+        if attached is not None:
+            self.matPath = attached.obj.getMaterialFilename()
+        else:
+            self.matPath = None
+
     def updateWidgets(self, asset, selected, empty, proposals=[]):
         self.asset = asset
         self.emptyIcon = empty
@@ -200,6 +229,8 @@ class MHAssetWindow(QWidget):
         self.tagbox.setPlainText(self.origtags)
         self.displayPixmap()
 
+        self.currentMatPath(selected.filename)
+
     def use_call(self):
         if self.asset is not None:
             newtags = self.tagedit.getTags()
@@ -214,13 +245,25 @@ class MHAssetWindow(QWidget):
             print (self.asset.tags)
             iconpath = None
             if self.icon is not None:
-                iconpath, extension = os.path.splitext(self.asset.path)
+                #
+                # decide if material path
+
+                if self.matPath is not None:
+                    path = self.matPath
+                else:
+                    path = self.asset.path
+                    
+                iconpath, extension = os.path.splitext(path)
                 iconpath += ".thumb"
                 print ("Save icon as " + iconpath)
                 self.icon.save(iconpath, "PNG", -1)
-                self.env.fileCache.updateParamInfo(self.asset.uuid, iconpath)
-                # TODO ... update
-            self.changefunc(self.asset, iconpath)
+
+                # only update database when object icon was changed (not material)
+                #
+                if self.matPath is None:
+                    self.env.fileCache.updateParamInfo(self.asset.uuid, iconpath)
+            if self.matPath is None:
+                self.changefunc(self.asset, iconpath)
 
         self.close()
 

@@ -29,6 +29,7 @@ class globalObjects():
     def reset(self):
         self.project_changed = False        # will contain if sth. has changed
         self.freeTextures()
+        self.cachedInfo = []                # cached data 
         self.Targets = None                 # is a pointer to target objects
         self.targetCategories = None        # will contain the category object
         self.targetMacros     = None        # will contain macrodefinitions (JSON structure, if available)
@@ -38,6 +39,39 @@ class globalObjects():
         self.parallel = None                # for parallel processing. Should avoid more than one process at the time
         self.lastdownload = None            # will contain the filename of last downloaded file
         self.textSlot = [None, None, None, None, None] # text slots for graphical window
+
+    def getCacheData(self):
+        """
+        gets data from cache, user-settings in match will overwrite standard tags
+        """
+        self.cachedInfo = []
+        rows, match = self.env.fileCache.listCacheMatch()
+        for row in rows:
+            tags = (match[row[1]] if row[1] in match else row[7]).split("|")
+            self.cachedInfo.append(cacheRepoEntry(row[0], row[1], row[2], row[3], row[4], row[5], row[6], tags))
+
+    def noAssetsUsed(self):
+        for elem in self.cachedInfo:
+            elem.used = False
+
+    def getAssetByFilename(self, path):
+        for elem in self.cachedInfo:
+            if elem.path == path:
+                return (elem)
+        return(None)
+
+    def rescanAssets(self, asset_type=None):
+        if asset_type != "models":
+            self.env.fileScanFoldersAttachObjects(asset_type)
+        if asset_type is None or  asset_type  == "models":
+            self.env.fileScanFolderMHM()
+        self.getCacheData()
+
+    def markAssetByFileName(self, path, value):
+        for elem in self.cachedInfo:
+            if elem.path == path:
+                elem.used = value
+                return
 
     def gen_uuid(self):
         return(str(uuid4()))

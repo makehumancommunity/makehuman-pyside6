@@ -227,16 +227,16 @@ class MHMainWindow(QMainWindow):
 
     def createImageSelection(self):
         for elem in self.equipment:
-            elem["func"] = ImageSelection(self, self.glob.baseClass.cachedInfo, elem["name"], elem["mode"], self.equipCallback)
+            elem["func"] = ImageSelection(self, self.glob.cachedInfo, elem["name"], elem["mode"], self.equipCallback)
             elem["func"].prepare()
             elem["menu"] = self.equip.addAction(elem["name"])
             elem["menu"].triggered.connect(self.equip_call)
 
-        self.charselect = ImageSelection(self, self.glob.baseClass.cachedInfo, "models", 0, self.loadByIconCallback, 3)
+        self.charselect = ImageSelection(self, self.glob.cachedInfo, "models", 0, self.loadByIconCallback, 3)
         self.charselect.prepare()
 
         for elem in self.animation:
-            elem["func"] = ImageSelection(self, self.glob.baseClass.cachedInfo, elem["name"], elem["mode"], self.animCallback)
+            elem["func"] = ImageSelection(self, self.glob.cachedInfo, elem["name"], elem["mode"], self.animCallback)
             elem["func"].prepare()
             elem["menu"] = self.animenu.addAction(elem["name"])
             elem["menu"].triggered.connect(self.anim_call)
@@ -853,7 +853,7 @@ class MHMainWindow(QMainWindow):
 
         elems_compressed = 0
         elems_untouched = 0
-        for elem in bc.cachedInfo:
+        for elem in self.glob.cachedInfo:
 
             if elem.folder in ["clothes", "eyebrows", "eyelashes", "eyes", "hair", "proxy", "teeth", "tongue"]:
                 syspath = elem.path.startswith(self.env.path_sysdata)
@@ -914,7 +914,7 @@ class MHMainWindow(QMainWindow):
         if filename is not None:
             if self.env.fileCache.importUserInfo(filename):
                 QMessageBox.information(self.central_widget, "Done!", "User database restored, please restart program.")
-                #self.glob.baseClass.scanAssets()
+                #self.glob.rescanAssets()
                 # TODO: better way?
             else:
                 ErrorBox(self.central_widget, self.env.last_error)

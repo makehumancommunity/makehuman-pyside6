@@ -45,7 +45,6 @@ class baseClass():
         self.dirname = dirname      # contains dirname of the obj (to determine user or system space)
         self.baseMesh = None
         self.baseInfo = None
-        self.cachedInfo = []
         self.attachedAssets = []
         self.env.logLine(2, "New baseClass: " + name)
         self.env.basename = name
@@ -70,22 +69,6 @@ class baseClass():
         self.expression = None      # indicates that expressions are used
         self.faceunits  = None      # indicates that face-units are initalized
         self.hide_verts = True      # hide vertices
-
-    def noAssetsUsed(self):
-        for elem in self.cachedInfo:
-            elem.used = False
-
-    def getAssetByFilename(self, path):
-        for elem in self.cachedInfo:
-            if elem.path == path:
-                return (elem)
-        return(None)
-
-    def markAssetByFileName(self, path, value):
-        for elem in self.cachedInfo:
-            if elem.path == path:
-                elem.used = value
-                return
 
     def loadMHMFile(self, filename, verbose=None):
         """
@@ -136,9 +119,9 @@ class baseClass():
         # get filename via mapping and connect relative material path to attached assets
         # set used assets in mapping
         #
-        self.noAssetsUsed()
+        self.glob.noAssetsUsed()
         for elem in loaded.attached:
-            for mapping in self.cachedInfo:
+            for mapping in self.glob.cachedInfo:
                 if elem.name == mapping.name and elem.uuid == mapping.uuid:
                     elem.path = mapping.path
                     mapping.used = True
@@ -206,7 +189,7 @@ class baseClass():
                         verbose.setLabelText("Load: " + skelpath)
                     self.skeleton = skeleton(self.glob, loaded.skeleton)
                     self.skeleton.loadJSON(skelpath)
-                    self.markAssetByFileName(skelpath, True)
+                    self.glob.markAssetByFileName(skelpath, True)
 
         # recalculate pose-skeleton
         #
@@ -215,7 +198,7 @@ class baseClass():
 
         # finally mark MHM as used
         #
-        self.markAssetByFileName(filename, True)
+        self.glob.markAssetByFileName(filename, True)
         return (True, "okay")
 
     def saveMHMFile(self, filename):
@@ -337,7 +320,7 @@ class baseClass():
 
         self.glob.openGLWindow.deleteObject(elem.obj)
         self.attachedAssets.remove(elem)
-        self.markAssetByFileName(filename, False)
+        self.glob.markAssetByFileName(filename, False)
         if elem.deleteVerts is not None:
             print ("Need to recalculate base and other meshes because vertices are visible again")
             self.calculateDeletedVerts()
@@ -349,7 +332,7 @@ class baseClass():
             if elem.type == "proxy":
                 self.glob.openGLWindow.deleteObject(elem.obj)
                 self.attachedAssets.remove(elem)
-                self.markAssetByFileName(elem.filename, False)
+                self.glob.markAssetByFileName(elem.filename, False)
                 self.proxy  = None
                 break
 
@@ -360,7 +343,7 @@ class baseClass():
         if attach is None:
             return (None)
 
-        self.markAssetByFileName(path, True)
+        self.glob.markAssetByFileName(path, True)
         if eqtype == "proxy":
             attach.material = self.skinMaterial
             attach.materialsource = materialsource
@@ -407,14 +390,6 @@ class baseClass():
             self.glob.openGLWindow.createObject(asset.obj)
             self.glob.openGLWindow.Tweak()
 
-    def scanAssets(self, asset_type=None):
-        if asset_type != "models":
-            self.env.fileScanFoldersAttachObjects(asset_type)
-        if asset_type is None or  asset_type  == "models":
-            self.env.fileScanFolderMHM()
-        self.cachedInfo = self.env.getCacheData()
-        return(self.cachedInfo)
-
     def addSkeleton(self, name, path):
         if self.skeleton is not None:
             self.glob.openGLWindow.delSkeleton()
@@ -425,12 +400,12 @@ class baseClass():
         else:
             self.skeleton = skeleton(self.glob, name)
             self.skeleton.loadJSON(path)
-        self.markAssetByFileName(path, True)
+        self.glob.markAssetByFileName(path, True)
         self.glob.openGLWindow.addSkeleton()
 
     def delSkeleton(self, path):
         self.skeleton = None
-        self.markAssetByFileName(path, False)
+        self.glob.markAssetByFileName(path, False)
         self.glob.openGLWindow.delSkeleton()
 
     def showPose(self):
@@ -449,18 +424,18 @@ class baseClass():
             return
         if self.bvh is not None:
             self.pose_skeleton.restPose()
-            self.markAssetByFileName(self.bvh.filename, False)
+            self.glob.markAssetByFileName(self.bvh.filename, False)
         self.bvh = BVH(self.glob, name)
         loaded, msg  = self.bvh.load(path)
         if not loaded:
             self.env.logLine(1, "BVH: " + path + " " + msg)
         else:
             self.showPoseAndExpression()
-            self.markAssetByFileName(path, True)
+            self.glob.markAssetByFileName(path, True)
 
     def delPose(self, path):
         self.bvh = None
-        self.markAssetByFileName(path, False)
+        self.glob.markAssetByFileName(path, False)
         self.pose_skeleton.restPose()
         self.showPoseAndExpression()
         self.glob.openGLWindow.Tweak()
@@ -483,7 +458,7 @@ class baseClass():
            return
 
         if self.expression is not None:
-            self.markAssetByFileName(self.expression.filename, False)
+            self.glob.markAssetByFileName(self.expression.filename, False)
             self.pose_skeleton.restPose()
 
         self.expression = MHPose(self.glob, self.faceunits, name)
@@ -492,11 +467,11 @@ class baseClass():
             self.env.logLine(1, "mhpose: " + path + " " + msg)
         else:
             self.showPoseAndExpression()
-            self.markAssetByFileName(path, True)
+            self.glob.markAssetByFileName(path, True)
 
     def delExpression(self, path):
         self.expression = None
-        self.markAssetByFileName(path, False)
+        self.glob.markAssetByFileName(path, False)
         self.pose_skeleton.restPose()
         self.showPoseAndExpression()
         self.glob.openGLWindow.Tweak()
@@ -536,9 +511,7 @@ class baseClass():
             self.glob.reset()
             del self.glob.baseClass
         self.glob.baseClass = self
-        self.scanAssets()
-        #for elem in self.cachedInfo:
-        #    print (elem)
+        self.glob.rescanAssets()
 
         self.baseMesh.precalculateDimension()
         target = Targets(self.glob)
@@ -574,7 +547,7 @@ class baseClass():
         # no assets, mark skeleton appended if a skeleton exists
         #
         if self.skeleton:
-            self.markAssetByFileName(self.pose_skelpath, True)
+            self.glob.markAssetByFileName(self.pose_skelpath, True)
         memInfo()
         return (True)
 

@@ -209,8 +209,7 @@ class MHMemWindow(QWidget):
     def refreshAssetTable(self):
         data = []
         if self.glob.baseClass is not None:
-            base = self.glob.baseClass
-            for elem in base.cachedInfo:
+            for elem in self.glob.cachedInfo:
                 tags = " ".join(elem.tag) if len(elem.tag) > 0 else ""
                 used = "yes" if elem.used else "no"
                 data.append([elem.folder, elem.name, used, elem.uuid, elem.author, elem.path, tags])

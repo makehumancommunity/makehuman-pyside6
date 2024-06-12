@@ -35,6 +35,7 @@ class Material:
         self._textures = []
         self.default()
         self.name = None
+        self.filename = None
 
     def __str__(self):
         return(dumper(self))
@@ -84,6 +85,7 @@ class Material:
         """
         mhmat file loader, TODO, still a subset
         """
+        self.filename = path
         self.objdir = os.path.dirname(path)
 
         self.env.logLine(8, "Loading material " + path)
@@ -150,6 +152,9 @@ class Material:
         print(self)
 
         return (True)
+
+    def getCurrentMatFilename(self):
+        return self.filename
 
     def listAllMaterials(self, objdir = None):
         if objdir is None:
