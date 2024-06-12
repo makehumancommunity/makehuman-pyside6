@@ -321,7 +321,8 @@ class baseClass():
         self.glob.openGLWindow.deleteObject(elem.obj)
         self.attachedAssets.remove(elem)
         self.glob.markAssetByFileName(filename, False)
-        if elem.deleteVerts is not None:
+
+        if elem.deleteVerts is not None or elem.type == "proxy":
             print ("Need to recalculate base and other meshes because vertices are visible again")
             self.calculateDeletedVerts()
             if elem.type == "proxy":
