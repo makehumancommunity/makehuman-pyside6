@@ -191,7 +191,10 @@ class MHAssetWindow(QWidget):
 
     def setName(self):
         name = self.asset.name if self.asset is not None else "none"
-        self.nameLabel.setText("Name: " + name)
+        if self.matPath is not None:
+            self.nameLabel.setText("Name: " + name + "\nMaterial: " +  os.path.basename(self.matPath))
+        else:
+            self.nameLabel.setText("Name: " + name)
 
     def tagsFromDB(self):
         rows = self.env.fileCache.getEditParamInfo(self.asset.uuid)
@@ -215,6 +218,7 @@ class MHAssetWindow(QWidget):
     def updateWidgets(self, asset, selected, empty, proposals=[]):
         self.asset = asset
         self.emptyIcon = empty
+        self.currentMatPath(selected.filename)
         self.icon = None
         if asset is None:
             self.origtags = ""

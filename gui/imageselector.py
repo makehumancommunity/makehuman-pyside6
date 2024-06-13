@@ -795,7 +795,7 @@ class ImageSelection():
 
         matimg = []
         oldmaterial = found.material
-        matfiles = found.obj.material.listAllMaterials()
+        matfiles = found.obj.listAllMaterials()
         for elem in matfiles:
             (folder, name) = os.path.split(elem)
             thumb = elem[:-6] + ".thumb"

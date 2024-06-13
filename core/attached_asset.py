@@ -74,6 +74,8 @@ class attachedAsset:
         self.author = ""
         self.uuid = ""
         self.meshtype = self.env.basename  # for binary saving
+        self.scale = [None, None, None]    # to use scaling (shear etc. no longer supported)
+        self.scaleMat = None            # numpy matrix for scaling -or - none
 
                                     # numpy arrays
         self.ref_vIdxs = None       # (Vidx1,Vidx2,Vidx3) list with references to human vertex indices, indexed by reference vert
@@ -183,14 +185,11 @@ class attachedAsset:
                 setattr (self, key, int(words[1]))
 
             elif key == 'x_scale':
-                #self.tmatrix.getScaleData(words, 0)
-                pass
+                self.scale[0] = self.getScaleData(words)
             elif key == 'y_scale':
-                #self.tmatrix.getScaleData(words, 1)
-                pass
+                self.scale[1] = self.getScaleData(words)
             elif key == 'z_scale':
-                #self.tmatrix.getScaleData(words, 2)
-                pass
+                self.scale[2] = self.getScaleData(words)
 
         fp.close()
         print (self)
@@ -207,6 +206,8 @@ class attachedAsset:
         else:
             self.material_orgpath = ""
         print("Material: " + str(self.material))
+
+
         # finally create the numpy arrays here
         #
         self.weights = np.asarray([v._weights for v in refVerts], dtype=np.float32)
@@ -215,7 +216,30 @@ class attachedAsset:
         if self.type == "proxy":
             self.z_depth = 1
 
+        # TODO where to put this? 
+        #
+        self.createScaleMatrix(self.glob.baseClass.baseMesh)
         return (True, "Okay")
+
+    def createScaleMatrix(self, mesh):
+        # 
+        # try to work with None as well
+        #
+        self.scaleMat = np.identity(3, dtype=np.float32)
+        used = False
+        for n in range(3):
+            if self.scale[n] is not None:
+                used = True
+                (v1, v2, div) = self.scale[n]
+                pos1 = mesh.getPosition(v1)
+                pos2 = mesh.getPosition(v2)
+                self.scaleMat[n][n] = abs(pos1[n] - pos2[n]) / div
+        if not used:
+            self.scaleMat = None
+        print (self.scaleMat)
+
+    def getScaleData(self, words):
+        return ((int(words[1]), int(words[2]), float(words[3])))
 
     def importBinary(self, path):
         self.env.logLine(8, "Read binary asset " + path)
@@ -353,6 +377,8 @@ class attachedAsset:
         files_type = np.dtype({'names':('material', 'weight'), 'formats': (lmat, lweight)})
         content["files"] =  np.array([(self.material_orgpath, vwfile)], dtype=files_type)
 
+        # TODO; scales here (when leaved out import creates None None None)
+        #
         if nrefverts == 3:
             content["ref_vIdxs"] = self.ref_vIdxs
             content["offsets"] = self.offsets

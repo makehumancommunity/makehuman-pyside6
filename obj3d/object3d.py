@@ -79,6 +79,11 @@ class object3d:
     def initMaterial(self, filename):
         self.material = Material(self.glob, os.path.dirname(filename), self.type)
 
+    def listAllMaterials(self):
+        if self.material:
+            return self.material.listAllMaterials(os.path.dirname(self.filename))
+        return []
+
     def getMaterialPath(self, filename):
         if filename is not None and self.material is not None:
             return(self.material.isExistent(filename))
@@ -273,8 +278,8 @@ class object3d:
         """
         get position of one vertex based on gl_coord
         """
-        m = self.gl_coord[num*3]
-        return (m[0], m[1], m[2])
+        m = num*3
+        return (self.gl_coord[m], self.gl_coord[m+1], self.gl_coord[m+2])
 
     def getMeanPosition(self, arr):
         """
