@@ -74,10 +74,12 @@ class attachedAsset:
         self.author = ""
         self.uuid = ""
         self.meshtype = self.env.basename  # for binary saving
-        self.scale = [None, None, None]    # to use scaling (shear etc. no longer supported)
         self.scaleMat = None            # numpy matrix for scaling -or - none
 
-                                    # numpy arrays
+        # numpy arrays, scale (must be saved later in binary form)
+        #
+        self.scale = np.array([(0, 0, 0.), (0, 0, 0.), (0, 0, 0.)], dtype=[('v1', '<i4'), ('v2', '<i4'), ('dist', '<f4')])
+
         self.ref_vIdxs = None       # (Vidx1,Vidx2,Vidx3) list with references to human vertex indices, indexed by reference vert
         self.weights = None         # (w1,w2,w3) list, with weights per human vertex (mapped by ref_vIdxs), indexed by reference vert
         self.offsets = None         # (x,y,z) list of vertex offsets, indexed by reference vert
@@ -185,7 +187,7 @@ class attachedAsset:
                 setattr (self, key, int(words[1]))
 
             elif key == 'x_scale':
-                self.scale[0] = self.getScaleData(words)
+                self.scale[0]  = self.getScaleData(words)
             elif key == 'y_scale':
                 self.scale[1] = self.getScaleData(words)
             elif key == 'z_scale':
@@ -216,9 +218,10 @@ class attachedAsset:
         if self.type == "proxy":
             self.z_depth = 1
 
-        # TODO where to put this? 
-        #
-        self.createScaleMatrix(self.glob.baseClass.baseMesh)
+        # check valid scale matrix:
+        if self.scale[0]['dist'] < 0.01 or self.scale[1]['dist'] < 0.01  or  self.scale[2]['dist'] < 0.01:
+            self.scale = None
+
         return (True, "Okay")
 
     def createScaleMatrix(self, mesh):
@@ -226,16 +229,16 @@ class attachedAsset:
         # try to work with None as well
         #
         self.scaleMat = np.identity(3, dtype=np.float32)
-        used = False
-        for n in range(3):
-            if self.scale[n] is not None:
-                used = True
-                (v1, v2, div) = self.scale[n]
-                pos1 = mesh.getPosition(v1)
-                pos2 = mesh.getPosition(v2)
-                self.scaleMat[n][n] = abs(pos1[n] - pos2[n]) / div
-        if not used:
+        if self.scale is None:
+            print ("No scale matrix")
             self.scaleMat = None
+            return
+
+        for n in range(3):
+            (v1, v2, div) = self.scale[n]
+            pos1 = mesh.getPosition(v1)
+            pos2 = mesh.getPosition(v2)
+            self.scaleMat[n][n] = abs(pos1[n] - pos2[n]) / div
         print (self.scaleMat)
 
     def getScaleData(self, words):
@@ -270,6 +273,12 @@ class attachedAsset:
         files = list(npzfile['files'][0])
         self.material = files[0].decode("utf-8")
         vwfile        = files[1].decode("utf-8")
+
+        if "scale" in npzfile:
+            self.scale = npzfile["scale"]
+        else:
+            self.scale = None
+
         if len(vwfile) == 0:
             self.vertexboneweights_file = None
         else:
@@ -377,8 +386,11 @@ class attachedAsset:
         files_type = np.dtype({'names':('material', 'weight'), 'formats': (lmat, lweight)})
         content["files"] =  np.array([(self.material_orgpath, vwfile)], dtype=files_type)
 
-        # TODO; scales here (when leaved out import creates None None None)
+        # save scale if used correctly
         #
+        if self.scale is not None:
+            content["scale"] = self.scale
+
         if nrefverts == 3:
             content["ref_vIdxs"] = self.ref_vIdxs
             content["offsets"] = self.offsets

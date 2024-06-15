@@ -480,20 +480,30 @@ class object3d:
         updates the mesh when slider is moved, approximation
         """
 
-        i = 0
         b = base.gl_coord
         w = asset.weights
         o = asset.offsets
-        for j, vnum in enumerate(asset.ref_vIdxs):
-            v0 =  vnum[0] * 3
-            v1 =  vnum[1] * 3
-            v2 =  vnum[2] * 3
-            (w0, w1, w2) = w[j]
-            (o0, o1, o2) = o[j]
-            self.gl_coord[i] = w0*b[v0] + w1*b[v1] +  w2*b[v2] + o0
-            self.gl_coord[i+1] = w0*b[v0+1] + w1*b[v1+1] + w2*b[v2+1] + o1
-            self.gl_coord[i+2] = w0*b[v0+2] + w1*b[v1+2] + w2*b[v2+2] + o2
+
+        verts = asset.ref_vIdxs * 3 # index (v0, v1, v2)
+
+        """
+        i = 0
+        j = 0
+        for v in verts:
+            self.gl_coord[i]   = w[j,0]*b[v[0]]   + w[j,1]*b[v[1]]  +  w[j,2]*b[v[2]]   + o[j,0]
+            self.gl_coord[i+1] = w[j,0]*b[v[0]+1] + w[j,1]*b[v[1]+1] + w[j,2]*b[v[2]+1] + o[j,1]
+            self.gl_coord[i+2] = w[j,0]*b[v[0]+2] + w[j,1]*b[v[1]+2] + w[j,2]*b[v[2]+2] + o[j,2]
             i += 3
+            j += 1
+
+        """
+        vlen = len(verts)
+        self.gl_coord[:vlen*3:3]  = w[:,0]*b[verts[:,0]] + w[:,1]*b[verts[:,1]] +  w[:,2]*b[verts[:,2]] + o[:,0]
+        self.gl_coord[1:vlen*3:3] = w[:,0]*b[verts[:,0]+1] + w[:,1]*b[verts[:,1]+1] +  w[:,2]*b[verts[:,2]+1] + o[:,1]
+        self.gl_coord[2:vlen*3:3] = w[:,0]*b[verts[:,0]+2] + w[:,1]*b[verts[:,1]+2] +  w[:,2]*b[verts[:,2]+2] + o[:,2]
+
+        # scaling: np.dot(asset.scaleMat, o.transpose()).transpose()
+        # here it would be simply o0 * x, o1 *y, o2*z
 
         # do not forget the overflow vertices
         #

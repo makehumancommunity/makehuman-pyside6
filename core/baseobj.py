@@ -355,6 +355,9 @@ class baseClass():
         if attach.material is not None:
             attach.obj.loadMaterial(attach.material)
 
+        if eqtype != "proxy":           # TODO check if correct her
+            attach.createScaleMatrix(self.baseMesh)
+
         # insert according to z-depth
         cnt = 0
         for elem in self.attachedAssets:

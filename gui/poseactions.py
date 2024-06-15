@@ -82,6 +82,8 @@ class AnimPlayer(QVBoxLayout):
 
     def leave(self):
         self.view.stopTimer()
+        if self.anim is not None:
+            self.anim.currentFrame = 0
         self.mesh.resetFromCopy()
         self.view.addSkeleton(False)
         self.bc.updateAttachedAssets()
