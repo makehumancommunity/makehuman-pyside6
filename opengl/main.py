@@ -20,13 +20,30 @@ def GLVersion(initialized):
     glversion["version"] = OpenGL.__version__
 
     if initialized:
+
+        # without a context all other OpenGL parameter will not appear
+        #
         glversion["card"] = gl.glGetString(gl.GL_VERSION).decode("utf-8")
-    # print (gl.glGetString(gl.GL_VERSION)) TODO, add context etc.
-    #
-    # no shaders support will be outside this file
-    #
-    # without a context all other OpenGL parameter will not appear
-    #
+        glversion["renderer"] = gl.glGetString(gl.GL_RENDERER).decode("utf-8")
+        glversion["minversion"] = 330
+        """
+        n=  gl.glGetIntegerv(gl.GL_NUM_EXTENSIONS, "*")
+        glversion["extensions"] = {}
+        for i in range(0, n):
+            glversion["extensions"][gl.glGetStringi(gl.GL_EXTENSIONS, i).decode("utf-8")] = True
+        """
+        cnt = 0
+        n = int.from_bytes(gl.glGetIntegerv(gl.GL_NUM_SHADING_LANGUAGE_VERSIONS, "*"), "big")
+        glversion["shader_versions"] = {}
+        for i in range(0, n):
+            shader = gl.glGetStringi(gl.GL_SHADING_LANGUAGE_VERSION, i).decode("utf-8")
+            if " " in shader:
+                (num, dummy) =shader.split(" ")
+                num = int(num)
+                if num >= glversion["minversion"]:
+                    glversion["shader_versions"][shader] = True
+                    cnt += 1
+        glversion["sufficient"] = (cnt > 0)
     return(glversion)
 
 
@@ -48,6 +65,7 @@ class OpenGLView(QOpenGLWidget):
         self.timer = QTimer()
         self.timer.timeout.connect(self.nextFrame)
         self.blocked = False
+        self.glfunc = None
 
     def textureFromMaterial(self, obj):
         if hasattr(obj.material, 'diffuseTexture'):
@@ -64,7 +82,7 @@ class OpenGLView(QOpenGLWidget):
 
     def startTimer(self, framefeedback):
         self.framefeedback = framefeedback
-        self.timer.start(10)
+        self.timer.start(35)
 
     def stopTimer(self):
         if self.framefeedback is not None:
@@ -171,16 +189,23 @@ class OpenGLView(QOpenGLWidget):
         self.objects[0].setTexture(texture)
 
     def initializeGL(self):
-
+        """
+        automatically called by PySide6, terminates complete program if shader version < minversion (330)
+        """
         self.env.GL_Info = GLVersion(True)
+        #print (self.env.GL_Info)
+        if self.env.GL_Info["sufficient"] is False:
+            self.env.logLine(1, "Shader version is not sufficient, minimum version is " + str(self.env.GL_Info["minversion"]) )
+            exit(20)
+
         baseClass = self.glob.baseClass
         o_size = baseClass.baseMesh.getHeightInUnits() if baseClass is not None else 20
-        glfunc = self.context().functions()
+        self.glfunc = self.context().functions()
 
-        glfunc.glEnable(gl.GL_DEPTH_TEST)
-        glfunc.glEnable(gl.GL_BLEND)
+        self.glfunc.glEnable(gl.GL_DEPTH_TEST)
+        self.glfunc.glEnable(gl.GL_BLEND)
         #glfunc.glDisable(gl.GL_CULL_FACE)
-        glfunc.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+        self.glfunc.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
         #
         # load shaders and get  positions of variables 
@@ -205,7 +230,7 @@ class OpenGLView(QOpenGLWidget):
         if baseClass is not None:
             self.newMesh()
 
-        self.skybox = OpenGLSkyBox(self.env, self.mh_shaders._shaders[2], glfunc)
+        self.skybox = OpenGLSkyBox(self.env, self.mh_shaders._shaders[2], self.glfunc)
         self.skybox.create()
         self.createPrims()
 
@@ -254,10 +279,9 @@ class OpenGLView(QOpenGLWidget):
         if self.glob.openGLBlock:
             # print ("open GL is blocked")
             return 
-        glfunc = self.context().functions()
         c = self.light.glclearcolor
-        glfunc.glClearColor(c.x(), c.y(), c.z(), c.w())
-        glfunc.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+        self.glfunc.glClearColor(c.x(), c.y(), c.z(), c.w())
+        self.glfunc.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
         proj_view_matrix = self.camera.getProjViewMatrix()
         baseClass = self.glob.baseClass
         if baseClass is not None and self.objects_invisible is False:
@@ -323,8 +347,7 @@ class OpenGLView(QOpenGLWidget):
             self.update()
 
     def resizeGL(self, w, h):
-        glfunc = self.context().functions()
-        glfunc.glViewport(0, 0, w, h)
+        self.glfunc.glViewport(0, 0, w, h)
         self.camera.resizeViewPort(w, h)
         self.camera.calculateProjMatrix()
 

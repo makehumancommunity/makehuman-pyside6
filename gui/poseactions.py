@@ -79,11 +79,11 @@ class AnimPlayer(QVBoxLayout):
         self.view.addSkeleton(True)
         self.bc.pose_skeleton.newGeometry()
         self.mesh.createWCopy()
+        self.firstframe()
 
     def leave(self):
         self.view.stopTimer()
-        if self.anim is not None:
-            self.anim.currentFrame = 0
+        self.firstframe()
         self.mesh.resetFromCopy()
         self.view.addSkeleton(False)
         self.bc.updateAttachedAssets()

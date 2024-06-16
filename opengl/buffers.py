@@ -197,3 +197,45 @@ class RenderedLines:
         functions.glDrawElements(gl.GL_LINES, len(indices), gl.GL_UNSIGNED_INT, indices)
 
 
+class PixelBuffer:
+    def __init__(self, context):
+        self.context = context
+        self.fsequence = [0]
+        self.dsequence = [0]
+        self.rsequence = [0]
+
+    # https://stackoverflow.com/questions/60800538/python-opengl-how-to-render-off-screen-correctly
+    def getBuffer(self, width, height):
+        functions = self.context.functions()
+        # numpy?
+
+        # frame
+        functions.glGenFramebuffers(1,self.fsequence)
+        functions.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fsequence[0])
+
+        # render + depth
+        functions.glGenRenderbuffers(1,self.rsequence)
+        functions.glGenRenderbuffers(1,self.dsequence)
+
+        functions.glBindRenderbuffer(gl.GL_RENDERBUFFER, self.rsequence[0])
+
+        functions.glRenderbufferStorage(gl.GL_RENDERBUFFER, gl.GL_RGBA, width, height)
+        functions.glFramebufferRenderbuffer(gl.GL_FRAMEBUFFER, gl.GL_DEPTH_ATTACHMENT, gl.GL_RENDERBUFFER, self.rsequence[0])
+
+        functions.glBindRenderbuffer(gl.GL_RENDERBUFFER, self.dsequence[0])
+        functions.glRenderbufferStorage(gl.GL_RENDERBUFFER, gl.GL_DEPTH_COMPONENT16, width, height)
+
+        functions.glFramebufferRenderbuffer(gl.GL_FRAMEBUFFER, gl.GL_DEPTH_ATTACHMENT, gl.GL_RENDERBUFFER, self.dsequence[0])
+
+    def releaseBuffer(self):
+        functions = self.context.functions()
+        if self.fsequence != 0:
+            functions.glDeleteFramebuffers(1, self.fsequence)
+        if self.dsequence != 0:
+            functions.glDeleteRenderbuffers(1, self.rsequence)
+        if self.dsequence != 0:
+            functions.glDeleteRenderbuffers(1, self.dsequence)
+
+        functions.glBindRenderbuffer(gl.GL_RENDERBUFFER, 0)
+        functions.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
+

@@ -1,9 +1,9 @@
 import os
 from PySide6.QtWidgets import (
         QLabel, QDialogButtonBox, QVBoxLayout, QDialog, QProgressDialog, QWidget, QApplication, QMessageBox, QFrame,
-        QHBoxLayout, QLineEdit, QPushButton, QComboBox, QProgressBar
+        QHBoxLayout, QLineEdit, QPushButton, QComboBox, QProgressBar, QScrollArea
         )
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QPixmap, QFontMetrics
 from PySide6.QtCore import Qt, QThread, Signal, QSize
 
 def ErrorBox(qw, text):
@@ -219,4 +219,40 @@ class MHBusyWindow(QWidget):
     def setValue(self, l):
         self.progress.setValue(l)
 
+class TextBox(QDialog):
+     def __init__(self, parent, title, image, text):
+        super(TextBox, self).__init__(parent)
+        self.setWindowTitle(title)
+
+        imglabel = QLabel()
+        imglabel.setPixmap(QPixmap(image))
+
+
+        textframe = QLabel(self)
+        fm = QFontMetrics(textframe.font())
+        minwidth = fm.horizontalAdvance("#") * 80
+
+        textframe.setText(text)
+        textframe.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        textframe.setOpenExternalLinks(True)
+        textframe.setTextFormat(Qt.RichText)
+
+        scroll = QScrollArea(self)
+        scroll.setWidget(textframe)
+        scroll.setWidgetResizable(True)
+
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
+        buttonBox.accepted.connect(self.close)
+        buttonBox.button(QDialogButtonBox.Ok).setDefault(True)
+
+        layout = QVBoxLayout()
+        layout.addWidget(imglabel)
+        layout.addWidget(scroll)
+        layout.addWidget(buttonBox)
+
+        self.setLayout(layout)
+        self.setWindowModality(Qt.WindowModal)
+        self.setAttribute(Qt.WA_DeleteOnClose, True)
+        self.setMinimumWidth(minwidth)
+        self.show()
 

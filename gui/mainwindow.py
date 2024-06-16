@@ -14,7 +14,8 @@ from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport, ExportLeftP
 from gui.poseactions import AnimPlayer, AnimMode, AnimExpressionEdit
 from gui.slider import ScaleComboArray
 from gui.imageselector import ImageSelection
-from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, MHGroupBox, IconButton
+from gui.renderer import Renderer
+from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, MHGroupBox, IconButton, TextBox
 from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
 from core.attached_asset import attachedAsset
@@ -197,6 +198,8 @@ class MHMainWindow(QMainWindow):
         self.animenu = tools_menu.addMenu("Animation")
 
         help_menu = menu_bar.addMenu("&Help")
+        entry = help_menu.addAction("License")
+        entry.triggered.connect(self.lic_call)
         if "support_urls" in self.env.release_info:
             for elem in self.env.release_info["support_urls"]:
                 urlname = self.env.release_info["support_urls"][elem]
@@ -417,15 +420,15 @@ class MHMainWindow(QMainWindow):
                 layout = self.charselect.leftPanel()
                 self.LeftBox.addLayout(layout)
             elif self.category_mode == 2:
-                self.leftColumn.setTitle("Save file :: additional parameters")
+                self.leftColumn.setTitle("Save file :: parameters")
                 self.saveForm = SaveMHMForm(self, self.graph.view, self.charselect, self.setWindowTitle)
                 self.LeftBox.addLayout(self.saveForm)
             elif self.category_mode == 3:
-                self.leftColumn.setTitle("Export file :: additional parameters")
+                self.leftColumn.setTitle("Export file :: parameters")
                 self.exportForm = ExportLeftPanel(self)
                 self.LeftBox.addLayout(self.exportForm)
             elif self.category_mode == 4:
-                self.leftColumn.setTitle("Import file :: additional parameters")
+                self.leftColumn.setTitle("Import file :: parameters")
                 dlform = DownLoadImport(self, self.graph.view, self.setWindowTitle)
                 self.LeftBox.addLayout(dlform)
             self.LeftBox.addStretch()
@@ -478,6 +481,10 @@ class MHMainWindow(QMainWindow):
                 layout = self.lastClass.addClassWidgets()
                 self.LeftBox.addLayout(layout)
 
+        elif self.tool_mode == 4:
+            self.leftColumn.setTitle("Rendering :: parameters")
+            layout = Renderer(self.glob, self.graph.view)
+            self.LeftBox.addLayout(layout)
         else:
             self.leftColumn.setTitle("Not yet implemented")
 
@@ -927,6 +934,14 @@ class MHMainWindow(QMainWindow):
         urlname = self.env.release_info["support_urls"][s]
         if urlname in self.env.release_info:
             QDesktopServices.openUrl(QUrl(self.env.release_info[urlname], QUrl.TolerantMode))
+
+    def lic_call(self):
+        """
+        open a text box with license
+        """
+        text = self.env.convertToRichFile(os.path.join(self.env.path_sysdata, "licenses", "makehuman_license.txt"))
+        image = os.path.join(self.env.path_sysicon, "makehuman.png")
+        TextBox(self, "MakeHuman License", image, text)
 
     def quit_call(self, event=None):
         """

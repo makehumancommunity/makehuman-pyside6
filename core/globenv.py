@@ -912,6 +912,23 @@ class programInfo():
         else:
             self.logLine(2, "No need to save session")
 
+    def convertToRichFile(self, filename):
+        lines = []
+        with open(filename, 'r', encoding='utf-8', errors='ignore') as infile:
+            for line in infile:
+                line = line.strip()
+                if line.startswith("=="):
+                    search=line[2:]
+                    if search in self.release_info:
+                        if search.startswith("url_"):
+                            line = '<a href="' + self.release_info[search] + '" style="color: #ffa02f;">' + search[4:].upper() + '</a>'
+                        else:
+                            line = self.release_info[search]
+
+                lines.append(line.strip())
+        text = "<br>".join(lines)
+        return (text)
+
     def cleanup(self):
         """
         all code for cleanup
