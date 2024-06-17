@@ -45,5 +45,5 @@ class Renderer(QVBoxLayout):
         height = int(self.height.text())
         pix = PixelBuffer(self.view.context())
         pix.getBuffer(width, height)
-
+        pix.saveBuffer()
         pix.releaseBuffer()

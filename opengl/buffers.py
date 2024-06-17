@@ -1,6 +1,7 @@
-
+import time
 import numpy as np
-from PySide6.QtGui import QVector3D, QMatrix4x4
+import ctypes
+from PySide6.QtGui import QVector3D, QMatrix4x4, QImage
 
 from PySide6.QtOpenGL import (QOpenGLBuffer, QOpenGLShader,
                               QOpenGLShaderProgram, QOpenGLTexture)
@@ -201,38 +202,69 @@ class PixelBuffer:
     def __init__(self, context):
         self.context = context
         self.fsequence = [0]
+        self.csequence = [0]
         self.dsequence = [0]
-        self.rsequence = [0]
+        self.width = 0
+        self.height = 0
 
     # https://stackoverflow.com/questions/60800538/python-opengl-how-to-render-off-screen-correctly
+    # https://learnopengl.com/Advanced-OpenGL/Framebuffers
     def getBuffer(self, width, height):
+        self.width = width
+        self.height = height
         functions = self.context.functions()
+
         # numpy?
 
         # frame
-        functions.glGenFramebuffers(1,self.fsequence)
+        print(functions.glGenFramebuffers(1,self.fsequence))
+        print ("Framebuffer = " + str(self.fsequence[0]))
         functions.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fsequence[0])
 
-        # render + depth
-        functions.glGenRenderbuffers(1,self.rsequence)
-        functions.glGenRenderbuffers(1,self.dsequence)
-
-        functions.glBindRenderbuffer(gl.GL_RENDERBUFFER, self.rsequence[0])
-
+        # color
+        functions.glGenRenderbuffers(1,self.csequence)
+        functions.glBindRenderbuffer(gl.GL_RENDERBUFFER, self.csequence[0])
         functions.glRenderbufferStorage(gl.GL_RENDERBUFFER, gl.GL_RGBA, width, height)
-        functions.glFramebufferRenderbuffer(gl.GL_FRAMEBUFFER, gl.GL_DEPTH_ATTACHMENT, gl.GL_RENDERBUFFER, self.rsequence[0])
+        functions.glFramebufferRenderbuffer(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_RENDERBUFFER, self.csequence[0])
+        print ("Framebuffer = " + str(self.csequence))
 
+        # depth
+        functions.glGenRenderbuffers(1,self.dsequence)
         functions.glBindRenderbuffer(gl.GL_RENDERBUFFER, self.dsequence[0])
-        functions.glRenderbufferStorage(gl.GL_RENDERBUFFER, gl.GL_DEPTH_COMPONENT16, width, height)
-
+        functions.glRenderbufferStorage(gl.GL_RENDERBUFFER, gl.GL_DEPTH_COMPONENT, width, height)
         functions.glFramebufferRenderbuffer(gl.GL_FRAMEBUFFER, gl.GL_DEPTH_ATTACHMENT, gl.GL_RENDERBUFFER, self.dsequence[0])
+
+        status = functions.glCheckFramebufferStatus (gl.GL_FRAMEBUFFER)
+        if status != gl.GL_FRAMEBUFFER_COMPLETE:
+            print ("Status is " + str(status))
+        functions.glViewport(0, 0, width, height)
+        functions.glClearColor(0.2, 0.3, 0.4, 1.0)
+        functions.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+
+    def saveBuffer(self):
+        space = np.zeros(self.width * self.height * 3, dtype=np.uint8)
+        functions = self.context.functions()
+        functions.glPixelStorei(gl.GL_PACK_ALIGNMENT, 1)
+        functions.glReadPixels (0, 0, self.width, self.height, gl.GL_RGB,  gl.GL_UNSIGNED_BYTE, space.data )
+        image = QImage(self.width, self.height, QImage.Format_RGB888)
+        # this is crap 
+        i = 0
+        for y in range(0, self.height):
+            for x in range(0, self.width):
+                col = (space[i] << 16) + (space[i+1] << 8) + space[i+2]
+                image.setPixel(x,y, col)
+                i+=3
+        #image.fromData(space.data.tobytes())
+        image.save("/tmp/test.png", "PNG", -1)
+        print (space)
+
 
     def releaseBuffer(self):
         functions = self.context.functions()
-        if self.fsequence != 0:
-            functions.glDeleteFramebuffers(1, self.fsequence)
-        if self.dsequence != 0:
-            functions.glDeleteRenderbuffers(1, self.rsequence)
+        if self.fsequence[0] != 0:
+            functions.glDeleteFramebuffers(1, self.fsequence[0])
+        if self.csequence[0] != 0:
+            functions.glDeleteRenderbuffers(1, self.csequence[0])
         if self.dsequence != 0:
             functions.glDeleteRenderbuffers(1, self.dsequence)
 
