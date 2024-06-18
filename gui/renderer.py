@@ -10,6 +10,7 @@ class Renderer(QVBoxLayout):
         super().__init__()
         self.glob = glob
         self.view = view
+        self.path = "/tmp/test.png"
 
         glayout = QGridLayout()
         glayout.addWidget(QLabel("Width"), 0, 0)
@@ -22,10 +23,19 @@ class Renderer(QVBoxLayout):
         self.height.editingFinished.connect(self.acceptIntegers)
         glayout.addWidget(self.height, 1, 1)
 
+        glayout.addWidget(QLabel("\nFilename:"))
+        self.filename = QLineEdit(self.path)
+        self.filename.editingFinished.connect(self.newfilename)
+        glayout.addWidget(self.filename)
+
         button = QPushButton("Render")
         button.clicked.connect(self.render)
         self.addLayout(glayout)
         self.addWidget(button)
+
+    def newfilename(self):
+        # TODO filename method
+        self.path = self.filename.text()
 
     def acceptIntegers(self):
         m = self.sender()
@@ -43,7 +53,10 @@ class Renderer(QVBoxLayout):
     def render(self):
         width  = int(self.width.text())
         height = int(self.height.text())
-        pix = PixelBuffer(self.view.context())
+        pix = PixelBuffer(self.glob, self.view)
+        #self.glob.openGLBlock = True
         pix.getBuffer(width, height)
-        pix.saveBuffer()
+        print (self.path)
+        pix.saveBuffer(self.path)
         pix.releaseBuffer()
+        #self.glob.openGLBlock = False

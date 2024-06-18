@@ -1,6 +1,5 @@
 import time
 import numpy as np
-import ctypes
 from PySide6.QtGui import QVector3D, QMatrix4x4, QImage
 
 from PySide6.QtOpenGL import (QOpenGLBuffer, QOpenGLShader,
@@ -10,6 +9,7 @@ from PySide6.QtOpenGL import (QOpenGLBuffer, QOpenGLShader,
 # 
 
 from OpenGL import GL as gl
+
 class OpenGlBuffers():
     def __init__(self):
         self.vert_pos_buffer = None
@@ -199,75 +199,93 @@ class RenderedLines:
 
 
 class PixelBuffer:
-    def __init__(self, context):
-        self.context = context
-        self.fsequence = [0]
-        self.csequence = [0]
-        self.dsequence = [0]
+    """
+    looks like the pixelbuffer functionality can only be reached by using classical gl-Functions
+    still not okay. 
+    """
+    def __init__(self, glob, view):
+        self.glob = glob
+        self.view = view
+        self.framebuffer = None
+        self.colorbuffer = None
+        self.depthbuffer = None
         self.width = 0
         self.height = 0
+        self.oldheight = 0
+        self.oldwidth = 0
 
     # https://stackoverflow.com/questions/60800538/python-opengl-how-to-render-off-screen-correctly
     # https://learnopengl.com/Advanced-OpenGL/Framebuffers
     def getBuffer(self, width, height):
         self.width = width
         self.height = height
-        functions = self.context.functions()
-
-        # numpy?
+        self.oldheight = self.view.window_height
+        self.oldwidth = self.view.window_width
+        functions = self.view.context().functions()
 
         # frame
-        print(functions.glGenFramebuffers(1,self.fsequence))
-        print ("Framebuffer = " + str(self.fsequence[0]))
-        functions.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fsequence[0])
+        self.framebuffer = gl.glGenFramebuffers(1)
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer)
 
         # color
-        functions.glGenRenderbuffers(1,self.csequence)
-        functions.glBindRenderbuffer(gl.GL_RENDERBUFFER, self.csequence[0])
+        self.colorbuffer = gl.glGenRenderbuffers(1)
+        gl.glBindRenderbuffer(gl.GL_RENDERBUFFER, self.colorbuffer)
         functions.glRenderbufferStorage(gl.GL_RENDERBUFFER, gl.GL_RGBA, width, height)
-        functions.glFramebufferRenderbuffer(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_RENDERBUFFER, self.csequence[0])
-        print ("Framebuffer = " + str(self.csequence))
+        functions.glFramebufferRenderbuffer(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_RENDERBUFFER, self.colorbuffer)
 
         # depth
-        functions.glGenRenderbuffers(1,self.dsequence)
-        functions.glBindRenderbuffer(gl.GL_RENDERBUFFER, self.dsequence[0])
+        self.depthbuffer = gl.glGenRenderbuffers(1)
+        gl.glBindRenderbuffer(gl.GL_RENDERBUFFER, self.depthbuffer)
         functions.glRenderbufferStorage(gl.GL_RENDERBUFFER, gl.GL_DEPTH_COMPONENT, width, height)
-        functions.glFramebufferRenderbuffer(gl.GL_FRAMEBUFFER, gl.GL_DEPTH_ATTACHMENT, gl.GL_RENDERBUFFER, self.dsequence[0])
+        functions.glFramebufferRenderbuffer(gl.GL_FRAMEBUFFER, gl.GL_DEPTH_ATTACHMENT, gl.GL_RENDERBUFFER, self.depthbuffer)
+        print ("Frame / Color /Depth = ", self.framebuffer, self.colorbuffer, self.depthbuffer)
 
         status = functions.glCheckFramebufferStatus (gl.GL_FRAMEBUFFER)
         if status != gl.GL_FRAMEBUFFER_COMPLETE:
             print ("Status is " + str(status))
-        functions.glViewport(0, 0, width, height)
-        functions.glClearColor(0.2, 0.3, 0.4, 1.0)
-        functions.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
 
-    def saveBuffer(self):
-        space = np.zeros(self.width * self.height * 3, dtype=np.uint8)
-        functions = self.context.functions()
-        functions.glPixelStorei(gl.GL_PACK_ALIGNMENT, 1)
-        functions.glReadPixels (0, 0, self.width, self.height, gl.GL_RGB,  gl.GL_UNSIGNED_BYTE, space.data )
+        self.view.resizeGL(width, height)
+
+        gl.glPushAttrib(gl.GL_VIEWPORT_BIT)
+
+        gl.glEnable(gl.GL_DEPTH_TEST)
+        gl.glEnable(gl.GL_BLEND)
+        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+
+        c = self.view.light.glclearcolor
+        gl.glClearColor(c.x(), c.y(), c.z(), c.w())
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+
+        proj_view_matrix = self.view.camera.getProjViewMatrix()
+        baseClass = self.glob.baseClass
+        start = 1 if baseClass.proxy is True else 0
+        for obj in self.view.objects[start:]:
+            obj.draw(self.view.mh_shaders._shaders[0], proj_view_matrix)
+
+
+    def saveBuffer(self, path):
+        gl.glReadBuffer(gl.GL_COLOR_ATTACHMENT0)
+        gl.glPixelStorei(gl.GL_PACK_ALIGNMENT, 1)
+        data = gl.glReadPixels (0, 0, self.width, self.height, gl.GL_RGB,  gl.GL_UNSIGNED_BYTE)
         image = QImage(self.width, self.height, QImage.Format_RGB888)
-        # this is crap 
-        i = 0
-        for y in range(0, self.height):
-            for x in range(0, self.width):
-                col = (space[i] << 16) + (space[i+1] << 8) + space[i+2]
-                image.setPixel(x,y, col)
-                i+=3
-        #image.fromData(space.data.tobytes())
-        image.save("/tmp/test.png", "PNG", -1)
-        print (space)
-
+        image.fromData(data)
+        image.mirrored_inplace(False, True)
+        image.save(path, "PNG", -1)
 
     def releaseBuffer(self):
-        functions = self.context.functions()
-        if self.fsequence[0] != 0:
-            functions.glDeleteFramebuffers(1, self.fsequence[0])
-        if self.csequence[0] != 0:
-            functions.glDeleteRenderbuffers(1, self.csequence[0])
-        if self.dsequence != 0:
-            functions.glDeleteRenderbuffers(1, self.dsequence)
+        functions = self.view.context().functions()
+        if self.framebuffer is not None:
+            gl.glDeleteFramebuffers(1, np.array([self.framebuffer]))
+        if self.colorbuffer is not None:
+            gl.glDeleteRenderbuffers(1, np.array([self.colorbuffer]))
+        if self.depthbuffer is not None:
+            gl.glDeleteRenderbuffers(1, np.array([self.depthbuffer]))
 
-        functions.glBindRenderbuffer(gl.GL_RENDERBUFFER, 0)
-        functions.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
-
+        gl.glBindRenderbuffer(gl.GL_RENDERBUFFER, 0)
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
+        gl.glPopAttrib()
+        #
+        # still not clear ... without glDisable I get a black screen
+        #
+        functions.glDisable(gl.GL_DEPTH_TEST)
+        self.view.resizeGL(self.oldwidth, self.oldheight)

@@ -347,6 +347,8 @@ class OpenGLView(QOpenGLWidget):
             self.update()
 
     def resizeGL(self, w, h):
+        self.window_width = w
+        self.window_height = h
         self.glfunc.glViewport(0, 0, w, h)
         self.camera.resizeViewPort(w, h)
         self.camera.calculateProjMatrix()
