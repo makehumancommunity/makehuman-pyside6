@@ -203,7 +203,7 @@ class PixelBuffer:
     looks like the pixelbuffer functionality can only be reached by using classical gl-Functions
     still not okay. 
     """
-    def __init__(self, glob, view):
+    def __init__(self, glob, view, transparent=False):
         self.glob = glob
         self.view = view
         self.framebuffer = None
@@ -213,6 +213,7 @@ class PixelBuffer:
         self.height = 0
         self.oldheight = 0
         self.oldwidth = 0
+        self.transparent = transparent
 
     # https://stackoverflow.com/questions/60800538/python-opengl-how-to-render-off-screen-correctly
     # https://learnopengl.com/Advanced-OpenGL/Framebuffers
@@ -253,7 +254,8 @@ class PixelBuffer:
         gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
         c = self.view.light.glclearcolor
-        gl.glClearColor(c.x(), c.y(), c.z(), c.w())
+        transp = 0 if self.transparent else c.w()
+        gl.glClearColor(c.x(), c.y(), c.z(), transp)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
 
         proj_view_matrix = self.view.camera.getProjViewMatrix()
@@ -263,14 +265,20 @@ class PixelBuffer:
             obj.draw(self.view.mh_shaders._shaders[0], proj_view_matrix)
 
 
-    def saveBuffer(self, path):
+    def bufferToImage(self):
+
         gl.glReadBuffer(gl.GL_COLOR_ATTACHMENT0)
         gl.glPixelStorei(gl.GL_PACK_ALIGNMENT, 1)
-        data = gl.glReadPixels (0, 0, self.width, self.height, gl.GL_RGB,  gl.GL_UNSIGNED_BYTE)
-        image = QImage(self.width, self.height, QImage.Format_RGB888)
+
+        pixmode = gl.GL_RGBA if self.transparent else gl.GL_RGB
+        imgmode = QImage.Format_RGBA8888 if self.transparent else QImage.Format_RGB888
+
+        data = gl.glReadPixels (0, 0, self.width, self.height, pixmode,  gl.GL_UNSIGNED_BYTE)
+        image = QImage(self.width, self.height, imgmode)
+
         image.fromData(data)
         image.mirrored_inplace(False, True)
-        image.save(path, "PNG", -1)
+        return (image)
 
     def releaseBuffer(self):
         functions = self.view.context().functions()

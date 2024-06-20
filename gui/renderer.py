@@ -1,16 +1,23 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLineEdit, QGridLayout, QLabel
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLineEdit, QGridLayout, QLabel, QMessageBox,  QCheckBox
 
+from gui.common import IconButton, MHFileRequest
 from opengl.buffers import PixelBuffer
+
+import os
 
 class Renderer(QVBoxLayout):
     """
     should do with a few methods in background
     """
-    def __init__(self, glob, view):
+    def __init__(self, parent, glob, view):
         super().__init__()
+        self.parent = parent
         self.glob = glob
+        self.env = glob.env
         self.view = view
-        self.path = "/tmp/test.png"
+        self.image = None
+        self.transparent = False
 
         glayout = QGridLayout()
         glayout.addWidget(QLabel("Width"), 0, 0)
@@ -22,20 +29,27 @@ class Renderer(QVBoxLayout):
         self.height = QLineEdit("1000")
         self.height.editingFinished.connect(self.acceptIntegers)
         glayout.addWidget(self.height, 1, 1)
+        self.addLayout(glayout)
 
-        glayout.addWidget(QLabel("\nFilename:"))
-        self.filename = QLineEdit(self.path)
-        self.filename.editingFinished.connect(self.newfilename)
-        glayout.addWidget(self.filename)
+        self.transButton = QCheckBox("transparent canvas")
+        self.transButton.setLayoutDirection(Qt.LeftToRight)
+        self.transButton.toggled.connect(self.changeTransparency)
+        self.addWidget(self.transButton)
 
         button = QPushButton("Render")
         button.clicked.connect(self.render)
-        self.addLayout(glayout)
         self.addWidget(button)
 
-    def newfilename(self):
-        # TODO filename method
-        self.path = self.filename.text()
+        self.saveButton = IconButton(1,  os.path.join(self.env.path_sysicon, "f_save.png"), "save image", self.saveImage)
+        self.addWidget(self.saveButton)
+        self.setButtons()
+
+    def changeTransparency(self, param):
+        self.transparent = param
+
+    def setButtons(self):
+        self.saveButton.setEnabled(self.image is not None)
+        self.transButton.setChecked(self.transparent)
 
     def acceptIntegers(self):
         m = self.sender()
@@ -53,10 +67,20 @@ class Renderer(QVBoxLayout):
     def render(self):
         width  = int(self.width.text())
         height = int(self.height.text())
-        pix = PixelBuffer(self.glob, self.view)
+        pix = PixelBuffer(self.glob, self.view, self.transparent)
         #self.glob.openGLBlock = True
         pix.getBuffer(width, height)
-        print (self.path)
-        pix.saveBuffer(self.path)
+        self.image = pix.bufferToImage()
         pix.releaseBuffer()
+        self.setButtons()
         #self.glob.openGLBlock = False
+
+    def saveImage(self):
+        directory = self.env.stdUserPath()
+        freq = MHFileRequest("Image (PNG)", "image files (*.png)", directory, save=".png")
+        filename = freq.request()
+        if filename is not None:
+            self.image.save(filename, "PNG", -1)
+            QMessageBox.information(self.parent.central_widget, "Done!", "Image saved as " + filename)
+
+

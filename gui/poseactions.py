@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QGridLayout
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
-from gui.common import IconButton, WorkerThread, ErrorBox
+from gui.common import IconButton, WorkerThread, ErrorBox, MHFileRequest
 from gui.slider import ScaleComboItem, SimpleSlider
 from obj3d.animation import FaceUnits, MHPose
 import os
@@ -224,7 +224,8 @@ class AnimExpressionEdit():
 
     def loadButton(self):
         directory = self.env.stdUserPath("expressions")
-        filename = self.parent.fileRequest("Expressions", "expression files (*.mhpose)", directory)
+        freq = MHFileRequest("Expressions", "expression files (*.mhpose)", directory)
+        filename = freq.request()
         if filename is not None:
             pose = MHPose(self.glob, self.glob.baseClass.getFaceUnits(), "dummy")
             (res, text) =  pose.load(filename)
@@ -246,7 +247,8 @@ class AnimExpressionEdit():
 
     def saveButton(self):
         directory = self.env.stdUserPath("expressions")
-        filename = self.parent.fileRequest("Expressions", "expression files (*.mhpose)", directory, save=".mhpose")
+        freq = MHFileRequest("Expressions", "expression files (*.mhpose)", directory, save=".mhpose")
+        filename = freq.request()
         if filename is not None:
             print ("Save " + filename)
             name = self.editname.text()

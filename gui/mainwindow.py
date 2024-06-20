@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import ( 
         QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFrame, QGroupBox, QListWidget, QLabel,
-        QAbstractItemView, QSizePolicy, QScrollArea, QFileDialog, QDialogButtonBox, QMessageBox
+        QAbstractItemView, QSizePolicy, QScrollArea, QDialogButtonBox, QMessageBox
         )
 from PySide6.QtGui import QIcon, QCloseEvent, QAction, QDesktopServices
 from PySide6.QtCore import QSize, Qt, QUrl
@@ -15,7 +15,7 @@ from gui.poseactions import AnimPlayer, AnimMode, AnimExpressionEdit
 from gui.slider import ScaleComboArray
 from gui.imageselector import ImageSelection
 from gui.renderer import Renderer
-from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, MHGroupBox, IconButton, TextBox
+from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, MHGroupBox, IconButton, TextBox, MHFileRequest
 from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
 from core.attached_asset import attachedAsset
@@ -279,34 +279,6 @@ class MHMainWindow(QMainWindow):
                 self.glob.baseClass.addExpression(selected.name, selected.filename)
             self.graph.view.Tweak()
 
-    def fileRequest(self, ftext, pattern, directory, save=None):
-        """
-        Simplified file request
-        """
-        dialog = QFileDialog()
-        dialog.setNameFilter(pattern)
-        dialog.setDirectory(directory)
-        if save is None:
-            dialog.setWindowTitle("Load " + str(ftext) + " file")
-            dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
-            dialog.setAcceptMode(QFileDialog.AcceptOpen)
-        else:
-            dialog.setWindowTitle("Save " + str(ftext) + " file")
-            dialog.setFileMode(QFileDialog.FileMode.AnyFile)
-            dialog.setAcceptMode(QFileDialog.AcceptSave)
-        success = dialog.exec()
-        if success:
-            filename = dialog.selectedFiles()[0]
-
-            if save is not None:
-                # add suffix for save (security check for overwriting is done by request)
-                #
-                if not filename.endswith(save):
-                    filename += save
-            return(filename)
-        return (None)
-
-
     def buttonRow(self, subtool):
         if len(subtool) == 0:
             return (None)
@@ -483,7 +455,7 @@ class MHMainWindow(QMainWindow):
 
         elif self.tool_mode == 4:
             self.leftColumn.setTitle("Rendering :: parameters")
-            layout = Renderer(self.glob, self.graph.view)
+            layout = Renderer(self, self.glob, self.graph.view)
             self.LeftBox.addLayout(layout)
         else:
             self.leftColumn.setTitle("Not yet implemented")
@@ -906,7 +878,8 @@ class MHMainWindow(QMainWindow):
         if self.glob.baseClass is None:
             return
         directory = self.env.stdUserPath()
-        filename = self.fileRequest("Database export for backup", "Json-files (*.json)", directory, save=".json")
+        freq = MHFileRequest("Database export for backup", "Json-files (*.json)", directory, save=".json")
+        filename = freq.request()
         if filename is not None:
             if self.env.fileCache.exportUserInfo(filename):
                 QMessageBox.information(self.central_widget, "Done!", "User database exported as " + filename)
@@ -917,7 +890,8 @@ class MHMainWindow(QMainWindow):
         if self.glob.baseClass is None:
             return
         directory = self.env.stdUserPath()
-        filename = self.fileRequest("Database import to restore tags", "Json-files (*.json)", directory)
+        freq = MHFileRequest("Database import to restore tags", "Json-files (*.json)", directory)
+        filename = freq.request()
         if filename is not None:
             if self.env.fileCache.importUserInfo(filename):
                 QMessageBox.information(self.central_widget, "Done!", "User database restored, please restart program.")

@@ -1,7 +1,7 @@
 import os
 from PySide6.QtWidgets import (
         QLabel, QDialogButtonBox, QVBoxLayout, QDialog, QProgressDialog, QWidget, QApplication, QMessageBox, QFrame,
-        QHBoxLayout, QLineEdit, QPushButton, QComboBox, QProgressBar, QScrollArea
+        QHBoxLayout, QLineEdit, QPushButton, QComboBox, QProgressBar, QScrollArea, QFileDialog
         )
 from PySide6.QtGui import QIcon, QPixmap, QFontMetrics
 from PySide6.QtCore import Qt, QThread, Signal, QSize
@@ -219,8 +219,40 @@ class MHBusyWindow(QWidget):
     def setValue(self, l):
         self.progress.setValue(l)
 
+class MHFileRequest(QFileDialog):
+    def __init__(self, ftext, pattern, directory, save=None):
+        super(MHFileRequest, self).__init__()
+        self.save = save
+        self.setNameFilter(pattern)
+        self.setDirectory(directory)
+        if self.save is None:
+            self.setWindowTitle("Load " + str(ftext) + " file")
+            self.setFileMode(QFileDialog.FileMode.ExistingFile)
+            self.setAcceptMode(QFileDialog.AcceptOpen)
+        else:
+            self.setWindowTitle("Save " + str(ftext) + " file")
+            self.setFileMode(QFileDialog.FileMode.AnyFile)
+            self.setAcceptMode(QFileDialog.AcceptSave)
+
+    def request(self):
+        success = self.exec()
+        if success:
+            filename = self.selectedFiles()[0]
+
+            if self.save is not None:
+                # add suffix for save (security check for overwriting is done by request)
+                #
+                if not filename.endswith(self.save):
+                    filename += self.save
+            return(filename)
+        return (None)
+
+
 class TextBox(QDialog):
-     def __init__(self, parent, title, image, text):
+    """
+    for e.g. presentation of license
+    """
+    def __init__(self, parent, title, image, text):
         super(TextBox, self).__init__(parent)
         self.setWindowTitle(title)
 
