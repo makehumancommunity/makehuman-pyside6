@@ -82,8 +82,10 @@ class MHGraphicWindow(QWidget):
             ["Right", "right.png", self.right_button ],
             ["Back",  "back.png",  self.back_button ],
             ["Bottom","bottom.png",self.bottom_button ],
-            ["Axes","3dcoord.png",self.toggle_axes ],
-            ["Grid","grid.png",self.toggle_grid ],
+            ["Axes","3dcoord.png", self.toggle_axes ],
+            ["XY-Grid","xygrid.png",  self.toggle_grid ],
+            ["YZ-Grid","yzgrid.png",  self.toggle_grid ],
+            ["Floor-Grid","xzgrid.png",  self.toggle_grid ],
             ["Skybox","skybox.png",self.toggle_skybox ],
             ["Visualize skeleton", "ghost.png", self.toggle_objects ]
         ]
@@ -113,10 +115,19 @@ class MHGraphicWindow(QWidget):
         # grid, axes
         hlayout = QHBoxLayout()
         for i in range(6,10):
-            button = IconButton(1, os.path.join(self.env.path_sysicon, elems[i][1]), elems[i][0], elems[i][2])
-            button.setChecked(False if i != 8 else True) # skybox is true
+            button = IconButton(i, os.path.join(self.env.path_sysicon, elems[i][1]), elems[i][0], elems[i][2])
             button.setCheckable(True)
             hlayout.addWidget(button)
+        vlayout.addLayout(hlayout)
+
+        # ghost, skybox
+        hlayout = QHBoxLayout()
+        for i in range(10,12):
+            button = IconButton(1, os.path.join(self.env.path_sysicon, elems[i][1]), elems[i][0], elems[i][2])
+            button.setChecked(False if i != 10 else True) # skybox is true
+            button.setCheckable(True)
+            hlayout.addWidget(button)
+        hlayout.addStretch()
         vlayout.addLayout(hlayout)
 
         # perspective button is a toggle
@@ -234,10 +245,11 @@ class MHGraphicWindow(QWidget):
             self.camChanged()
 
     def toggle_grid(self):
+        pat = ["xygrid", "yzgrid", "xzgrid"]
         b = self.sender()
         v = b.isChecked()
         b.setChecked(v)
-        self.view.togglePrims("grid", v)
+        self.view.togglePrims(pat[b._funcid - 7], v)
 
     def toggle_axes(self):
         b = self.sender()

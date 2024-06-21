@@ -455,8 +455,9 @@ class MHMainWindow(QMainWindow):
 
         elif self.tool_mode == 4:
             self.leftColumn.setTitle("Rendering :: parameters")
-            layout = Renderer(self, self.glob, self.graph.view)
-            self.LeftBox.addLayout(layout)
+            self.lastClass = Renderer(self, self.glob, self.graph.view)
+            self.lastClass.enter()
+            self.LeftBox.addLayout(self.lastClass)
         else:
             self.leftColumn.setTitle("Not yet implemented")
 

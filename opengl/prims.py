@@ -56,41 +56,50 @@ class CoordinateSystem(LineElements):
         self.create(context, shaders, width)
 
 class Grid(LineElements):
-    def __init__(self, name, size, ground, context, shaders):
+    def __init__(self, name, size, ground, context, shaders, direction):
         lines = []
         cols = []
         self.border = int(size)
-        lines = self.setGrid(ground)
+        lines = self.setGrid(ground, direction)
         # add colors one time
         #
-        for i in range(-self.border, self.border+1):
-            # xy-plane
-            cols.extend ([[0.0, 0.0, 0.4], [0.0, 0.0, 0.4], [0.0, 0.0, 0.4], [0.0, 0.0, 0.4]])
-            # yz-plane
-            cols.extend ([[0.4, 0.0, 0.0], [0.4, 0.0, 0.0], [0.4, 0.0, 0.0], [0.4, 0.0, 0.0]])
-            # xz-plane
-            cols.extend ([[0.0, 0.4, 0.0], [0.0, 0.4, 0.0], [0.0, 0.4, 0.0], [0.0, 0.4, 0.0]])
+        if direction == "xy":
+            for i in range(-self.border, self.border+1):
+                # xy-plane
+                cols.extend ([[0.0, 0.0, 0.4], [0.0, 0.0, 0.4], [0.0, 0.0, 0.4], [0.0, 0.0, 0.4]])
+        elif direction == "yz":
+            for i in range(-self.border, self.border+1):
+                # yz-plane
+                cols.extend ([[0.4, 0.0, 0.0], [0.4, 0.0, 0.0], [0.4, 0.0, 0.0], [0.4, 0.0, 0.0]])
+        else:
+            for i in range(-self.border, self.border+1):
+                # xz-plane
+                cols.extend ([[0.0, 0.4, 0.0], [0.0, 0.4, 0.0], [0.0, 0.4, 0.0], [0.0, 0.4, 0.0]])
 
         super().__init__(name, lines, cols)
         self.create(context, shaders)
 
-    def setGrid(self, ground):
+    def setGrid(self, ground, direction):
         size = float(self.border)
         lines = []
-        for i in range(-self.border, self.border+1):
-            # xy-plane
-            lines.extend ([[ -size, float(i), 0.0],  [ size, float(i), 0.0], [ float(i), -size, 0.0],  [ float(i), size, 0.0]])
+        if direction == "xy":
+            for i in range(-self.border, self.border+1):
+                # xy-plane
+                lines.extend ([[ -size, float(i), 0.0],  [ size, float(i), 0.0], [ float(i), -size, 0.0],  [ float(i), size, 0.0]])
+        elif direction == "yz":
+            for i in range(-self.border, self.border+1):
+                # yz-plane
+                lines.extend ([[ 0.0, float(i), -size],  [ 0.0, float(i), size], [0.0, -size, float(i)],  [ 0.0, size, float(i)]])
 
-            # yz-plane
-            lines.extend ([[ 0.0, float(i), -size],  [ 0.0, float(i), size], [0.0, -size, float(i)],  [ 0.0, size, float(i)]])
-
-            # xz-plane
-            lines.extend ([[ float(i), ground, -size ],  [ float(i), ground, size], [-size, ground, float(i)],  [size, ground, float(i)]])
+        else:
+            for i in range(-self.border, self.border+1):
+                # xz-plane
+                lines.extend ([[ float(i), ground, -size ],  [ float(i), ground, size], [-size, ground, float(i)],  [size, ground, float(i)]])
         return (lines)
 
-    def newGeometry(self,ground):
-        self.setGrid(ground)
-        super().newGeometry(self.setGrid(ground))
+    def newGeometry(self,ground, direction):
+        self.setGrid(ground, direction)
+        super().newGeometry(self.setGrid(ground, direction))
 
 class BoneList(LineElements):
     def __init__(self, name, skeleton, col, context, shaders):

@@ -2,6 +2,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLineEdit, QGridLayout, QLabel, QMessageBox,  QCheckBox
 
 from gui.common import IconButton, MHFileRequest
+from gui.slider import SimpleSlider
+
 from opengl.buffers import PixelBuffer
 
 import os
@@ -16,6 +18,10 @@ class Renderer(QVBoxLayout):
         self.glob = glob
         self.env = glob.env
         self.view = view
+        self.bc  = glob.baseClass
+        self.mesh = self.bc.baseMesh
+        self.anim = self.bc.bvh
+
         self.image = None
         self.transparent = False
 
@@ -36,6 +42,20 @@ class Renderer(QVBoxLayout):
         self.transButton.toggled.connect(self.changeTransparency)
         self.addWidget(self.transButton)
 
+        if self.anim:
+            self.posed = True
+            self.posedButton = QCheckBox("character posed")
+            self.posedButton.setLayoutDirection(Qt.LeftToRight)
+            self.posedButton.toggled.connect(self.changePosed)
+            self.addWidget(self.posedButton)
+
+            if self.anim.frameCount > 1:
+                self.frameSlider = SimpleSlider("Frame number: ", 0, self.anim.frameCount-1, self.frameChanged, minwidth=250)
+                self.frameSlider.setSliderValue(self.anim.currentFrame)
+                self.addWidget(self.frameSlider )
+        else:
+            self.posed = False
+
         button = QPushButton("Render")
         button.clicked.connect(self.render)
         self.addWidget(button)
@@ -44,12 +64,55 @@ class Renderer(QVBoxLayout):
         self.addWidget(self.saveButton)
         self.setButtons()
 
+    def enter(self):
+        if self.anim:
+            self.view.addSkeleton(True)
+            self.bc.pose_skeleton.newGeometry()
+            self.mesh.createWCopy()
+            self.setFrame(0)
+
+    def leave(self):
+        if self.anim and self.posed:
+            self.setFrame(0)
+            self.mesh.resetFromCopy()
+            self.view.addSkeleton(False)
+            self.bc.updateAttachedAssets()
+            self.view.Tweak()
+
+    def setFrame(self, value):
+        if self.anim is None:
+            print ("No file loaded")
+            return
+
+        if value < 0:
+            return
+
+        if value >= self.anim.frameCount:
+            return
+
+        self.anim.currentFrame = value
+        if self.anim.frameCount > 1:
+            self.frameSlider.setSliderValue(value)
+        self.bc.showPose()
+
+    def frameChanged(self, value):
+        self.setFrame(int(value))
+
     def changeTransparency(self, param):
         self.transparent = param
+
+    def changePosed(self, param):
+        if self.posed:
+            self.leave()
+        else:
+            self.enter()
+        self.posed = param
 
     def setButtons(self):
         self.saveButton.setEnabled(self.image is not None)
         self.transButton.setChecked(self.transparent)
+        if self.anim:
+            self.posedButton.setChecked(self.posed)
 
     def acceptIntegers(self):
         m = self.sender()
