@@ -44,6 +44,7 @@ class AnimPlayer(QVBoxLayout):
         self.bc  = glob.baseClass
         self.mesh = self.bc.baseMesh
         self.anim = self.bc.bvh
+        self.speedValue = 24
         super().__init__()
 
         vlayout = QVBoxLayout()
@@ -71,6 +72,10 @@ class AnimPlayer(QVBoxLayout):
             self.frameSlider = SimpleSlider("Frame number: ", 0, frames-1, self.frameChanged, minwidth=250)
             self.frameSlider.setSliderValue(self.anim.currentFrame)
             vlayout.addWidget(self.frameSlider )
+
+            self.speedSlider = SimpleSlider("Frames per Second: ", 1, 70, self.speedChanged, minwidth=250)
+            self.speedSlider.setSliderValue(self.speedValue)
+            vlayout.addWidget(self.speedSlider )
 
         self.addLayout(vlayout)
 
@@ -107,6 +112,11 @@ class AnimPlayer(QVBoxLayout):
     def frameChanged(self, value):
         self.setFrame(int(value))
 
+    def speedChanged(self, value):
+        self.speedValue = value
+        if self.loopbutton.isChecked():
+            self.view.setFPS(self.speedValue)
+
     def firstframe(self):
         self.setFrame(0)
 
@@ -129,6 +139,7 @@ class AnimPlayer(QVBoxLayout):
         b = self.sender()
         v = b.isChecked()
         if v:
+            self.view.setFPS(self.speedValue)
             self.view.startTimer(self.frameFeedback)
         else:
             self.view.stopTimer()

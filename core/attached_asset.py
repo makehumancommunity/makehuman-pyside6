@@ -60,7 +60,11 @@ class referenceVerts:
 
 
 class attachedAsset:
-    def __init__(self, glob, eqtype):
+    """
+    attached asset represents a mesh added to the base mesh
+    num_base_verts is usually set when used from script
+    """
+    def __init__(self, glob, eqtype, num_base_verts=None):
         self.glob = glob
         self.env = glob.env
         self.type = eqtype          # asset type
@@ -87,7 +91,10 @@ class attachedAsset:
         self.material = None        # path material, fully qualified
         self.vertexboneweights_file = None # path to vbone file
         self.materialsource = None    # path material, relative
-        self.base_verts = self.glob.baseClass.baseMesh.n_origverts
+        if num_base_verts is None:
+            self.base_verts = self.glob.baseClass.baseMesh.n_origverts
+        else:
+            self.base_verts = num_base_verts
 
     def __str__(self):
         return(dumper(self))
@@ -194,9 +201,9 @@ class attachedAsset:
                 self.scale[2] = self.getScaleData(words)
 
         fp.close()
-        print (self)
-        #for elem in refVerts:
-        #    print (elem)
+
+        if self.env.verbose & 16:
+            print (self)
 
         if self.obj_file is None:
             return(False, "Obj-File is missing")
@@ -207,7 +214,9 @@ class attachedAsset:
             self.material = os.path.normpath(os.path.join(os.path.dirname(filename), self.material))
         else:
             self.material_orgpath = ""
-        print("Material: " + str(self.material))
+
+        if self.env.verbose & 16:
+            print("Material: " + str(self.material))
 
 
         # finally create the numpy arrays here
@@ -330,7 +339,8 @@ class attachedAsset:
 
         (res, err) = self.textLoad(filename)
         if res is True:
-            print ("Object is:" + self.obj_file)
+            if self.env.verbose & 16:
+                print ("Object is:" + self.obj_file)
             obj = object3d(self.glob, None, self.type)
             (res, err) = obj.load(self.obj_file, use_ascii)
             if res is True:
@@ -349,7 +359,6 @@ class attachedAsset:
         else:
             filename = filename + ".mhbin"
 
-        self.env.logLine(8, "Write binary asset " + filename)
         content = {}
 
         # binary structure

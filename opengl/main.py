@@ -62,6 +62,7 @@ class OpenGLView(QOpenGLWidget):
         self.camera  = None
         self.skybox = None
         self.framefeedback = None
+        self.fps = 24
         self.timer = QTimer()
         self.timer.timeout.connect(self.nextFrame)
         self.blocked = False
@@ -80,9 +81,14 @@ class OpenGLView(QOpenGLWidget):
             del self.prims["skeleton"]
             self.Tweak()
 
+    def setFPS(self, value):
+        self.fps = value
+        self.timer.stop()
+        self.timer.start(1000 / self.fps)
+
     def startTimer(self, framefeedback):
         self.framefeedback = framefeedback
-        self.timer.start(35)
+        self.timer.start(1000 / self.fps)
 
     def stopTimer(self):
         if self.framefeedback is not None:

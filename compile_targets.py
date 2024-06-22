@@ -5,7 +5,7 @@ import argparse
 from core.importfiles import UserEnvironment, TargetASCII
 
 if __name__ == '__main__':
-    # get urls + name of standard mesh
+    # get environment parameters (standardmesh)
     #
     release_info = os.path.join("data", "makehuman2_version.json")
     if os.path.isfile(release_info):

@@ -127,7 +127,6 @@ class MHGraphicWindow(QWidget):
             button.setChecked(False if i != 10 else True) # skybox is true
             button.setCheckable(True)
             hlayout.addWidget(button)
-        hlayout.addStretch()
         vlayout.addLayout(hlayout)
 
         # perspective button is a toggle

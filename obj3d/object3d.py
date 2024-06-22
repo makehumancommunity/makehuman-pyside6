@@ -477,7 +477,7 @@ class object3d:
 
     def approxByTarget(self, asset, base):
         """
-        updates the mesh when slider is moved, approximation
+        updates the mesh, barycentric approximation (assets)
         """
 
         b = base.gl_coord
@@ -498,12 +498,16 @@ class object3d:
 
         """
         vlen = len(verts)
-        self.gl_coord[:vlen*3:3]  = w[:,0]*b[verts[:,0]] + w[:,1]*b[verts[:,1]] +  w[:,2]*b[verts[:,2]] + o[:,0]
-        self.gl_coord[1:vlen*3:3] = w[:,0]*b[verts[:,0]+1] + w[:,1]*b[verts[:,1]+1] +  w[:,2]*b[verts[:,2]+1] + o[:,1]
-        self.gl_coord[2:vlen*3:3] = w[:,0]*b[verts[:,0]+2] + w[:,1]*b[verts[:,1]+2] +  w[:,2]*b[verts[:,2]+2] + o[:,2]
 
-        # scaling: np.dot(asset.scaleMat, o.transpose()).transpose()
-        # here it would be simply o0 * x, o1 *y, o2*z
+        if asset.scaleMat is not None:
+            (x, y, z)  = (asset.scaleMat[0,0], asset.scaleMat[1,1], asset.scaleMat[2,2])
+            self.gl_coord[:vlen*3:3]  = w[:,0]*b[verts[:,0]] + w[:,1]*b[verts[:,1]] +  w[:,2]*b[verts[:,2]] + o[:,0] * x
+            self.gl_coord[1:vlen*3:3] = w[:,0]*b[verts[:,0]+1] + w[:,1]*b[verts[:,1]+1] +  w[:,2]*b[verts[:,2]+1] + o[:,1] * y
+            self.gl_coord[2:vlen*3:3] = w[:,0]*b[verts[:,0]+2] + w[:,1]*b[verts[:,1]+2] +  w[:,2]*b[verts[:,2]+2] + o[:,2] * z
+        else:
+            self.gl_coord[:vlen*3:3]  = w[:,0]*b[verts[:,0]] + w[:,1]*b[verts[:,1]] +  w[:,2]*b[verts[:,2]] + o[:,0]
+            self.gl_coord[1:vlen*3:3] = w[:,0]*b[verts[:,0]+1] + w[:,1]*b[verts[:,1]+1] +  w[:,2]*b[verts[:,2]+1] + o[:,1]
+            self.gl_coord[2:vlen*3:3] = w[:,0]*b[verts[:,0]+2] + w[:,1]*b[verts[:,1]+2] +  w[:,2]*b[verts[:,2]+2] + o[:,2]
 
         # do not forget the overflow vertices
         #
