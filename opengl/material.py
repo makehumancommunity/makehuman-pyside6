@@ -43,6 +43,8 @@ class Material:
     def default(self):
         self.diffuseColor = [1.0, 1.0, 1.0 ]
         self.has_imagetexture = False
+        self.transparent = False
+        self.backfaceCull = False
 
     def isExistent(self, filename):
         """

@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (
     QWidget, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QAbstractItemView, QLineEdit, QLabel,
-    QMessageBox, QRadioButton, QDialogButtonBox
+    QMessageBox, QRadioButton, QDialogButtonBox, QCheckBox
     )
 
 from PySide6.QtCore import QSize, Qt
@@ -11,6 +11,7 @@ from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, IconButt
 import os
 from core.importfiles import AssetPack
 from core.export_gltf import gltfExport
+from core.export_stl import stlExport
 
 class BaseSelect(QVBoxLayout):
     def __init__(self, parent, callback):
@@ -230,6 +231,7 @@ class ExportLeftPanel(QVBoxLayout):
         self.parent = parent
         self.glob = parent.glob
         self.bc  = parent.glob.baseClass
+        self.binmode = True
         self.export_type = ".glb"
         super().__init__()
 
@@ -239,13 +241,29 @@ class ExportLeftPanel(QVBoxLayout):
         self.filename = QLineEdit(self.bc.name + self.export_type)
         self.filename.editingFinished.connect(self.newfilename)
         self.addWidget(self.filename)
+
+        self.binsave= QCheckBox("binary mode")
+        self.binsave.setLayoutDirection(Qt.LeftToRight)
+        self.binsave.toggled.connect(self.changeBinary)
+        self.binsave.setChecked(True)
+        self.binsave.setToolTip('Some exports offer binary and ASCII modes, binary mode is usually faster and smaller')
+        self.addWidget(self.binsave)
+
         self.exportbutton=QPushButton("Export")
         self.exportbutton.clicked.connect(self.exportfile)
         self.addWidget(self.exportbutton)
+        #
+        # start with glb
+        #
+        self.setExportType(self.export_type)
 
     def setExportType(self, etype):
         self.export_type = etype
         self.newfilename()
+        self.binsave.setEnabled(self.export_type == ".stl")
+
+    def changeBinary(self, param):
+        self.binmode = param
 
     def newfilename(self):
         """
@@ -261,17 +279,26 @@ class ExportLeftPanel(QVBoxLayout):
         path calculation, save file, save icon
         """
         folder = self.glob.env.stdUserPath("exports")
+        path = os.path.join(folder, self.filename.text())
+
         if self.export_type == ".glb":
-            path = os.path.join(folder, self.filename.text())
-
             gltf = gltfExport(self.glob, folder)
-            if gltf.binSave(self.bc, path):
-                QMessageBox.information(self.parent, "Done!", "Character exported as " + path)
-            else:
-                ErrorBox(self.parent, self.glob.env.last_error)
+            success = gltf.binSave(self.bc, path)
 
+        elif self.export_type == ".stl":
+            stl = stlExport(self.glob, folder)
+            if self.binmode:
+                success = stl.binSave(self.bc, path)
+            else:
+                success = stl.ascSave(self.bc, path)
         else:
             print ("not yet implemented")
+            return
+
+        if success:
+            QMessageBox.information(self.parent, "Done!", "Character exported as " + path)
+        else:
+            ErrorBox(self.parent, self.glob.env.last_error)
 
 
 class ExportRightPanel(QVBoxLayout):

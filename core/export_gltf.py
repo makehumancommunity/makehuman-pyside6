@@ -201,7 +201,10 @@ class gltfExport:
         if pbr is None:
             return(-1)
         if material.has_imagetexture:
-            self.json["materials"].append({"name": self.nodeName(name), "alphaMode":"BLEND", "doubleSided":True, "pbrMetallicRoughness": pbr})
+            if material.transparent:
+                self.json["materials"].append({"name": self.nodeName(name), "alphaMode":"BLEND", "doubleSided": material.backfaceCull, "pbrMetallicRoughness": pbr})
+            else:
+                self.json["materials"].append({"name": self.nodeName(name), "pbrMetallicRoughness": pbr})
         else:   
             self.json["materials"].append({"name": self.nodeName(name), "pbrMetallicRoughness": pbr})
         return (self.material_cnt)
@@ -220,8 +223,17 @@ class gltfExport:
         # add the basemesh itself, the other nodes will be children
         # here one node will always have one mesh
         #
-        baseobject = baseclass.baseMesh
-        mat  = self.addMaterial(baseobject.material)
+        # TODO: later reduced vertices etc.
+        #
+        # in case of a proxy use the proxy as first mesh
+        skin = baseclass.baseMesh.material
+        if baseclass.proxy:
+            baseobject = baseclass.attachedAssets[0].obj
+            start = 1
+        else:
+            baseobject = baseclass.baseMesh
+            start = 0
+        mat  = self.addMaterial(skin)
         if mat == -1:
             return (False)
 
@@ -231,7 +243,7 @@ class gltfExport:
         children = self.json["nodes"][0]["children"]
 
         i = 1
-        for elem in baseclass.attachedAssets:
+        for elem in baseclass.attachedAssets[start:]:
             mat =  self.addMaterial(elem.obj.material)
             if mat == -1:
                 return (False)
