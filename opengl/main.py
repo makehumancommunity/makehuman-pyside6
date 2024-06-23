@@ -168,22 +168,35 @@ class OpenGLView(QOpenGLWidget):
         self.prims["yzgrid"] = Grid("yzgrid", 10.0, zmin, self.context(), self.mh_shaders._shaders[1], "yz")
         self.prims["xzgrid"] = Grid("xzgrid", 10.0, zmin, self.context(), self.mh_shaders._shaders[1], "xz")
 
+    def compareBoundingBoxes(self, box1, box2):
+        n = 0
+        for i in range(0,3):
+            if box2[i] < box1[i]:
+                n += 1
+            if box2[i+3] > box1[i+3]:
+                n += 1
+        return (n>3)
+
     def createObject(self, obj):
         """
-        creates a rendered object and inserts it to a list according to zdepth
+        creates a rendered object and inserts it to a list according to zdepth and, if equal to bounding box
         """
         glbuffer = OpenGlBuffers()
         glbuffer.GetBuffers(obj.gl_coord, obj.gl_norm, obj.gl_uvcoord)
         self.buffers.append(glbuffer)
 
         texture = self.textureFromMaterial(obj)
+        boundingbox = obj.boundingBox()
 
         cnt = 0
         for elem in self.objects:
             if obj.z_depth < elem.z_depth:
                 break
+            if obj.z_depth == elem.z_depth:
+                if (self.compareBoundingBoxes(elem.boundingbox, boundingbox)) is False:
+                    break
             cnt += 1
-        obj.openGL = RenderedObject(self.context(), obj.getOpenGLIndex, obj.filename, obj.z_depth, glbuffer, self.mh_shaders._shaders[0], texture, pos=QVector3D(0, 0, 0))
+        obj.openGL = RenderedObject(self.context(), obj.getOpenGLIndex, obj.filename, obj.z_depth, boundingbox, glbuffer, self.mh_shaders._shaders[0], texture, pos=QVector3D(0, 0, 0))
         self.objects.insert(cnt, obj.openGL)
 
     def deleteObject(self,obj):

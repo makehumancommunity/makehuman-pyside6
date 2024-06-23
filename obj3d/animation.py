@@ -65,8 +65,9 @@ class BVH():
     def keyParam(self, key, fp):
         param = fp.readline().split()
         if param[0] != key:
-            return (None, key + " expected in line " + " ".join(param))
-        return (param[1:], param[0])
+            self.env.last_error = key + " expected in line " + " ".join(param)
+            return None
+        return param[1:]
 
     def addJoint(self, name, parent):
         joint = BVHJoint(name)
@@ -79,17 +80,26 @@ class BVH():
         return (joint)
 
     def getChannelOrder(self, joint, fp):
-        (param, msg ) = self.keyParam('CHANNELS', fp)
+        param = self.keyParam('CHANNELS', fp)
         if param is None:
-            return (False, msg)
+            return False
+
         nChannels = int(param[0])
         if nChannels != len(param)-1:
-            return (False, "Channels indicated and number of channels differ")
+            self.env.last_error = "BVH-File: Channels indicated and number of channels differ"
+            return False
+
         for cnt, channel in enumerate(param[1:]):
             if channel in self.channelname:
                 joint.channelorder[self.channelname[channel]] = cnt
         joint.nChannels = nChannels
-        return (True, "okay")
+
+        # TODO atm only lxyz-rxyz  and rxyz are allowed, the channel order determines the order of rotation 
+        #
+        if joint.channelorder != [0, 1, 2, 3, 4, 5] and joint.channelorder != [-1, -1, -1, 0, 1, 2] :
+            self.env.last_error = "BVH-File: channel order not yet supported"
+            return False
+        return True
 
     def getOffset(self, param):
         if self.z_up:
@@ -98,20 +108,18 @@ class BVH():
             return ([float(param[0]), float(param[1]), float(param[2])])
 
     def readJointHierarchy(self, joint, fp):
-        (param, msg ) = self.keyParam('{', fp)
-        if param is None:
-            return (False, msg)
+        if self.keyParam('{', fp) is None:
+            return False
 
-        (param, msg ) = self.keyParam('OFFSET', fp)
+        param = self.keyParam('OFFSET', fp)
         if param is None:
-            return (False, msg)
+            return False
 
         # Calculate position from offset
         #
         joint.offset = self.getOffset(param)
-        (err, msg ) = self.getChannelOrder(joint, fp)
-        if err is False:
-            return (False, msg)
+        if self.getChannelOrder(joint, fp) is False:
+            return False
 
         # Read child joints
         while True:
@@ -120,26 +128,29 @@ class BVH():
 
             if words[0] == 'JOINT':
                 child = self.addJoint(words[1], joint)
-                self.readJointHierarchy(child, fp)
+                if self.readJointHierarchy(child, fp) is False:
+                    return False
+
             elif words[0] == 'End': # Site
                 child = self.addJoint(None, joint)
-                (param, msg ) = self.keyParam('{', fp)
+                if self.keyParam('{', fp) is None:
+                    return False
+
+                param = self.keyParam('OFFSET', fp)
                 if param is None:
-                    return (False, msg)
-                (param, msg ) = self.keyParam('OFFSET', fp)
-                if param is None:
-                    return (False, msg)
+                    return False
 
                 child.offset = self.getOffset(param)
-                (param, msg ) = self.keyParam('}', fp)
-                if param is None:
-                    return (False, msg)
+                if self.keyParam('}', fp) is None:
+                    return False
+
             elif words[0] == '}':
                 break
             else:
-                return (False, "File seems shortened")
+                self.env.last_error = "BVH-File: unexpected end of file."
+                return False
 
-        return (True, "okay")
+        return True
 
     def initFrames(self):
         for joint in self.bvhJointOrder:
@@ -213,34 +224,32 @@ class BVH():
         with open(filename, "r", encoding='utf-8') as fp:
             # starts with HIERARCHIE 
             # ROOT
-            (param, msg ) = self.keyParam('HIERARCHY', fp)
+            if self.keyParam('HIERARCHY', fp) is None:
+                return False
+
+            param = self.keyParam('ROOT', fp)
             if param is None:
-                return (False, msg)
-            (param, msg ) = self.keyParam('ROOT', fp)
-            if param is None:
-                return (False, msg)
+                return False
 
             root = self.addJoint(param[0], None)   # add root joint
-            (err, msg ) = self.readJointHierarchy(root, fp)
-            if err is False:
-                return (False, msg)
+            if self.readJointHierarchy(root, fp) is False:
+                return False
 
             # calculate BVH rest matrix and offset
             #
             self.calcBVHRestMat()
 
-            (param, msg ) = self.keyParam('MOTION', fp)
-            if param is None:
-                return (False, msg)
-            (param, msg ) = self.keyParam('Frames:', fp)
-            if param is None:
-                return (False, msg)
+            if self.keyParam('MOTION', fp) is None:
+                return False
 
+            param = self.keyParam('Frames:', fp)
+            if param is None:
+                return False
             self.frameCount = int(param[0])
 
-            (param, msg ) = self.keyParam('Frame', fp) # Time:
+            param = self.keyParam('Frame', fp) # Time:
             if param is None:
-                return (False, msg)
+                return False
             self.frameTime = float(param[1])
 
             self.initFrames()
@@ -251,7 +260,7 @@ class BVH():
                 self.calcLocRotMat(i, data)
 
         # self.debugJoints("lowerarm02.L")
-        return (True, "Okay")
+        return True
 
 class MHPose():
     def __init__(self, glob, faceunits, name):

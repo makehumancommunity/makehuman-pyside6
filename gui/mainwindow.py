@@ -270,7 +270,8 @@ class MHMainWindow(QMainWindow):
             if selected.status == 0:
                 self.glob.baseClass.delPose(selected.filename)
             else:
-                self.glob.baseClass.addPose(selected.name, selected.filename)
+                if not self.glob.baseClass.addPose(selected.name, selected.filename):
+                    ErrorBox(self.central_widget, self.env.last_error)
             self.graph.view.Tweak()
         elif eqtype == "expressions":
             if selected.status == 0:

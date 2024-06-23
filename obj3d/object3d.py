@@ -47,7 +47,11 @@ class object3d:
         self.gl_icoord = []     # openGL-Drawarray Index
         self.gl_hicoord = None  # openGL-Drawarray used when parts are hidden
 
+        self.min_index = None   # will contain vertex numbers for min values xyz
+        self.max_index = None   # will contain vertex numbers for max values xyz
+
         self.material = None    # will contain a material
+
 
         if baseinfo is not None:
             self.visible = baseinfo["visible groups"]
@@ -525,6 +529,12 @@ class object3d:
                 coord[cnt] = self.coord[cnt]
         self.max_index = np.argmax(coord, axis=0)
         self.min_index  = np.argmin(coord, axis=0)
+
+    def boundingBox(self):
+        if self.min_index is None:
+            self.precalculateDimension()
+        return(self.gl_coord[self.min_index[0]*3], self.gl_coord[self.min_index[1]*3+1], self.gl_coord[self.min_index[2]*3+2], \
+            self.gl_coord[self.max_index[0]*3], self.gl_coord[self.max_index[1]*3+1], self.gl_coord[self.max_index[2]*3+2])
 
     def getCenterWidth(self):
         return ((self.gl_coord[self.max_index[0]*3]+self.gl_coord[self.min_index[0]*3])/2.0)

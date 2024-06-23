@@ -60,10 +60,11 @@ class OpenGlBuffers():
             self.tex_coord_buffer.destroy()
 
 class RenderedObject:
-    def __init__(self, context, getindex, name, z_depth, glbuffers, shaders, texture, pos):
+    def __init__(self, context, getindex, name, z_depth, boundingbox, glbuffers, shaders, texture, pos):
         self.context = context
         self.z_depth = z_depth
         self.name = name
+        self.boundingbox = boundingbox
         self.getindex = getindex
         self.position = QVector3D(0, 0, 0)
         self.rotation = QVector3D(0, 0, 0)

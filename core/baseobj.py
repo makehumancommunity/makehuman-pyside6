@@ -425,17 +425,19 @@ class baseClass():
 
     def addPose(self, name, path):
         if self.skeleton is None:
-            return
+            return True
+
         if self.bvh is not None:
             self.pose_skeleton.restPose()
             self.glob.markAssetByFileName(self.bvh.filename, False)
         self.bvh = BVH(self.glob, name)
-        loaded, msg  = self.bvh.load(path)
+        loaded  = self.bvh.load(path)
         if not loaded:
-            self.env.logLine(1, "BVH: " + path + " " + msg)
+            self.env.logLine(1, "BVH: " + path + " " + self.env.last_error)
         else:
             self.showPoseAndExpression()
             self.glob.markAssetByFileName(path, True)
+        return loaded
 
     def delPose(self, path):
         self.bvh = None
