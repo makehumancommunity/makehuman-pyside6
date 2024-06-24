@@ -41,9 +41,16 @@ class BaseSelect(QVBoxLayout):
     def materialCallback(self):
         p1 = self.env.stdUserPath("skins")
         p2 = self.env.stdSysPath("skins")
-        basemesh = self.parent.glob.baseClass.baseMesh
+        baseClass = self.parent.glob.baseClass
+        basemesh = baseClass.baseMesh
         matfiles = basemesh.material.listAllMaterials(p1)
         matfiles.extend(basemesh.material.listAllMaterials(p2))
+        #
+        # in case of proxy, change first asset
+        # TODO: here skinMaterial seems not to be corrected
+        #
+        if baseClass.proxy:
+            basemesh =  baseClass.attachedAssets[0]
         matimg = []
         oldmaterial = self.parent.glob.baseClass.skinMaterial
         print(oldmaterial)

@@ -56,7 +56,8 @@ class ScaleCombo(QWidget):
         i_units=range(minimum, maximum+step, step)
         self.units=list(zip(i_units,map(str,i_units)))
 
-        self.margin = 10
+        self.minwidth = 200     # minimum width for expanded slider
+        self.margin = 8
         self.min = minimum
         self.max = maximum
         self.step = step
@@ -126,7 +127,7 @@ class ScaleCombo(QWidget):
         self.slider=QSlider(Qt.Horizontal, self)
         self.slider.setMinimum(self.min)
         self.slider.setMaximum(self.max)
-        self.slider.setMinimumWidth(300)
+        self.slider.setMinimumWidth(self.minwidth)
         self.slider.setValue(self.elem.value)
         self.slider.setTickPosition(QSlider.TicksBelow)
         self.slider.setTickInterval(self.step)

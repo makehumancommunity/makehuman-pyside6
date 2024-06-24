@@ -63,17 +63,9 @@ class MHMaterialWindow(QWidget):
 
                 obj.newMaterial(matelem.filename)
                 #
-                # todo errors
-                # atm only changing texture, not shader
+                # TODO: atm only changing material
 
-                if hasattr(obj.material, 'diffuseTexture'):
-                    texture = obj.material.loadTexture(obj.material.diffuseTexture)
-                else:
-                    texture = obj.material.emptyTexture(obj.material.diffuseColor)
-
-                # set texture
-                #
-                obj.openGL.setTexture(texture)
+                obj.openGL.setMaterial(obj.material)
                 self.parent.graph.view.Tweak()
                 self.oldmaterial = matelem.filename
 

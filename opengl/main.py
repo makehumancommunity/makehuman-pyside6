@@ -53,7 +53,7 @@ class OpenGLView(QOpenGLWidget):
         self.env = glob.env
         super().__init__()
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
-        self.setMinimumSize(QSize(600, 600))
+        self.setMinimumSize(QSize(300, 560))
         self.setMaximumSize(QSize(2000, 2000))
         self.buffers = []
         self.objects = []
@@ -67,13 +67,6 @@ class OpenGLView(QOpenGLWidget):
         self.timer.timeout.connect(self.nextFrame)
         self.blocked = False
         self.glfunc = None
-
-    def textureFromMaterial(self, obj):
-        if hasattr(obj.material, 'diffuseTexture'):
-            return(obj.material.loadTexture(obj.material.diffuseTexture))
-        if hasattr(obj.material, 'diffuseColor'):
-            return(obj.material.emptyTexture(obj.material.diffuseColor))
-        return(obj.material.emptyTexture())
 
     def delSkeleton(self):
         if "skeleton" in self.prims:
@@ -185,7 +178,6 @@ class OpenGLView(QOpenGLWidget):
         glbuffer.GetBuffers(obj.gl_coord, obj.gl_norm, obj.gl_uvcoord)
         self.buffers.append(glbuffer)
 
-        texture = self.textureFromMaterial(obj)
         boundingbox = obj.boundingBox()
 
         cnt = 0
@@ -196,7 +188,7 @@ class OpenGLView(QOpenGLWidget):
                 if (self.compareBoundingBoxes(elem.boundingbox, boundingbox)) is False:
                     break
             cnt += 1
-        obj.openGL = RenderedObject(self.context(), obj.getOpenGLIndex, obj.filename, obj.z_depth, boundingbox, glbuffer, self.mh_shaders._shaders[0], texture, pos=QVector3D(0, 0, 0))
+        obj.openGL = RenderedObject(self.context(), obj.getOpenGLIndex, obj.filename, obj.z_depth, boundingbox, glbuffer, self.mh_shaders._shaders[0], obj.material, pos=QVector3D(0, 0, 0))
         self.objects.insert(cnt, obj.openGL)
 
     def deleteObject(self,obj):
@@ -207,8 +199,7 @@ class OpenGLView(QOpenGLWidget):
         obj.openGL = None
 
     def newSkin(self, obj):
-        texture = self.textureFromMaterial( obj)
-        self.objects[0].setTexture(texture)
+        self.objects[0].setMaterial(obj.material)
 
     def initializeGL(self):
         """
@@ -309,7 +300,7 @@ class OpenGLView(QOpenGLWidget):
         if baseClass is not None and self.objects_invisible is False:
             start = 1 if baseClass.proxy is True else 0
             for obj in self.objects[start:]:
-                obj.draw(self.mh_shaders._shaders[0], proj_view_matrix)
+                obj.draw(self.mh_shaders._shaders[0], proj_view_matrix, self.light)
 
         if self.light.skybox and self.skybox and self.camera.cameraPers:
             self.skybox.draw(proj_view_matrix)

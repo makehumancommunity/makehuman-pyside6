@@ -45,6 +45,7 @@ class Material:
         self.has_imagetexture = False
         self.transparent = False
         self.backfaceCull = False
+        self.shininess = 0.5
 
     def isExistent(self, filename):
         """
@@ -152,7 +153,6 @@ class Material:
                     setattr (self, "sc_" + words[1], words[2].lower() in ["yes", "enabled", "true"])
 
         print(self)
-
         return (True)
 
     def getCurrentMatFilename(self):

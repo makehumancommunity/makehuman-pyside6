@@ -125,7 +125,7 @@ class MHMainWindow(QMainWindow):
 
         s = env.session["mainwinsize"]
         self.resize (s["w"], s["h"])
-
+        
         menu_bar = self.menuBar()
         about_menu = menu_bar.addMenu(QIcon(os.path.join(env.path_sysicon, "makehuman.png")), "&About")
         about_act = about_menu.addAction("Info")
@@ -285,6 +285,7 @@ class MHMainWindow(QMainWindow):
             return (None)
 
         row=QHBoxLayout()
+        row.setSpacing(2)
         for n, b in enumerate(subtool):
             row.addWidget(b["button"])
         row.addStretch()
@@ -313,6 +314,8 @@ class MHMainWindow(QMainWindow):
         self.central_widget = QWidget()
 
         hLayout = QHBoxLayout()         # 3 columns
+        hLayout.setSpacing(2)
+        hLayout.setContentsMargins(2, 3, 2, 3)
 
         # left side, first button box
         #
@@ -363,8 +366,7 @@ class MHMainWindow(QMainWindow):
         self.ToolBox = QVBoxLayout()
         self.drawRightPanel()
         self.rightColumn = MHGroupBox("No additional infomation")
-        self.rightColumn.setMinimumWidth(500)
-        #self.rightColumn.setMaximumWidth(500)
+        self.rightColumn.setMinimumWidth(300)
         hLayout.addLayout(self.rightColumn.MHLayout(self.ToolBox), 2)
 
         #
@@ -465,7 +467,7 @@ class MHMainWindow(QMainWindow):
         self.LeftBox.addStretch()
 
     def drawExpressionPanel(self, text=""):
-        self.rightColumn.setTitle("Create Expression, category: " + text)
+        self.rightColumn.setTitle("Expressions, category: " + text)
         widget = QWidget()
         sweep = os.path.join(self.glob.env.path_sysicon, "sweep.png")
         expressions = self.lastClass.fillExpressions()
@@ -477,7 +479,7 @@ class MHMainWindow(QMainWindow):
         self.ToolBox.addWidget(scrollArea)
 
     def drawMorphPanel(self, text=""):
-        self.rightColumn.setTitle("Modify character, category: " + text)
+        self.rightColumn.setTitle("Morph, category: " + text)
         if self.glob.Targets is not None:
             widget = QWidget()
             sweep = os.path.join(self.glob.env.path_sysicon, "sweep.png")
@@ -524,7 +526,7 @@ class MHMainWindow(QMainWindow):
             self.drawMorphPanel(text)
         elif self.tool_mode == 2:
             equip = self.equipment[self.category_mode]
-            text = "Character equipment, category: " + equip["name"]
+            text = "Equipment, category: " + equip["name"]
             self.drawImageSelector(equip["func"], text, 15)
         elif self.tool_mode == 3:
             if self.category_mode == 0 or self.category_mode == 1 or self.category_mode == 3:

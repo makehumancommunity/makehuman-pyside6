@@ -60,7 +60,7 @@ class OpenGlBuffers():
             self.tex_coord_buffer.destroy()
 
 class RenderedObject:
-    def __init__(self, context, getindex, name, z_depth, boundingbox, glbuffers, shaders, texture, pos):
+    def __init__(self, context, getindex, name, z_depth, boundingbox, glbuffers, shaders, material, pos):
         self.context = context
         self.z_depth = z_depth
         self.name = name
@@ -82,7 +82,9 @@ class RenderedObject:
         self.model_matrix_location = shaders.uniforms["uModelMatrix"]
         self.normal_matrix_location = shaders.uniforms["uNormalMatrix"]
 
-        self.texture = texture
+        #self.texture = texture
+        self.material = material
+        self.texture = self.textureFromMaterial()
 
         self.position = pos
 
@@ -92,13 +94,21 @@ class RenderedObject:
     def delete(self):
         self.glbuffers.Delete()
 
-    def setTexture(self, texture):
+    def textureFromMaterial(self):
+        if hasattr(self.material, 'diffuseTexture'):
+            return(self.material.loadTexture(self.material.diffuseTexture))
+        if hasattr(self.material, 'diffuseColor'):
+            return(self.material.emptyTexture(self.material.diffuseColor))
+        return(self.material.emptyTexture())
+
+    def setMaterial(self, material):
         functions = self.context.functions()
+        self.material = material
+        self.texture = self.textureFromMaterial()
         functions.glActiveTexture(gl.GL_TEXTURE0)
-        self.texture = texture
         self.texture.bind()
 
-    def draw(self, shaderprog, proj_view_matrix):
+    def draw(self, shaderprog, proj_view_matrix, light):
         """
         :param shaderprog: QOpenGLShaderProgram
         """
@@ -134,6 +144,9 @@ class RenderedObject:
         shaderprog.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)
         shaderprog.setUniformValue(self.model_matrix_location, self.model_matrix)
         shaderprog.setUniformValue(self.normal_matrix_location, self.normal_matrix)
+        #
+        lightWeight = QVector3D(self.material.shininess, light.lightWeight.y(), 0)
+        shaderprog.setUniformValue("lightWeight", lightWeight)
 
         functions.glActiveTexture(gl.GL_TEXTURE0)
         self.texture.bind()

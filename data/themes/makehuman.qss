@@ -40,8 +40,6 @@ QLabel#groupbox {
     margin-bottom: -4px;
 }
 
-
-
 QFrame#gboxnontitle {
    border: 3px solid #8a979b;
    border-radius: 6px;

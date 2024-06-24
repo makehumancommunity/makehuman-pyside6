@@ -104,6 +104,7 @@ class MHGraphicWindow(QWidget):
         button = IconButton(1, os.path.join(self.env.path_sysicon, elems[0][1]), elems[0][0], elems[0][2])
         vlayout.addWidget(button)
         hlayout = QHBoxLayout()
+        hlayout.setSpacing(1)
         for i in range(1,5):
             button = IconButton(1, os.path.join(self.env.path_sysicon, elems[i][1]), elems[i][0], elems[i][2])
             hlayout.addWidget(button)
@@ -114,6 +115,7 @@ class MHGraphicWindow(QWidget):
 
         # grid, axes
         hlayout = QHBoxLayout()
+        hlayout.setSpacing(1)
         for i in range(6,10):
             button = IconButton(i, os.path.join(self.env.path_sysicon, elems[i][1]), elems[i][0], elems[i][2])
             button.setCheckable(True)
@@ -190,7 +192,7 @@ class MHGraphicWindow(QWidget):
 
     def objInfos(self,vlayout):
         self.sizeInfo = QLabel()
-        self.sizeInfo.setMinimumSize(150, 20)
+        self.sizeInfo.setMinimumSize(140, 20)
         self.sizeInfo.setWordWrap(True)
         if self.glob.baseClass is not None:
             self.setSizeInfo()
