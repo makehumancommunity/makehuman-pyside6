@@ -140,12 +140,13 @@ class RenderedObject:
 
         # now set uMvpMatrix, uModelMatrix, uNormalMatrix
 
-        shaderprog.bind()
         shaderprog.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)
         shaderprog.setUniformValue(self.model_matrix_location, self.model_matrix)
         shaderprog.setUniformValue(self.normal_matrix_location, self.normal_matrix)
         #
-        lightWeight = QVector3D(self.material.shininess, light.lightWeight.y(), 0)
+        # TODO setSpecularLuminance instead of direct approach
+        #
+        lightWeight = QVector3D(self.material.specularValue, light.lightWeight.y(), 0)
         shaderprog.setUniformValue("lightWeight", lightWeight)
 
         functions.glActiveTexture(gl.GL_TEXTURE0)
@@ -276,7 +277,7 @@ class PixelBuffer:
         baseClass = self.glob.baseClass
         start = 1 if baseClass.proxy is True else 0
         for obj in self.view.objects[start:]:
-            obj.draw(self.view.mh_shaders._shaders[0], proj_view_matrix)
+            obj.draw(self.view.mh_shaders._shaders[0], proj_view_matrix, self.view.light)
 
 
     def bufferToImage(self):

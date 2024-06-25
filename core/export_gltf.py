@@ -152,8 +152,8 @@ class gltfExport:
         self.json["accessors"].append({"bufferView": buf, "componentType": self.UNSIGNED_INT, "count": cnt, "type": "SCALAR", "min": [minimum], "max": [maximum]})
         return(self.accessor_cnt)
 
-    def pbrMaterial(self, color):
-        return ({ "baseColorFactor": [ color[0], color[1], color[2], 1.0 ], "metallicFactor": 0.5, "roughnessFactor": 0.5 })
+    def pbrMaterial(self, color, spec):
+        return ({ "baseColorFactor": [ color[0], color[1], color[2], 1.0 ], "metallicFactor": 0.5, "roughnessFactor": 1.0 - spec })
 
     def copyImage(self, source, dest):
         print ("Need to copy " + source + " to " + dest)
@@ -176,13 +176,13 @@ class gltfExport:
         self.json["images"].append({"uri": uri})
         return(True, self.image_cnt)
 
-    def addTexture(self, texture):
+    def addTexture(self, texture, spec):
         self.texture_cnt += 1
         (okay, image) = self.addImage(texture)
         if not okay:
             return (None)
         self.json["textures"].append({"sampler": 0, "source": image})
-        return ({ "baseColorTexture": { "index": self.texture_cnt }, "metallicFactor": 0.5, "roughnessFactor": 0.5 })
+        return ({ "baseColorTexture": { "index": self.texture_cnt }, "metallicFactor": 0.5, "roughnessFactor": 1.0 -spec })
 
     def addMaterial(self, material):
         """
@@ -194,9 +194,9 @@ class gltfExport:
         if material.has_imagetexture:
             print ("we need a texture")
             print (material.diffuseTexture)
-            pbr = self.addTexture(material.diffuseTexture)
+            pbr = self.addTexture(material.diffuseTexture, material.specularValue)
         else:   
-            pbr = self.pbrMaterial(material.diffuseColor)
+            pbr = self.pbrMaterial(material.diffuseColor, material.specularValue)
 
         if pbr is None:
             return(-1)

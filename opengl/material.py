@@ -42,6 +42,7 @@ class Material:
 
     def default(self):
         self.diffuseColor = [1.0, 1.0, 1.0 ]
+        self.specularColor = [0.5, 0.5, 0.5 ]
         self.has_imagetexture = False
         self.transparent = False
         self.backfaceCull = False
@@ -127,7 +128,7 @@ class Material:
 
             # colors
             #
-            elif key in ["ambientColor", "diffuseColor", "emissiveColor", "viewPortColor" ]:
+            elif key in ["ambientColor", "diffuseColor", "emissiveColor", "viewPortColor", "specularColor" ]:
                 setattr (self, key, [float(w) for w in words[1:4]])
 
             # intensities (all kind of floats)
@@ -152,6 +153,7 @@ class Material:
                         "ambientOcclusion"]:
                     setattr (self, "sc_" + words[1], words[2].lower() in ["yes", "enabled", "true"])
 
+        self.specularValue = sum(self.specularColor) / 3
         print(self)
         return (True)
 

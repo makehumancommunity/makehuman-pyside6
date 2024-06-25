@@ -40,8 +40,6 @@ class MHSceneWindow(QWidget):
         l02.setObjectName("subwindow")
 
         vlayout = QVBoxLayout()
-        self.specLuminance = SimpleSlider("Specularity: ", 0, 100, self.specChanged)
-        vlayout.addWidget(self.specLuminance )
         self.specFocus = SimpleSlider("Focus: ", 1, 64, self.specFocChanged)
         vlayout.addWidget(self.specFocus )
         l02.setLayout(vlayout)
@@ -178,7 +176,6 @@ class MHSceneWindow(QWidget):
         self.getSkyBox()
 
         self.ambLuminance.setSliderValue(self.light.ambientLight.w() * 100)
-        self.specLuminance.setSliderValue(self.light.lightWeight.x() * 100)
         self.specFocus.setSliderValue(self.light.lightWeight.y())
         self.clearColor.setColorValue(self.vec4ToCol(self.light.glclearcolor))
         lights = self.light.lights
@@ -212,10 +209,6 @@ class MHSceneWindow(QWidget):
 
     def ambColorChanged(self, color):
         self.light.setAmbientColor(color)
-        self.view.Tweak()
-
-    def specChanged(self, value):
-        self.light.setSpecularLuminance(value / 100.0)
         self.view.Tweak()
 
     def specFocChanged(self, value):
