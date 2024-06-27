@@ -217,8 +217,13 @@ class OpenGLView(QOpenGLWidget):
 
         self.glfunc.glEnable(gl.GL_DEPTH_TEST)
         self.glfunc.glEnable(gl.GL_BLEND)
-        #glfunc.glDisable(gl.GL_CULL_FACE)
         self.glfunc.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+        """ xray
+        self.glfunc.glEnable(gl.GL_DEPTH_TEST)
+        self.glfunc.glEnable(gl.GL_BLEND)
+        self.glfunc.glEnable(gl.GL_CULL_FACE)
+        self.glfunc.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+        """
 
         #
         # load shaders and get  positions of variables 
@@ -231,6 +236,8 @@ class OpenGLView(QOpenGLWidget):
         self.mh_shaders.loadShaders("fixcolor")
         self.mh_shaders.attribVertShader(1)
         self.mh_shaders.getUniforms(1)
+
+        # self.mh_shaders.loadShaders("xray")
 
         self.mh_shaders.loadShaders("skybox")
 

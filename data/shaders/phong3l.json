@@ -1,7 +1,6 @@
 {
 	"glclearcolor": [0.2, 0.2, 0.2, 1.0],
 	"ambientcolor": [1.0, 1.0, 1.0, 0.35],
-	"specularluminance": 0.30,
 	"specularfocus": 30.0,
 	"blinn": true,
 	"skybox": true,

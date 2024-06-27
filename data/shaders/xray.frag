@@ -26,7 +26,7 @@ uniform bool blinn;
 uniform float edgefalloff = 1.0;
 // Intensity value (between 0 and 4)
 uniform float intensity = 0.7;
-uniform vec3 ambient = vec3(0.5, 0.5, 0.5);
+uniform vec3 ambient = vec3(0.1, 0.1, 0.1);
 uniform vec3 diffuse = vec3(1.0, 1.0, 1.0);
 
 void main()

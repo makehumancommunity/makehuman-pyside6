@@ -322,7 +322,6 @@ class Light():
         self.skybox = self.shaderInit["skybox"]
         self.listTo4D(self.glclearcolor, self.shaderInit["glclearcolor"])
         self.listTo4D(self.ambientLight, self.shaderInit["ambientcolor"])
-        self.lightWeight.setX(self.shaderInit["specularluminance"])
         self.lightWeight.setY(self.shaderInit["specularfocus"])
         for i in range (0,3):
             d = self.lights[i]
@@ -335,7 +334,6 @@ class Light():
         self.shaderInit["blinn"] = self.blinn
         self.shaderInit["glclearcolor"] = self.q4ToList(self.glclearcolor)
         self.shaderInit["ambientcolor"] = self.q4ToList(self.ambientLight)
-        self.shaderInit["specularluminance"] =  self.lightWeight.x()
         self.shaderInit["specularfocus"] =  self.lightWeight.y()
         for i in range (0,3):
             d = self.shaderInit["lamps"][i]
