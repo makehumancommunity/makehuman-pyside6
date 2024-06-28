@@ -5,6 +5,7 @@ from PySide6.QtGui import QMatrix4x4, QVector3D, QOpenGLContext
 
 # try to keep only constants here
 #
+import re
 import os
 import OpenGL
 from OpenGL import GL as gl
@@ -32,17 +33,19 @@ def GLVersion(initialized):
         for i in range(0, n):
             glversion["extensions"][gl.glGetStringi(gl.GL_EXTENSIONS, i).decode("utf-8")] = True
         """
+        vmatch = re.compile(r"(\d+)\s*")
         cnt = 0
         n = int.from_bytes(gl.glGetIntegerv(gl.GL_NUM_SHADING_LANGUAGE_VERSIONS, "*"), "big")
         glversion["shader_versions"] = {}
         for i in range(0, n):
             shader = gl.glGetStringi(gl.GL_SHADING_LANGUAGE_VERSION, i).decode("utf-8")
-            if " " in shader:
-                (num, dummy) =shader.split(" ")
-                num = int(num)
+            m = vmatch.match(shader)
+            if m:
+                num = int(m.group(1))
                 if num >= glversion["minversion"]:
                     glversion["shader_versions"][shader] = True
                     cnt += 1
+
         glversion["sufficient"] = (cnt > 0)
     return(glversion)
 
