@@ -41,15 +41,15 @@ class ShaderRepository():
 
     def loadShaders(self, filename):
         path = os.path.join (self.env.path_sysdata, "shaders", filename)
-        for elem in self._shaders:
+        for cnt, elem in enumerate(self._shaders):
             if elem.path == path:
-                return(elem.vert_id)
+                return(cnt)
 
         pair = ShaderPair(self.env, path)
         pair.loadFragShader()
         pair.loadVertShader()
         self._shaders.append(pair)
-        return(pair.vert_id)
+        return(len(self._shaders)-1)
 
     def attribVertShader(self, num=0):
         shader = self._shaders[num]

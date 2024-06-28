@@ -60,7 +60,7 @@ class OpenGlBuffers():
             self.tex_coord_buffer.destroy()
 
 class RenderedObject:
-    def __init__(self, context, getindex, name, z_depth, boundingbox, glbuffers, shaders, material, pos):
+    def __init__(self, context, getindex, name, z_depth, boundingbox, glbuffers, material, pos):
         self.context = context
         self.z_depth = z_depth
         self.name = name
@@ -77,10 +77,6 @@ class RenderedObject:
         self.vert_pos_buffer = glbuffers.vert_pos_buffer
         self.normal_buffer = glbuffers.normal_buffer
         self.tex_coord_buffer = glbuffers.tex_coord_buffer
-
-        self.mvp_matrix_location = shaders.uniforms["uMvpMatrix" ]
-        self.model_matrix_location = shaders.uniforms["uModelMatrix"]
-        self.normal_matrix_location = shaders.uniforms["uNormalMatrix"]
 
         #self.texture = texture
         self.material = material
@@ -108,10 +104,14 @@ class RenderedObject:
         functions.glActiveTexture(gl.GL_TEXTURE0)
         self.texture.bind()
 
-    def draw(self, shaderprog, proj_view_matrix, light):
+    def draw(self, shaderprog, proj_view_matrix, light, xrayed = False):
         """
         :param shaderprog: QOpenGLShaderProgram
         """
+        self.mvp_matrix_location = shaderprog.uniforms["uMvpMatrix" ]
+        self.model_matrix_location = shaderprog.uniforms["uModelMatrix"]
+        self.normal_matrix_location = shaderprog.uniforms["uNormalMatrix"]
+
         shaderprog.bind()
         functions = self.context.functions()
 
@@ -149,10 +149,24 @@ class RenderedObject:
         lightWeight = QVector3D(self.material.specularValue, light.lightWeight.y(), 0)
         shaderprog.setUniformValue("lightWeight", lightWeight)
 
+
+        if self.material.transparent or xrayed:
+            functions.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+        else:
+            functions.glBlendFunc(gl.GL_ONE, gl.GL_ZERO)
+
+        if self.material.backfaceCull or xrayed:
+            functions.glEnable(gl.GL_CULL_FACE)
+        else:
+            functions.glDisable(gl.GL_CULL_FACE)
+
         functions.glActiveTexture(gl.GL_TEXTURE0)
         self.texture.bind()
         indices = self.getindex()
         functions.glDrawElements(gl.GL_TRIANGLES, len(indices), gl.GL_UNSIGNED_INT, indices)
+        #
+        # TODO: this has to be done to reset system
+        functions.glDisable(gl.GL_CULL_FACE)
 
 class RenderedLines:
     def __init__(self, context, indices, name, glbuffers, shaders, pos):

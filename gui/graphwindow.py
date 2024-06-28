@@ -87,7 +87,8 @@ class MHGraphicWindow(QWidget):
             ["YZ-Grid","yzgrid.png",  self.toggle_grid ],
             ["Floor-Grid","xzgrid.png",  self.toggle_grid ],
             ["Skybox","skybox.png",self.toggle_skybox ],
-            ["Visualize skeleton", "ghost.png", self.toggle_objects ]
+            ["Visualize skeleton", "an_skeleton.png", self.toggle_objects ],
+            ["Visualize hidden vertices", "ghost.png", self.toggle_transpassets ]
         ]
 
         # hidden geometry
@@ -124,7 +125,7 @@ class MHGraphicWindow(QWidget):
 
         # ghost, skybox
         hlayout = QHBoxLayout()
-        for i in range(10,12):
+        for i in range(10,13):
             button = IconButton(1, os.path.join(self.env.path_sysicon, elems[i][1]), elems[i][0], elems[i][2])
             button.setChecked(False if i != 10 else True) # skybox is true
             button.setCheckable(True)
@@ -269,6 +270,12 @@ class MHGraphicWindow(QWidget):
         v = b.isChecked()
         b.setChecked(v)
         self.view.toggleObjects(v)
+
+    def toggle_transpassets(self):
+        b = self.sender()
+        v = b.isChecked()
+        b.setChecked(v)
+        self.view.toggleTranspAssets(v)
 
     def zoom(self, direction):
         self.view.modifyDistance(direction)

@@ -32,10 +32,8 @@ uniform vec3 diffuse = vec3(1.0, 1.0, 1.0);
 void main()
 {
 	float opac = dot(normalize(-fs_in.Normal), normalize(-fs_in.FragPos));
-	opac = abs(opac);
 	float ambientf = (ambient.r + ambient.g + ambient.b) / 3;
-	opac = ambientf + intensity*(1.0-pow(opac, edgefalloff));
-	//opac = 1.0 - opac;
+	opac = ambientf + intensity*(1.0-pow(abs(opac), edgefalloff));
 
 	FragColor.rgb =  opac * diffuse;
 	FragColor.a = opac;
