@@ -14,7 +14,7 @@ class MHLogWindow(QWidget):
         self.parent = parent
         self.env = parent.env
         self.f_displayed = self.env.path_stdout
-        self.f_match = re.compile("^\[(\d+)\]\s+")
+        self.f_match = re.compile(r"^\[(\d+)\]\s+")
         self.setWindowTitle("Messages")
         self.resize (500, 600)
         layout = QVBoxLayout()
