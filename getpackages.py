@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import os
 import json
+import argparse
 from core.importfiles import AssetPack, UserEnvironment
 
 if __name__ == '__main__':
@@ -26,7 +27,23 @@ if __name__ == '__main__':
             userspace = os.path.join(conf["path_home"], "data")
     systemspace = os.path.join(os.path.dirname(os.path.abspath(__file__)),"data")
 
-    if userspace:
+    parser = argparse.ArgumentParser(description="Load packages from asset server " + server)
+    parser.add_argument("-s", action="store_true", help="store in system space")
+    if userspace is not None:
+        parser.add_argument("-u", action="store_true", help="store in user space instead of system space")
+
+    args = parser.parse_args()
+
+    space = None
+    if args.u:
+        if userspace is None:
+            print ("No user space found")
+            exit (2)
+        space = userspace
+    if args.s:
+        space = systemspace
+
+    if space is None:
         print("[1] User   space: " + userspace)
         print("[2] System space: " + systemspace)
 
@@ -41,8 +58,6 @@ if __name__ == '__main__':
             if line == "2":
                 space = systemspace
                 okay = True
-    else:
-        space = systemspace
 
     source = "http://" + server + "/" + path
     print ("Download from: " + source)

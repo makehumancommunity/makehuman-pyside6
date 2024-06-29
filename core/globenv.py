@@ -220,6 +220,10 @@ class programInfo():
         print (self.release_info["name"] + " Version " + ".".join(str(x) for x in self.release_info["version"]))
         print ("Status: " + self.release_info["status"])
         print ("Copyright: " + self.release_info["copyright"])
+        if hasattr(self, "path_userconf"):
+            print ("\nUser configuration file is: " + self.path_userconf)
+        else:
+            print ("\nNo user configuration available.")
 
     def pathToUnicode(self, path: str) -> str:
         """
@@ -349,7 +353,6 @@ class programInfo():
         defaultconf = {
             "basename": None,
             "noSampleBuffers": False,
-            "noShaders": False,
             "redirect_messages": True,
             "remember_session": False,
             "theme": "makehuman.qss",
