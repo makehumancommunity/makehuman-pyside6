@@ -250,17 +250,20 @@ class MHFileRequest(QFileDialog):
 
 class TextBox(QDialog):
     """
-    for e.g. presentation of license
+    for e.g. presentation of license or OpenGL info, text is selectable
+    no close buttons etc. to avoid bad window error onClose with normal window button
     """
     def __init__(self, parent, title, image, text):
         super(TextBox, self).__init__(parent)
         self.setWindowTitle(title)
+        self.setWindowFlags(Qt.Dialog | Qt.CustomizeWindowHint | Qt.WindowTitleHint)
 
         imglabel = QLabel()
         imglabel.setPixmap(QPixmap(image))
 
 
         textframe = QLabel(self)
+        textframe.setTextInteractionFlags(Qt.TextSelectableByMouse)
         fm = QFontMetrics(textframe.font())
         minwidth = fm.horizontalAdvance("#") * 80
 
@@ -287,4 +290,3 @@ class TextBox(QDialog):
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setMinimumWidth(minwidth)
         self.show()
-

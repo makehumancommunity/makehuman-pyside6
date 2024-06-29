@@ -19,6 +19,7 @@ from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, MHGroupB
 from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
 from core.attached_asset import attachedAsset
+from opengl.info import GLDebug
 
 import os
 
@@ -198,6 +199,9 @@ class MHMainWindow(QMainWindow):
         self.animenu = tools_menu.addMenu("Animation")
 
         help_menu = menu_bar.addMenu("&Help")
+        entry = help_menu.addAction("Local OpenGL Information")
+        entry.triggered.connect(self.glinfo_call)
+
         entry = help_menu.addAction("License")
         entry.triggered.connect(self.lic_call)
         if "support_urls" in self.env.release_info:
@@ -920,6 +924,12 @@ class MHMainWindow(QMainWindow):
         text = self.env.convertToRichFile(os.path.join(self.env.path_sysdata, "licenses", "makehuman_license.txt"))
         image = os.path.join(self.env.path_sysicon, "makehuman.png")
         TextBox(self, "MakeHuman License", image, text)
+
+    def glinfo_call(self):
+        deb = GLDebug()
+        text = deb.getTextInfo()
+        image = os.path.join(self.env.path_sysicon, "makehuman.png")
+        TextBox(self, "Local OpenGL Information", image, text)
 
     def quit_call(self, event=None):
         """

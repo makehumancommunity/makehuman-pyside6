@@ -9,7 +9,7 @@ import glob
 import shutil
 from uuid import uuid4
 from gui.application import QTVersion
-from opengl.main import GLVersion
+from opengl.info import GLDebug
 from core.debug import dumper
 from core.importfiles import UserEnvironment
 from core.sql_cache  import FileCache
@@ -207,7 +207,8 @@ class programInfo():
             exit (20)
 
         self.QT_Info = QTVersion(self)
-        self.GL_Info = GLVersion(False) # not yet initialized
+        gdebug = GLDebug(False) # not yet initialized
+        self.GL_Info = gdebug.getOpenGL_LibVers()
 
     def __str__(self):
         """

@@ -7,48 +7,14 @@ from PySide6.QtGui import QMatrix4x4, QVector3D, QOpenGLContext
 #
 import re
 import os
-import OpenGL
 from OpenGL import GL as gl
+from opengl.info import GLDebug
 from opengl.shaders import ShaderRepository
 from opengl.material import Material
 from opengl.buffers import OpenGlBuffers, RenderedObject
 from opengl.camera import Camera, Light
 from opengl.skybox import OpenGLSkyBox
 from opengl.prims import CoordinateSystem, Grid, BoneList
-
-def GLVersion(initialized):
-    glversion = {}
-    glversion["version"] = OpenGL.__version__
-
-    if initialized:
-
-        # without a context all other OpenGL parameter will not appear
-        #
-        glversion["card"] = gl.glGetString(gl.GL_VERSION).decode("utf-8")
-        glversion["renderer"] = gl.glGetString(gl.GL_RENDERER).decode("utf-8")
-        glversion["minversion"] = 330
-        """
-        n=  gl.glGetIntegerv(gl.GL_NUM_EXTENSIONS, "*")
-        glversion["extensions"] = {}
-        for i in range(0, n):
-            glversion["extensions"][gl.glGetStringi(gl.GL_EXTENSIONS, i).decode("utf-8")] = True
-        """
-        vmatch = re.compile(r"(\d+)\s*")
-        cnt = 0
-        n = int.from_bytes(gl.glGetIntegerv(gl.GL_NUM_SHADING_LANGUAGE_VERSIONS, "*"), "big")
-        glversion["shader_versions"] = {}
-        for i in range(0, n):
-            shader = gl.glGetStringi(gl.GL_SHADING_LANGUAGE_VERSION, i).decode("utf-8")
-            m = vmatch.match(shader)
-            if m:
-                num = int(m.group(1))
-                if num >= glversion["minversion"]:
-                    glversion["shader_versions"][shader] = True
-                    cnt += 1
-
-        glversion["sufficient"] = (cnt > 0)
-    return(glversion)
-
 
 class OpenGLView(QOpenGLWidget):
     def __init__(self, glob):
@@ -213,10 +179,13 @@ class OpenGLView(QOpenGLWidget):
         """
         automatically called by PySide6, terminates complete program if shader version < minversion (330)
         """
-        self.env.GL_Info = GLVersion(True)
-        #print (self.env.GL_Info)
-        if self.env.GL_Info["sufficient"] is False:
-            self.env.logLine(1, "Shader version is not sufficient, minimum version is " + str(self.env.GL_Info["minversion"]) )
+        deb = GLDebug()
+        if deb.checkVersion() is False:
+            self.env.logLine(1, "Shader version is not sufficient, minimum version is " + str(deb.minVersion() + ". Available languages are:") )
+            lang = deb.getShadingLanguages()
+            for l in lang:
+                if l is not "":
+                    self.env.logLine(1, l)
             exit(20)
 
         baseClass = self.glob.baseClass
