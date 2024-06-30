@@ -445,6 +445,7 @@ class MHMainWindow(QMainWindow):
                 self.lastClass = AnimPlayer(self.glob, self.graph.view)
                 self.lastClass.enter()
                 self.LeftBox.addLayout(self.lastClass)
+                self.LeftBox.addStretch()
             elif self.category_mode == 3:
                 self.leftColumn.setTitle("Expressions :: filter")
                 self.lastClass = AnimMode(self.glob, self.graph.view)
@@ -465,10 +466,10 @@ class MHMainWindow(QMainWindow):
             self.lastClass = Renderer(self, self.glob, self.graph.view)
             self.lastClass.enter()
             self.LeftBox.addLayout(self.lastClass)
+            self.LeftBox.addStretch()
         else:
             self.leftColumn.setTitle("Not yet implemented")
 
-        self.LeftBox.addStretch()
 
     def drawExpressionPanel(self, text=""):
         self.rightColumn.setTitle("Expressions, category: " + text)

@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 
 from gui.materialwindow import  MHMaterialWindow, MHAssetWindow
 from gui.common import IconButton
+from core.taglogic import tagLogic
 
 class MHPictSelectable:
     def __init__(self, name: str, icon: str, filename: str, author: str, tags: list):
@@ -385,12 +386,8 @@ class InformationBox(QWidget):
         self.tagbox.setPlainText("\n".join(l.replace(":", " \u23f5 ") for l in asset.tags)) # triangle as arrow
 
 class FilterTree(QTreeView):
-    """
-    :param flowLayout: points to layout
-    """
 
     def  __init__(self, assets, searchByFilterText, iconpath):
-
         self.assets = assets
         self.searchByFilterText = searchByFilterText
         self.flowLayout = None
@@ -403,7 +400,6 @@ class FilterTree(QTreeView):
         self.setSelectionMode(QAbstractItemView.MultiSelection)
         self.model = QStandardItemModel()
         self.setHeaderHidden(True)
-        self.setMaximumWidth(200)
         self.setModel(self.model)
         self.setUniformRowHeights(True)
         self.setFirstColumnSpanned(1, self.rootIndex(), True)
@@ -475,6 +471,8 @@ class FilterTree(QTreeView):
                     else:
                         ruleset[key] = [ ":".join(layers[1:]) ]
 
+        self.clearSelection()
+        self.setSelectedByRuleset(ruleset)
         self.markSelectedButtons(funcid)
         self.flowLayout.removeAllWidgets()
         self.flowLayout.populate(ruleset, "")
@@ -506,6 +504,27 @@ class FilterTree(QTreeView):
 
         return ( layout if numicons > i_per_row else row)
 
+    def setSelectedByRuleset(self, ruleset, root=None):
+        if root is None:
+            root = self.model.invisibleRootItem()
+            base = None
+        else:
+            base = root.searchbase
+        if root.hasChildren():
+            for index in range (root.rowCount()):
+                child = root.child(index,0)
+                if base is None:
+                    base = child.searchbase
+                if base is not None:
+                    # must match base:
+                    if base in ruleset:
+                        if child.searchpattern in ruleset[base]:
+                            cindex = self.model.indexFromItem(child)
+                            self.setCurrentIndex(cindex)
+
+                self.setSelectedByRuleset(ruleset, child)
+
+
 
     def filterChanged(self):
         """
@@ -515,15 +534,14 @@ class FilterTree(QTreeView):
             return
         ruleset = {}
         for ix in self.selectedIndexes():
-            index = self.model.itemFromIndex(ix)
-            base = index.searchbase
+            item = self.model.itemFromIndex(ix)
+            base = item.searchbase
             if base not in ruleset:
                 ruleset[base] = []
-            ruleset[base].append(index.searchpattern)
+            ruleset[base].append(item.searchpattern)
         filtertext = self.searchByFilterText.text().lower()
         self.markSelectedButtons(-1)
         self.flowLayout.removeAllWidgets()
-        #print (ruleset)
         self.flowLayout.populate(ruleset, filtertext)
 
 class editBox(QLineEdit):
@@ -556,9 +574,7 @@ class ImageSelection():
         self.selmode = selmode
         self.callback = callback
         self.infobox = None
-        self.tagproposals = []
-        self.tagreplace = {}
-        self.tagfromname = {}
+        self.taglogic = None
         self.filterjson = None
         self.picwidget = None
         self.filterview = None
@@ -575,80 +591,29 @@ class ImageSelection():
         if not os.path.isfile(self.emptyIcon):
             self.emptyIcon = os.path.join(self.env.path_sysdata, "icons", "noidea.png")
 
-    def createTagGroups(self, subtree, path):
-        """
-        create texts to prepend certain tags, can also translate tags
-        """
-        for elem in subtree:
-            if isinstance(elem, str):
-                if elem == "Translate":                             # extra, change by word
-                    for l in subtree[elem]:
-                        self.tagreplace[l.lower()] = subtree[elem][l]
-                    continue
-                if elem == "GuessName":                             # extra, change by word
-                    for l in subtree[elem]:
-                        self.tagfromname[l.lower()] = subtree[elem][l]
-                    continue
-                if isinstance(subtree[elem], dict):
-                    self.createTagGroups(subtree[elem], path + ":" + elem.lower())
-                elif isinstance(subtree[elem], list):
-                    if elem == "Shortcut":
-                        pass
-                    else:
-                        for l in subtree[elem]:
-                            repl = path + ":" + elem.lower()
-                            self.tagreplace[l.lower()] = repl[1:]       # get rid of first ":"
-
-    def completeTags(self, name, tags):
-        """
-        replace tags by tags with prepended strings or check name
-        """
-        newtags = []
-        for tag in tags:
-            ltag = tag.lower()
-            if ltag in self.tagreplace:
-                elem = self.tagreplace[ltag]
-                if elem is not None:
-                    if elem.startswith("="):        # complete replacement
-                        ntag = elem[1:]
-                    else:
-                        ntag = elem+":"+ltag
-                    if ntag not in newtags:
-                        newtags.append(ntag)
-            else:
-                if tag not in newtags:
-                    newtags.append(tag)
-
-        for tag in self.tagfromname:
-            if tag in name:
-                ntag = self.tagfromname[tag]
-                if ntag not in newtags:
-                    newtags.append(ntag)
-        return (newtags)
-
     def prepareRepo(self):
         self.asset_category = []
         for elem in self.assetrepo:
             if elem.folder == self.type:
-                elem.tag = self.completeTags(elem.name, elem.tag)
+                elem.tag = self.taglogic.completeTags(elem.name, elem.tag)
                 self.asset_category.append(MHPictSelectable(elem.name, elem.thumbfile, elem.path,  elem.author, elem.tag))
 
     def prepare(self):
         #
         # load filter from file according to base mesh
-        # then create an asset-category repo for this folder
+        # then create an asset-category repo for this folder and convert it by taglogic
         #
         path = self.env.stdSysPath(self.type, "selection_filter.json")
         self.filterjson = self.env.readJSON(path)
         if self.filterjson is None:
-            self.filterjson = {}
-        self.tagproposals = self.env.flattenJSON(self.filterjson, self.tagproposals,
-                exceptions= ["Translate", "GuessName", "Shortcut"])
-        self.createTagGroups(self.filterjson, "")
+            self.filterjson =  {}
+
+        self.taglogic = tagLogic(self.filterjson)
+        self.taglogic.create()
         self.prepareRepo()
 
     def getTagProposals(self):
-        return(self.tagproposals)
+        return(self.taglogic.proposals())
 
     def changeStatus(self):
         checked = []
@@ -817,7 +782,7 @@ class ImageSelection():
     def changeTags(self, asset, iconpath):
         for elem in self.asset_category:
             if elem.filename == asset.path:
-                newtags= self.completeTags(elem.name, asset.tags)
+                newtags= self.taglogic.completeTags(elem.name, asset.tags)
                 elem.newTags(newtags)
                 self.infobox.setInformation(elem)
                 if iconpath is not None:
@@ -838,9 +803,9 @@ class ImageSelection():
             return
 
         if self.parent.asset_window is None:
-            self.parent.asset_window = MHAssetWindow(self.parent, self.changeTags, found, selected, self.emptyIcon, self.tagproposals)
+            self.parent.asset_window = MHAssetWindow(self.parent, self.changeTags, found, selected, self.emptyIcon, self.taglogic.proposals())
         else:
-            self.parent.asset_window.updateWidgets(found, selected, self.emptyIcon, self.tagproposals)
+            self.parent.asset_window.updateWidgets(found, selected, self.emptyIcon, self.taglogic.proposals())
 
         mw = self.parent.asset_window
         mw.show()
@@ -867,7 +832,6 @@ class ImageSelection():
         v1layout.addWidget(self.filterview)
         if shortcuts is not None:
             v1layout.addLayout(shortcuts)
-        #v1layout.addWidget(QLabel("Filter:"))
         v1layout.addLayout(slayout)
 
         return(v1layout)
