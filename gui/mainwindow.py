@@ -204,6 +204,14 @@ class MHMainWindow(QMainWindow):
 
         entry = help_menu.addAction("License")
         entry.triggered.connect(self.lic_call)
+        lics = help_menu.addMenu("3rd Party licenses")
+        for elem in ["PySide6", "PyOpenGL", "NumPy"]:
+            entry = lics.addAction(elem)
+            entry.triggered.connect(self.lic_call)
+
+        entry = help_menu.addAction("Credits")
+        entry.triggered.connect(self.lic_call)
+
         if "support_urls" in self.env.release_info:
             for elem in self.env.release_info["support_urls"]:
                 urlname = self.env.release_info["support_urls"][elem]
@@ -922,9 +930,22 @@ class MHMainWindow(QMainWindow):
         """
         open a text box with license
         """
-        text = self.env.convertToRichFile(os.path.join(self.env.path_sysdata, "licenses", "makehuman_license.txt"))
-        image = os.path.join(self.env.path_sysicon, "makehuman.png")
-        TextBox(self, "MakeHuman License", image, text)
+        name =  self.sender().text()
+        if name == "License":
+            licname = "makehuman_license.txt"
+            boxname = "MakeHuman License"
+            image = os.path.join(self.env.path_sysicon, "makehuman.png")
+        if name == "Credits":
+            licname = "credits.txt"
+            boxname = "Credits"
+            image = os.path.join(self.env.path_sysicon, "makehuman.png")
+        else:
+            licname = name.lower() + "-license.txt"
+            boxname = name + " License"
+            image = None
+
+        text = self.env.convertToRichFile(os.path.join(self.env.path_sysdata, "licenses", licname))
+        TextBox(self, boxname, image, text)
 
     def glinfo_call(self):
         deb = GLDebug()

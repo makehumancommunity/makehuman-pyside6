@@ -258,10 +258,6 @@ class TextBox(QDialog):
         self.setWindowTitle(title)
         self.setWindowFlags(Qt.Dialog | Qt.CustomizeWindowHint | Qt.WindowTitleHint)
 
-        imglabel = QLabel()
-        imglabel.setPixmap(QPixmap(image))
-
-
         textframe = QLabel(self)
         textframe.setTextInteractionFlags(Qt.TextSelectableByMouse)
         fm = QFontMetrics(textframe.font())
@@ -281,7 +277,10 @@ class TextBox(QDialog):
         buttonBox.button(QDialogButtonBox.Ok).setDefault(True)
 
         layout = QVBoxLayout()
-        layout.addWidget(imglabel)
+        if image is not None:
+            imglabel = QLabel()
+            imglabel.setPixmap(QPixmap(image))
+            layout.addWidget(imglabel)
         layout.addWidget(scroll)
         layout.addWidget(buttonBox)
 

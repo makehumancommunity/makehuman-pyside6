@@ -253,6 +253,13 @@ class PixelBuffer:
         self.oldwidth = self.view.window_width
         functions = self.view.context().functions()
 
+        # well sometimes solutions are odd, ask openGl one time, get a stupid error and then it works :P
+        #
+        try:
+            gl.glGetIntegerv(gl.GL_MAJOR_VERSION, '*')
+        except:
+            pass
+
         # frame
         self.framebuffer = gl.glGenFramebuffers(1)
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer)
