@@ -246,12 +246,10 @@ class PicFlowLayout(QLayout):
         print (current.asset.name + " update")
 
         if current.asset.status == 0 or current.asset.status == 2:
-            #print ("button " + str (self.text) + " pressed")
             current.asset.status = 1
             if self.printinfo is not None:
                 self.printinfo(current.asset)
         else:
-            #print ("button released")
             current.asset.status = 0
         self.callback(current.asset)
         self.refreshAllWidgets()
@@ -394,6 +392,7 @@ class FilterTree(QTreeView):
         self.iconpath = iconpath
         self.shortcut = []
         self.shortcutbutton = []
+        self.blockfilter = False
 
         super().__init__()
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -472,7 +471,9 @@ class FilterTree(QTreeView):
                         ruleset[key] = [ ":".join(layers[1:]) ]
 
         self.clearSelection()
+        self.blockfilter = True
         self.setSelectedByRuleset(ruleset)
+        self.blockfilter = False
         self.markSelectedButtons(funcid)
         self.flowLayout.removeAllWidgets()
         self.flowLayout.populate(ruleset, "")
@@ -526,12 +527,18 @@ class FilterTree(QTreeView):
 
 
 
-    def filterChanged(self):
+    def filterChanged(self, qobject, clear=False):
         """
         create a ruleset from selected items and repopulate the flow-Layout
+        blocking must be used not to call filter 5 times for same menu
         """
-        if self.flowLayout is None:
+        if self.flowLayout is None or self.blockfilter is True:
             return
+
+        # print ("Filter", qobject)
+        self.blockfilter = True
+        if clear:
+            self.clearSelection()
         ruleset = {}
         for ix in self.selectedIndexes():
             item = self.model.itemFromIndex(ix)
@@ -543,6 +550,7 @@ class FilterTree(QTreeView):
         self.markSelectedButtons(-1)
         self.flowLayout.removeAllWidgets()
         self.flowLayout.populate(ruleset, filtertext)
+        self.blockfilter = False
 
 class editBox(QLineEdit):
     def  __init__(self, slayout, sweep):
@@ -563,7 +571,7 @@ class editBox(QLineEdit):
     def clearEditBox(self):
         self.clear()
         if self.changeFilter is not None:
-            self.changeFilter()
+            self.changeFilter(None, clear=True)
 
 class ImageSelection():
     def __init__(self, parent, assetrepo, eqtype, selmode, callback, scale=2):
