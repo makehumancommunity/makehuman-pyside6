@@ -395,7 +395,11 @@ class baseClass():
             self.glob.openGLWindow.Tweak()
 
     def addSkeleton(self, name, path):
+        """
+        first delete old skeleton, then add new one
+        """
         if self.skeleton is not None:
+            self.glob.markAssetByFileName(self.skeleton.filename, False)
             self.glob.openGLWindow.delSkeleton()
 
         # reuse pose-skeleton in case of identical selection
@@ -424,7 +428,7 @@ class baseClass():
             self.pose_skeleton.posebyBlends(self.expression.blends, self.faceunits.bonemask )
 
     def addPose(self, name, path):
-        if self.skeleton is None:
+        if self.pose_skeleton is None:
             return True
 
         if self.bvh is not None:
@@ -457,7 +461,7 @@ class baseClass():
         return (self.faceunits)
  
     def addExpression(self, name, path):
-        if self.skeleton is None:
+        if self.pose_skeleton is None:
             return
 
         if self.getFaceUnits() is None:
@@ -524,15 +528,14 @@ class baseClass():
         target.loadTargets()
         self.attachedAssets = []
 
-        # load preselected skeleton
+        # load preselected skeleton as pose-skeleton only
+        #
         if "pose-skeleton" in self.baseInfo:
             skelname = self.baseInfo["pose-skeleton"]
             self.pose_skelpath = self.env.existDataFile("rigs", self.env.basename, skelname)
             if self.pose_skelpath is not None:
-                # print ("Pose-Skeleton Path " + self.pose_skelpath)
                 self.pose_skeleton = skeleton(self.glob, skelname)
                 self.pose_skeleton.loadJSON(self.pose_skelpath)
-                self.skeleton = self.pose_skeleton  # preset skeleton
 
         # set here or/and in mhm
         #
@@ -549,11 +552,6 @@ class baseClass():
             self.baseMesh.loadMaterial(None)
         self.glob.openGLBlock = False
 
-
-        # no assets, mark skeleton appended if a skeleton exists
-        #
-        if self.skeleton:
-            self.glob.markAssetByFileName(self.pose_skelpath, True)
         memInfo()
         return (True)
 

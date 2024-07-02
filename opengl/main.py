@@ -78,6 +78,9 @@ class OpenGLView(QOpenGLWidget):
 
 
     def addSkeleton(self, pose=False):
+        """
+        add a white skeleton for the one added to character or pose skeleton in animation mode
+        """
         if pose:
             skeleton = self.glob.baseClass.pose_skeleton
             col = [1.0, 0.5, 0.0]
@@ -100,7 +103,8 @@ class OpenGLView(QOpenGLWidget):
         makes objects invisible and switches skeleton to on
         """
         self.objects_invisible = status
-        if self.glob.baseClass is not None and self.glob.baseClass.skeleton is not None:
+        #if self.glob.baseClass is not None and self.glob.baseClass.skeleton is not None:
+        if self.glob.baseClass and (self.glob.baseClass.skeleton or self.glob.baseClass.pose_skeleton):
             self.togglePrims("skeleton", self.objects_invisible)
             self.Tweak()
 
