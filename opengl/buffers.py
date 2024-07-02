@@ -325,8 +325,11 @@ class PixelBuffer:
         if self.depthbuffer is not None:
             gl.glDeleteRenderbuffers(1, np.array([self.depthbuffer]))
 
-        gl.glBindRenderbuffer(gl.GL_RENDERBUFFER, 0)
-        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
+        # use functions because then "0" is translated to default buffer
+        #
+        functions.glBindRenderbuffer(gl.GL_RENDERBUFFER, 0)
+        functions.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
+
         gl.glPopAttrib()
         #
         # still not clear ... without glDisable I get a black screen

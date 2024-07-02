@@ -103,7 +103,6 @@ class OpenGLView(QOpenGLWidget):
         makes objects invisible and switches skeleton to on
         """
         self.objects_invisible = status
-        #if self.glob.baseClass is not None and self.glob.baseClass.skeleton is not None:
         if self.glob.baseClass and (self.glob.baseClass.skeleton or self.glob.baseClass.pose_skeleton):
             self.togglePrims("skeleton", self.objects_invisible)
             self.Tweak()
@@ -171,7 +170,8 @@ class OpenGLView(QOpenGLWidget):
 
     def deleteObject(self,obj):
         obj.openGL.delete()
-        obj.material.freeTextures()
+        if obj.type != "proxy":
+            obj.material.freeTextures()
         self.objects.remove(obj.openGL)
         self.Tweak()
         obj.openGL = None
@@ -188,7 +188,7 @@ class OpenGLView(QOpenGLWidget):
             self.env.logLine(1, "Shader version is not sufficient, minimum version is " + str(deb.minVersion() + ". Available languages are:") )
             lang = deb.getShadingLanguages()
             for l in lang:
-                if l is not "":
+                if l != "":
                     self.env.logLine(1, l)
             exit(20)
 

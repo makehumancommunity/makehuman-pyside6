@@ -49,7 +49,6 @@ class MHMaterialWindow(QWidget):
         if matelem.status == 1:
             # check asset before, if different change
             if matelem.filename != self.oldmaterial:
-                print ("change")
 
                 # get new material (releases old stuff as well)
                 # different for skin (object3d) and asset
@@ -58,6 +57,14 @@ class MHMaterialWindow(QWidget):
                     obj = self.asset
                     self.glob.baseClass.skinMaterial = matelem.filename
                 else:
+                    # when changing the proxy, the base mesh should get same material
+                    #
+                    if self.asset.type == "proxy":
+                        self.glob.baseClass.skinMaterial = matelem.filename
+                        mainobj = self.glob.baseClass.baseMesh
+                        mainobj.newMaterial(matelem.filename)
+                        mainobj.openGL.setMaterial(mainobj.material)
+
                     obj = self.asset.obj
                     self.asset.material = matelem.filename
 

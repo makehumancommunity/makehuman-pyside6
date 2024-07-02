@@ -968,9 +968,6 @@ class MHMainWindow(QMainWindow):
                 print ("Close event")
             return
 
-        if self.glob.baseClass is not None:
-            self.glob.baseClass.delProxy()
-
         if self.graph is not None:
             self.graph.cleanUp()
 
