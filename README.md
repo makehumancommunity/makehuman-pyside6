@@ -1,5 +1,7 @@
 # makehuman-pyside6
-The program is still under development and is far from being ready for use. So be careful, we will not restore your box, if new makehuman does not do what it should do. Best to use a virtual environment still, especially on Linux with a python already installed.
+*The program is still under development and is far from being ready for use. I nevertheless decided to change the repository to public mode after a year* 
+
+So be careful, we will not restore your box, if new makehuman does not do what it should do. Best to use a virtual environment still, especially on Linux with a python already installed.
 
 MAC is not yet support and it could happen, that it will not be done (if we need to leave openGL in future, Vulkan will be used, not proprietary stuff like Metal).
 
