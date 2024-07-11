@@ -239,6 +239,7 @@ class ExportLeftPanel(QVBoxLayout):
         self.glob = parent.glob
         self.bc  = parent.glob.baseClass
         self.binmode = True
+        self.savehiddenverts = False
         self.export_type = ".glb"
         super().__init__()
 
@@ -256,6 +257,14 @@ class ExportLeftPanel(QVBoxLayout):
         self.binsave.setToolTip('Some exports offer binary and ASCII modes, binary mode is usually faster and smaller')
         self.addWidget(self.binsave)
 
+        self.hverts= QCheckBox("save hidden vertices")
+        self.hverts.setLayoutDirection(Qt.LeftToRight)
+        self.hverts.toggled.connect(self.changeHVerts)
+        self.hverts.setChecked(False)
+        self.hverts.setToolTip('Export of hidden vertices is only useful, when destination is able to edit mesh')
+        self.addWidget(self.hverts)
+
+
         self.exportbutton=QPushButton("Export")
         self.exportbutton.clicked.connect(self.exportfile)
         self.addWidget(self.exportbutton)
@@ -271,6 +280,9 @@ class ExportLeftPanel(QVBoxLayout):
 
     def changeBinary(self, param):
         self.binmode = param
+
+    def changeHVerts(self, param):
+        self.savehiddenverts = param
 
     def newfilename(self):
         """
@@ -289,7 +301,7 @@ class ExportLeftPanel(QVBoxLayout):
         path = os.path.join(folder, self.filename.text())
 
         if self.export_type == ".glb":
-            gltf = gltfExport(self.glob, folder)
+            gltf = gltfExport(self.glob, folder, self.savehiddenverts)
             success = gltf.binSave(self.bc, path)
 
         elif self.export_type == ".stl":

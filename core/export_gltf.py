@@ -4,13 +4,14 @@ import struct
 import numpy as np
 
 class gltfExport:
-    def __init__(self, glob, exportfolder):
+    def __init__(self, glob, exportfolder, hiddenverts=False):
 
         # subfolder for textures
         #
         self.imagefolder = "textures"
         self.exportfolder = exportfolder
         self.env = glob.env
+        self.hiddenverts = hiddenverts
 
         # all constants used
         #
@@ -96,57 +97,57 @@ class gltfExport:
         self.bufferoffset += length
         return(self.bufferview_cnt)
 
-    def addPosAccessor(self, obj):
+    def addPosAccessor(self, coord):
         self.accessor_cnt += 1
 
-        cnt = len(obj.gl_coord) // 3
-        meshCoords = np.reshape(obj.gl_coord, (cnt,3))
+        cnt = len(coord) // 3
+        meshCoords = np.reshape(coord, (cnt,3))
         minimum = meshCoords.min(axis=0).tolist()
         maximum = meshCoords.max(axis=0).tolist()
 
-        data = obj.gl_coord.tobytes()
+        data = coord.tobytes()
         buf = self.addBufferView(self.ARRAY_BUFFER, data)
 
         self.json["accessors"].append({"bufferView": buf, "componentType": self.FLOAT, "count": cnt, "type": "VEC3", "min": minimum, "max": maximum})
         return(self.accessor_cnt)
 
-    def addNormAccessor(self, obj):
+    def addNormAccessor(self, norm):
         self.accessor_cnt += 1
 
-        cnt = len(obj.gl_norm) // 3
-        meshCoords = np.reshape(obj.gl_norm, (cnt,3))
+        cnt = len(norm) // 3
+        meshCoords = np.reshape(norm, (cnt,3))
         minimum = meshCoords.min(axis=0).tolist()
         maximum = meshCoords.max(axis=0).tolist()
 
-        data = obj.gl_norm.tobytes()
+        data = norm.tobytes()
         buf = self.addBufferView(self.ARRAY_BUFFER, data)
         self.json["accessors"].append({"bufferView": buf, "componentType": self.FLOAT, "count": cnt, "type": "VEC3", "min": minimum, "max": maximum})
         return(self.accessor_cnt)
 
-    def addTPosAccessor(self, obj):
+    def addTPosAccessor(self, uvcoord):
         self.accessor_cnt += 1
 
-        cnt = len(obj.gl_uvcoord) // 2
-        meshCoords = np.reshape(obj.gl_uvcoord, (cnt,2))
+        cnt = len(uvcoord) // 2
+        meshCoords = np.reshape(uvcoord, (cnt,2))
         minimum = meshCoords.min(axis=0).tolist()
         maximum = meshCoords.max(axis=0).tolist()
 
-        data = obj.gl_uvcoord.tobytes()
+        data = uvcoord.tobytes()
         buf = self.addBufferView(self.ARRAY_BUFFER, data)
 
         self.json["accessors"].append({"bufferView": buf, "componentType": self.FLOAT, "count": cnt, "type": "VEC2", "min": minimum, "max": maximum})
         return(self.accessor_cnt)
 
-    def addIndAccessor(self, obj):
+    def addIndAccessor(self, icoord):
         #
         # start with non hidden indices
         #
         self.accessor_cnt += 1
-        cnt = len(obj.gl_icoord)
-        minimum = int(obj.gl_icoord.min())
-        maximum = int(obj.gl_icoord.max())
+        cnt = len(icoord)
+        minimum = int(icoord.min())
+        maximum = int(icoord.max())
 
-        data = obj.gl_icoord.tobytes()
+        data = icoord.tobytes()
         buf = self.addBufferView(self.ELEMENT_ARRAY_BUFFER, data)
 
         self.json["accessors"].append({"bufferView": buf, "componentType": self.UNSIGNED_INT, "count": cnt, "type": "SCALAR", "min": [minimum], "max": [maximum]})
@@ -210,11 +211,26 @@ class gltfExport:
         return (self.material_cnt)
 
     def addMesh(self, obj, nodenumber):
+        icoord = None
+        if self.hiddenverts is False:
+            icoord, coord, uvcoord, norm = obj.optimizeHiddenMesh()
+            if icoord is None:
+                print ("Not hidden")
+            else:
+                print ("Hidden")
+
         self.mesh_cnt += 1
-        pos = self.addPosAccessor(obj)
-        texcoord = self.addTPosAccessor(obj)
-        norm = self.addNormAccessor(obj)
-        ind = self.addIndAccessor(obj)
+        icoord = None # TODO delete when correct
+        if icoord is not None:
+            pos = self.addPosAccessor(coord)
+            texcoord = self.addTPosAccessor(uvcoord)
+            norm = self.addNormAccessor(norm)
+            ind = self.addIndAccessor(icoord)
+        else:
+            pos = self.addPosAccessor(obj.gl_coord)
+            texcoord = self.addTPosAccessor(obj.gl_uvcoord)
+            norm = self.addNormAccessor(obj.gl_norm)
+            ind = self.addIndAccessor(obj.gl_icoord)
         self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "NORMAL": norm, "TEXCOORD_0": texcoord  }, "indices": ind, "material": nodenumber, "mode": self.TRIANGLES }]})
         return (self.mesh_cnt)
 

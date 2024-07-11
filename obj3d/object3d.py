@@ -35,7 +35,7 @@ class object3d:
         self.gl_coord_o = []  # will contain a copy of unchanged positions (TODO base mesh only ?)
 
         self.gl_coord_w = []  # will contain a copy of unchanged positions (working mode with targets) & for posing
-        self.gl_coord_mn = []  # will contain buffer for work with macros containing all changes except the macros
+        self.gl_coord_mn = []  # will contain buffer for work with macros containing ll changes except the macros
         self.gl_coord_mm = []  # will contain buffer for work with macros containing all changes of the macros
 
         self.gl_uvcoord = []  # will contain flattened gluv-Buffer
@@ -354,6 +354,90 @@ class object3d:
                 dcnt += 3
             scnt += 3
         self.gl_hicoord.resize(dcnt, refcheck=False)
+
+    def optimizeHiddenMesh(self):
+        """
+        duplicate the mesh for effective saving without hidden vertices
+        (e.g. glTF)
+        """
+        
+        # check if we have hidden verts
+        #
+        print (self.filename)
+        if self.gl_hicoord is None:
+            print ("Not hidden")
+            return None, None, None, None
+
+        # create a bool map of what is still used, start with 0 (false)
+        # if nothing is hidden return as well
+        #
+        indexlen =  len(self.gl_hicoord)
+        mymax = np.max(self.gl_icoord) + 1
+        ba = np.full((mymax), 0)
+        for cnt in range(0, indexlen):
+            ba[self.gl_hicoord[cnt]] = 1
+        if np.all(ba):
+            print ("nothing deleted")
+            return None, None, None, None
+
+        # create a mapping index reduced by hidden verts
+        #
+        mapping = np.full(mymax, -1, dtype=np.int32)
+        newind = 0
+        for cnt in range(0, mymax):
+            if ba[cnt] == 1:
+                mapping[cnt] = newind
+                newind +=1
+
+        # with that mapping given recalculate index, we need newind indices
+        #
+        gl_index = np.zeros(newind,  dtype=np.uint32)
+        for cnt in range(0, newind):
+            gl_index[cnt] = self.gl_hicoord[mapping[cnt]]
+
+        # now check what is still used from the 3 buffers, again with bool array
+        #
+        mymax = len(self.gl_uvcoord) // 2
+        ba = np.full((mymax), 0)
+        for cnt in range(0, newind):
+            ba[gl_index[cnt]] = 1
+
+        # create a mapping index reduced by hidden coords
+        #
+        mapping = np.full(mymax, -1, dtype=np.int32)
+        newcoord = 0
+        for cnt in range(0, mymax):
+            if ba[cnt] == 1:
+                mapping[cnt] = newcoord
+                newcoord +=1
+
+        # do correction of flattened array
+        #
+        gl_coord = np.zeros(newcoord*3,  dtype=np.float32)
+        gl_uvcoord = np.zeros(newcoord*2,  dtype=np.float32)
+        gl_norm = np.zeros(newcoord*3,  dtype=np.float32)
+
+        for cnt in range(0, newcoord):
+            cn2 = cnt * 2
+            cn3 = cnt * 3
+            mp2 = mapping[cnt] * 2
+            mp3 = mapping[cnt] * 3
+
+            gl_coord[cn3] = self.gl_coord[mp3]
+            gl_coord[cn3+1] = self.gl_coord[mp3+1]
+            gl_coord[cn3+2] = self.gl_coord[mp3+2]
+
+            gl_uvcoord[cn2] = self.gl_uvcoord[mp2]
+            gl_uvcoord[cn2+1] = self.gl_uvcoord[mp2+1]
+
+            gl_norm[cn3] = self.gl_norm[mp3]
+            gl_norm[cn3+1] = self.gl_norm[mp3+1]
+            gl_norm[cn3+2] = self.gl_norm[mp3+2]
+
+        for cnt in range(0, newind):
+            gl_index[cnt] =  mapping[gl_index[cnt]]
+
+        return gl_index, gl_coord, gl_uvcoord, gl_norm
 
     def getInitialCopyForSlider(self, factor, targetlower, targetupper):
         """
