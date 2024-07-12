@@ -216,11 +216,8 @@ class gltfExport:
             icoord, coord, uvcoord, norm = obj.optimizeHiddenMesh()
             if icoord is None:
                 print ("Not hidden")
-            else:
-                print ("Hidden")
 
         self.mesh_cnt += 1
-        icoord = None # TODO delete when correct
         if icoord is not None:
             pos = self.addPosAccessor(coord)
             texcoord = self.addTPosAccessor(uvcoord)

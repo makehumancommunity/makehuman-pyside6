@@ -35,7 +35,7 @@ class object3d:
         self.gl_coord_o = []  # will contain a copy of unchanged positions (TODO base mesh only ?)
 
         self.gl_coord_w = []  # will contain a copy of unchanged positions (working mode with targets) & for posing
-        self.gl_coord_mn = []  # will contain buffer for work with macros containing ll changes except the macros
+        self.gl_coord_mn = []  # will contain buffer for work with macros containing all changes except the macros
         self.gl_coord_mm = []  # will contain buffer for work with macros containing all changes of the macros
 
         self.gl_uvcoord = []  # will contain flattened gluv-Buffer
@@ -365,77 +365,65 @@ class object3d:
         #
         print (self.filename)
         if self.gl_hicoord is None:
-            print ("Not hidden")
             return None, None, None, None
 
-        # create a bool map of what is still used, start with 0 (false)
-        # if nothing is hidden return as well
-        #
-        indexlen =  len(self.gl_hicoord)
-        mymax = np.max(self.gl_icoord) + 1
-        ba = np.full((mymax), 0)
-        for cnt in range(0, indexlen):
-            ba[self.gl_hicoord[cnt]] = 1
-        if np.all(ba):
-            print ("nothing deleted")
-            return None, None, None, None
-
-        # create a mapping index reduced by hidden verts
-        #
-        mapping = np.full(mymax, -1, dtype=np.int32)
-        newind = 0
-        for cnt in range(0, mymax):
-            if ba[cnt] == 1:
-                mapping[cnt] = newind
-                newind +=1
-
-        # with that mapping given recalculate index, we need newind indices
-        #
-        gl_index = np.zeros(newind,  dtype=np.uint32)
-        for cnt in range(0, newind):
-            gl_index[cnt] = self.gl_hicoord[mapping[cnt]]
+        # in gl_hicoord there is already a "compressed" index
+        # so this creates a shorter version already
+        # return self.gl_hicoord, self.gl_coord, self.gl_uvcoord, self.gl_norm
 
         # now check what is still used from the 3 buffers, again with bool array
+        # check with uvcoord
         #
-        mymax = len(self.gl_uvcoord) // 2
-        ba = np.full((mymax), 0)
-        for cnt in range(0, newind):
-            ba[gl_index[cnt]] = 1
+        indlen = len(self.gl_hicoord)
+
+        usedmax = len(self.gl_uvcoord) // 2
+        ba = np.full((usedmax), 0)
+        for cnt in range(0, indlen):
+            ba[self.gl_hicoord[cnt]] = 1
+
+        # nothing deleted?
+        if np.all(ba):
+            return None, None, None, None
 
         # create a mapping index reduced by hidden coords
         #
-        mapping = np.full(mymax, -1, dtype=np.int32)
+        mapping = np.full(usedmax, -1, dtype=np.int32)
         newcoord = 0
-        for cnt in range(0, mymax):
+        for cnt in range(0, usedmax):
             if ba[cnt] == 1:
                 mapping[cnt] = newcoord
                 newcoord +=1
 
-        # do correction of flattened array
+        # we now knew size, so create temporary arrays
         #
+        gl_index = np.zeros(indlen, dtype=np.uint32)
         gl_coord = np.zeros(newcoord*3,  dtype=np.float32)
         gl_uvcoord = np.zeros(newcoord*2,  dtype=np.float32)
         gl_norm = np.zeros(newcoord*3,  dtype=np.float32)
 
-        for cnt in range(0, newcoord):
-            cn2 = cnt * 2
-            cn3 = cnt * 3
-            mp2 = mapping[cnt] * 2
-            mp3 = mapping[cnt] * 3
+        # do correction of flattened array
+        #
+        for cnt in range(0, usedmax):
+            d = mapping[cnt]
+            if d != -1:
+                s2 = cnt * 2
+                s3 = cnt * 3
+                d2 = d * 2
+                d3 = d * 3
 
-            gl_coord[cn3] = self.gl_coord[mp3]
-            gl_coord[cn3+1] = self.gl_coord[mp3+1]
-            gl_coord[cn3+2] = self.gl_coord[mp3+2]
+                gl_coord[d3] = self.gl_coord[s3]
+                gl_coord[d3+1] = self.gl_coord[s3+1]
+                gl_coord[d3+2] = self.gl_coord[s3+2]
 
-            gl_uvcoord[cn2] = self.gl_uvcoord[mp2]
-            gl_uvcoord[cn2+1] = self.gl_uvcoord[mp2+1]
+                gl_uvcoord[d2] = self.gl_uvcoord[s2]
+                gl_uvcoord[d2+1] = self.gl_uvcoord[s2+1]
 
-            gl_norm[cn3] = self.gl_norm[mp3]
-            gl_norm[cn3+1] = self.gl_norm[mp3+1]
-            gl_norm[cn3+2] = self.gl_norm[mp3+2]
+                gl_norm[d3] = self.gl_norm[s3]
+                gl_norm[d3+1] = self.gl_norm[s3+1]
+                gl_norm[d3+2] = self.gl_norm[s3+2]
 
-        for cnt in range(0, newind):
-            gl_index[cnt] =  mapping[gl_index[cnt]]
+        for cnt in range(0,  indlen):
+            gl_index[cnt] =  mapping[self.gl_hicoord[cnt]]
 
         return gl_index, gl_coord, gl_uvcoord, gl_norm
 
