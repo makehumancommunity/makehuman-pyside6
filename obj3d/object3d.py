@@ -355,25 +355,10 @@ class object3d:
             scnt += 3
         self.gl_hicoord.resize(dcnt, refcheck=False)
 
-    def optimizeHiddenMesh(self):
-        """
-        duplicate the mesh for effective saving without hidden vertices
-        (e.g. glTF)
-        """
-        
-        # check if we have hidden verts
-        #
-        print (self.filename)
+    def hiddenMask(self):
         if self.gl_hicoord is None:
-            return None, None, None, None
+            return None
 
-        # in gl_hicoord there is already a "compressed" index
-        # so this creates a shorter version already
-        # return self.gl_hicoord, self.gl_coord, self.gl_uvcoord, self.gl_norm
-
-        # now check what is still used from the 3 buffers, again with bool array
-        # check with uvcoord
-        #
         indlen = len(self.gl_hicoord)
 
         usedmax = len(self.gl_uvcoord) // 2
@@ -383,19 +368,42 @@ class object3d:
 
         # nothing deleted?
         if np.all(ba):
+            return None
+
+        return (ba)
+
+
+    def optimizeHiddenMesh(self):
+        """
+        duplicate the mesh for effective saving without hidden vertices
+        (e.g. glTF)
+        """
+        
+        # check if we have hidden verts
+        #
+        print (self.filename)
+
+        mask = self.hiddenMask()
+        if mask is None:
             return None, None, None, None
+
+        # in gl_hicoord there is already a "compressed" index
+        # so this creates a shorter version already
+        # return self.gl_hicoord, self.gl_coord, self.gl_uvcoord, self.gl_norm
 
         # create a mapping index reduced by hidden coords
         #
+        usedmax = len(mask)
         mapping = np.full(usedmax, -1, dtype=np.int32)
         newcoord = 0
         for cnt in range(0, usedmax):
-            if ba[cnt] == 1:
+            if mask[cnt] == 1:
                 mapping[cnt] = newcoord
                 newcoord +=1
 
         # we now knew size, so create temporary arrays
         #
+        indlen = len(self.gl_hicoord)
         gl_index = np.zeros(indlen, dtype=np.uint32)
         gl_coord = np.zeros(newcoord*3,  dtype=np.float32)
         gl_uvcoord = np.zeros(newcoord*2,  dtype=np.float32)

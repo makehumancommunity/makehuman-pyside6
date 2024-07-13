@@ -4,7 +4,7 @@ import struct
 import numpy as np
 
 class gltfExport:
-    def __init__(self, glob, exportfolder, hiddenverts=False):
+    def __init__(self, glob, exportfolder, hiddenverts=False, onground=True, scale =0.1):
 
         # subfolder for textures
         #
@@ -12,6 +12,8 @@ class gltfExport:
         self.exportfolder = exportfolder
         self.env = glob.env
         self.hiddenverts = hiddenverts
+        self.onground = onground
+        self.scale = scale
 
         # all constants used
         #
@@ -101,6 +103,10 @@ class gltfExport:
         self.accessor_cnt += 1
 
         cnt = len(coord) // 3
+
+        if self.scale != 1.0:
+            coord = coord * self.scale
+
         meshCoords = np.reshape(coord, (cnt,3))
         minimum = meshCoords.min(axis=0).tolist()
         maximum = meshCoords.max(axis=0).tolist()
@@ -139,9 +145,6 @@ class gltfExport:
         return(self.accessor_cnt)
 
     def addIndAccessor(self, icoord):
-        #
-        # start with non hidden indices
-        #
         self.accessor_cnt += 1
         cnt = len(icoord)
         minimum = int(icoord.min())
@@ -231,15 +234,30 @@ class gltfExport:
         self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "NORMAL": norm, "TEXCOORD_0": texcoord  }, "indices": ind, "material": nodenumber, "mode": self.TRIANGLES }]})
         return (self.mesh_cnt)
 
+    def addBones(self, bone, num, pos):
+        #
+        # bone-translations have to be relative in GLTF
+        #
+        trans = ((bone.headPos - pos) * self.scale).tolist()
+        node = {"name": bone.name, "translation": trans, "children": []  }
+        self.json["nodes"].append(node)
+        num += 1
+        nextnode = num
+        for child in bone.children:
+            nextnode = self.addBones(child, num, bone.headPos)
+            node["children"].append(num)
+            num = nextnode
+        return (num)
+
     def addNodes(self, baseclass):
         #
         # add the basemesh itself, the other nodes will be children
         # here one node will always have one mesh
         #
-        # TODO: later reduced vertices etc.
-        #
-        # in case of a proxy use the proxy as first mesh
         skin = baseclass.baseMesh.material
+
+        # in case of a proxy use the proxy as first mesh
+        #
         if baseclass.proxy:
             baseobject = baseclass.attachedAssets[0].obj
             start = 1
@@ -251,20 +269,35 @@ class gltfExport:
             return (False)
 
         mesh = self.addMesh(baseobject, mat)
-        self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh,  "children": []  })
+
+        # in case of onground we need a translation
+        #
+        if self.onground:
+            zmin = baseclass.baseMesh.getZMin() * self.scale
+            trans = [0.0, float(-zmin), 0.0]
+            self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh, "translation": trans,  "children": []  })
+        else:
+            self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh,  "children": []  })
         self.json["scenes"][0]["nodes"].append(0)
         children = self.json["nodes"][0]["children"]
 
-        i = 1
+        childnum = 1
         for elem in baseclass.attachedAssets[start:]:
             mat =  self.addMaterial(elem.obj.material)
             if mat == -1:
                 return (False)
             mesh = self.addMesh(elem.obj, mat)
             self.json["nodes"].append({"name": self.nodeName(elem.filename), "mesh": mesh })
-            children.append(i)
-            i += 1
+            children.append(childnum)
+            childnum += 1
 
+        if baseclass.skeleton is not None:
+            skeleton = baseclass.skeleton
+            bonename = list(skeleton.bones)[0]
+            bone = skeleton.bones[bonename]
+            start = np.zeros(3,dtype=np.float32)
+            self.addBones(bone, childnum, start)
+            children.append(childnum)
         
         self.json["buffers"].append({"byteLength": self.bufferoffset})
         print (self)

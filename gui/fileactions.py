@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (
     QWidget, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QAbstractItemView, QLineEdit, QLabel,
-    QMessageBox, QRadioButton, QDialogButtonBox, QCheckBox
+    QMessageBox, QRadioButton, QDialogButtonBox, QCheckBox, QComboBox
     )
 
 from PySide6.QtCore import QSize, Qt
@@ -239,9 +239,20 @@ class ExportLeftPanel(QVBoxLayout):
         self.glob = parent.glob
         self.bc  = parent.glob.baseClass
         self.binmode = True
+        self.onground = True
         self.savehiddenverts = False
         self.export_type = ".glb"
         super().__init__()
+        self.scale_items = [
+            [ 0.1, "Meter"],
+            [ 1.0, "Decimeter"],
+            [ 10.0, "Centimeter"],
+            [ 100.0, "Millimeter"]
+        ]
+
+        scaletexts = []
+        for elem in self.scale_items:
+            scaletexts.append(str(elem[0]) + "   " + elem[1])
 
         # filename
         #
@@ -257,6 +268,13 @@ class ExportLeftPanel(QVBoxLayout):
         self.binsave.setToolTip('Some exports offer binary and ASCII modes, binary mode is usually faster and smaller')
         self.addWidget(self.binsave)
 
+        self.ground= QCheckBox("feet on ground")
+        self.ground.setLayoutDirection(Qt.LeftToRight)
+        self.ground.toggled.connect(self.changeGround)
+        self.ground.setChecked(True)
+        self.ground.setToolTip('When characters origin is not at the ground, this option corrects the position')
+        self.addWidget(self.ground)
+
         self.hverts= QCheckBox("save hidden vertices")
         self.hverts.setLayoutDirection(Qt.LeftToRight)
         self.hverts.toggled.connect(self.changeHVerts)
@@ -264,6 +282,11 @@ class ExportLeftPanel(QVBoxLayout):
         self.hverts.setToolTip('Export of hidden vertices is only useful, when destination is able to edit mesh')
         self.addWidget(self.hverts)
 
+        self.addWidget(QLabel("Scaling:"))
+        self.scalebox = QComboBox()
+        self.scalebox.addItems(scaletexts)
+        self.scalebox.setToolTip('MakeHuman works with decimeter system, destination system usually differs')
+        self.addWidget(self.scalebox)
 
         self.exportbutton=QPushButton("Export")
         self.exportbutton.clicked.connect(self.exportfile)
@@ -274,9 +297,21 @@ class ExportLeftPanel(QVBoxLayout):
         self.setExportType(self.export_type)
 
     def setExportType(self, etype):
+        common = "MakeHuman works with unit decimeter. "
+        expAttrib = { ".stl":  {"tip": common + "STL files are unit less. When working with printers 1 unit equals 1 millimeter (preset scale 1:10)",
+                "num": 2, "binset": True, "binmode": "both"},
+            ".glb": { "tip": common + "GLB/GLTF units are usually meters",
+                "num": 0, "binset": False, "binmode": True}}
+
+        # set options according to type
+        #
         self.export_type = etype
         self.newfilename()
-        self.binsave.setEnabled(self.export_type == ".stl")
+        if expAttrib[self.export_type]["binmode"] != "both":
+            self.binsave.setChecked(expAttrib[self.export_type]["binmode"])
+        self.binsave.setEnabled(expAttrib[self.export_type]["binset"])
+        self.scalebox.setCurrentIndex(expAttrib[self.export_type]["num"])
+        self.scalebox.setToolTip(expAttrib[self.export_type]["tip"])
 
     def changeBinary(self, param):
         self.binmode = param
@@ -284,9 +319,12 @@ class ExportLeftPanel(QVBoxLayout):
     def changeHVerts(self, param):
         self.savehiddenverts = param
 
+    def changeGround(self, param):
+        self.onground = param
+
     def newfilename(self):
         """
-        not empty, always ends with mhm
+        not empty, always ends with export type
         """
         text = self.filename.text()
         if not text.endswith(self.export_type):
@@ -299,13 +337,15 @@ class ExportLeftPanel(QVBoxLayout):
         """
         folder = self.glob.env.stdUserPath("exports")
         path = os.path.join(folder, self.filename.text())
+        current = self.scalebox.currentIndex()
+        scale = self.scale_items[current][0]
 
         if self.export_type == ".glb":
-            gltf = gltfExport(self.glob, folder, self.savehiddenverts)
+            gltf = gltfExport(self.glob, folder, self.savehiddenverts, self.onground, scale)
             success = gltf.binSave(self.bc, path)
 
         elif self.export_type == ".stl":
-            stl = stlExport(self.glob, folder)
+            stl = stlExport(self.glob, folder, self.savehiddenverts, scale)
             if self.binmode:
                 success = stl.binSave(self.bc, path)
             else:
