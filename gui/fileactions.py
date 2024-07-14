@@ -12,6 +12,7 @@ import os
 from core.importfiles import AssetPack
 from core.export_gltf import gltfExport
 from core.export_stl import stlExport
+from core.blender_communication import blendCom
 
 class BaseSelect(QVBoxLayout):
     def __init__(self, parent, callback):
@@ -301,7 +302,10 @@ class ExportLeftPanel(QVBoxLayout):
         expAttrib = { ".stl":  {"tip": common + "STL files are unit less. When working with printers 1 unit equals 1 millimeter (preset scale 1:10)",
                 "num": 2, "binset": True, "binmode": "both"},
             ".glb": { "tip": common + "GLB/GLTF units are usually meters",
-                "num": 0, "binset": False, "binmode": True}}
+                "num": 0, "binset": False, "binmode": True},
+            ".mh2b": { "tip": common + "Blender units are usually meters",
+                "num": 0, "binset": False, "binmode": True}
+            }
 
         # set options according to type
         #
@@ -350,6 +354,10 @@ class ExportLeftPanel(QVBoxLayout):
                 success = stl.binSave(self.bc, path)
             else:
                 success = stl.ascSave(self.bc, path)
+
+        elif self.export_type == ".mh2b":
+            blcom = blendCom(self.glob, folder, self.savehiddenverts, self.onground, scale)
+            success = blcom.binSave(self.bc, path)
         else:
             print ("not yet implemented")
             return
@@ -369,7 +377,8 @@ class ExportRightPanel(QVBoxLayout):
         self.leftPanel = connector
         self.exportimages = [
                 { "button": None, "icon": "gltf_sym.png", "tip": "export as GLTF2/GLB", "func": self.exportgltf},
-                { "button": None, "icon": "stl_sym.png", "tip": "export as STL (Stereolithography)", "func": self.exportstl}
+                { "button": None, "icon": "stl_sym.png", "tip": "export as STL (Stereolithography)", "func": self.exportstl},
+                { "button": None, "icon": "blend_sym.png", "tip": "export as MH2B (Blender)", "func": self.exportmh2b}
         ]
         for n, b in enumerate(self.exportimages):
             b["button"] = IconButton(n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"], 130)
@@ -391,6 +400,11 @@ class ExportRightPanel(QVBoxLayout):
         print ("export STL called")
         self.leftPanel.setExportType(".stl")
         self.setChecked(1)
+
+    def exportmh2b(self):
+        print ("export MH2B called")
+        self.leftPanel.setExportType(".mh2b")
+        self.setChecked(2)
 
 class DownLoadImport(QVBoxLayout):
     def __init__(self, parent, view, displaytitle):

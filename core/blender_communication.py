@@ -1,9 +1,14 @@
+#
+# new Blender exchange format similar to glTF, so binary buffers for verts and uvs and faces
+# to read with from_pydata(), rest JSON, should create files but should also be used as an API 
+#
+
 import os
 import json
 import struct
 import numpy as np
 
-class gltfExport:
+class blendCom:
     def __init__(self, glob, exportfolder, hiddenverts=False, onground=True, scale =0.1):
 
         # subfolder for textures
@@ -17,50 +22,31 @@ class gltfExport:
 
         # all constants used
         #
-        self.TRIANGLES = 4
-        self.UNSIGNED_INT = 5125
-        self.FLOAT = 5126
-        self.ARRAY_BUFFER = 34962          # usually positions
-        self.ELEMENT_ARRAY_BUFFER = 34963  # usually indices
-        self.GLTF_VERSION = 2
-        self.MAGIC = b'glTF'
+        self.POS_BUFFER = 10        # targets
+        self.FACE_BUFFER = 11
+        self.UV_BUFFER = 12
+        self.MH2B_VERSION = 1
+        self.MAGIC = b'MH2B'
         self.JSON = b'JSON'
         self.BIN  = "BIN\x00"
         #
         # for image and sampler
-        self.MAGFILTER = 9729   # Linear Magnification filter
-        self.MINFILTER = 9987   # LINEAR_MIPMAP_LINEAR
-        self.REPEAT = 10497
         self.IMAGEJPEG = 'image/jpeg'
         self.IMAGEPNG = "image/png"
 
-
         self.json = {}
-        self.json["asset"] = {"generator": "makehuman2", "version": "2.0" }    # copyright maybe
-        self.json["scenes"] = [ {"name": "makehuman2 export", "nodes": [] } ]  # one scene contains all nodes
-
-        self.json["samplers"] = [ { "magFilter": self.MAGFILTER, "minFilter": self.MINFILTER, # fixed sampler (one for all)
-            "wrapS": self.REPEAT, "wrapT" : self.REPEAT } ]
-
-        self.json["scene"] = 0 # fixed number (we only have on scene)
+        # change asset version to add a name for collection
+        self.json["asset"] = {"generator": "makehuman2", "version": "1.0", "mode": 0, "nodes": []  } # mode=0 complete file
 
         self.json["nodes"] = [] # list of nodes
 
         self.json["meshes"] = []
         self.mesh_cnt = -1
 
-        self.json["accessors"] = []     # list of accessors (pointer to buffers, size, min, max
-        self.accessor_cnt = -1
-
         self.json["bufferViews"] = []   # list of bufferviews, mode of buffer, length, offset, buffer number
         self.bufferview_cnt = -1
 
         self.json["buffers"] = []       # at the moment we try one view = one buffer
-
-        # skeleton 
-        #
-        self.json["skins"] = []
-        #self.json["animations"] = []       # buffer?
 
         # texture and material
         #
@@ -99,62 +85,22 @@ class gltfExport:
         self.bufferoffset += length
         return(self.bufferview_cnt)
 
-    def addPosAccessor(self, coord):
-        self.accessor_cnt += 1
-
-        cnt = len(coord) // 3
-
+    def addPosBuffer(self, coord):
         if self.scale != 1.0:
             coord = coord * self.scale
 
-        meshCoords = np.reshape(coord, (cnt,3))
-        minimum = meshCoords.min(axis=0).tolist()
-        maximum = meshCoords.max(axis=0).tolist()
-
         data = coord.tobytes()
-        buf = self.addBufferView(self.ARRAY_BUFFER, data)
+        return(self.addBufferView(self.POS_BUFFER, data))
 
-        self.json["accessors"].append({"bufferView": buf, "componentType": self.FLOAT, "count": cnt, "type": "VEC3", "min": minimum, "max": maximum})
-        return(self.accessor_cnt)
 
-    def addNormAccessor(self, norm):
-        self.accessor_cnt += 1
-
-        cnt = len(norm) // 3
-        meshCoords = np.reshape(norm, (cnt,3))
-        minimum = meshCoords.min(axis=0).tolist()
-        maximum = meshCoords.max(axis=0).tolist()
-
-        data = norm.tobytes()
-        buf = self.addBufferView(self.ARRAY_BUFFER, data)
-        self.json["accessors"].append({"bufferView": buf, "componentType": self.FLOAT, "count": cnt, "type": "VEC3", "min": minimum, "max": maximum})
-        return(self.accessor_cnt)
-
-    def addTPosAccessor(self, uvcoord):
-        self.accessor_cnt += 1
-
-        cnt = len(uvcoord) // 2
-        meshCoords = np.reshape(uvcoord, (cnt,2))
-        minimum = meshCoords.min(axis=0).tolist()
-        maximum = meshCoords.max(axis=0).tolist()
-
+    def addTPosBuffer(self, uvcoord):
         data = uvcoord.tobytes()
-        buf = self.addBufferView(self.ARRAY_BUFFER, data)
+        return(self.addBufferView(self.UV_BUFFER, data))
 
-        self.json["accessors"].append({"bufferView": buf, "componentType": self.FLOAT, "count": cnt, "type": "VEC2", "min": minimum, "max": maximum})
-        return(self.accessor_cnt)
+    def addFaceBuffer(self, faces):
+        data = faces.tobytes()
+        return(self.addBufferView(self.FACE_BUFFER, data))
 
-    def addIndAccessor(self, icoord):
-        self.accessor_cnt += 1
-        cnt = len(icoord)
-        minimum = int(icoord.min())
-        maximum = int(icoord.max())
-
-        data = icoord.tobytes()
-        buf = self.addBufferView(self.ELEMENT_ARRAY_BUFFER, data)
-
-        self.json["accessors"].append({"bufferView": buf, "componentType": self.UNSIGNED_INT, "count": cnt, "type": "SCALAR", "min": [minimum], "max": [maximum]})
-        return(self.accessor_cnt)
 
     def pbrMaterial(self, color, spec):
         return ({ "baseColorFactor": [ color[0], color[1], color[2], 1.0 ], "metallicFactor": 0.5, "roughnessFactor": 1.0 - spec })
@@ -167,7 +113,6 @@ class gltfExport:
 
         dest = os.path.join(dest, os.path.basename(source))
         return (self.env.copyfile(source, dest))
-
 
     def addImage(self, image):
         self.image_cnt += 1
@@ -214,40 +159,12 @@ class gltfExport:
         return (self.material_cnt)
 
     def addMesh(self, obj, nodenumber):
-        icoord = None
-        if self.hiddenverts is False:
-            icoord, coord, uvcoord, norm = obj.optimizeHiddenMesh()
-            if icoord is None:
-                print ("Not hidden")
-
         self.mesh_cnt += 1
-        if icoord is not None:
-            pos = self.addPosAccessor(coord)
-            texcoord = self.addTPosAccessor(uvcoord)
-            norm = self.addNormAccessor(norm)
-            ind = self.addIndAccessor(icoord)
-        else:
-            pos = self.addPosAccessor(obj.gl_coord)
-            texcoord = self.addTPosAccessor(obj.gl_uvcoord)
-            norm = self.addNormAccessor(obj.gl_norm)
-            ind = self.addIndAccessor(obj.gl_icoord)
-        self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "NORMAL": norm, "TEXCOORD_0": texcoord  }, "indices": ind, "material": nodenumber, "mode": self.TRIANGLES }]})
+        pos = self.addPosBuffer(obj.gl_coord)
+        face = self.addFaceBuffer(obj.gl_uvcoord)
+        texcoord = self.addTPosBuffer(obj.gl_uvcoord)
+        self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "FACE": face, "TEXCOORD_0": texcoord  }, "material": nodenumber }]})
         return (self.mesh_cnt)
-
-    def addBones(self, bone, num, pos):
-        #
-        # bone-translations have to be relative in GLTF
-        #
-        trans = ((bone.headPos - pos) * self.scale).tolist()
-        node = {"name": bone.name, "translation": trans, "children": []  }
-        self.json["nodes"].append(node)
-        num += 1
-        nextnode = num
-        for child in bone.children:
-            nextnode = self.addBones(child, num, bone.headPos)
-            node["children"].append(num)
-            num = nextnode
-        return (num)
 
     def addNodes(self, baseclass):
         #
@@ -278,7 +195,7 @@ class gltfExport:
             self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh, "translation": trans,  "children": []  })
         else:
             self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh,  "children": []  })
-        self.json["scenes"][0]["nodes"].append(0)
+        self.json["asset"]["nodes"].append(0)
         children = self.json["nodes"][0]["children"]
 
         childnum = 1
@@ -291,14 +208,6 @@ class gltfExport:
             children.append(childnum)
             childnum += 1
 
-        if baseclass.skeleton is not None:
-            skeleton = baseclass.skeleton
-            bonename = list(skeleton.bones)[0]
-            bone = skeleton.bones[bonename]
-            start = np.zeros(3,dtype=np.float32)
-            self.addBones(bone, childnum, start)
-            children.append(childnum)
-        
         self.json["buffers"].append({"byteLength": self.bufferoffset})
         print (self)
         return (True)
@@ -306,7 +215,7 @@ class gltfExport:
 
     def binSave(self, baseclass, filename):
         #
-        # binary glTF is:
+        # binary mh2b is:
         # 4 byte magic, 4 byte version + 4 byte length over all (which is the header)
         # JSON chunk:
         # chunklength 4 Byte, chunk type JSON, chunkData (4 Byte boundaries, padding)
@@ -316,9 +225,7 @@ class gltfExport:
         if self.addNodes(baseclass) is False:
             return False
 
-        #TODO do we need an _ExtendedEncoder for JSON?
-
-        version = struct.pack('<I', self.GLTF_VERSION)
+        version = struct.pack('<I', self.MH2B_VERSION)
         length = 12         # header length (always fix 12 bytes)
 
         jsondata = json.dumps(self.json, indent=None, allow_nan=False, skipkeys=True, separators=(',', ':')).encode("utf-8")
