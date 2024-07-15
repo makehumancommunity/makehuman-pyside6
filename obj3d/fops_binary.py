@@ -50,15 +50,13 @@ def exportObj3dBinary(filename, obj, content = {}):
         allvertnums += cnt
         allfaces += lfaces
     
-    # relative positions where the faces start
-    # and flat array for the vertnumbers itself
+    # two flat arrays for number of verts and position
     #
     vertsperface = np.zeros(allfaces, dtype=np.dtype('i4'))
     faceverts = np.zeros(allvertnums, dtype=np.dtype('i4'))
     finfocnt = 0
     fvertcnt = 0
-    for num, npelem in enumerate (obj.npGrpNames):
-        pos = 0
+    for npelem in obj.npGrpNames:
         elem = npelem.decode("utf-8")
         group = obj.loadedgroups[elem]
         faces = group["v"]
@@ -67,7 +65,6 @@ def exportObj3dBinary(filename, obj, content = {}):
                 faceverts[fvertcnt] = vert
                 fvertcnt += 1
             vertsperface[finfocnt] = len(face)
-            pos += len(face)
             finfocnt += 1
 
     content["groupinfo"] = groupinfo

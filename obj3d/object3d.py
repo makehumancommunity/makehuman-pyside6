@@ -220,6 +220,41 @@ class object3d:
         #
         self.gl_norm = self.gi_norm.flatten()
 
+    def getVisibleFaces(self):
+        """
+        return two flattened vectors, one with faces and one with verts per face
+        visible groups only, not hidden still
+        """
+        numfaces = 0
+        numind = 0
+        for npelem in self.npGrpNames:
+            elem = npelem.decode("utf-8")
+            if self.visible is not None and elem not in self.visible:
+                continue
+            faces = self.loadedgroups[elem]["v"]
+            numfaces += len(faces)
+            for face in faces:
+                numind += len(face)
+
+        vertsperface = np.zeros(numfaces, dtype=np.dtype('i4'))
+        faceverts = np.zeros(numind, dtype=np.dtype('i4'))
+
+        finfocnt = 0
+        fvertcnt = 0
+        for npelem in self.npGrpNames:
+            elem = npelem.decode("utf-8")
+            if self.visible is not None and elem not in self.visible:
+                continue
+            group = self.loadedgroups[elem]
+            faces = group["v"]
+            for face in faces:
+                for vert in face:
+                    faceverts[fvertcnt] = vert
+                    fvertcnt += 1
+                vertsperface[finfocnt] = len(face)
+                finfocnt += 1
+        return (vertsperface, faceverts)
+
     def createGLFaces(self, nfaces, ufaces, prim, groups):
         self.loadedgroups = groups
         self.prim = prim

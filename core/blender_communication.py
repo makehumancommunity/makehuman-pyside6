@@ -23,8 +23,9 @@ class blendCom:
         # all constants used
         #
         self.POS_BUFFER = 10        # targets
-        self.FACE_BUFFER = 11
-        self.UV_BUFFER = 12
+        self.VPF_BUFFER = 11        # vertex per face
+        self.FACE_BUFFER = 12
+        self.UV_BUFFER = 13
         self.MH2B_VERSION = 1
         self.MAGIC = b'MH2B'
         self.JSON = b'JSON'
@@ -101,6 +102,10 @@ class blendCom:
         data = faces.tobytes()
         return(self.addBufferView(self.FACE_BUFFER, data))
 
+    def addVPFBuffer(self, vpf):
+        data = vpf.tobytes()
+        return(self.addBufferView(self.VPF_BUFFER, data))
+
 
     def pbrMaterial(self, color, spec):
         return ({ "baseColorFactor": [ color[0], color[1], color[2], 1.0 ], "metallicFactor": 0.5, "roughnessFactor": 1.0 - spec })
@@ -161,9 +166,11 @@ class blendCom:
     def addMesh(self, obj, nodenumber):
         self.mesh_cnt += 1
         pos = self.addPosBuffer(obj.gl_coord)
-        face = self.addFaceBuffer(obj.gl_uvcoord)
+        (vpface, faces) = obj.getVisibleFaces()
+        face = self.addFaceBuffer(faces)
+        vpf = self.addVPFBuffer(vpface)
         texcoord = self.addTPosBuffer(obj.gl_uvcoord)
-        self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "FACE": face, "TEXCOORD_0": texcoord  }, "material": nodenumber }]})
+        self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "VPF": vpf, "FACE": face, "TEXCOORD_0": texcoord  }, "material": nodenumber }]})
         return (self.mesh_cnt)
 
     def addNodes(self, baseclass):
