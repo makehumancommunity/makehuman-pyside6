@@ -69,13 +69,11 @@ class OpenGLSkyBox:
         self.func.glDepthFunc(gl.GL_LEQUAL);
         key = self.prog.uniformLocation("uModelMatrix")
         self.prog.setUniformValue(key, projection)
-        key = self.prog.uniformLocation("skybox")
 
         self.vbuffer.bind()
         self.prog.enableAttributeArray(0)
         self.prog.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3, 3 * 4)
         self.func.glActiveTexture(gl.GL_TEXTURE0)
-        self.func.glUniform1i(key, 0)
         self.texture.bind()
         self.func.glDrawArrays(gl.GL_TRIANGLES, 0, 36)
         self.func.glDepthFunc(gl.GL_LESS)

@@ -11,6 +11,7 @@ class MH2B_OT_Loader:
         self.firstnode = 0
         self.firstname = "unknown"
         self.collection = None
+        self.bufferoffset = 0
 
     def createCollection(self, jdata):
         #
@@ -24,17 +25,76 @@ class MH2B_OT_Loader:
         self.context.scene.collection.children.link(self.collection )
         return (self.collection )
 
-    def createObjects(self, jdata):
+    def getBuffers(self, jdata, attrib, fp):
+        pos  = attrib['POSITION']
+        vpf  = attrib['VPF']
+        face = attrib['FACE']
+        uv   = attrib['TEXCOORD_0']
+        buffers = [
+                { "type": "P", "start": jdata["bufferViews"][pos]["byteOffset"], "len": jdata["bufferViews"][pos]["byteLength"] },
+                { "type": "V", "start": jdata["bufferViews"][vpf]["byteOffset"], "len": jdata["bufferViews"][vpf]["byteLength"] },
+                { "type": "F", "start": jdata["bufferViews"][face]["byteOffset"], "len": jdata["bufferViews"][face]["byteLength"] },
+                { "type": "U", "start": jdata["bufferViews"][uv]["byteOffset"], "len": jdata["bufferViews"][uv]["byteLength"] }
+                 ]
+
+        # TODO: find less stupid method
         #
-        # just creates empties (will be change to a mesh soon)
+        for cnt in range(0,4):
+            for elem in range(0,4):
+                if buffers[elem]["start"] == self.bufferoffset:
+                    print (buffers[elem]["type"])
+                    length = buffers[elem]["len"]
+                    print ("need to read " + str(length) + " bytes")
+                    buffers[elem]["data"] = fp.read(length)
+                    self.bufferoffset += length
+                    break
+
+        # now the conversions will done (replacement)
+        fn = -1
+        for cnt in range(0,4):
+            t = buffers[cnt]["type"]
+            if t == "P":
+                print ("positions: must convert to floats, Positions")
+            elif t == "U":
+                print ("positions: must convert to floats, UV")
+            elif t == "V":
+                print ("VPF: must convert it to integers")
+            else:
+                print ("Keep Index from Face")
+                fn = cnt
+
+        print ("convert buffer " + str(fn) + " to faces tuples for from_pydata")
+
+    def getMesh(self, jdata, num, fp):
+        m = jdata["meshes"][num]["primitives"][0]   # only one primitive
+        attributes = m["attributes"]
+        self.getBuffers(jdata, attributes, fp)
+
+    def createObjects(self, jdata, fp):
         #
-        empty = bpy.data.objects.new(self.firstname, None)  # Create new empty object
-        empty.empty_display_type = 'PLAIN_AXES'
-        self.collection.objects.link(empty)
-        children = jdata["nodes"][self.firstnode]["children"]
+        # just creates empties (will be change to a mesh soon), use an array
+        # try to read buffers one after the other later
+        #
+        self.bufferoffset = 0
+        nodes = []
+        n = jdata["nodes"][self.firstnode]
+        nodes.append([self.firstname, n["mesh"]])
+        lastmesh = n["mesh"]
+        children = n["children"]
         for elem in children:
-            name = jdata["nodes"][elem]["name"]
-            empty = bpy.data.objects.new(name, None)
+            n = jdata["nodes"][elem]
+            name = n["name"]
+            mesh = n["mesh"]
+            if mesh > lastmesh:
+                nodes.append([name, mesh])
+                lastmesh = mesh
+            else:
+                # TODO insert
+                pass
+        for elem in nodes:
+            self.getMesh(jdata, elem[1], fp)
+            empty = bpy.data.objects.new(elem[0], None)
+            empty.empty_display_type = 'PLAIN_AXES'
             self.collection.objects.link(empty)
 
     def loadMH2B(self, props):
@@ -43,12 +103,12 @@ class MH2B_OT_Loader:
             #
             magic = f.read(4)
             if magic != b'MH2B':
-                close(f)
+                f.close()
                 return(False, "bad header")
             vers = f.read(4)
             vers = struct.unpack('<I', vers)
             if vers[0] != 1:
-                close(f)
+                f.close()
                 return (False, "bad version number, must be 1")
 
             filelen = f.read(4)
@@ -61,13 +121,23 @@ class MH2B_OT_Loader:
 
             jsonmark = f.read(4)
             if jsonmark != b'JSON':
-                close(f)
+                f.close()
                 return (False, "JSON chunk expected")
             jsontext = f.read(jsonlen).decode("ascii")
             jdata = json.loads(jsontext)
             print(json.dumps(jdata, indent=3))
+
+            lenbin = f.read(4)
+            lenbin = struct.unpack('<I', lenbin)
+            print ("Binlen = " + str(lenbin))
+
+            magic = f.read(4)
+            if magic != b'BIN\x00':
+                f.close()
+                return(False, "bad binary header")
+
             self.createCollection(jdata)
-            self.createObjects(jdata)
+            self.createObjects(jdata, f)
 
 
         return (True, "okay")
