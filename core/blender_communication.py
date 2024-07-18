@@ -165,8 +165,8 @@ class blendCom:
 
     def addMesh(self, obj, nodenumber):
         self.mesh_cnt += 1
-        pos = self.addPosBuffer(obj.gl_coord)
-        (vpface, faces) = obj.getVisibleFaces()
+        (coords, vpface, faces) = obj.getVisGeometry()
+        pos = self.addPosBuffer(coords)
         face = self.addFaceBuffer(faces)
         vpf = self.addVPFBuffer(vpface)
         texcoord = self.addTPosBuffer(obj.gl_uvcoord)

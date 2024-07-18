@@ -50,25 +50,61 @@ class MH2B_OT_Loader:
                     break
 
         # now the conversions will done (replacement)
-        fn = -1
         for cnt in range(0,4):
             t = buffers[cnt]["type"]
+            b = []
             if t == "P":
                 print ("positions: must convert to floats, Positions")
+                m = struct.iter_unpack('<fff',  buffers[cnt]["data"])
+                for l in m:
+                    b.append(l)
+                buffers[cnt]["data"] = b
             elif t == "U":
                 print ("positions: must convert to floats, UV")
+                m = struct.iter_unpack('<ff',  buffers[cnt]["data"])
+                for l in m:
+                    b.append(l)
+                buffers[cnt]["data"] = b
             elif t == "V":
                 print ("VPF: must convert it to integers")
+                m = struct.iter_unpack('<i',  buffers[cnt]["data"])
+                for l in m:
+                    b.append(l)
+                buffers[cnt]["data"] = b
             else:
                 print ("Keep Index from Face")
-                fn = cnt
+                m = struct.iter_unpack('<i',  buffers[cnt]["data"])
+                for l in m:
+                    b.append(l)
+                buffers[cnt]["data"] = b
 
-        print ("convert buffer " + str(fn) + " to faces tuples for from_pydata")
+        print ("convert buffer 2 to faces tuples for from_pydata")
+        b = []
+        vpb = buffers[1]["data"]
+        face = buffers[2]["data"]
+        n = 0
+        for nfaces in vpb:
+            l = nfaces[0]
+            c = []
+            for i in range(0,l):
+                c.append(face[n][0])
+                n += 1
+            b.append(tuple(c))
+        buffers[2]["data"] = b
+        buffers[1] = None
+        return (buffers)
+                
 
-    def getMesh(self, jdata, num, fp):
+    def getMesh(self, jdata, name, num, fp):
         m = jdata["meshes"][num]["primitives"][0]   # only one primitive
         attributes = m["attributes"]
-        self.getBuffers(jdata, attributes, fp)
+        buffers  = self.getBuffers(jdata, attributes, fp)
+
+        mymesh = bpy.data.meshes.new(name)
+        myobject = bpy.data.objects.new(name, mymesh)
+
+        mymesh.from_pydata( buffers[0]["data"], [], buffers[2]["data"], shade_flat=False)
+        return(myobject)
 
     def createObjects(self, jdata, fp):
         #
@@ -92,10 +128,8 @@ class MH2B_OT_Loader:
                 # TODO insert
                 pass
         for elem in nodes:
-            self.getMesh(jdata, elem[1], fp)
-            empty = bpy.data.objects.new(elem[0], None)
-            empty.empty_display_type = 'PLAIN_AXES'
-            self.collection.objects.link(empty)
+            mesh = self.getMesh(jdata, elem[0], elem[1], fp)
+            self.collection.objects.link(mesh)
 
     def loadMH2B(self, props):
         with open(props.filepath, 'rb') as f:
