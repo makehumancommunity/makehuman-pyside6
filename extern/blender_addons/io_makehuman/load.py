@@ -1,9 +1,10 @@
 import bpy
 import json
+import os
 import struct
-import bpy
 from bpy_extras.io_utils import (ImportHelper, ExportHelper)
 from bpy.props import StringProperty
+from .materials import MH2B_OT_Material
 
 class MH2B_OT_Loader:
     def __init__(self, context):
@@ -37,76 +38,104 @@ class MH2B_OT_Loader:
                 { "type": "U", "start": jdata["bufferViews"][uv]["byteOffset"], "len": jdata["bufferViews"][uv]["byteLength"] }
                  ]
 
+        if "OVERFLOW" in attrib:
+            ov   = attrib['OVERFLOW']
+            buffers.append ({ "type": "O", "start": jdata["bufferViews"][ov]["byteOffset"], "len": jdata["bufferViews"][ov]["byteLength"] })
+
+        bufs = len(buffers)
         # TODO: find less stupid method
         #
-        for cnt in range(0,4):
-            for elem in range(0,4):
+        for cnt in range(0,bufs):
+            for elem in range(0,bufs):
                 if buffers[elem]["start"] == self.bufferoffset:
-                    print (buffers[elem]["type"])
                     length = buffers[elem]["len"]
-                    print ("need to read " + str(length) + " bytes")
+                    print (buffers[elem]["type"] + " need to read " + str(length) + " bytes")
                     buffers[elem]["data"] = fp.read(length)
                     self.bufferoffset += length
                     break
 
-        # now the conversions will done (replacement)
-        for cnt in range(0,4):
+        overflow = {}
+        # now the conversions will be done (replacement)
+        for cnt in range(0,bufs):
             t = buffers[cnt]["type"]
             b = []
             if t == "P":
-                print ("positions: must convert to floats, Positions")
                 m = struct.iter_unpack('<fff',  buffers[cnt]["data"])
                 for l in m:
-                    b.append(l)
+                    b.append((l[0], -l[2], l[1]))
                 buffers[cnt]["data"] = b
             elif t == "U":
-                print ("positions: must convert to floats, UV")
                 m = struct.iter_unpack('<ff',  buffers[cnt]["data"])
                 for l in m:
                     b.append(l)
                 buffers[cnt]["data"] = b
             elif t == "V":
-                print ("VPF: must convert it to integers")
+                m = struct.iter_unpack('<i',  buffers[cnt]["data"])
+                for l in m:
+                    b.append(l)
+                buffers[cnt]["data"] = b
+            elif  t == "F":
                 m = struct.iter_unpack('<i',  buffers[cnt]["data"])
                 for l in m:
                     b.append(l)
                 buffers[cnt]["data"] = b
             else:
-                print ("Keep Index from Face")
-                m = struct.iter_unpack('<i',  buffers[cnt]["data"])
+                m = struct.iter_unpack('<ii',  buffers[cnt]["data"])
                 for l in m:
-                    b.append(l)
-                buffers[cnt]["data"] = b
+                    overflow[l[0]] = l[1]
 
-        print ("convert buffer 2 to faces tuples for from_pydata")
+        print ("calculate faces and uvs")
         b = []
+        uv = []
         vpb = buffers[1]["data"]
         face = buffers[2]["data"]
+
         n = 0
         for nfaces in vpb:
             l = nfaces[0]
             c = []
+            u = []
             for i in range(0,l):
-                c.append(face[n][0])
+                v = face[n][0]
+                if v in overflow:
+                    c.append(overflow[v])
+                else:
+                    c.append(v)
+                u.append(v)
                 n += 1
             b.append(tuple(c))
-        buffers[2]["data"] = b
-        buffers[1] = None
-        return (buffers)
+            uv.append(tuple(u))
+
+        bufarr = [buffers[0]["data"], b, buffers[3]["data"], uv]
+        return (bufarr)
                 
 
-    def getMesh(self, jdata, name, num, fp):
+    def getMesh(self, jdata, name, num, fp, dirname):
         m = jdata["meshes"][num]["primitives"][0]   # only one primitive
         attributes = m["attributes"]
-        buffers  = self.getBuffers(jdata, attributes, fp)
+        (coords, faces, uvdata, uvfaces)  = self.getBuffers(jdata, attributes, fp)
 
-        mymesh = bpy.data.meshes.new(name)
-        myobject = bpy.data.objects.new(name, mymesh)
+        mesh = bpy.data.meshes.new(name)
+        nobject = bpy.data.objects.new(name, mesh)
+        mesh.from_pydata( coords, [], faces, shade_flat=False)
 
-        mymesh.from_pydata( buffers[0]["data"], [], buffers[2]["data"], shade_flat=False)
-        return(myobject)
+        mesh.uv_layers.new()
+        uvlayer =  mesh.uv_layers[0]
+        n=0
+        for face in uvfaces:
+            for vert in face:
+                uvlayer.data[n].uv = (uvdata[vert][0], 1.0 - uvdata[vert][1])
+                n += 1
 
-    def createObjects(self, jdata, fp):
+        if "material" in m:
+            material =  m["material"]
+            mclass = MH2B_OT_Material(dirname)
+            blendmat = mclass.addMaterial(jdata, material)
+            nobject.data.materials.append(blendmat)
+
+        return(nobject)
+
+    def createObjects(self, jdata, fp, dirname):
         #
         # just creates empties (will be change to a mesh soon), use an array
         # try to read buffers one after the other later
@@ -128,7 +157,7 @@ class MH2B_OT_Loader:
                 # TODO insert
                 pass
         for elem in nodes:
-            mesh = self.getMesh(jdata, elem[0], elem[1], fp)
+            mesh = self.getMesh(jdata, elem[0], elem[1], fp, dirname)
             self.collection.objects.link(mesh)
 
     def loadMH2B(self, props):
@@ -159,7 +188,7 @@ class MH2B_OT_Loader:
                 return (False, "JSON chunk expected")
             jsontext = f.read(jsonlen).decode("ascii")
             jdata = json.loads(jsontext)
-            print(json.dumps(jdata, indent=3))
+            # print(json.dumps(jdata, indent=3))
 
             lenbin = f.read(4)
             lenbin = struct.unpack('<I', lenbin)
@@ -171,7 +200,7 @@ class MH2B_OT_Loader:
                 return(False, "bad binary header")
 
             self.createCollection(jdata)
-            self.createObjects(jdata, f)
+            self.createObjects(jdata, f, os.path.dirname(props.filepath))
 
 
         return (True, "okay")

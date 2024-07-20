@@ -244,10 +244,18 @@ class object3d:
         finfocnt = 0
         fvertcnt = 0
 
-        matchlist = {}
-        for elem in self.overflow:
-            matchlist[elem[1]] = elem[0]
+        l = len(self.overflow)
+        if l > 0:
+            matchlist = np.zeros(l*2, dtype=np.dtype('i4'))
+            n=0
+            for elem in self.overflow:
+                matchlist[n] = elem[1]
+                matchlist[n+1] = elem[0]
+                n += 2
+        else:
+            matchlist = None
 
+        mx = 0
         for npelem in self.npGrpNames:
             elem = npelem.decode("utf-8")
             if self.visible is not None and elem not in self.visible:
@@ -256,9 +264,9 @@ class object3d:
             faces = group["v"]
             for face in faces:
                 for vert in face:
-                    if vert >= self.n_origverts:
-                        if vert in matchlist:
-                            vert = matchlist[vert]
+                    if vert < self.n_origverts:
+                        if vert > mx:
+                            mx = vert
                     faceverts[fvertcnt] = vert
                     fvertcnt += 1
                 vertsperface[finfocnt] = len(face)
@@ -266,10 +274,10 @@ class object3d:
 
         # resized coords
         #
-        m = (np.max(faceverts) + 1) * 3
+        m = (mx + 1) * 3
         coords = np.resize(np.copy(self.gl_coord), m)
 
-        return (coords, vertsperface, faceverts)
+        return (coords, vertsperface, faceverts, matchlist)
 
     def createGLFaces(self, nfaces, ufaces, prim, groups):
         self.loadedgroups = groups

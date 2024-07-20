@@ -26,6 +26,7 @@ class blendCom:
         self.VPF_BUFFER = 11        # vertex per face
         self.FACE_BUFFER = 12
         self.UV_BUFFER = 13
+        self.OV_BUFFER = 14
         self.MH2B_VERSION = 1
         self.MAGIC = b'MH2B'
         self.JSON = b'JSON'
@@ -98,6 +99,10 @@ class blendCom:
         data = uvcoord.tobytes()
         return(self.addBufferView(self.UV_BUFFER, data))
 
+    def addOverflowBuffer(self, overflow):
+        data = overflow.tobytes()
+        return(self.addBufferView(self.OV_BUFFER, data))
+
     def addFaceBuffer(self, faces):
         data = faces.tobytes()
         return(self.addBufferView(self.FACE_BUFFER, data))
@@ -165,12 +170,16 @@ class blendCom:
 
     def addMesh(self, obj, nodenumber):
         self.mesh_cnt += 1
-        (coords, vpface, faces) = obj.getVisGeometry()
+        (coords, vpface, faces, overflows) = obj.getVisGeometry()
         pos = self.addPosBuffer(coords)
         face = self.addFaceBuffer(faces)
         vpf = self.addVPFBuffer(vpface)
         texcoord = self.addTPosBuffer(obj.gl_uvcoord)
-        self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "VPF": vpf, "FACE": face, "TEXCOORD_0": texcoord  }, "material": nodenumber }]})
+        if overflows is not None:
+            overflow = self.addOverflowBuffer(overflows)
+            self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "VPF": vpf, "FACE": face, "TEXCOORD_0": texcoord, "OVERFLOW": overflow  }, "material": nodenumber }]})
+        else:
+            self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "VPF": vpf, "FACE": face, "TEXCOORD_0": texcoord }, "material": nodenumber }]})
         return (self.mesh_cnt)
 
     def addNodes(self, baseclass):
