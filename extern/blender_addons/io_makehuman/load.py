@@ -82,7 +82,7 @@ class MH2B_OT_Loader:
             else:
                 m = struct.iter_unpack('<ii',  buffers[cnt]["data"])
                 for l in m:
-                    overflow[l[0]] = l[1]
+                    overflow[l[1]] = l[0]
 
         print ("calculate faces and uvs")
         b = []

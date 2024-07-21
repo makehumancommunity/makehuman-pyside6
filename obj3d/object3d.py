@@ -227,6 +227,10 @@ class object3d:
         deduplicate double verts
         # TODO: no deleteverts
         """
+        mask = self.hiddenMask()
+        if mask is not None:
+            print ("contains hidden vertices")
+
         numfaces = 0
         numind = 0
         for npelem in self.npGrpNames:
@@ -243,17 +247,6 @@ class object3d:
 
         finfocnt = 0
         fvertcnt = 0
-
-        l = len(self.overflow)
-        if l > 0:
-            matchlist = np.zeros(l*2, dtype=np.dtype('i4'))
-            n=0
-            for elem in self.overflow:
-                matchlist[n] = elem[1]
-                matchlist[n+1] = elem[0]
-                n += 2
-        else:
-            matchlist = None
 
         mx = 0
         for npelem in self.npGrpNames:
@@ -277,7 +270,7 @@ class object3d:
         m = (mx + 1) * 3
         coords = np.resize(np.copy(self.gl_coord), m)
 
-        return (coords, vertsperface, faceverts, matchlist)
+        return (coords, self.gl_uvcoord, vertsperface, faceverts, self.overflow)
 
     def createGLFaces(self, nfaces, ufaces, prim, groups):
         self.loadedgroups = groups
@@ -431,6 +424,18 @@ class object3d:
 
         return (ba)
 
+    def createMapping(self, mask):
+        """
+        creates a mapping index reduced by hidden coords + highest value
+        """
+        usedmax = len(mask)
+        mapping = np.full(usedmax, -1, dtype=np.int32)
+        fill = 0
+        for cnt in range(0, usedmax):
+            if mask[cnt] == 1:
+                mapping[cnt] = fill
+                fill +=1
+        return(mapping, fill)
 
     def optimizeHiddenMesh(self):
         """
@@ -453,14 +458,9 @@ class object3d:
         # create a mapping index reduced by hidden coords
         #
         usedmax = len(mask)
-        mapping = np.full(usedmax, -1, dtype=np.int32)
-        newcoord = 0
-        for cnt in range(0, usedmax):
-            if mask[cnt] == 1:
-                mapping[cnt] = newcoord
-                newcoord +=1
+        mapping, newcoord = self.createMapping(mask)
 
-        # we now knew size, so create temporary arrays
+        # we now know size, so create temporary arrays
         #
         indlen = len(self.gl_hicoord)
         gl_index = np.zeros(indlen, dtype=np.uint32)

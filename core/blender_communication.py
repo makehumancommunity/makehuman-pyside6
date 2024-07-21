@@ -100,7 +100,7 @@ class blendCom:
         return(self.addBufferView(self.UV_BUFFER, data))
 
     def addOverflowBuffer(self, overflow):
-        data = overflow.tobytes()
+        data = overflow.flatten().tobytes()
         return(self.addBufferView(self.OV_BUFFER, data))
 
     def addFaceBuffer(self, faces):
@@ -170,12 +170,12 @@ class blendCom:
 
     def addMesh(self, obj, nodenumber):
         self.mesh_cnt += 1
-        (coords, vpface, faces, overflows) = obj.getVisGeometry()
+        (coords, uvcoords, vpface, faces, overflows) = obj.getVisGeometry()
         pos = self.addPosBuffer(coords)
         face = self.addFaceBuffer(faces)
         vpf = self.addVPFBuffer(vpface)
-        texcoord = self.addTPosBuffer(obj.gl_uvcoord)
-        if overflows is not None:
+        texcoord = self.addTPosBuffer(uvcoords)
+        if len(overflows) > 0:
             overflow = self.addOverflowBuffer(overflows)
             self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "VPF": vpf, "FACE": face, "TEXCOORD_0": texcoord, "OVERFLOW": overflow  }, "material": nodenumber }]})
         else:
