@@ -5,37 +5,50 @@ class MH2B_OT_Material:
     def __init__(self, dirname):
         self.dirname = dirname
 
-    def addTexture(self, jdata, mat, texture, alpha):
+
+    def addTextureNode(self, path, x, y, noncolor):
+        node = self.nodes.new('ShaderNodeTexImage')
+        img = os.path.join(self.dirname, path)
+        node.image = bpy.data.images.load(img)
+        node.location = x,y
+        if noncolor:
+            node.image.colorspace_settings.name = 'Non-Color'
+        return (node)
+
+    def addTexture(self, jdata, mat, texture, alpha, normtexture):
         if "source" in texture:
             img = texture["source"]
             path = jdata["images"][img]["uri"]
             print (path)
 
-            # Get the nodes
-            nodes = mat.node_tree.nodes
-            nodes.clear()
-
             # Add the Principled Shader node
-            node_principled = nodes.new(type='ShaderNodeBsdfPrincipled')
+            node_principled = self.nodes.new(type='ShaderNodeBsdfPrincipled')
             node_principled.location = 0,0
 
             # Add the Image Texture node
-            node_tex = nodes.new('ShaderNodeTexImage')
-            # Assign the image
-            img = os.path.join(self.dirname, path)
-            node_tex.image = bpy.data.images.load(img)
-            node_tex.location = -400,0
+            node_tex = self.addTextureNode(path, -400, 0, False)
 
             # Add the Output node
-            node_output = nodes.new(type='ShaderNodeOutputMaterial')
+            node_output = self.nodes.new(type='ShaderNodeOutputMaterial')
             node_output.location = 400,0
 
             # Link all nodes
             links = mat.node_tree.links
-            link = links.new(node_tex.outputs["Color"], node_principled.inputs["Base Color"])
-            link = links.new(node_principled.outputs["BSDF"], node_output.inputs["Surface"])
+            links.new(node_tex.outputs["Color"], node_principled.inputs["Base Color"])
+            links.new(node_principled.outputs["BSDF"], node_output.inputs["Surface"])
             if alpha is not None:
-                link = links.new(node_tex.outputs["Alpha"], node_principled.inputs["Alpha"])
+                links.new(node_tex.outputs["Alpha"], node_principled.inputs["Alpha"])
+
+            if normtexture is not None:
+                # Add the Image Texture node
+                img = normtexture["source"]
+                path = jdata["images"][img]["uri"]
+                node_normtex = self.addTextureNode(path, -600, -400, True)
+
+                node_normalmap = self.nodes.new('ShaderNodeNormalMap')
+                node_normalmap.location = -300,-400
+                links.new(node_normtex.outputs["Color"], node_normalmap.inputs["Color"])
+                links.new(node_normalmap.outputs["Normal"], node_principled.inputs["Normal"])
 
 
     def addMaterial(self, jdata, material):
@@ -47,12 +60,19 @@ class MH2B_OT_Material:
         blendmat.use_nodes = True
         if alpha:
             blendmat.blend_method = 'BLEND'
+        self.nodes = blendmat.node_tree.nodes
+        self.nodes.clear()
+
+        normtexture = None
+        if "normalTexture" in matj:
+            textind = matj['normalTexture']["index"]
+            normtexture = jdata["textures"][textind]
 
         if "pbrMetallicRoughness" in matj:
             pbr = matj["pbrMetallicRoughness"]
             if 'baseColorTexture' in pbr:
                 textind = pbr['baseColorTexture']["index"]
                 texture = jdata["textures"][textind]
-                self.addTexture(jdata, blendmat, texture, alpha)
+                self.addTexture(jdata, blendmat, texture, alpha, normtexture)
         return(blendmat)
 

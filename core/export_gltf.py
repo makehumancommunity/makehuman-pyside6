@@ -180,13 +180,21 @@ class gltfExport:
         self.json["images"].append({"uri": uri})
         return(True, self.image_cnt)
 
-    def addTexture(self, texture, spec):
+    def addDiffuseTexture(self, texture, spec):
         self.texture_cnt += 1
         (okay, image) = self.addImage(texture)
         if not okay:
             return (None)
         self.json["textures"].append({"sampler": 0, "source": image})
         return ({ "baseColorTexture": { "index": self.texture_cnt }, "metallicFactor": 0.5, "roughnessFactor": 1.0 -spec })
+
+    def addNormalTexture(self, texture, scale):
+        self.texture_cnt += 1
+        (okay, image) = self.addImage(texture)
+        if not okay:
+            return (None)
+        self.json["textures"].append({"sampler": 0, "source": image})
+        return ({ "index": self.texture_cnt, "scale": scale })
 
     def addMaterial(self, material):
         """
@@ -196,21 +204,28 @@ class gltfExport:
         self.material_cnt += 1
         name = material.name if  material.name is not None else "generic"
         if material.has_imagetexture:
-            print ("we need a texture")
-            print (material.diffuseTexture)
-            pbr = self.addTexture(material.diffuseTexture, material.specularValue)
+            print ("Diffuse " + material.diffuseTexture)
+            pbr = self.addDiffuseTexture(material.diffuseTexture, material.specularValue)
         else:   
             pbr = self.pbrMaterial(material.diffuseColor, material.specularValue)
 
+        norm = None
+        if material.sc_normal:
+            print ("Normals " + material.normalmapTexture)
+            norm = self.addNormalTexture(material.normalmapTexture, material.normalmapIntensity)
+
         if pbr is None:
             return(-1)
-        if material.has_imagetexture:
-            if material.transparent:
-                self.json["materials"].append({"name": self.nodeName(name), "alphaMode":"BLEND", "doubleSided": material.backfaceCull, "pbrMetallicRoughness": pbr})
-            else:
-                self.json["materials"].append({"name": self.nodeName(name), "pbrMetallicRoughness": pbr})
-        else:   
-            self.json["materials"].append({"name": self.nodeName(name), "pbrMetallicRoughness": pbr})
+
+        mat = {"name": self.nodeName(name), "pbrMetallicRoughness": pbr}
+        if material.has_imagetexture and material.transparent:
+            mat["alphaMode"] = "BLEND"
+            mat["doubleSided"] =  material.backfaceCull
+
+        if norm is not None:
+            mat["normalTexture"] = norm
+
+        self.json["materials"].append(mat)
         return (self.material_cnt)
 
     def addMesh(self, obj, nodenumber):

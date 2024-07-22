@@ -220,17 +220,7 @@ class object3d:
         #
         self.gl_norm = self.gi_norm.flatten()
 
-    def getVisGeometry(self):
-        """
-        return two flattened vectors, one with faces and one with verts per face
-        visible groups only, not hidden still
-        deduplicate double verts
-        # TODO: no deleteverts
-        """
-        mask = self.hiddenMask()
-        if mask is not None:
-            print ("contains hidden vertices")
-
+    def calcFaceBufSize(self, mask):
         numfaces = 0
         numind = 0
         for npelem in self.npGrpNames:
@@ -238,39 +228,137 @@ class object3d:
             if self.visible is not None and elem not in self.visible:
                 continue
             faces = self.loadedgroups[elem]["v"]
-            numfaces += len(faces)
-            for face in faces:
-                numind += len(face)
+            if mask is None:
+                # simple case, just count indices and faces
+                #
+                for face in faces:
+                    numind += len(face)
+                numfaces += len(faces)
+            else:
+                # otherwise we need 3 indices minimum to create a face
+                #
+                for face in faces:
+                    nind = 0
+                    for vert in face:
+                        if mask[vert] == 1:
+                            nind +=1
+                    if nind > 2:
+                        numind += nind
+                        numfaces += 1
 
-        vertsperface = np.zeros(numfaces, dtype=np.dtype('i4'))
-        faceverts = np.zeros(numind, dtype=np.dtype('i4'))
+        return numind, numfaces
 
+    def fillFaceBuffers(self, vertsperface, faceverts, mask):
         finfocnt = 0
         fvertcnt = 0
 
-        mx = 0
+        highest = 0
         for npelem in self.npGrpNames:
             elem = npelem.decode("utf-8")
             if self.visible is not None and elem not in self.visible:
                 continue
             group = self.loadedgroups[elem]
             faces = group["v"]
-            for face in faces:
-                for vert in face:
-                    if vert < self.n_origverts:
-                        if vert > mx:
-                            mx = vert
-                    faceverts[fvertcnt] = vert
-                    fvertcnt += 1
-                vertsperface[finfocnt] = len(face)
-                finfocnt += 1
+            if mask is None:
+                for face in faces:
+                    for vert in face:
+                        if vert < self.n_origverts:
+                            if vert > highest:
+                                highest = vert
+                        faceverts[fvertcnt] = vert
+                        fvertcnt += 1
+                    vertsperface[finfocnt] = len(face)
+                    finfocnt += 1
+            else:
+                for face in faces:
+                    nind = 0
+                    for vert in face:
+                        if mask[vert] == 1:
+                            nind +=1
+                    if nind > 2:
+                        for vert in face:
+                            if mask[vert] == 1:
+                                if vert < self.n_origverts:
+                                    if vert > highest:
+                                        highest = vert
+                                faceverts[fvertcnt] = vert
+                                fvertcnt += 1
+                        vertsperface[finfocnt] = nind
+                        finfocnt += 1
 
-        # resized coords
+        return (highest + 1)
+
+    def unUsedVerts(self, faceind):
+        indlen = len(faceind)
+        usedmax = len(self.gl_uvcoord) // 2
+        ba = np.full((usedmax), 0)
+        for cnt in range(0, indlen):
+            ba[faceind[cnt]] = 1
+        return (ba)
+
+
+    def getVisGeometry(self):
+        """
+        return two flattened vectors, one with faces and one with verts per face
+        deduplicate double verts
+        """
+        mask = self.hiddenMask()
+
+        # TODO: still problems with proxy hiding in blender
+
+        # get buffersize
         #
-        m = (mx + 1) * 3
-        coords = np.resize(np.copy(self.gl_coord), m)
+        numind, numfaces = self.calcFaceBufSize(mask)
 
-        return (coords, self.gl_uvcoord, vertsperface, faceverts, self.overflow)
+        vertsperface = np.zeros(numfaces, dtype=np.dtype('i4'))
+        faceverts = np.zeros(numind, dtype=np.dtype('i4'))
+
+        mx = self.fillFaceBuffers(vertsperface, faceverts, mask)
+        if mask is not None:
+            mask = self.unUsedVerts(faceverts)
+            usedmax = len(mask)
+            mapping, newcoord = self.createMapping(mask)
+            coord = np.zeros(newcoord*3,  dtype=np.float32)
+            gl_uvcoord = np.zeros(newcoord*2,  dtype=np.float32)
+            for cnt in range(0, usedmax):
+                d = mapping[cnt]
+                if d != -1:
+                    s2 = cnt * 2
+                    s3 = cnt * 3
+                    d2 = d * 2
+                    d3 = d * 3
+
+                    coord[d3] = self.gl_coord[s3]
+                    coord[d3+1] = self.gl_coord[s3+1]
+                    coord[d3+2] = self.gl_coord[s3+2]
+
+                    gl_uvcoord[d2] = self.gl_uvcoord[s2]
+                    gl_uvcoord[d2+1] = self.gl_uvcoord[s2+1]
+
+            for i in range(0, len(faceverts)):
+                faceverts[i] = mapping[faceverts[i]]
+
+            if len(self.overflow) > 0:
+                overflow = self.overflow.copy()
+                j = 0
+                for i in range(0, len(self.overflow)):
+                    source = mapping[self.overflow[i][0]]
+                    dest = mapping[self.overflow[i][1]]
+                    if source != -1 and dest != -1:
+                        overflow[j][0] = source
+                        overflow[j][1] = dest
+                        j += 1
+                overflow = np.resize(overflow, (j, 2))
+                mx = overflow.min(axis=0)[1]
+                coord = np.resize(coord, mx * 3)
+            else:
+                overflow   =   self.overflow
+        else:
+            coord = np.resize(np.copy(self.gl_coord), mx * 3)
+            gl_uvcoord = self.gl_uvcoord
+            overflow   =   self.overflow
+
+        return (coord, gl_uvcoord, vertsperface, faceverts, overflow)
 
     def createGLFaces(self, nfaces, ufaces, prim, groups):
         self.loadedgroups = groups

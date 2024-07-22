@@ -87,6 +87,7 @@ class MH2B_OT_Loader:
         print ("calculate faces and uvs")
         b = []
         uv = []
+        maxp =  len(buffers[0]["data"])
         vpb = buffers[1]["data"]
         face = buffers[2]["data"]
 
@@ -95,16 +96,19 @@ class MH2B_OT_Loader:
             l = nfaces[0]
             c = []
             u = []
+            faceok = True
             for i in range(0,l):
                 v = face[n][0]
-                if v in overflow:
-                    c.append(overflow[v])
-                else:
-                    c.append(v)
-                u.append(v)
                 n += 1
-            b.append(tuple(c))
-            uv.append(tuple(u))
+                u.append(v)
+                if v in overflow:
+                    v = overflow[v]
+                if v >= maxp:
+                    faceok = False
+                c.append(v)
+            if faceok:
+                b.append(tuple(c))
+                uv.append(tuple(u))
 
         bufarr = [buffers[0]["data"], b, buffers[3]["data"], uv]
         return (bufarr)
