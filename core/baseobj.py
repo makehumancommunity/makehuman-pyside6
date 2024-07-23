@@ -285,6 +285,17 @@ class baseClass():
         else:
             self.baseMesh.hideVertices(verts)
 
+    def getZMin(self):
+        """
+        zmin of whole character for exports and grid
+        """
+        zmin = self.baseMesh.getZMin()
+        for elem in (self.attachedAssets):
+            m = elem.obj.getZMin()
+            if m < zmin:
+                zmin = m
+        return(zmin)
+
     def isLinkedByFilename(self, filename):
         elem = self.getAttachedByFilename(filename)
         if elem is not None:

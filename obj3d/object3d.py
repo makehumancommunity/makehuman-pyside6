@@ -297,12 +297,12 @@ class object3d:
         return (ba)
 
 
-    def getVisGeometry(self):
+    def getVisGeometry(self, displayhidden):
         """
         return two flattened vectors, one with faces and one with verts per face
         deduplicate double verts
         """
-        mask = self.hiddenMask()
+        mask = self.hiddenMask() if displayhidden is False else None
 
         # TODO: still problems with proxy hiding in blender
 

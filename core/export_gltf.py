@@ -14,6 +14,7 @@ class gltfExport:
         self.hiddenverts = hiddenverts
         self.onground = onground
         self.scale = scale
+        self.zmin = 0.0
 
         # all constants used
         #
@@ -108,6 +109,8 @@ class gltfExport:
             coord = coord * self.scale
 
         meshCoords = np.reshape(coord, (cnt,3))
+        if self.zmin != 0.0:
+            meshCoords -= [0.0, self.zmin, 0.0]
         minimum = meshCoords.min(axis=0).tolist()
         maximum = meshCoords.max(axis=0).tolist()
 
@@ -283,16 +286,14 @@ class gltfExport:
         if mat == -1:
             return (False)
 
-        mesh = self.addMesh(baseobject, mat)
-
-        # in case of onground we need a translation
+        # in case of onground we need a translation which is then added to the mesh
         #
         if self.onground:
-            zmin = baseclass.baseMesh.getZMin() * self.scale
-            trans = [0.0, float(-zmin), 0.0]
-            self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh, "translation": trans,  "children": []  })
-        else:
-            self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh,  "children": []  })
+            self.zmin = baseclass.getZMin() * self.scale
+
+        mesh = self.addMesh(baseobject, mat)
+
+        self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh,  "children": []  })
         self.json["scenes"][0]["nodes"].append(0)
         children = self.json["nodes"][0]["children"]
 
@@ -311,6 +312,8 @@ class gltfExport:
             bonename = list(skeleton.bones)[0]
             bone = skeleton.bones[bonename]
             start = np.zeros(3,dtype=np.float32)
+            if self.zmin != 0.0:
+                start[1] = self.zmin * self.scale
             self.addBones(bone, childnum, start)
             children.append(childnum)
         

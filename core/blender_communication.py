@@ -19,6 +19,7 @@ class blendCom:
         self.hiddenverts = hiddenverts
         self.onground = onground
         self.scale = scale
+        self.zmin = 0.0
 
         # all constants used
         #
@@ -79,7 +80,6 @@ class blendCom:
         # buffer + we create one big binary buffer 
 
         length = len(data)
-        # print (data)
 
         self.bufferview_cnt += 1
         self.json["bufferViews"].append({"buffer": 0, "byteOffset": self.bufferoffset, "byteLength": length, "target": target })
@@ -90,6 +90,11 @@ class blendCom:
     def addPosBuffer(self, coord):
         if self.scale != 1.0:
             coord = coord * self.scale
+
+        if self.zmin != 0.0:
+            sub = np.array([0.0, self.zmin, 0.0], dtype=np.float32)
+            change = np.tile(sub, len(coord)//3)
+            coord = coord - change
 
         data = coord.tobytes()
         return(self.addBufferView(self.POS_BUFFER, data))
@@ -185,7 +190,7 @@ class blendCom:
 
     def addMesh(self, obj, nodenumber):
         self.mesh_cnt += 1
-        (coords, uvcoords, vpface, faces, overflows) = obj.getVisGeometry()
+        (coords, uvcoords, vpface, faces, overflows) = obj.getVisGeometry(self.hiddenverts)
         pos = self.addPosBuffer(coords)
         face = self.addFaceBuffer(faces)
         vpf = self.addVPFBuffer(vpface)
@@ -216,16 +221,14 @@ class blendCom:
         if mat == -1:
             return (False)
 
-        mesh = self.addMesh(baseobject, mat)
-
         # in case of onground we need a translation
         #
         if self.onground:
-            zmin = baseclass.baseMesh.getZMin() * self.scale
-            trans = [0.0, float(-zmin), 0.0]
-            self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh, "translation": trans,  "children": []  })
-        else:
-            self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh,  "children": []  })
+            self.zmin = baseclass.getZMin() * self.scale
+
+        mesh = self.addMesh(baseobject, mat)
+
+        self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh,  "children": []  })
         self.json["asset"]["nodes"].append(0)
         children = self.json["nodes"][0]["children"]
 

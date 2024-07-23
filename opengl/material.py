@@ -47,6 +47,7 @@ class Material:
         self.transparent = False
         self.backfaceCull = False
         self.shininess = 0.5
+        self.sc_normal = False
 
     def isExistent(self, filename):
         """
