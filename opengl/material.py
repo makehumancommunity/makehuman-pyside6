@@ -43,6 +43,8 @@ class Material:
     def default(self):
         self.diffuseColor = [1.0, 1.0, 1.0 ]
         self.specularColor = [0.5, 0.5, 0.5 ]
+        self.metallicFactor = 0.0       # TODO: add
+        self.pbrMetallicRoughness = 1.0
         self.has_imagetexture = False
         self.transparent = False
         self.backfaceCull = False
@@ -154,7 +156,9 @@ class Material:
                         "ambientOcclusion"]:
                     setattr (self, "sc_" + words[1], words[2].lower() in ["yes", "enabled", "true"])
 
-        self.specularValue = sum(self.specularColor) / 3
+        self.pbrMetallicRoughness = 1.0 - sum(self.specularColor) / 3
+        if self.name is None:
+            self.name = os.path.basename(path)
         print(self)
         return (True)
 

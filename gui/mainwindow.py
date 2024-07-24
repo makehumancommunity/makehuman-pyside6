@@ -36,6 +36,7 @@ class MHMainWindow(QMainWindow):
         self.mem_window = None
         self.scene_window = None
         self.material_window = None
+        self.material_editor = None
         self.asset_window = None
         self.info_window = None
         self.log_window = None

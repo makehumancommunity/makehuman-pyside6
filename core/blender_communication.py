@@ -117,8 +117,8 @@ class blendCom:
         return(self.addBufferView(self.VPF_BUFFER, data))
 
 
-    def pbrMaterial(self, color, spec):
-        return ({ "baseColorFactor": [ color[0], color[1], color[2], 1.0 ], "metallicFactor": 0.5, "roughnessFactor": 1.0 - spec })
+    def pbrMaterial(self, color, metal, rough):
+        return ({ "baseColorFactor": [ color[0], color[1], color[2], 1.0 ], "metallicFactor": metal, "roughnessFactor": rough })
 
     def copyImage(self, source, dest):
         print ("Need to copy " + source + " to " + dest)
@@ -140,13 +140,13 @@ class blendCom:
         self.json["images"].append({"uri": uri})
         return(True, self.image_cnt)
 
-    def addDiffuseTexture(self, texture, spec):
+    def addDiffuseTexture(self, texture, metal, rough):
         self.texture_cnt += 1
         (okay, image) = self.addImage(texture)
         if not okay:
             return (None)
         self.json["textures"].append({"sampler": 0, "source": image})
-        return ({ "baseColorTexture": { "index": self.texture_cnt }, "metallicFactor": 0.5, "roughnessFactor": 1.0 -spec })
+        return ({ "baseColorTexture": { "index": self.texture_cnt }, "metallicFactor": metal, "roughnessFactor": rough })
 
     def addNormalTexture(self, texture, scale):
         self.texture_cnt += 1
@@ -165,9 +165,9 @@ class blendCom:
         name = material.name if  material.name is not None else "generic"
         if material.has_imagetexture:
             print ("Diffuse " + material.diffuseTexture)
-            pbr = self.addDiffuseTexture(material.diffuseTexture, material.specularValue)
+            pbr = self.addDiffuseTexture(material.diffuseTexture, material.metallicFactor, material.pbrMetallicRoughness)
         else:   
-            pbr = self.pbrMaterial(material.diffuseColor, material.specularValue)
+            pbr = self.pbrMaterial(material.diffuseColor, material.metallicFactor, material.pbrMetallicRoughness)
 
         norm = None
         if material.sc_normal:

@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QPixmap
 from obj3d.object3d import object3d
 from gui.common import MHTagEdit, IconButton
+from gui.materialeditor import MHMaterialEditor
 
 
 class MHMaterialWindow(QWidget):
@@ -22,7 +23,7 @@ class MHMaterialWindow(QWidget):
         self.oldmaterial = asset.material
         self.asset = asset
 
-        self.setWindowTitle("Material")
+        self.setWindowTitle("Material Selection")
         self.resize(360, 500)
 
         layout = QVBoxLayout()
@@ -40,9 +41,14 @@ class MHMaterialWindow(QWidget):
         scrollArea.setHorizontalScrollBarPolicy( Qt.ScrollBarAlwaysOff )
         layout.addWidget(scrollArea)
 
-        button4 = QPushButton("Use")
-        button4.clicked.connect(self.use_call)
-        layout.addWidget(button4)
+        hlayout = QHBoxLayout()
+        usebutton = QPushButton("Use")
+        usebutton.clicked.connect(self.use_call)
+        hlayout.addWidget(usebutton)
+        editbutton = QPushButton("Edit")
+        editbutton.clicked.connect(self.edit_call)
+        hlayout.addWidget(editbutton)
+        layout.addLayout(hlayout)
         self.setLayout(layout)
 
     def picButtonChanged(self, matelem):
@@ -92,6 +98,20 @@ class MHMaterialWindow(QWidget):
     def use_call(self):
         self.close()
 
+    def edit_call(self):
+        mw = self.parent.material_editor
+        if isinstance(self.asset, object3d):
+            obj = self.asset
+        else:
+            obj = self.asset.obj
+
+        if mw is None:
+            mw = self.parent.material_editor = MHMaterialEditor(self.parent, obj)
+        else:
+            mw.updateWidgets(obj)
+        mw.show()
+        mw.activateWindow()
+        self.close()
 
 class MHAssetWindow(QWidget):
     """

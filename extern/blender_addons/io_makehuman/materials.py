@@ -16,7 +16,7 @@ class MH2B_OT_Material:
             node.image.colorspace_settings.name = 'Non-Color'
         return (node)
 
-    def addNodes(self, jdata, texture, alpha, roughness, normtexture):
+    def addNodes(self, jdata, texture, alpha, roughness, metallic, normtexture):
 
         # Add the Principled Shader node
         #
@@ -50,6 +50,9 @@ class MH2B_OT_Material:
         if roughness is not None:
              node_principled.inputs["Roughness"].default_value = roughness
 
+        if metallic is not None:
+             node_principled.inputs["Metallic"].default_value = metallic
+
         if normtexture is not None:
             # Add the Image Texture node
             img = normtexture["source"]
@@ -82,11 +85,12 @@ class MH2B_OT_Material:
         if "pbrMetallicRoughness" in matj:
             pbr = matj["pbrMetallicRoughness"]
             roughness = pbr['roughnessFactor'] if "roughnessFactor" in pbr else None
+            metallic  = pbr['metallicFactor'] if "metallicFactor" in pbr else None
             if 'baseColorTexture' in pbr:
                 textind = pbr['baseColorTexture']["index"]
                 texture = jdata["textures"][textind]
-                self.addNodes(jdata, texture, alpha, roughness, normtexture)
+                self.addNodes(jdata, texture, alpha, roughness, metallic, normtexture)
             elif 'baseColorFactor' in pbr:
-                self.addNodes(jdata,  pbr['baseColorFactor'], alpha, roughness, normtexture)
+                self.addNodes(jdata,  pbr['baseColorFactor'], alpha, roughness, metallic, normtexture)
         return(self.blendmat)
 

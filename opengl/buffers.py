@@ -146,7 +146,7 @@ class RenderedObject:
         #
         # TODO setSpecularLuminance instead of direct approach
         #
-        lightWeight = QVector3D(self.material.specularValue, light.lightWeight.y(), 0)
+        lightWeight = QVector3D(1.0 - self.material.pbrMetallicRoughness, light.lightWeight.y(), 0)
         shaderprog.setUniformValue("lightWeight", lightWeight)
 
 
