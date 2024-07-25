@@ -34,6 +34,10 @@ class IconButton(QPushButton):
         if func is not None:
             self.clicked.connect(func)
 
+    def newIcon(self, path):
+        icon  = QIcon(path)
+        self.setIcon(icon)
+
     def setChecked(self, value):
         super().setChecked(value)
         if value is True:

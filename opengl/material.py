@@ -41,15 +41,36 @@ class Material:
         return(dumper(self))
 
     def default(self):
+        self.ambientColor = [0.5, 0.5, 0.5 ]
         self.diffuseColor = [1.0, 1.0, 1.0 ]
         self.specularColor = [0.5, 0.5, 0.5 ]
-        self.metallicFactor = 0.0       # TODO: add
-        self.pbrMetallicRoughness = 1.0
-        self.has_imagetexture = False
+        self.emissiveColor = [0.0, 0.0, 0.0 ]
+        self.opacity = 1.0
+        self.translucency = 0.0
+        self.metallicFactor = 0.0
+        self.pbrMetallicRoughness = None
         self.transparent = False
-        self.backfaceCull = False
         self.shininess = 0.5
+        #
+        self.shadeless = False
+        self.depthless = False
+        self.castShadows = True
+        self.receiveShadows = True
+        self.alphaToCoverage = True
+        self.backfaceCull = False
+        #
         self.sc_normal = False
+        self.sc_ambientOcclusion = False
+        self.sc_diffuse = False
+        self.sc_bump = False
+        self.sc_displacement = False
+        self.sc_vertexColors = False
+        self.sc_spec = False
+        self.sc_transparency = False
+        self.shader = None
+
+        self.description = None
+        self.normalmapIntensity = 1.0
 
     def isExistent(self, filename):
         """
@@ -122,6 +143,8 @@ class Material:
                 setattr (self, key, " ".join(words[1:]))
             elif key == "tag":
                 self.tags.append( " ".join(words[1:]).lower() )
+            elif key == "shader":
+                self.shader = words[1]
 
             # simple bools:
             #
@@ -138,7 +161,7 @@ class Material:
             #
             elif key in ["shininess", "viewPortAlpha", "opacity", "translucency", "bumpmapIntensity",
                 "normalmapIntensity", "displacementmapIntensity", "specularmapIntensity",
-                "transparencymapIntensity", "aomapIntensity" ]:
+                "transparencymapIntensity", "aomapIntensity", "pbrMetallicRoughness", "metallicFactor" ]:
                 setattr (self, key, max(0.0, min(1.0, float(words[1]))))
 
             elif key in ["sssRScale", "sssGScale", "sssBScale"]:
@@ -156,11 +179,87 @@ class Material:
                         "ambientOcclusion"]:
                     setattr (self, "sc_" + words[1], words[2].lower() in ["yes", "enabled", "true"])
 
-        self.pbrMetallicRoughness = 1.0 - sum(self.specularColor) / 3
+        if self.pbrMetallicRoughness is None:
+            self.pbrMetallicRoughness = 1.0 - sum(self.specularColor) / 3
+
         if self.name is None:
             self.name = os.path.basename(path)
+        if self.description is None:
+            self.description = self.name + " material"
         print(self)
         return (True)
+
+    def saveMatFile(self, path):
+        self.env.logLine(8, "Saving material " + path)
+
+        if hasattr(self, "diffuseTexture"):
+            diffuse = "diffuseTexture " + os.path.basename(self.diffuseTexture) + "\n"
+        else:
+            diffuse = ""
+
+        if hasattr(self, "normalmapTexture"):
+            normal = "normalmapTexture " + os.path.basename(self.normalmapTexture) + \
+                "\nnormalmapIntensity " + str(self.normalmapIntensity) + "\n"
+        else:
+            normal = ""
+
+        if hasattr(self, "sp_litsphereTexture"):
+            litsphere = "shaderParam litsphereTexture " + self.sp_litsphereTexture
+        else:
+            litsphere = ""
+
+        if self.shader is not None:
+            shader = "shader " + {self.shader} + "\n"
+        else:
+            shader = ""
+
+        try:
+            fp = open(path, "w", encoding="utf-8", errors='ignore')
+        except IOError as err:
+            self.env.last_error = str(err)
+            return (False)
+
+        text = f"""# Material definition for {self.name}
+name {self.name}
+description {self.description}
+
+ambientColor {self.ambientColor[0]} {self.ambientColor[1]} {self.ambientColor[2]}
+diffuseColor {self.diffuseColor[0]} {self.diffuseColor[1]} {self.diffuseColor[2]}
+specularColor {self.specularColor[0]} {self.specularColor[1]} {self.specularColor[2]}
+shininess {self.shininess}
+emissiveColor {self.emissiveColor[0]} {self.emissiveColor[1]} {self.emissiveColor[2]}
+opacity {self.opacity}
+translucency {self.translucency}
+metallicFactor {self.metallicFactor}
+pbrMetallicRoughness {self.pbrMetallicRoughness}
+
+shadeless {self.shadeless}
+wireframe {self.wireframe}
+transparent {self.transparent}
+alphaToCoverage {self.alphaToCoverage}
+backfaceCull {self.backfaceCull}
+depthless {self.depthless}
+
+castShadows {self.castShadows}
+receiveShadows {self.receiveShadows}
+
+{diffuse}{normal}
+
+{shader}{litsphere}
+
+shaderConfig ambientOcclusion {self.sc_ambientOcclusion}
+shaderConfig normal {self.sc_normal}
+shaderConfig bump {self.sc_bump}
+shaderConfig displacement {self.sc_displacement}
+shaderConfig vertexColors {self.sc_vertexColors}
+shaderConfig spec {self.sc_spec}
+shaderConfig transparency {self.sc_transparency}
+shaderConfig diffuse {self.sc_diffuse}
+"""
+        
+        fp.write(text)
+        fp.close()
+        return True
 
     def getCurrentMatFilename(self):
         return self.filename
@@ -187,7 +286,7 @@ class Material:
         return (texture)
 
     def emptyTexture(self, rgb = [0.5, 0.5, 0.5]):
-        self.has_imagetexture = False
+        self.sc_diffuse = False
         image = QImage(QSize(1,1),QImage.Format_ARGB32)
         color = QColor.fromRgbF(rgb[0], rgb[1], rgb[2])
         image.fill(color)
@@ -207,7 +306,7 @@ class Material:
 
     def loadTexture(self, path):
         image = QImage(path)
-        self.has_imagetexture = True
+        self.sc_diffuse = True
         return(self.newTexture(path, image))
 
     def freeTextures(self):

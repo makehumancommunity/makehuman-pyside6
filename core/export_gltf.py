@@ -206,7 +206,7 @@ class gltfExport:
         """
         self.material_cnt += 1
         name = material.name if  material.name is not None else "generic"
-        if material.has_imagetexture:
+        if material.sc_diffuse:
             print ("Diffuse " + material.diffuseTexture)
             pbr = self.addDiffuseTexture(material.diffuseTexture, material.metallicFactor, material.pbrMetallicRoughness)
         else:   
@@ -221,7 +221,7 @@ class gltfExport:
             return(-1)
 
         mat = {"name": self.nodeName(name), "pbrMetallicRoughness": pbr}
-        if material.has_imagetexture and material.transparent:
+        if material.sc_diffuse and material.transparent:
             mat["alphaMode"] = "BLEND"
             mat["doubleSided"] =  material.backfaceCull
 
