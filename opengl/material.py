@@ -209,7 +209,7 @@ class Material:
             litsphere = ""
 
         if self.shader is not None:
-            shader = "shader " + {self.shader} + "\n"
+            shader = "shader " + self.shader + "\n"
         else:
             shader = ""
 
