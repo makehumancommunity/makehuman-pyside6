@@ -11,9 +11,11 @@ class MH2B_PT_Panel(bpy.types.Panel):
     bl_category = "MakeHuman 2"
 
     def draw(self, context):
+        scn = context.scene
         layout = self.layout
         fileBox = layout.box()
         fileBox.label(text="Load", icon="ARMATURE_DATA")
         fileBox.operator("mh2b.load", text="MakeHuman2 Import")
+        fileBox.prop(scn, 'MH2B_subdiv', text="subdivision surface modifier")
 
 

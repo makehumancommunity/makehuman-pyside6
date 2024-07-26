@@ -7,12 +7,13 @@ from bpy.props import StringProperty
 from .materials import MH2B_OT_Material
 
 class MH2B_OT_Loader:
-    def __init__(self, context):
+    def __init__(self, context, subsurf):
         self.context = context
         self.firstnode = 0
         self.firstname = "unknown"
         self.collection = None
         self.bufferoffset = 0
+        self.subsurf = subsurf
 
     def createCollection(self, jdata):
         #
@@ -137,6 +138,9 @@ class MH2B_OT_Loader:
             blendmat = mclass.addMaterial(jdata, material)
             nobject.data.materials.append(blendmat)
 
+        if self.subsurf is True:
+            modifier = nobject.modifiers.new(name="Subdivision", type='SUBSURF')
+
         return(nobject)
 
     def createObjects(self, jdata, fp, dirname):
@@ -222,7 +226,8 @@ class MH2B_OT_Load(bpy.types.Operator, ImportHelper):
         return True
 
     def execute(self, context):
-        mh2b = MH2B_OT_Loader(context)
+        scn = context.scene
+        mh2b = MH2B_OT_Loader(context, scn.MH2B_subdiv)
         res, err = mh2b.loadMH2B(self.properties)
         if res is False:
             self.report({'ERROR'}, "File is not a valid mh2b file. " + err)

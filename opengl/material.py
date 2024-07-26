@@ -70,6 +70,7 @@ class Material:
         self.shader = None
 
         self.description = None
+        self.aomapIntensity = 1.0
         self.normalmapIntensity = 1.0
 
     def isExistent(self, filename):
@@ -203,6 +204,12 @@ class Material:
         else:
             normal = ""
 
+        if hasattr(self, "aomapTexture"):
+            occl = "aomapTexture " + os.path.basename(self.aomapTexture) + \
+                "\naomapIntensity " + str(self.aomapIntensity) + "\n"
+        else:
+            occl = ""
+
         if hasattr(self, "sp_litsphereTexture"):
             litsphere = "shaderParam litsphereTexture " + self.sp_litsphereTexture
         else:
@@ -243,7 +250,7 @@ depthless {self.depthless}
 castShadows {self.castShadows}
 receiveShadows {self.receiveShadows}
 
-{diffuse}{normal}
+{diffuse}{normal}{occl}
 
 {shader}{litsphere}
 

@@ -156,6 +156,14 @@ class blendCom:
         self.json["textures"].append({"sampler": 0, "source": image})
         return ({ "index": self.texture_cnt, "scale": scale })
 
+    def addOcclusionTexture(self, texture, strength):
+        self.texture_cnt += 1
+        (okay, image) = self.addImage(texture)
+        if not okay:
+            return (None)
+        self.json["textures"].append({"sampler": 0, "source": image})
+        return ({ "index": self.texture_cnt, "strength": strength })
+
     def addMaterial(self, material):
         """
         :param material:  material from opengl.material
@@ -170,9 +178,14 @@ class blendCom:
             pbr = self.pbrMaterial(material.diffuseColor, material.metallicFactor, material.pbrMetallicRoughness)
 
         norm = None
-        if material.sc_normal:
+        if material.sc_normal and hasattr(material, "normalmapTexture"):
             print ("Normals " + material.normalmapTexture)
             norm = self.addNormalTexture(material.normalmapTexture, material.normalmapIntensity)
+
+        occl = None
+        if material.sc_ambientOcclusion and hasattr(material, "aomapTexture"):
+            print ("Ambient-Occlusion " + material.aomapTexture)
+            occl = self.addOcclusionTexture(material.aomapTexture, material.aomapIntensity)
 
         if pbr is None:
             return(-1)
@@ -184,6 +197,9 @@ class blendCom:
 
         if norm is not None:
             mat["normalTexture"] = norm
+
+        if occl is not None:
+            mat["occlusionTexture"] = occl
 
         self.json["materials"].append(mat)
         return (self.material_cnt)
