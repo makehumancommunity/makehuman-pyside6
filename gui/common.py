@@ -227,7 +227,8 @@ class MHFileRequest(QFileDialog):
     def __init__(self, ftext, pattern, directory, save=None):
         super(MHFileRequest, self).__init__()
         self.save = save
-        self.setNameFilter(pattern)
+        self.setNameFilters([pattern, "Any files (*)"])
+
         self.setDirectory(directory)
         if self.save is None:
             self.setWindowTitle("Load " + str(ftext) + " file")

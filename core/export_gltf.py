@@ -159,9 +159,6 @@ class gltfExport:
         self.json["accessors"].append({"bufferView": buf, "componentType": self.UNSIGNED_INT, "count": cnt, "type": "SCALAR", "min": [minimum], "max": [maximum]})
         return(self.accessor_cnt)
 
-    def pbrMaterial(self, color, metal, rough):
-        return ({ "baseColorFactor": [ color[0], color[1], color[2], 1.0 ], "metallicFactor": metal, "roughnessFactor": rough })
-
     def copyImage(self, source, dest):
         print ("Need to copy " + source + " to " + dest)
 
@@ -170,7 +167,6 @@ class gltfExport:
 
         dest = os.path.join(dest, os.path.basename(source))
         return (self.env.copyfile(source, dest))
-
 
     def addImage(self, image):
         self.image_cnt += 1
@@ -183,13 +179,37 @@ class gltfExport:
         self.json["images"].append({"uri": uri})
         return(True, self.image_cnt)
 
-    def addDiffuseTexture(self, texture, metal, rough):
+    def addMRTexture(self, roughtex):
+        self.texture_cnt += 1
+        (okay, image) = self.addImage(roughtex)
+        if not okay:
+            return (None)
+        self.json["textures"].append({"sampler": 0, "source": image})
+        return({ "index":  self.texture_cnt })
+
+    def pbrMaterial(self, color, metal, rough, roughtex):
+        pbr = { "baseColorFactor": [ color[0], color[1], color[2], 1.0 ], "metallicFactor": metal, "roughnessFactor": rough }
+        if roughtex is not None:
+            rtex = self.addMRTexture(roughtex)
+            if rtex is not None:
+                pbr["metallicRoughnessTexture"] = rtex
+        return (pbr)
+
+    def addDiffuseTexture(self, texture, metal, rough, roughtex):
         self.texture_cnt += 1
         (okay, image) = self.addImage(texture)
         if not okay:
             return (None)
         self.json["textures"].append({"sampler": 0, "source": image})
-        return ({ "baseColorTexture": { "index": self.texture_cnt }, "metallicFactor": metal, "roughnessFactor": rough })
+
+        pbr = { "baseColorTexture": { "index":  self.texture_cnt}, "metallicFactor": metal, "roughnessFactor": rough }
+
+        if roughtex is not None:
+            rtex = self.addMRTexture(roughtex)
+            if rtex is not None:
+                pbr["metallicRoughnessTexture"] = rtex
+
+        return (pbr)
 
     def addNormalTexture(self, texture, scale):
         self.texture_cnt += 1
@@ -214,11 +234,16 @@ class gltfExport:
         """
         self.material_cnt += 1
         name = material.name if  material.name is not None else "generic"
+
+        roughtex = None
+        if hasattr(material, "metallicRoughnessTexture"):
+            roughtex = material.metallicRoughnessTexture
+
         if material.sc_diffuse:
             print ("Diffuse " + material.diffuseTexture)
-            pbr = self.addDiffuseTexture(material.diffuseTexture, material.metallicFactor, material.pbrMetallicRoughness)
+            pbr = self.addDiffuseTexture(material.diffuseTexture, material.metallicFactor, material.pbrMetallicRoughness, roughtex)
         else:   
-            pbr = self.pbrMaterial(material.diffuseColor, material.metallicFactor, material.pbrMetallicRoughness)
+            pbr = self.pbrMaterial(material.diffuseColor, material.metallicFactor, material.pbrMetallicRoughness, roughtex)
 
         norm = None
         if material.sc_normal and hasattr(material, "normalmapTexture"):

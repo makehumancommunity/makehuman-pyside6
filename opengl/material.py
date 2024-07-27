@@ -135,7 +135,7 @@ class Material:
             # if commands make no sense, they will be skipped ... 
             #
             if key in ["diffuseTexture", "normalmapTexture", "displacementmapTexture", "specularmapTexture", "transparencymapTexture",
-                    "aomapTexture" ]:
+                    "aomapTexture", "metallicRoughnessTexture" ]:
                 abspath = self.isExistent(words[1])
                 if abspath is not None:
                     setattr (self, key, abspath)
@@ -210,6 +210,11 @@ class Material:
         else:
             occl = ""
 
+        if hasattr(self, "metallicRoughnessTexture"):
+            metrough = "metallicRoughnessTexture " + os.path.basename(self.metallicRoughnessTexture) + "\n"
+        else:
+            metrough = ""
+
         if hasattr(self, "sp_litsphereTexture"):
             litsphere = "shaderParam litsphereTexture " + self.sp_litsphereTexture
         else:
@@ -250,7 +255,7 @@ depthless {self.depthless}
 castShadows {self.castShadows}
 receiveShadows {self.receiveShadows}
 
-{diffuse}{normal}{occl}
+{diffuse}{normal}{occl}{metrough}
 
 {shader}{litsphere}
 
