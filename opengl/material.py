@@ -307,7 +307,7 @@ shaderConfig diffuse {self.sc_diffuse}
 
     def mixColors(self, colors, values):
         """
-        generates a texture from a number of colors (e.g. ethic slider)
+        generates a texture from a number of colors (e.g. ethnic slider)
         """
         col = numpy.asarray(colors)
         newcolor = numpy.array([0.0, 0.0, 0.0])

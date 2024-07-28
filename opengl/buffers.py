@@ -78,7 +78,6 @@ class RenderedObject:
         self.normal_buffer = glbuffers.normal_buffer
         self.tex_coord_buffer = glbuffers.tex_coord_buffer
 
-        #self.texture = texture
         self.material = material
         self.texture = self.textureFromMaterial()
 
@@ -103,6 +102,10 @@ class RenderedObject:
         self.texture = self.textureFromMaterial()
         functions.glActiveTexture(gl.GL_TEXTURE0)
         self.texture.bind()
+
+    def setTexture(self, texture):
+        # only used for colors
+        self.texture = texture
 
     def draw(self, shaderprog, proj_view_matrix, light, xrayed = False):
         """
