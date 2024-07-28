@@ -325,6 +325,7 @@ class MHMainWindow(QMainWindow):
         """
         env = self.env
         self.central_widget = QWidget()
+        self.glob.centralWidget = self.central_widget
 
         hLayout = QHBoxLayout()         # 3 columns
         hLayout.setSpacing(2)

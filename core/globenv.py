@@ -22,6 +22,7 @@ class globalObjects():
         self.openGLWindow = None
         self.openGLBlock  = False
         self.midColumn    = None
+        self.centralWidget= None
         self.baseClass = None
         self.textures = {}
         self.reset()

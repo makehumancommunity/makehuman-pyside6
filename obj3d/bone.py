@@ -165,16 +165,15 @@ class cBone():
 
 
 class boneWeights():
-    def __init__(self, glob, root):
+    def __init__(self, glob, root, mesh):
         self.glob = glob
         self.env  = glob.env
         self.root = root
         self.bWeights = {}
-        self.mesh = self.glob.baseClass.baseMesh
+        self.mesh = mesh
 
     def createWeightsPerBone(self, wdict):
         cnt = self.mesh.n_origverts
-
 
         # calculate sums to normalize weights
         #
@@ -214,7 +213,7 @@ class boneWeights():
 
         # assign rest to root bone
         #
-        if self.root not in wdict:
+        if self.root not in self.bWeights:
             vs = []
             ws = []
         else:
@@ -233,7 +232,6 @@ class boneWeights():
 
         if len(vs) > 0:
             self.bWeights[self.root] = (np.asarray(vs, dtype=np.uint32), np.asarray(ws, dtype=np.float32))
-
 
 
 

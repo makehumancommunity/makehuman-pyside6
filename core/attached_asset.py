@@ -3,7 +3,7 @@ import numpy as np
 from core.debug import dumper
 from obj3d.fops_binary import exportObj3dBinary, importObjValues
 from obj3d.object3d  import object3d
-
+from obj3d.bone import boneWeights
 
 class referenceVerts:
     def __init__(self):
@@ -115,8 +115,7 @@ class attachedAsset:
         #
         # status = 0, read normal
         #          1, read vertices
-        #          2, read weights
-        #          3, read delete_verts
+        #          2, read delete_verts
         #
         status = 0
         refVerts = [] # local reference for vertices
@@ -134,14 +133,15 @@ class attachedAsset:
             key = words[0]
             key = key[:-1] if key.endswith(":") else key
 
+            if key == "weights":
+                fp.close()
+                return(False, "weights in mhclo file no longer supported")
+
             if key == "verts":
                 status = 1
                 continue
-            if key == "weights":
+            if key == "delete_verts":
                 status = 2
-                continue
-            elif key == "delete_verts":
-                status = 3
                 continue
 
             if status == 1:
@@ -156,12 +156,6 @@ class attachedAsset:
                     continue
 
             elif status == 2:
-                #
-                # to do representation of weights
-                #
-                continue
-
-            elif status == 3:
 
                 # delete vertices
                 #
@@ -317,6 +311,17 @@ class attachedAsset:
 
         importObjValues(npzfile, self.obj)
 
+    def loadWeightFile(self):
+        """
+        start of extra weightfile
+        """
+        if self.vertexboneweights_file is not None:
+            weightfile =  os.path.normpath(os.path.join(os.path.dirname(self.obj_file), self.vertexboneweights_file))
+            if os.path.isfile(weightfile):
+                weights = boneWeights(self.glob, self.glob.baseClass.pose_skeleton.root, self.obj)
+                if weights.loadJSON(weightfile) is True:
+                    print (weightfile + " loaded")
+                    # in weights.bWeights
 
     def load(self, filename, use_ascii=False):
         """
@@ -334,6 +339,7 @@ class attachedAsset:
                 if self.type == "hair":
                     self.z_depth = 255
                 self.obj.setZDepth(self.z_depth)
+                self.loadWeightFile()
                 return (True, None)
             use_ascii = True
 
@@ -346,6 +352,7 @@ class attachedAsset:
             if res is True:
                 self.obj = obj
                 self.obj.setZDepth(self.z_depth)
+                self.loadWeightFile()
                 return(self.exportBinary())
 
         self.env.logLine(1, err )

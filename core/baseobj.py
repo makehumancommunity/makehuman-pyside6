@@ -6,7 +6,7 @@ from obj3d.skeleton import skeleton
 from obj3d.animation import BVH, MHPose, FaceUnits
 from core.debug import memInfo, dumper
 from core.target import Modelling
-from gui.common import WorkerThread
+from gui.common import WorkerThread, ErrorBox
 
 class MakeHumanModel():
     def __init__(self):
@@ -351,8 +351,9 @@ class baseClass():
     def addAsset(self, path, eqtype, materialpath=None, materialsource=None):
         # print ("Attach: " + path + " of " + eqtype)
         attach = attachedAsset(self.glob, eqtype)
-        attach.load(path)
-        if attach is None:
+        (res, err) = attach.load(path)
+        if res is False:
+            ErrorBox(self.glob.centralWidget, err)
             return (None)
 
         self.glob.markAssetByFileName(path, True)
