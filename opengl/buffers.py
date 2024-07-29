@@ -102,6 +102,9 @@ class RenderedObject:
         self.texture = self.textureFromMaterial()
         functions.glActiveTexture(gl.GL_TEXTURE0)
         self.texture.bind()
+        self.texture.setMinMagFilters(QOpenGLTexture.Linear, QOpenGLTexture.Linear)
+        self.texture.setWrapMode(QOpenGLTexture.ClampToEdge)
+
 
     def setTexture(self, texture):
         # only used for colors
@@ -152,8 +155,12 @@ class RenderedObject:
         lightWeight = QVector3D(1.0 - self.material.pbrMetallicRoughness, light.lightWeight.y(), 0)
         shaderprog.setUniformValue("lightWeight", lightWeight)
 
-
         if self.material.transparent or xrayed:
+            if self.material.alphaToCoverage and not xrayed:
+                functions.glEnable(gl.GL_SAMPLE_ALPHA_TO_COVERAGE)
+            else:
+                functions.glEnable(gl.GL_BLEND)
+
             functions.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
         else:
             functions.glBlendFunc(gl.GL_ONE, gl.GL_ZERO)
@@ -169,7 +176,10 @@ class RenderedObject:
         functions.glDrawElements(gl.GL_TRIANGLES, len(indices), gl.GL_UNSIGNED_INT, indices)
         #
         # TODO: this has to be done to reset system
+        #
         functions.glDisable(gl.GL_CULL_FACE)
+        functions.glDisable(gl.GL_SAMPLE_ALPHA_TO_COVERAGE)
+        functions.glDisable(gl.GL_BLEND)
 
 class RenderedLines:
     def __init__(self, context, indices, name, glbuffers, shaders, pos):
@@ -289,8 +299,8 @@ class PixelBuffer:
         gl.glPushAttrib(gl.GL_VIEWPORT_BIT)
 
         gl.glEnable(gl.GL_DEPTH_TEST)
-        gl.glEnable(gl.GL_BLEND)
-        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+        #gl.glEnable(gl.GL_BLEND)
+        #gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
         c = self.view.light.glclearcolor
         transp = 0 if self.transparent else c.w()

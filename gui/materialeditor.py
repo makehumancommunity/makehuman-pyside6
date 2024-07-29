@@ -114,8 +114,11 @@ class MHMaterialEditor(QWidget):
         self.transparent.stateChanged.connect(self.transparentchanged)
         self.backfacecull = QCheckBox("Backface culling")
         self.backfacecull.stateChanged.connect(self.backfacecullchanged)
+        self.alphacov = QCheckBox("Alpha to coverage")
+        self.alphacov.stateChanged.connect(self.alphacovchanged)
         vlayout.addWidget(self.transparent)
         vlayout.addWidget(self.backfacecull)
+        vlayout.addWidget(self.alphacov)
         gb.setLayout(vlayout)
         slayout.addWidget(gb)
 
@@ -153,6 +156,7 @@ class MHMaterialEditor(QWidget):
 
         self.transparent.setChecked(self.material.transparent)
         self.backfacecull.setChecked(self.material.backfaceCull)
+        self.alphacov.setChecked(self.material.alphaToCoverage)
 
         if hasattr(self.material, "diffuseTexture"):
             self.diffuse.newIcon(self.material.diffuseTexture)
@@ -245,6 +249,9 @@ class MHMaterialEditor(QWidget):
 
     def transparentchanged(self):
         self.material.transparent = self.transparent.isChecked()
+
+    def alphacovchanged(self):
+        self.material.alphaToCoverage = self.alphacov.isChecked()
 
     def save_call(self):
         directory = self.material.objdir

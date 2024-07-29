@@ -56,7 +56,7 @@ class Material:
         self.depthless = False
         self.castShadows = True
         self.receiveShadows = True
-        self.alphaToCoverage = True
+        self.alphaToCoverage = False
         self.backfaceCull = False
         #
         self.sc_normal = False
@@ -279,12 +279,22 @@ shaderConfig diffuse {self.sc_diffuse}
     def listAllMaterials(self, objdir = None):
         if objdir is None:
             objdir = self.objdir
-
+        
         materialfiles=[]
         for (root, dirs, files) in  os.walk(objdir):
             for name in files:
                 if name.endswith(".mhmat"):
                     materialfiles.append(os.path.join(root, name))
+
+        # second way is a parallel materials folder for common materials
+        #
+        if len( materialfiles) == 0:
+            objdir = os.path.join(os.path.dirname(objdir), "materials")
+            for (root, dirs, files) in  os.walk(objdir):
+                for name in files:
+                    if name.endswith(".mhmat"):
+                        materialfiles.append(os.path.join(root, name))
+
         return(materialfiles)
 
     def newTexture(self, path, image):

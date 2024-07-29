@@ -197,7 +197,6 @@ class OpenGLView(QOpenGLWidget):
         self.glfunc = self.context().functions()
 
         self.glfunc.glEnable(gl.GL_DEPTH_TEST)
-        self.glfunc.glEnable(gl.GL_BLEND)
 
         #
         # load shaders and get  positions of variables 
