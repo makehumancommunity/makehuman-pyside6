@@ -158,6 +158,7 @@ class RenderedObject:
         if self.material.transparent or xrayed:
             if self.material.alphaToCoverage and not xrayed:
                 functions.glEnable(gl.GL_SAMPLE_ALPHA_TO_COVERAGE)
+                functions.glDisable(gl.GL_BLEND)
             else:
                 functions.glEnable(gl.GL_BLEND)
 
@@ -233,11 +234,13 @@ class RenderedLines:
         # now set uMvpMatrix, uModelMatrix
 
         shaderprog.bind()
+        functions.glEnable(gl.GL_BLEND)
         shaderprog.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)
         shaderprog.setUniformValue(self.model_matrix_location, self.model_matrix)
 
         indices = self.indices
         functions.glDrawElements(gl.GL_LINES, len(indices), gl.GL_UNSIGNED_INT, indices)
+        functions.glDisable(gl.GL_BLEND)
 
 
 class PixelBuffer:
@@ -299,8 +302,6 @@ class PixelBuffer:
         gl.glPushAttrib(gl.GL_VIEWPORT_BIT)
 
         gl.glEnable(gl.GL_DEPTH_TEST)
-        #gl.glEnable(gl.GL_BLEND)
-        #gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
         c = self.view.light.glclearcolor
         transp = 0 if self.transparent else c.w()

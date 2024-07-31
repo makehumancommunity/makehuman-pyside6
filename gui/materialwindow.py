@@ -51,6 +51,37 @@ class MHMaterialWindow(QWidget):
         layout.addLayout(hlayout)
         self.setLayout(layout)
 
+    def relMatFileName(self, path):
+        """
+        create relative materialpath
+        """
+        itype = self.asset.type
+        if itype == "base" or itype == "proxy":
+            itype = "skins"
+        p1 = self.env.stdSysPath(itype)
+        p2 = self.env.stdUserPath(itype)
+        if path.startswith(p1):
+            path = path[len(p1)+1:]
+        elif path.startswith(p2):
+            path = path[len(p2)+1:]
+
+        # in case of a common material add type before
+        # (e.g. for eyes)
+        #
+        # otherwise delete leftmost folder
+        # except for skins
+
+        if path.startswith("materials"):
+            path = os.path.join(itype, path)
+        else:
+            if itype == "skins":
+                path = os.path.join("skins", path)
+            else:
+                path = os.sep.join(path.split(os.sep)[1:])
+
+        return (path)
+
+
     def picButtonChanged(self, matelem):
         if matelem.status == 1:
             # check asset before, if different change
@@ -62,17 +93,22 @@ class MHMaterialWindow(QWidget):
                 if isinstance(self.asset, object3d):
                     obj = self.asset
                     self.glob.baseClass.skinMaterial = matelem.filename
+                    self.glob.baseClass.skinMaterialName = self.relMatFileName(matelem.filename)
                 else:
                     # when changing the proxy, the base mesh should get same material
                     #
                     if self.asset.type == "proxy":
                         self.glob.baseClass.skinMaterial = matelem.filename
+                        self.glob.baseClass.skinMaterialName = self.relMatFileName(matelem.filename)
                         mainobj = self.glob.baseClass.baseMesh
                         mainobj.newMaterial(matelem.filename)
                         mainobj.openGL.setMaterial(mainobj.material)
 
                     obj = self.asset.obj
                     self.asset.material = matelem.filename
+                    self.asset.materialsource = matelem.filename
+                    self.asset.materialsource = self.relMatFileName(matelem.filename)
+
 
                 obj.newMaterial(matelem.filename)
                 #

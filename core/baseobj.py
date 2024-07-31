@@ -140,6 +140,8 @@ class baseClass():
                 matfilename = self.env.existFileInBaseFolder(self.env.basename, elem.type, elem.name, elem.relmaterial)
                 if matfilename is not None:
                     elem.material = matfilename
+                else:
+                    self.env.logLine(8, elem.relmaterial  + " not found")
 
         if loaded.name is not None:
             self.name = loaded.name
@@ -154,6 +156,8 @@ class baseClass():
                 self.skinMaterial = matfilename
                 if verbose is not None:
                     verbose.setLabelText("Load " + matfilename)
+            else:
+                self.env.logLine(8, self.skinMaterialName + " not found")
 
         # print(loaded)
 
