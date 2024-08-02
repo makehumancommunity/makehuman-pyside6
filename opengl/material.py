@@ -297,23 +297,24 @@ shaderConfig diffuse {self.sc_diffuse}
 
         return(materialfiles)
 
-    def newTexture(self, path, image):
+    def newTexture(self, path, image, noglob=False):
         texture = QOpenGLTexture(QOpenGLTexture.Target2D)
         texture.create()
         texture.setData(image)
-        self.glob.addTexture(path, texture)
+        if noglob is False:
+            self.glob.addTexture(path, texture)
         texture.setMinMagFilters(QOpenGLTexture.Linear, QOpenGLTexture.Linear)
         texture.setWrapMode(QOpenGLTexture.ClampToEdge)
         self._textures.append(texture)
-        return (texture)
+        return texture
 
-    def emptyTexture(self, rgb = [0.5, 0.5, 0.5]):
+    def emptyTexture(self, rgb = [0.5, 0.5, 0.5], noglob=False):
         self.sc_diffuse = False
         image = QImage(QSize(1,1),QImage.Format_ARGB32)
         color = QColor.fromRgbF(rgb[0], rgb[1], rgb[2])
         image.fill(color)
         name = "Generated " + repr(self) + " [" +str(len(self._textures)+1) + "]"
-        return(self.newTexture(name, image))
+        return self.newTexture(name, image, noglob)
 
     def mixColors(self, colors, values):
         """
@@ -331,7 +332,10 @@ shaderConfig diffuse {self.sc_diffuse}
         self.sc_diffuse = True
         return(self.newTexture(path, image))
 
-    def freeTextures(self):
+    def freeTextures(self, noglob=False):
         for elem in self._textures:
-            self.glob.freeTexture(elem)
+            if noglob is False:
+                self.glob.freeTexture(elem)
+            else:
+                elem.destroy()
         self._textures = []

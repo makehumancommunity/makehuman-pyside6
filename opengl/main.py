@@ -28,6 +28,7 @@ class OpenGLView(QOpenGLWidget):
         self.objects = []
         self.objects_invisible = False
         self.xrayed = False
+        self.wireframe = False
         self.prims = {}
         self.camera  = None
         self.skybox = None
@@ -109,6 +110,11 @@ class OpenGLView(QOpenGLWidget):
 
     def toggleTranspAssets(self, status):
         self.xrayed = status
+        if self.glob.baseClass is not None:
+            self.Tweak()
+
+    def toggleWireframe(self, status):
+        self.wireframe = status
         if self.glob.baseClass is not None:
             self.Tweak()
 
@@ -216,6 +222,11 @@ class OpenGLView(QOpenGLWidget):
         self.camera = Camera(self.mh_shaders, o_size)
         self.camera.resizeViewPort(self.width(), self.height())
 
+        self.blackmat = Material(self.glob, "black", "system")
+        self.black = self.blackmat.emptyTexture(rgb = [0.0, 0.0, 0.0], noglob=True)
+        self.whitemat = Material(self.glob, "white", "system")
+        self.white = self.whitemat.emptyTexture(rgb = [1.0, 1.0, 1.0], noglob=True)
+
         if baseClass is not None:
             self.newMesh()
 
@@ -281,13 +292,19 @@ class OpenGLView(QOpenGLWidget):
             else:
                 body = self.objects[0]
                 asset_start = 1
-            body.draw(self.mh_shaders._shaders[0], proj_view_matrix, self.light)
+            if self.wireframe:
+                body.drawWireframe(self.mh_shaders._shaders[0], proj_view_matrix, self.black, self.white)
+            else:
+                body.draw(self.mh_shaders._shaders[0], proj_view_matrix, self.light)
 
             # either with xray or normal shader draw assets
             #
             shader = 2 if self.xrayed else 0
             for obj in self.objects[asset_start:]:
-                obj.draw(self.mh_shaders._shaders[shader], proj_view_matrix, self.light, self.xrayed)
+                if self.wireframe:
+                    obj.drawWireframe(self.mh_shaders._shaders[shader], proj_view_matrix, self.black, self.white)
+                else:
+                    obj.draw(self.mh_shaders._shaders[shader], proj_view_matrix, self.light, self.xrayed)
 
         if self.light.skybox and self.skybox and self.camera.cameraPers:
             self.skybox.draw(proj_view_matrix)
@@ -354,6 +371,8 @@ class OpenGLView(QOpenGLWidget):
 
     def cleanUp(self):
         print ("cleanup openGL")
+        self.blackmat.freeTextures(True)
+        self.whitemat.freeTextures(True)
         if self.skybox is not None:
             self.skybox.delete()
             self.skybox = None

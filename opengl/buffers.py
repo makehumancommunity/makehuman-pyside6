@@ -110,7 +110,7 @@ class RenderedObject:
         # only used for colors
         self.texture = texture
 
-    def draw(self, shaderprog, proj_view_matrix, light, xrayed = False):
+    def geomToShader(self,shaderprog, proj_view_matrix):
         """
         :param shaderprog: QOpenGLShaderProgram
         """
@@ -119,7 +119,6 @@ class RenderedObject:
         self.normal_matrix_location = shaderprog.uniforms["uNormalMatrix"]
 
         shaderprog.bind()
-        functions = self.context.functions()
 
         # VAO, bind the position-buffer, normal-buffer and texture-coordinates to attribute 0, 1, 2
         # these are the values changed per vertex
@@ -149,9 +148,15 @@ class RenderedObject:
         shaderprog.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)
         shaderprog.setUniformValue(self.model_matrix_location, self.model_matrix)
         shaderprog.setUniformValue(self.normal_matrix_location, self.normal_matrix)
-        #
-        # TODO setSpecularLuminance instead of direct approach
-        #
+
+
+    def draw(self, shaderprog, proj_view_matrix, light, xrayed = False):
+        """
+        :param shaderprog: QOpenGLShaderProgram
+        """
+        self.geomToShader(shaderprog, proj_view_matrix)
+        functions = self.context.functions()
+
         lightWeight = QVector3D(1.0 - self.material.pbrMetallicRoughness, light.lightWeight.y(), 0)
         shaderprog.setUniformValue("lightWeight", lightWeight)
 
@@ -181,6 +186,47 @@ class RenderedObject:
         functions.glDisable(gl.GL_CULL_FACE)
         functions.glDisable(gl.GL_SAMPLE_ALPHA_TO_COVERAGE)
         functions.glDisable(gl.GL_BLEND)
+
+    def drawWireframe(self, shaderprog, proj_view_matrix, black, white):
+        """
+        :param shaderprog: QOpenGLShaderProgram
+        """
+        self.geomToShader(shaderprog, proj_view_matrix)
+        functions = self.context.functions()
+
+        oldtexture = self.texture
+        self.setTexture(black)
+        functions.glActiveTexture(gl.GL_TEXTURE0)
+        self.texture.bind()
+
+        indices = self.getindex()
+
+        try:
+            gl.glGetIntegerv(gl.GL_MAJOR_VERSION, '*')
+        except:
+            pass
+        
+        gl.glPolygonMode(gl.GL_FRONT_AND_BACK, gl.GL_LINE)
+        functions.glDrawElements(gl.GL_TRIANGLES, len(indices), gl.GL_UNSIGNED_INT, indices)
+
+
+        functions.glEnable(gl.GL_CULL_FACE)
+        functions.glEnable(gl.GL_POLYGON_OFFSET_FILL)
+        functions.glPolygonOffset(1.0, 1.0)
+
+        self.setTexture(white)
+        functions.glActiveTexture(gl.GL_TEXTURE0)
+        self.texture.bind()
+        gl.glPolygonMode(gl.GL_FRONT_AND_BACK, gl.GL_FILL)
+
+        functions.glDrawElements(gl.GL_TRIANGLES, len(indices), gl.GL_UNSIGNED_INT, indices)
+
+        functions.glDisable(gl.GL_POLYGON_OFFSET_FILL)
+        functions.glDisable(gl.GL_CULL_FACE)
+
+        self.setTexture(oldtexture)
+        functions.glActiveTexture(gl.GL_TEXTURE0)
+
 
 class RenderedLines:
     def __init__(self, context, indices, name, glbuffers, shaders, pos):
