@@ -19,23 +19,24 @@ This installation will change for sure, since it is all under development.
 Atm. makehuman.py can only be started on CLI. You also need to 'cd' to the folder.
 Call is with the interpreter in front:
 
-	python3 makehuman.py
+        python3 makehuman.py
 
 Currently syntax is like this:
 
-	usage: makehuman.py [-h] [-V] [--multisampling] [-l] [-b BASE] [-A] [-v VERBOSE] [model]
+        usage: makehuman.py [-h] [-V] [--nomultisampling] [-l] [-b BASE] [-A] [-v VERBOSE] [model]
 
-	positional arguments:
-  	model                 name of an mhm model file (use with base mesh
+        positional arguments:
+          model                 name of an mhm model file (use with base mesh
 
-	optional arguments:
-  	-h, --help            show this help message and exit
-  	-V, --version         Show version and License
-  	--multisampling       enable multisampling (used for anti-aliasing and alpha-to-coverage transparency rendering)
-  	-l                    force to write to log file
-  	-b BASE, --base BASE  preselect base mesh use 'none' for no preselection
-  	-A, --admin           Support administrative tasks ('Admin'). Command will write into program folder, where makehuman is installed.
-  	-v VERBOSE, --verbose VERBOSE
+        optional arguments:
+          -h, --help            show this help message and exit
+          -V, --version         Show version and License
+          --nomultisampling     disable multisampling (used to display multi transparent layers)
+                                without multisampling normal blend function is used
+          -l                    force to write to log file
+          -b BASE, --base BASE  preselect base mesh use 'none' for no preselection
+          -A, --admin           Support administrative tasks ('Admin'). Command will write into program folder, where makehuman is installed.
+          -v VERBOSE, --verbose VERBOSE
                         bitwise verbose option (add values)
                         1 low log level (standard)
                         2 mid log level
@@ -43,7 +44,7 @@ Currently syntax is like this:
                         8 file access
                         16 enable numpy runtime error messages
 
-Hint: multisampling is not yet implemented, there are still prints which do not follow the verbose rules for debugging.
+Hint: there are still prints which do not follow the verbose rules for debugging.
 
 Since makehuman comes with nearly no assets to save space on github, assets must be added.
 

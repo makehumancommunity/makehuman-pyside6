@@ -157,7 +157,7 @@ class programInfo():
     * converter functions
     * JSON reader/writer + integrity test
     """
-    def __init__(self, frozen: bool, path_sys: str, verbose: int, uselog: bool, admin: bool):
+    def __init__(self, frozen: bool, path_sys: str, args):
         """
         init: set all global parameters
         evaluates system path, platform in ostype and osindex.
@@ -171,9 +171,10 @@ class programInfo():
         self.fileCache = None
         self.last_error = None
 
-        self.verbose = verbose
-        self.admin = admin
-        self.uselog  = uselog
+        self.verbose = args.verbose
+        self.admin = args.admin
+        self.noalphacover = args.nomultisampling    # in reality it means not to use alpha to coverage
+        self.uselog  = args.l
         self.frozen  = frozen
         self.path_sys = path_sys
  

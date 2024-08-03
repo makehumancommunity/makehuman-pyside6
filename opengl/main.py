@@ -171,7 +171,7 @@ class OpenGLView(QOpenGLWidget):
                 if (self.compareBoundingBoxes(elem.boundingbox, boundingbox)) is False:
                     break
             cnt += 1
-        obj.openGL = RenderedObject(self.context(), obj.getOpenGLIndex, obj.filename, obj.z_depth, boundingbox, glbuffer, obj.material, pos=QVector3D(0, 0, 0))
+        obj.openGL = RenderedObject(self.glob, self.context(), obj, boundingbox, glbuffer, pos=QVector3D(0, 0, 0))
         self.objects.insert(cnt, obj.openGL)
 
     def deleteObject(self,obj):

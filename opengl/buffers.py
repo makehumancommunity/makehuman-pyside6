@@ -1,6 +1,7 @@
 import time
 import numpy as np
 from PySide6.QtGui import QVector3D, QMatrix4x4, QImage
+from PySide6.QtCore import QByteArray
 
 from PySide6.QtOpenGL import (QOpenGLBuffer, QOpenGLShader,
                               QOpenGLShaderProgram, QOpenGLTexture)
@@ -60,12 +61,14 @@ class OpenGlBuffers():
             self.tex_coord_buffer.destroy()
 
 class RenderedObject:
-    def __init__(self, context, getindex, name, z_depth, boundingbox, glbuffers, material, pos):
+    def __init__(self, glob, context, obj, boundingbox, glbuffers, pos):
+        self.glob = glob
+        self.env = glob.env
         self.context = context
-        self.z_depth = z_depth
-        self.name = name
+        self.z_depth = obj.z_depth
+        self.name = obj.filename
         self.boundingbox = boundingbox
-        self.getindex = getindex
+        self.getindex = obj.getOpenGLIndex
         self.position = QVector3D(0, 0, 0)
         self.rotation = QVector3D(0, 0, 0)
         self.scale = QVector3D(1, 1, 1)
@@ -78,7 +81,7 @@ class RenderedObject:
         self.normal_buffer = glbuffers.normal_buffer
         self.tex_coord_buffer = glbuffers.tex_coord_buffer
 
-        self.material = material
+        self.material = obj.material
         self.texture = self.textureFromMaterial()
 
         self.position = pos
@@ -160,8 +163,14 @@ class RenderedObject:
         lightWeight = QVector3D(1.0 - self.material.pbrMetallicRoughness, light.lightWeight.y(), 0)
         shaderprog.setUniformValue("lightWeight", lightWeight)
 
+        # alphaCoverage demands samples buffers, so if these are not given
+        # do not use alphaToCoverage, use BLEND instead
+
+        alphaCover = self.material.alphaToCoverage and not self.env.noalphacover
+
         if self.material.transparent or xrayed:
-            if self.material.alphaToCoverage and not xrayed:
+            if alphaCover and not xrayed:
+                functions.glEnable(gl.GL_MULTISAMPLE)
                 functions.glEnable(gl.GL_SAMPLE_ALPHA_TO_COVERAGE)
                 functions.glDisable(gl.GL_BLEND)
             else:
@@ -181,11 +190,12 @@ class RenderedObject:
         indices = self.getindex()
         functions.glDrawElements(gl.GL_TRIANGLES, len(indices), gl.GL_UNSIGNED_INT, indices)
         #
-        # TODO: this has to be done to reset system
+        # TODO: this is done always to reset
         #
         functions.glDisable(gl.GL_CULL_FACE)
         functions.glDisable(gl.GL_SAMPLE_ALPHA_TO_COVERAGE)
         functions.glDisable(gl.GL_BLEND)
+        functions.glDisable(gl.GL_MULTISAMPLE)
 
     def drawWireframe(self, shaderprog, proj_view_matrix, black, white):
         """
@@ -357,6 +367,7 @@ class PixelBuffer:
         proj_view_matrix = self.view.camera.getProjViewMatrix()
         baseClass = self.glob.baseClass
         start = 1 if baseClass.proxy is True else 0
+
         for obj in self.view.objects[start:]:
             obj.draw(self.view.mh_shaders._shaders[0], proj_view_matrix, self.view.light)
 
@@ -370,9 +381,18 @@ class PixelBuffer:
         imgmode = QImage.Format_RGBA8888 if self.transparent else QImage.Format_RGB888
 
         data = gl.glReadPixels (0, 0, self.width, self.height, pixmode,  gl.GL_UNSIGNED_BYTE)
-        image = QImage(self.width, self.height, imgmode)
 
+        image = QImage(self.width, self.height, imgmode)
         image.fromData(data)
+
+        if self.transparent:
+            # slow but I cannot find a better method yet
+            for y in range (0, self.height):
+                for x in range(0, self.width):
+                    rgba = image.pixel(x,y)
+                    if rgba & 0xff000000:
+                        image.setPixel(x,y, rgba | 0xff000000)
+
         image.mirrored_inplace(False, True)
         return (image)
 

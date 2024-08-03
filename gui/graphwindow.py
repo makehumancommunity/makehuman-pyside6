@@ -205,6 +205,11 @@ class MHGraphicWindow(QWidget):
         creates layout for 3d window
         """
         self.view = OpenGLView(self.glob)          # must be saved in self!
+
+        # disable multisampling in case format return no sample buffers
+        #
+        self.env.noalphacover = (self.view.format().samples() == -1)
+
         self.glob.openGLWindow = self.view
         hlayout = QHBoxLayout()
         hlayout.addWidget(self.view)

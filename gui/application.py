@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QApplication
-from PySide6.QtGui import QScreen, QImageReader
+from PySide6.QtGui import QScreen, QImageReader, QSurfaceFormat
 from PySide6.QtCore import qVersion, QCoreApplication
 import os
 
@@ -23,6 +23,10 @@ class MHApplication(QApplication):
         self.env = glob.env
         super().__init__(argv)
 
+        if self.env.noalphacover is False:
+            format = QSurfaceFormat()
+            format.setSamples(4)
+            QSurfaceFormat.setDefaultFormat(format)
 
     def setStyles(self, theme):
         if theme is None:

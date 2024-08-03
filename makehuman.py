@@ -28,7 +28,9 @@ def main():
     # optional arguments
     parser.add_argument("model", type=str, nargs='?', help="name of an mhm model file (use with base mesh")
     parser.add_argument('-V', '--version', action='store_true',  help="Show version and License")
-    parser.add_argument("--multisampling", action="store_true", help="enable multisampling (used for anti-aliasing and alpha-to-coverage transparency rendering)")
+    parser.add_argument("--nomultisampling", action="store_true", help=textwrap.dedent('''\
+        disable multisampling (used to display multi transparent layers)
+        without multisampling normal blend function is used'''))
     parser.add_argument("-l", action="store_true", help="force to write to log file")
     parser.add_argument("-b", "--base", type=str, help="preselect base mesh use 'none' for no preselection")
     parser.add_argument("-A", '--admin', action="store_true", help="Support administrative tasks ('Admin'). Command will write into program folder, where makehuman is installed.")
@@ -51,7 +53,7 @@ def main():
     # get programInfo as environment (only for strings to be printed in JSON)
     # and globalObjects for non-printable objects
 
-    env = programInfo(frozen, syspath, args.verbose, args.l, args.admin)
+    env = programInfo(frozen, syspath, args)
     if not env.environment():
         print (env.last_error)
         exit (20)
