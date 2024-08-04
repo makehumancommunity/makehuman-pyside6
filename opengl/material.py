@@ -107,6 +107,8 @@ class Material:
         path = os.path.join(self.env.stdUserPath(itype), filename)
         if os.path.isfile(path):
             return (path)
+        
+        self.env.logLine(8, "unknown texture " + filename)
             
         return None
 
@@ -190,28 +192,49 @@ class Material:
         print(self)
         return (True)
 
+    def textureRelName(self, path):
+        if path.startswith(self.objdir):
+            relpath = path[len(self.objdir)+1:]
+            return(relpath)
+
+        test = self.env.stdSysPath(self.type)
+        rest = None
+        if self.objdir.startswith(test):
+            rest = self.objdir[len(test)+1:]
+        
+        test = self.env.stdUserPath(self.type)
+        if self.objdir.startswith(test):
+            rest = self.objdir[len(test)+1:]
+
+        if rest:
+            asset = rest.split("/")[0]
+            relpath = os.path.join(self.type, asset, os.path.basename(path))
+        else:
+            relpath = os.path.basename(path)
+        return(relpath)
+
     def saveMatFile(self, path):
         self.env.logLine(8, "Saving material " + path)
 
         if hasattr(self, "diffuseTexture"):
-            diffuse = "diffuseTexture " + os.path.basename(self.diffuseTexture) + "\n"
+            diffuse = "diffuseTexture " + self.textureRelName(self.diffuseTexture) + "\n"
         else:
             diffuse = ""
 
         if hasattr(self, "normalmapTexture"):
-            normal = "normalmapTexture " + os.path.basename(self.normalmapTexture) + \
+            normal = "normalmapTexture " + self.textureRelName(self.normalmapTexture) + \
                 "\nnormalmapIntensity " + str(self.normalmapIntensity) + "\n"
         else:
             normal = ""
 
         if hasattr(self, "aomapTexture"):
-            occl = "aomapTexture " + os.path.basename(self.aomapTexture) + \
+            occl = "aomapTexture " + self.textureRelName(self.aomapTexture) + \
                 "\naomapIntensity " + str(self.aomapIntensity) + "\n"
         else:
             occl = ""
 
         if hasattr(self, "metallicRoughnessTexture"):
-            metrough = "metallicRoughnessTexture " + os.path.basename(self.metallicRoughnessTexture) + "\n"
+            metrough = "metallicRoughnessTexture " + self.textureRelName(self.metallicRoughnessTexture) + "\n"
         else:
             metrough = ""
 

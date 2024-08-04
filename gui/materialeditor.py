@@ -258,6 +258,7 @@ class MHMaterialEditor(QWidget):
         freq = MHFileRequest("Material (MHMAT)", "material files (*.mhmat)", directory, save=".mhmat")
         filename = freq.request()
         if filename is not None:
+            self.material.name = self.namebox.text()
             self.material.saveMatFile(filename)
             QMessageBox.information(self.parent.central_widget, "Done!", "Material saved as " + filename)
 
