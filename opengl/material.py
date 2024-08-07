@@ -193,6 +193,10 @@ class Material:
         return (True)
 
     def textureRelName(self, path):
+        """
+        path name always in UNIX syntax, needed as a base
+        """
+        path = self.env.formatPath(path)
         if path.startswith(self.objdir):
             relpath = path[len(self.objdir)+1:]
             return(relpath)

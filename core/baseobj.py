@@ -206,6 +206,10 @@ class baseClass():
         return (True, "okay")
 
     def saveMHMFile(self, filename):
+        """
+        self the MHM file and keep names in UNIX encoding
+        """
+
         self.env.logLine(8, "Save: " + filename)
         try:
             fp = open(filename, "w", encoding="utf-8", errors='ignore')
@@ -241,13 +245,15 @@ class baseClass():
 
         # skinmaterial
         if self.skinMaterialName:
-            fp.write ("skinMaterial " + self.skinMaterialName + "\n")
+            matpath = self.env.formatPath(self.skinMaterialName)
+            fp.write ("skinMaterial " + matpath + "\n")
 
         # materials (elem.materialsource is None if material is unchanged, so no save)
         #
         for elem in self.attachedAssets:
             if  elem.materialsource is not None:
-                fp.write ("material " + elem.name + " " +  elem.uuid + " " + elem.materialsource + "\n")
+                matpath = self.env.formatPath(elem.materialsource)
+                fp.write ("material " + elem.name + " " +  elem.uuid + " " + matpath + "\n")
  
         # skeleton
         #
