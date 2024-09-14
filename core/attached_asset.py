@@ -90,6 +90,7 @@ class attachedAsset:
         self.deleteVerts = None     # will contain vertices to delete
         self.material = None        # path material, fully qualified
         self.vertexboneweights_file = None # path to vbone file
+        self.bWeights = None        # bone weights
         self.materialsource = None    # path material, relative
         if num_base_verts is None:
             self.base_verts = self.glob.baseClass.baseMesh.n_origverts
@@ -311,17 +312,28 @@ class attachedAsset:
 
         importObjValues(npzfile, self.obj)
 
-    def loadWeightFile(self):
+    def calculateBoneWeights(self):
         """
         start of extra weightfile
         """
+        self.bWeights = boneWeights(self.glob, self.glob.baseClass.pose_skeleton.root, self.obj)
+
         if self.vertexboneweights_file is not None:
+            #
+            # todo error checks
+            #
             weightfile =  os.path.normpath(os.path.join(os.path.dirname(self.obj_file), self.vertexboneweights_file))
             if os.path.isfile(weightfile):
-                weights = boneWeights(self.glob, self.glob.baseClass.pose_skeleton.root, self.obj)
-                if weights.loadJSON(weightfile) is True:
+                if self.bWeights.loadJSON(weightfile) is True:
                     print (weightfile + " loaded")
-                    # in weights.bWeights
+                else:
+                    self.bWeights = None
+                    return False
+        else:
+            # calculate weights
+            print ("Calculate bone weights")
+            self.bWeights.approxWeights(self, self.glob.baseClass.pose_skeleton.bWeights)
+            self.bWeights = None
 
     def load(self, filename, use_ascii=False):
         """
@@ -339,7 +351,7 @@ class attachedAsset:
                 if self.type == "hair":
                     self.z_depth = 255
                 self.obj.setZDepth(self.z_depth)
-                self.loadWeightFile()
+                self.calculateBoneWeights()
                 return (True, None)
             use_ascii = True
 
@@ -352,7 +364,7 @@ class attachedAsset:
             if res is True:
                 self.obj = obj
                 self.obj.setZDepth(self.z_depth)
-                self.loadWeightFile()
+                self.calculateBoneWeights()
                 return(self.exportBinary())
 
         self.env.logLine(1, err )

@@ -151,6 +151,8 @@ class cBone():
         except:
             self.glob.env.logLine(1, "Cannot calculate pose verts matrix for bone " + self.name)
             self.glob.env.logLine(1, "Non-singular rest matrix " + str(self.matRestGlobal))
+            return False
+        return True
 
     def poseBone(self):
         m = np.ones(4)
@@ -233,6 +235,42 @@ class boneWeights():
         if len(vs) > 0:
             self.bWeights[self.root] = (np.asarray(vs, dtype=np.uint32), np.asarray(ws, dtype=np.float32))
 
+    def approxWeights(self, asset, base):
+        #
+        # create bone weights from base
+
+        print ("Calculate bone weights " + asset.name)
+
+        # recalculate the input in case of mesh loaded in binary form for easier calculation
+        #
+        self.vertWeights = {}
+        for idx in range(asset.ref_vIdxs.shape[0]):
+            for l in range(0,3):
+                n, w = asset.ref_vIdxs[idx, l], asset.weights[idx, l]
+                if n in self.vertWeights:
+                    self.vertWeights[n].append((idx, w))
+                else:
+                    self.vertWeights[n] = [(idx, w)]
+
+        # now generate the weights to be calculated by createWeightsPerBone
+        #
+        weights = {}
+        for bname, (indxs, wghts) in list(base.bWeights.items()):
+            vgroup = []
+            empty = True
+            for (v,wt) in zip(indxs, wghts):
+                if v in self.vertWeights:
+                    vlist = self.vertWeights[v]
+                else:
+                    vlist = []
+                for (pv, w) in vlist:
+                    pw = w*wt
+                    if (pw > 1e-4):
+                        vgroup.append((pv, pw))
+                        empty = False
+            if not empty:
+                weights[bname] = vgroup
+        self.createWeightsPerBone (weights)
 
 
     def loadJSON(self, path):

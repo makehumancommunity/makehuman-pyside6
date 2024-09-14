@@ -19,7 +19,9 @@ class AnimMode():
         self.mesh.createWCopy()
         self.baseClass.pose_skeleton.newGeometry()
         self.baseClass.pose_skeleton.restPose()
+        self.baseClass.precalculateAssetsInRestPose()
         self.view.addSkeleton(True)
+        print ("init pose")
         if self.baseClass.bvh:
             self.baseClass.showPose()
         if self.baseClass.expression:
@@ -83,6 +85,7 @@ class AnimPlayer(QVBoxLayout):
         self.loopbutton.setChecked(False)
         self.view.addSkeleton(True)
         self.bc.pose_skeleton.newGeometry()
+        self.bc.precalculateAssetsInRestPose()
         self.mesh.createWCopy()
         self.firstframe()
 

@@ -160,7 +160,10 @@ class RenderedObject:
         self.geomToShader(shaderprog, proj_view_matrix)
         functions = self.context.functions()
 
-        lightWeight = QVector3D(1.0 - self.material.pbrMetallicRoughness, light.lightWeight.y(), 0)
+        if self.material.pbrMetallicRoughness is not None:
+            lightWeight = QVector3D(1.0 - self.material.pbrMetallicRoughness, light.lightWeight.y(), 0)
+        else:
+            lightWeight = QVector3D(0.5, light.lightWeight.y(), 0)
         shaderprog.setUniformValue("lightWeight", lightWeight)
 
         # alphaCoverage demands samples buffers, so if these are not given
@@ -289,7 +292,6 @@ class RenderedLines:
 
         # now set uMvpMatrix, uModelMatrix
 
-        shaderprog.bind()
         functions.glEnable(gl.GL_BLEND)
         shaderprog.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)
         shaderprog.setUniformValue(self.model_matrix_location, self.model_matrix)

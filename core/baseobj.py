@@ -412,7 +412,7 @@ class baseClass():
 
         asset = self.addAsset(path, eqtype)
         if asset is not None:
-            asset.obj.approxByTarget(asset, self.baseMesh)
+            asset.obj.approxToBasemesh(asset, self.baseMesh)
             self.glob.openGLWindow.createObject(asset.obj)
             self.glob.openGLWindow.Tweak()
 
@@ -585,10 +585,18 @@ class baseClass():
 
     def updateAttachedAssets(self):
         for asset in self.attachedAssets:
-            #
-            # TODO: could be that the method will be moved to attached_asset
-            #
-            asset.obj.approxByTarget(asset, self.baseMesh)
+            asset.obj.approxToBasemesh(asset, self.baseMesh)
+
+    def precalculateAssetsInRestPose(self):
+        for asset in self.attachedAssets:
+            asset.obj.precalculateApproxInRestPose(asset, self.baseMesh)
+
+    def poseAttachedAssets(self):
+        for asset in self.attachedAssets:
+            if asset.bWeights is not None:
+                self.pose_skeleton.skinMesh(asset.obj, asset.bWeights)
+            else:
+                asset.obj.approxToBasemesh(asset, self.baseMesh)
 
     def updateByTarget(self, factor, decr, incr):
         """

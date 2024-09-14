@@ -706,7 +706,7 @@ class object3d:
         self.overflowCorrection(self.gl_coord)
         self.gl_coord_mm = np.zeros_like(self.gl_coord)
 
-    def approxByTarget(self, asset, base):
+    def approxToBasemesh(self, asset, base):
         """
         updates the mesh, barycentric approximation (assets)
         """
@@ -743,6 +743,12 @@ class object3d:
         # do not forget the overflow vertices
         #
         self.overflowCorrection(self.gl_coord)
+
+
+    def precalculateApproxInRestPose(self, asset, base):
+        print ("+++ precalculate asset for restpose " + asset.name)
+        self.approxToBasemesh(asset, base)
+        self.gl_coord_w =  self.gl_coord.copy()
 
     def precalculateDimension(self):
         """

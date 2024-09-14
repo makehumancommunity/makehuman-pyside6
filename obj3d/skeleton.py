@@ -162,40 +162,46 @@ class skeleton:
 
     def calcGlobalPoseMat(self):
         for bone in  self.bones:
-            self.bones[bone].calcGlobalPoseMat()
+            if self.bones[bone].calcGlobalPoseMat() is False:
+                return False
+        return True
 
+    def skinBasemesh(self):
+        self.skinMesh(self.mesh, self.bWeights)
 
-    def skinMesh(self):
-        vmapping = self.bWeights.bWeights
+    def skinMesh(self, mesh, bWeights):
+        vmapping = bWeights.bWeights
 
-        coords = np.zeros((self.mesh.n_origverts,3), float)        # own vector
-        l = len(self.mesh.gl_coord) // 3
+        coords = np.zeros((mesh.n_origverts,3), float)        # own vector
+        l = len(mesh.gl_coord) // 3
 
         meshCoords = np.ones((l, 4), dtype=np.float32)
-        meshCoords[:,:3] = np.reshape(self.mesh.gl_coord_w, (l,3))
+        meshCoords[:,:3] = np.reshape(mesh.gl_coord_w, (l,3))
 
         for bname in vmapping:
             bone = self.bones[bname]
-            #
-            # TODO: should not be None in the end
-            #
-            if bone.matPoseVerts is not None:
-                verts, weights = vmapping[bname]
-                vec = np.dot(bone.matPoseVerts, meshCoords[verts].transpose())
-                vec *= weights
-                coords[verts] += vec.transpose()[:,:3]
+
+            verts, weights = vmapping[bname]
+            vec = np.dot(bone.matPoseVerts, meshCoords[verts].transpose())
+            vec *= weights
+            coords[verts] += vec.transpose()[:,:3]
 
         m = coords.flatten()
-        self.mesh.gl_coord[:self.mesh.n_origverts*3] = m[:]
-        self.mesh.overflowCorrection(self.mesh.gl_coord)
+        mesh.gl_coord[:mesh.n_origverts*3] = m[:]
+        mesh.overflowCorrection(mesh.gl_coord)
+
 
     def restPose(self, bones_only=False):
         for bone in self.bones:
             self.bones[bone].restPose()
-            self.bones[bone].calcGlobalPoseMat()
+            if self.bones[bone].calcGlobalPoseMat() is False:
+                return False
             self.bones[bone].poseBone()
+
+        # in case of restpose, pose with update function and not with pose function
+        #
         if not bones_only:
-            self.skinMesh()
+            self.skinBasemesh()
             self.glob.baseClass.updateAttachedAssets()
 
     def pose(self, joints, num=0, bones_only=False):
@@ -203,12 +209,13 @@ class skeleton:
             if elem in joints:
                 self.bones[elem].calcLocalPoseMat(joints[elem].matrixPoses[num])
 
-            self.bones[elem].calcGlobalPoseMat()
+            if self.bones[elem].calcGlobalPoseMat() is False:
+                return False
             self.bones[elem].poseBone()
 
         if not bones_only:
-            self.skinMesh()
-            self.glob.baseClass.updateAttachedAssets()
+            self.skinBasemesh()
+            self.glob.baseClass.poseAttachedAssets()
 
     def posebyBlends(self, blends, mask, bones_only=False):
         """
@@ -240,17 +247,19 @@ class skeleton:
                 mat = mquat.quaternionToRotMatrix(q1)
                 self.bones[bone].calcLocalPoseMat(mat)
 
-            self.bones[bone].calcGlobalPoseMat()
+            if self.bones[bone].calcGlobalPoseMat() is False:
+                return False
             self.bones[bone].poseBone()
 
         if mask is not None:
             for bone in mask:
                 if bone not in found:
                     self.bones[bone].restPose()
-                    self.bones[bone].calcGlobalPoseMat()
+                    if self.bones[bone].calcGlobalPoseMat() is False:
+                        return False
                     self.bones[bone].poseBone()
 
         if not bones_only:
-            self.skinMesh()
-            self.glob.baseClass.updateAttachedAssets()
+            self.skinBasemesh()
+            self.glob.baseClass.poseAttachedAssets()
 

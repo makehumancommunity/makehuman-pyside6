@@ -18,7 +18,7 @@ class OpenGLSkyBox:
         self.texture = QOpenGLTexture(QOpenGLTexture.TargetCubeMap)
         self.texture.setSize(2048, 2048)
         self.texture.create()
-        self.texture.bind()
+        # self.texture.bind()
         self.texture.setFormat(QOpenGLTexture.RGBAFormat)
 
         shaderpath = os.path.join(self.env.path_sysdata, "shaders", "img")
