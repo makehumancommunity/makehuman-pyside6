@@ -314,26 +314,23 @@ class attachedAsset:
 
     def calculateBoneWeights(self):
         """
-        start of extra weightfile
+        calculateBoneWeights either import weight from file or calculates weights for
+        assets via pose_skeleton weights
         """
         self.bWeights = boneWeights(self.glob, self.glob.baseClass.pose_skeleton.root, self.obj)
 
         if self.vertexboneweights_file is not None:
-            #
-            # todo error checks
-            #
             weightfile =  os.path.normpath(os.path.join(os.path.dirname(self.obj_file), self.vertexboneweights_file))
             if os.path.isfile(weightfile):
-                if self.bWeights.loadJSON(weightfile) is True:
-                    print (weightfile + " loaded")
-                else:
+                if self.bWeights.loadJSON(weightfile) is False:
                     self.bWeights = None
-                    return False
+                    return False, self.env.last_error
         else:
-            # calculate weights
-            print ("Calculate bone weights")
+            # calculate weights from pose skeleton
+            #
             self.bWeights.approxWeights(self, self.glob.baseClass.pose_skeleton.bWeights)
-            self.bWeights = None
+            self.bWeights = None # TODO approx weights does not yet work. delete this when okay
+        return True, None
 
     def load(self, filename, use_ascii=False):
         """
@@ -351,8 +348,7 @@ class attachedAsset:
                 if self.type == "hair":
                     self.z_depth = 255
                 self.obj.setZDepth(self.z_depth)
-                self.calculateBoneWeights()
-                return (True, None)
+                return self.calculateBoneWeights()
             use_ascii = True
 
         (res, err) = self.textLoad(filename)

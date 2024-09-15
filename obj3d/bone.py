@@ -241,35 +241,35 @@ class boneWeights():
 
         print ("Calculate bone weights " + asset.name)
 
-        # recalculate the input in case of mesh loaded in binary form for easier calculation
-        #
+        # recalculate the input in case of mesh loaded in binary form for easier calculation (tested)
+        # form is:
+        # vertex_num: baseskeleton: [(vertexnum_asset, weight), (...) ]
+
         self.vertWeights = {}
         for idx in range(asset.ref_vIdxs.shape[0]):
             for l in range(0,3):
-                n, w = asset.ref_vIdxs[idx, l], asset.weights[idx, l]
-                if n in self.vertWeights:
-                    self.vertWeights[n].append((idx, w))
+                base_vert, w = asset.ref_vIdxs[idx, l], asset.weights[idx, l]
+                if base_vert in self.vertWeights:
+                    self.vertWeights[base_vert].append((idx, w))
                 else:
-                    self.vertWeights[n] = [(idx, w)]
+                    self.vertWeights[base_vert] = [(idx, w)]
 
-        # now generate the weights to be calculated by createWeightsPerBone
+        # now generate the weights to be calculated by createWeightsPerBone, not yet working
         #
         weights = {}
         for bname, (indxs, wghts) in list(base.bWeights.items()):
             vgroup = []
-            empty = True
-            for (v,wt) in zip(indxs, wghts):
-                if v in self.vertWeights:
-                    vlist = self.vertWeights[v]
-                else:
-                    vlist = []
-                for (pv, w) in vlist:
-                    pw = w*wt
-                    if (pw > 1e-4):
-                        vgroup.append((pv, pw))
-                        empty = False
-            if not empty:
+            for (base_vert,wt) in zip(indxs, wghts):
+                if base_vert in self.vertWeights:
+                    vlist = self.vertWeights[base_vert]
+                    for (pv, w) in vlist:
+                        pw = w*wt
+                        if (pw > 1e-4):
+                            vgroup.append((pv, pw))
+
+            if len(vgroup) > 0:
                 weights[bname] = vgroup
+        #print (weights)
         self.createWeightsPerBone (weights)
 
 
@@ -286,7 +286,6 @@ class boneWeights():
             self.env.logLine(1, "JSON weights are missing in " + path)
             return False
 
-        j = json["weights"]
-        self.createWeightsPerBone (j)
+        self.createWeightsPerBone (json["weights"])
         return True
 
