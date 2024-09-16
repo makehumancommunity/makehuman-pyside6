@@ -235,6 +235,31 @@ class boneWeights():
         if len(vs) > 0:
             self.bWeights[self.root] = (np.asarray(vs, dtype=np.uint32), np.asarray(ws, dtype=np.float32))
 
+    def deDuplicateWeights(self):
+        """
+        for assets weights are calculated using 3 values from the base mesh, this means that values are used multiple times
+        the skinning algorithm expects them once. This procedure is doing that by using np.unique to get occurences
+        """
+        for bone in self.bWeights:
+            v, w = self.bWeights[bone]
+            m, ind = np.unique(v, return_index=True)
+            m, cnt = np.unique(v, return_counts=True)
+
+            # in m values, in ind positions to get initial weights from, in cnt count how many others to add
+            # we now can organize the new weights array and then set or add the values
+            #
+            sumweights = np.zeros(len(m), dtype=np.float32)
+            i = 0
+            for x in m:
+                pos = ind[i]
+                sumw = w[pos]
+                for l in range(1,cnt[i]):
+                    sumw +=  w[pos+l]
+                sumweights[i] = sumw
+                i+=1
+            self.bWeights[bone] = (m, sumweights)
+
+
     def approxWeights(self, asset, base):
         #
         # create bone weights from base
@@ -269,8 +294,11 @@ class boneWeights():
 
             if len(vgroup) > 0:
                 weights[bname] = vgroup
-        #print (weights)
         self.createWeightsPerBone (weights)
+
+        # since the algorithm above also creates multiple values for one index it must be changed to unique
+        #
+        self.deDuplicateWeights()
 
 
     def loadJSON(self, path):

@@ -329,7 +329,6 @@ class attachedAsset:
             # calculate weights from pose skeleton
             #
             self.bWeights.approxWeights(self, self.glob.baseClass.pose_skeleton.bWeights)
-            self.bWeights = None # TODO approx weights does not yet work. delete this when okay
         return True, None
 
     def load(self, filename, use_ascii=False):
