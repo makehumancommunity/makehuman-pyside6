@@ -19,6 +19,8 @@ class gltfExport:
         # all constants used
         #
         self.TRIANGLES = 4
+        self.UNSIGNED_BYTE = 5121
+        self.UNSIGNED_SHORT = 5123
         self.UNSIGNED_INT = 5125
         self.FLOAT = 5126
         self.ARRAY_BUFFER = 34962          # usually positions
@@ -77,6 +79,11 @@ class gltfExport:
         self.bufferoffset = 0
         self.buffers = []       # will hold the pointers
 
+        self.bonelist = []      # helps to keep the order of the bones
+        self.bonenames = {}
+
+        self.meshindices = []   # holds meshindices for joints and weights
+
     def __str__(self):
         return (json.dumps(self.json, indent=3))
 
@@ -95,7 +102,10 @@ class gltfExport:
         # print (data)
 
         self.bufferview_cnt += 1
-        self.json["bufferViews"].append({"buffer": 0, "byteOffset": self.bufferoffset, "byteLength": length, "target": target })
+        if target is not None:
+            self.json["bufferViews"].append({"buffer": 0, "byteOffset": self.bufferoffset, "byteLength": length, "target": target })
+        else:
+            self.json["bufferViews"].append({"buffer": 0, "byteOffset": self.bufferoffset, "byteLength": length })
         self.buffers.append(data)
         self.bufferoffset += length
         return(self.bufferview_cnt)
@@ -158,6 +168,75 @@ class gltfExport:
 
         self.json["accessors"].append({"bufferView": buf, "componentType": self.UNSIGNED_INT, "count": cnt, "type": "SCALAR", "min": [minimum], "max": [maximum]})
         return(self.accessor_cnt)
+
+    def addBindMatAccessor(self, bonelist):
+        self.accessor_cnt += 1
+        cnt = len(bonelist)
+        ##bindmat = np.zeros((cnt, 4,4), dtype=np.float32)
+        bindmat = np.tile(np.identity(4, dtype=np.float32).flatten(), cnt).reshape(cnt,4,4) # still empty to get dummy values
+        print(bindmat)
+        data = bindmat.tobytes()
+        buf = self.addBufferView(None, data)
+
+        self.json["accessors"].append({"bufferView": buf, "componentType": self.FLOAT, "count": cnt, "type": "MAT4"})
+        return(self.accessor_cnt)
+
+    def addJointAndWeightAccessor(self, numverts, bweights, overflow):
+        self.accessor_cnt += 1
+
+        if len(self.bonelist) > 255:
+            joints = np.zeros((numverts, 4), dtype=np.uint16)
+            jtype = self.UNSIGNED_SHORT
+        else:
+            joints = np.zeros((numverts, 4), dtype=np.uint8)
+            jtype = self.UNSIGNED_BYTE
+
+        weights = np.zeros((numverts, 4), dtype=np.float32)
+
+        vertex = {}
+
+        # print (bweights)
+        print ("Verts:" + str(numverts))
+        maxv = 0
+        for elem in bweights:
+            print (self.bonenames[elem])
+            # get bone number from list
+            #
+            bonenumber = self.bonenames[elem]
+            ind, w = bweights[elem]
+            for n, i in enumerate (ind):
+                if i > maxv:
+                    maxv = i
+                if i not in vertex:
+                    vertex[i] = []
+                vertex[i].append((bonenumber, w[n]))
+        print ("Maxv:" + str(numverts))
+
+        for v in vertex:
+            m = vertex[v]
+            #
+            # get largest 4 values
+            #
+            if len(m) > 4:
+                m = sorted(m, key=lambda elem: elem[1], reverse=True)[:4]
+            for i, (n,w) in enumerate(m):
+                joints[v][i] = n
+                weights[v][i] = w
+        for (s,d) in overflow:
+            for i in range(0,4):
+                joints[d][i] = joints[s][i]
+                weights[d][i] = weights[s][i]
+
+        data = joints.tobytes()
+        buf = self.addBufferView(self.ELEMENT_ARRAY_BUFFER, data)
+        self.json["accessors"].append({"bufferView": buf, "componentType": jtype, "count": numverts, "type": "VEC4"})
+
+        self.accessor_cnt += 1
+        data = weights.tobytes()
+        buf = self.addBufferView(self.ELEMENT_ARRAY_BUFFER, data)
+        self.json["accessors"].append({"bufferView": buf, "componentType": self.FLOAT, "count": numverts, "type": "VEC4"})
+        return(self.accessor_cnt)
+
 
     def copyImage(self, source, dest):
         print ("Need to copy " + source + " to " + dest)
@@ -276,7 +355,7 @@ class gltfExport:
     def addMesh(self, obj, nodenumber):
         icoord = None
         if self.hiddenverts is False:
-            icoord, coord, uvcoord, norm = obj.optimizeHiddenMesh()
+            icoord, coord, uvcoord, norm, revmap = obj.optimizeHiddenMesh()
             if icoord is None:
                 print ("Not hidden")
 
@@ -286,13 +365,33 @@ class gltfExport:
             texcoord = self.addTPosAccessor(uvcoord)
             norm = self.addNormAccessor(norm)
             ind = self.addIndAccessor(icoord)
+            self.meshindices.append((len(coord) // 3, revmap))
         else:
             pos = self.addPosAccessor(obj.gl_coord)
             texcoord = self.addTPosAccessor(obj.gl_uvcoord)
             norm = self.addNormAccessor(obj.gl_norm)
             ind = self.addIndAccessor(obj.gl_icoord)
+            self.meshindices.append((len(obj.gl_coord) // 3, None))
+
         self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "NORMAL": norm, "TEXCOORD_0": texcoord  }, "indices": ind, "material": nodenumber, "mode": self.TRIANGLES }]})
         return (self.mesh_cnt)
+
+    def addWeights(self, num, elem, obj):
+        print ("Adding weights to " +  str(self.json["nodes"][num]) )
+        meshnum = self.json["nodes"][num]["mesh"]
+        if elem is not None:
+            weights = elem.bWeights.bWeights
+            print (meshnum)
+            ( numverts, revmap) = self.meshindices[meshnum]
+            weightbuf = self.addJointAndWeightAccessor(numverts, weights, obj.overflow)
+            jointbuf = weightbuf -1
+            m = self.json["meshes"][meshnum]["primitives"][0]["attributes"]
+            m["JOINTS_0"] = jointbuf
+            m["WEIGHTS_0"] = weightbuf
+
+    def addSkins(self, name):
+        ptr = self.addBindMatAccessor(self.bonelist)
+        self.json["skins"].append({ "inverseBindMatrices": ptr, "joints": self.bonelist, "name": name + "_skeleton" })
 
     def addBones(self, bone, num, pos):
         #
@@ -301,6 +400,8 @@ class gltfExport:
         trans = ((bone.headPos - pos) * self.scale).tolist()
         node = {"name": bone.name, "translation": trans, "children": []  }
         self.json["nodes"].append(node)
+        self.bonelist.append(num)
+        self.bonenames[bone.name] = len(self.bonelist) -1   # because mesh was loaded before, just a hack :(
         num += 1
         nextnode = num
         for child in bone.children:
@@ -311,7 +412,8 @@ class gltfExport:
 
     def addNodes(self, baseclass):
         #
-        # add the basemesh itself, the other nodes will be children
+        # add the basemesh itself
+        # then the skeleton and then the assets all these  nodes will be children
         # here one node will always have one mesh
         #
         skin = baseclass.baseMesh.material
@@ -324,6 +426,8 @@ class gltfExport:
         else:
             baseobject = baseclass.baseMesh
             start = 0
+        charactername = self.nodeName(baseobject.filename)
+
         mat  = self.addMaterial(skin)
         if mat == -1:
             return (False)
@@ -335,11 +439,32 @@ class gltfExport:
 
         mesh = self.addMesh(baseobject, mat)
 
-        self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh,  "children": []  })
+        self.json["nodes"].append({"name": charactername, "mesh": mesh,  "children": []  })
         self.json["scenes"][0]["nodes"].append(0)
         children = self.json["nodes"][0]["children"]
 
         childnum = 1
+
+        # add skeleton, if available
+        #
+        if baseclass.skeleton is not None:
+            skeleton = baseclass.skeleton
+            bonename = list(skeleton.bones)[0]
+            bone = skeleton.bones[bonename]
+            startpos = np.zeros(3,dtype=np.float32)
+            if self.zmin != 0.0:
+                startpos[1] = baseclass.getZMin()  # unscaled needed
+
+            children.append(childnum)
+            childnum = self.addBones(bone, childnum, startpos)
+            self.addSkins(charactername)
+
+            # now add weights and joints
+            #
+            self.addWeights(0, skeleton, baseobject)
+
+        # add all assets
+        #
         for elem in baseclass.attachedAssets[start:]:
             mat =  self.addMaterial(elem.obj.material)
             if mat == -1:
@@ -347,19 +472,11 @@ class gltfExport:
             mesh = self.addMesh(elem.obj, mat)
             self.json["nodes"].append({"name": self.nodeName(elem.filename), "mesh": mesh })
             children.append(childnum)
+            if baseclass.skeleton is not None:
+                elem.calculateBoneWeights()
+                self.addWeights(childnum, elem, elem.obj)
             childnum += 1
 
-        if baseclass.skeleton is not None:
-            skeleton = baseclass.skeleton
-            bonename = list(skeleton.bones)[0]
-            bone = skeleton.bones[bonename]
-            start = np.zeros(3,dtype=np.float32)
-            if self.zmin != 0.0:
-                start[1] = baseclass.getZMin()  # unscaled needed
-
-            self.addBones(bone, childnum, start)
-            children.append(childnum)
-        
         self.json["buffers"].append({"byteLength": self.bufferoffset})
         print (self)
         return (True)

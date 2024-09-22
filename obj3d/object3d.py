@@ -317,7 +317,7 @@ class object3d:
         if mask is not None:
             mask = self.unUsedVerts(faceverts)
             usedmax = len(mask)
-            mapping, newcoord = self.createMapping(mask)
+            mapping, revmap, newcoord = self.createMapping(mask)
             coord = np.zeros(newcoord*3,  dtype=np.float32)
             gl_uvcoord = np.zeros(newcoord*2,  dtype=np.float32)
             for cnt in range(0, usedmax):
@@ -518,12 +518,15 @@ class object3d:
         """
         usedmax = len(mask)
         mapping = np.full(usedmax, -1, dtype=np.int32)
+        reverse_mapping = np.full(usedmax, -1, dtype=np.int32)
         fill = 0
         for cnt in range(0, usedmax):
             if mask[cnt] == 1:
                 mapping[cnt] = fill
+                reverse_mapping[fill] = cnt
                 fill +=1
-        return(mapping, fill)
+        reverse_mapping.resize(fill)
+        return(mapping, reverse_mapping, fill)
 
     def optimizeHiddenMesh(self):
         """
@@ -537,7 +540,7 @@ class object3d:
 
         mask = self.hiddenMask()
         if mask is None:
-            return None, None, None, None
+            return None, None, None, None, None
 
         # in gl_hicoord there is already a "compressed" index
         # so this creates a shorter version already
@@ -546,7 +549,7 @@ class object3d:
         # create a mapping index reduced by hidden coords
         #
         usedmax = len(mask)
-        mapping, newcoord = self.createMapping(mask)
+        mapping, revmap, newcoord = self.createMapping(mask)
 
         # we now know size, so create temporary arrays
         #
@@ -580,7 +583,7 @@ class object3d:
         for cnt in range(0,  indlen):
             gl_index[cnt] =  mapping[self.gl_hicoord[cnt]]
 
-        return gl_index, gl_coord, gl_uvcoord, gl_norm
+        return gl_index, gl_coord, gl_uvcoord, gl_norm, revmap
 
     def getInitialCopyForSlider(self, factor, targetlower, targetupper):
         """
