@@ -448,6 +448,7 @@ class gltfExport:
         # add skeleton, if available
         #
         if baseclass.skeleton is not None:
+            self.json["nodes"][0]["skin"] = 0
             skeleton = baseclass.skeleton
             bonename = list(skeleton.bones)[0]
             bone = skeleton.bones[bonename]
@@ -473,6 +474,7 @@ class gltfExport:
             self.json["nodes"].append({"name": self.nodeName(elem.filename), "mesh": mesh })
             children.append(childnum)
             if baseclass.skeleton is not None:
+                self.json["nodes"][childnum]["skin"] = 0
                 elem.calculateBoneWeights()
                 self.addWeights(childnum, elem, elem.obj)
             childnum += 1
