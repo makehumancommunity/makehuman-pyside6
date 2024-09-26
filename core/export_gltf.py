@@ -222,10 +222,12 @@ class gltfExport:
             for i, (n,w) in enumerate(m):
                 joints[v][i] = n
                 weights[v][i] = w
-        for (s,d) in overflow:
-            for i in range(0,4):
-                joints[d][i] = joints[s][i]
-                weights[d][i] = weights[s][i]
+
+        if overflow is not None:
+           for (s,d) in overflow:
+                for i in range(0,4):
+                    joints[d][i] = joints[s][i]
+                    weights[d][i] = weights[s][i]
 
         data = joints.tobytes()
         buf = self.addBufferView(self.ELEMENT_ARRAY_BUFFER, data)
@@ -352,10 +354,10 @@ class gltfExport:
         self.json["materials"].append(mat)
         return (self.material_cnt)
 
-    def addMesh(self, obj, nodenumber):
+    def addMesh(self, obj, nodenumber, bweights):
         icoord = None
         if self.hiddenverts is False:
-            icoord, coord, uvcoord, norm, revmap = obj.optimizeHiddenMesh()
+            icoord, coord, uvcoord, norm, nweights, overflow = obj.optimizeHiddenMesh(bweights)
             if icoord is None:
                 print ("Not hidden")
 
@@ -365,13 +367,13 @@ class gltfExport:
             texcoord = self.addTPosAccessor(uvcoord)
             norm = self.addNormAccessor(norm)
             ind = self.addIndAccessor(icoord)
-            self.meshindices.append((len(coord) // 3, revmap))
+            self.meshindices.append((len(coord) // 3, nweights, overflow))
         else:
             pos = self.addPosAccessor(obj.gl_coord)
             texcoord = self.addTPosAccessor(obj.gl_uvcoord)
             norm = self.addNormAccessor(obj.gl_norm)
             ind = self.addIndAccessor(obj.gl_icoord)
-            self.meshindices.append((len(obj.gl_coord) // 3, None))
+            self.meshindices.append((len(obj.gl_coord) // 3, bweights, obj.overflow))
 
         self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "NORMAL": norm, "TEXCOORD_0": texcoord  }, "indices": ind, "material": nodenumber, "mode": self.TRIANGLES }]})
         return (self.mesh_cnt)
@@ -380,10 +382,9 @@ class gltfExport:
         print ("Adding weights to " +  str(self.json["nodes"][num]) )
         meshnum = self.json["nodes"][num]["mesh"]
         if elem is not None:
-            weights = elem.bWeights.bWeights
             print (meshnum)
-            ( numverts, revmap) = self.meshindices[meshnum]
-            weightbuf = self.addJointAndWeightAccessor(numverts, weights, obj.overflow)
+            ( numverts, weights, overflow) = self.meshindices[meshnum]
+            weightbuf = self.addJointAndWeightAccessor(numverts, weights, overflow)
             jointbuf = weightbuf -1
             m = self.json["meshes"][meshnum]["primitives"][0]["attributes"]
             m["JOINTS_0"] = jointbuf
@@ -437,7 +438,9 @@ class gltfExport:
         if self.onground:
             self.zmin = baseclass.getZMin() * self.scale
 
-        mesh = self.addMesh(baseobject, mat)
+        baseweights = baseclass.skeleton.bWeights.bWeights if baseclass.skeleton is not None else None
+
+        mesh = self.addMesh(baseobject, mat, baseweights)
 
         self.json["nodes"].append({"name": charactername, "mesh": mesh,  "children": []  })
         self.json["scenes"][0]["nodes"].append(0)
@@ -445,9 +448,9 @@ class gltfExport:
 
         childnum = 1
 
-        # add skeleton, if available
+        # add skeleton, if baseweights are available
         #
-        if baseclass.skeleton is not None:
+        if baseweights is not None:
             self.json["nodes"][0]["skin"] = 0
             skeleton = baseclass.skeleton
             bonename = list(skeleton.bones)[0]
@@ -470,10 +473,10 @@ class gltfExport:
             mat =  self.addMaterial(elem.obj.material)
             if mat == -1:
                 return (False)
-            mesh = self.addMesh(elem.obj, mat)
+            mesh = self.addMesh(elem.obj, mat, elem.bWeights.bWeights)
             self.json["nodes"].append({"name": self.nodeName(elem.filename), "mesh": mesh })
             children.append(childnum)
-            if baseclass.skeleton is not None:
+            if baseweights is not None:
                 self.json["nodes"][childnum]["skin"] = 0
                 elem.calculateBoneWeights()
                 self.addWeights(childnum, elem, elem.obj)

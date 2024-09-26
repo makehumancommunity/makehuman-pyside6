@@ -296,6 +296,17 @@ class object3d:
             ba[faceind[cnt]] = 1
         return (ba)
 
+    def shortenOverflow(self, mapping):
+        arr = []
+        if len(self.overflow) > 0:
+            for i, (s,d) in enumerate(self.overflow):
+                source = mapping[s]
+                dest = mapping[d]
+                if source != -1 and dest != -1:
+                    arr.append([source, dest])
+            return (np.array(arr, dtype=np.uint32))
+        else:
+            return None
 
     def getVisGeometry(self, displayhidden):
         """
@@ -317,7 +328,7 @@ class object3d:
         if mask is not None:
             mask = self.unUsedVerts(faceverts)
             usedmax = len(mask)
-            mapping, revmap, newcoord = self.createMapping(mask)
+            mapping, newcoord = self.createMapping(mask)
             coord = np.zeros(newcoord*3,  dtype=np.float32)
             gl_uvcoord = np.zeros(newcoord*2,  dtype=np.float32)
             for cnt in range(0, usedmax):
@@ -338,17 +349,8 @@ class object3d:
             for i in range(0, len(faceverts)):
                 faceverts[i] = mapping[faceverts[i]]
 
-            if len(self.overflow) > 0:
-                overflow = self.overflow.copy()
-                j = 0
-                for i in range(0, len(self.overflow)):
-                    source = mapping[self.overflow[i][0]]
-                    dest = mapping[self.overflow[i][1]]
-                    if source != -1 and dest != -1:
-                        overflow[j][0] = source
-                        overflow[j][1] = dest
-                        j += 1
-                overflow = np.resize(overflow, (j, 2))
+            overflow = self.shortenOverflow(mapping)
+            if overflow is not None:
                 mx = overflow.min(axis=0)[1]
                 coord = np.resize(coord, mx * 3)
             else:
@@ -518,17 +520,14 @@ class object3d:
         """
         usedmax = len(mask)
         mapping = np.full(usedmax, -1, dtype=np.int32)
-        reverse_mapping = np.full(usedmax, -1, dtype=np.int32)
         fill = 0
         for cnt in range(0, usedmax):
             if mask[cnt] == 1:
                 mapping[cnt] = fill
-                reverse_mapping[fill] = cnt
                 fill +=1
-        reverse_mapping.resize(fill)
-        return(mapping, reverse_mapping, fill)
+        return(mapping, fill)
 
-    def optimizeHiddenMesh(self):
+    def optimizeHiddenMesh(self, bweights):
         """
         duplicate the mesh for effective saving without hidden vertices
         (e.g. glTF)
@@ -536,11 +535,11 @@ class object3d:
         
         # check if we have hidden verts
         #
-        print (self.filename)
+        print ("optimizing: " + self.filename)
 
         mask = self.hiddenMask()
         if mask is None:
-            return None, None, None, None, None
+            return None, None, None, None, None, None
 
         # in gl_hicoord there is already a "compressed" index
         # so this creates a shorter version already
@@ -549,7 +548,7 @@ class object3d:
         # create a mapping index reduced by hidden coords
         #
         usedmax = len(mask)
-        mapping, revmap, newcoord = self.createMapping(mask)
+        mapping, newcoord = self.createMapping(mask)
 
         # we now know size, so create temporary arrays
         #
@@ -583,7 +582,32 @@ class object3d:
         for cnt in range(0,  indlen):
             gl_index[cnt] =  mapping[self.gl_hicoord[cnt]]
 
-        return gl_index, gl_coord, gl_uvcoord, gl_norm, revmap
+        if bweights is not None:
+
+            print ("need to optimize weights")
+            # vertex numbers of weights index array must be replaced by new numbers,
+            # the needed weights will be copied
+            #
+            nweights = {}
+            for elem in bweights:
+                narr = []
+                warr = []
+                m = 0
+                for i, n in enumerate(bweights[elem][0]):
+                    d = mapping[n]
+                    if d != -1:
+                        narr.append(d)
+                        warr.append(bweights[elem][1][i])
+                        m += 1
+
+                if m > 0:
+                    nweights[elem] = (np.array(narr, dtype=np.uint32), np.array(warr, dtype=np.float32))
+        else:
+            nweights = None
+
+        overflow = self.shortenOverflow(mapping)
+
+        return gl_index, gl_coord, gl_uvcoord, gl_norm, nweights, overflow
 
     def getInitialCopyForSlider(self, factor, targetlower, targetupper):
         """
