@@ -68,7 +68,7 @@ def quaternionFromMatrix(matrix):
     """
     M = np.array(matrix, dtype=np.float64, copy=True)[:4, :4]
     q = np.empty((4, ))
-    t = np.trace(M)
+    t = np.trace(M) # diagonal sum
     if t > M[3, 3]:
         q[0] = t
         q[3] = M[1, 0] - M[0, 1]
@@ -156,3 +156,73 @@ def quaternionSlerpFromMatrix(mat, fraction, shortestpath=True):
     quat0 = np.asarray([1,0,0,0], dtype=np.float32)
     quat1 = quaternionFromMatrix(m)
     return (quaternionSlerp(quat0, quat1, fraction, shortestpath))
+
+
+def rotMatrix(angle, direction):
+    sina = math.sin(angle)
+    cosa = math.cos(angle)
+
+    # convert direction to length of a unit vector
+    #
+    direction = np.array (direction[:3],  dtype=np.float32)
+    direction /= math.sqrt(np.dot(direction, direction))
+
+    R = np.diag([cosa, cosa, cosa])
+    R += np.outer(direction, direction) * (1.0 - cosa)
+    direction *= sina
+    R += np.array([[ 0.0,         -direction[2],  direction[1]],
+                      [ direction[2], 0.0,          -direction[0]],
+                      [-direction[1], direction[0],  0.0]])
+    M = np.identity(4)
+    M[:3, :3] = R
+    return (M)
+
+
+def changeOrientation(mat, orientation=0, rotAxis='y', offset=[0,0,0]):
+    """
+    Transform orientation of bone matrix to fit the chosen coordinate system
+    and mesh orientation.
+
+    orientation: What axis points up along the model, and which direction
+                     the model is facing.
+        allowed values: yUpFaceZ (0), yUpFaceX (1), zUpFaceNegY (2), zUpFaceX (3)
+
+    rotAxis: How to orient the local axes around the bone, which axis
+                   points along the length of the bone. Global (g) assumes the
+                   same axes as the global coordinate space used for the model.
+        allowed values: y, x, g (all values)
+    """
+    mat = mat.copy()
+    mat[:3,3] += offset
+
+    if isinstance(orientation, str):
+        oris = [ 'yUpFaceZ', 'yUpFaceX', 'zUpFaceNegY',  'zUpFaceX' ]
+        try:
+            orientation = oris.index(orientation)
+        except:
+            return None
+
+    if orientation == 0:
+        rot = np.identity(4, dtype=np.float32)
+    elif orientation == 1:
+        rot =_rotMatrix(math.pi/2, (0,1,0)) # rotation in y
+    elif orientation == 2:
+        rot = rotMatrix(math.pi/2, (1,0,0)) # rotation in X
+    elif orientation == 3:
+        rot =_np.dot(rotMatrix(math.pi/2, (0,0,1)), rotMatrix(math.pi/2, (1,0,0))) # dot product of Z x X
+
+    if rotAxis.lower() == 'y':
+        # Y along self, X bend
+        return np.dot(rot, mat)
+
+    elif rotAxis.lower() == 'x':
+        # X along self, Y bend
+        rotxy = np.dot(rotMatrix(-math.pi/2, (1,0,0)), rotMatrix(math.pi/2, (0,1,0)))
+        return np.dot(rot, np.dot(mat, rotxy) )
+
+    # Global coordinate system
+    tmat = np.identity(4, float)
+    tmat[:,3] = np.dot(rot, mat[:,3])
+    return tmat
+
+

@@ -172,9 +172,15 @@ class gltfExport:
     def addBindMatAccessor(self, bonelist):
         self.accessor_cnt += 1
         cnt = len(bonelist)
-        ##bindmat = np.zeros((cnt, 4,4), dtype=np.float32)
-        bindmat = np.tile(np.identity(4, dtype=np.float32).flatten(), cnt).reshape(cnt,4,4) # still empty to get dummy values
-        print(bindmat)
+        bindmat = np.zeros((cnt, 4,4), dtype=np.float32)
+        n = 0
+        for elem in self.bonenames:
+            #bonemat = self.bonenames[elem][1].getBindMatrix()
+            bindmat[n], bindinv = self.bonenames[elem][1].getBindMatrix(2, 'y')
+            n += 1
+
+        #bindmat = np.tile(np.identity(4, dtype=np.float32).flatten(), cnt).reshape(cnt,4,4) # still empty to get dummy values
+        #print(bindmat)
         data = bindmat.tobytes()
         buf = self.addBufferView(None, data)
 
@@ -199,10 +205,10 @@ class gltfExport:
         print ("Verts:" + str(numverts))
         maxv = 0
         for elem in bweights:
-            print (self.bonenames[elem])
+            print (self.bonenames[elem][0])
             # get bone number from list
             #
-            bonenumber = self.bonenames[elem]
+            bonenumber = self.bonenames[elem][0]
             ind, w = bweights[elem]
             for n, i in enumerate (ind):
                 if i > maxv:
@@ -399,10 +405,13 @@ class gltfExport:
         # bone-translations have to be relative in GLTF
         #
         trans = ((bone.headPos - pos) * self.scale).tolist()
+        if bone.name == "root" or bone.name == "spine05":
+            bone.debugMats()
+
         node = {"name": bone.name, "translation": trans, "children": []  }
         self.json["nodes"].append(node)
         self.bonelist.append(num)
-        self.bonenames[bone.name] = len(self.bonelist) -1   # because mesh was loaded before, just a hack :(
+        self.bonenames[bone.name] = [ len(self.bonelist) -1, bone]   # because mesh was loaded before, just a hack :(
         num += 1
         nextnode = num
         for child in bone.children:

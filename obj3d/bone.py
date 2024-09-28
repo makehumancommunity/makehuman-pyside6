@@ -1,5 +1,6 @@
 
 import numpy as np
+import core.math as mquat
 
 class cBone():
     def __init__(self, skel, name, val, localplane=0, reference=None, weights=None):
@@ -60,6 +61,29 @@ class cBone():
     def __str__(self):
         return (self.name + " Level: " + str(self.level) + " Children " + str(len(self.children)))
 
+    def debugMats(self):
+        print ("Debug for:" + self.name)
+        print ("Rest-Global:")
+        print (self.matRestGlobal)
+        print ("Rest-Local:")
+        print (self.matRestLocal)
+
+    # def getBindMatrix(self, offset=[0,0,0]):
+    def getBindMatrix(self, orientation=0, rotAxis='y', offset=[0,0,0]):
+        """
+        this is used for export mainly
+        """
+        restmat = self.matRestGlobal.copy()
+        restmat[:3,3] += offset
+        #restmat = self.getTransformedRestMatrix(orientation, rotAxis, offset)
+        bindinv = np.transpose(restmat)
+        bindmat = np.linalg.inv(bindinv)
+        return bindmat,bindinv
+
+    def getTransformedRestMatrix(self, orientation=0, rotAxis='y', offset=[0,0,0]):
+        return mquat.changeOrientation(self.matRestGlobal, orientation, rotAxis, offset)
+
+
     def getNormal(self):
         """
         return normal from skeleton
@@ -111,6 +135,7 @@ class cBone():
 
     def calcRestMatFromSkeleton(self):
         normal = self.getNormal()
+        # print ("Normal of " + self.name + " is " + str(normal))
         self.matRestGlobal = self.calcLocalRestMat(normal)
         if self.parent:
             self.matRestLocal = np.dot(np.linalg.inv(self.parent.matRestGlobal), self.matRestGlobal)
