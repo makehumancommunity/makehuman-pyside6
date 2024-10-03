@@ -295,16 +295,16 @@ class baseClass():
         else:
             self.baseMesh.hideVertices(verts)
 
-    def getZMin(self):
+    def getLowestPos(self):
         """
-        zmin of whole character for exports and grid
+        lowest position of whole character for exports and grid
         """
-        zmin = self.baseMesh.getZMin()
+        lowest = self.baseMesh.getLowestPos()
         for elem in (self.attachedAssets):
-            m = elem.obj.getZMin()
-            if m < zmin:
-                zmin = m
-        return(zmin)
+            m = elem.obj.getLowestPos()
+            if m < lowest:
+                lowest = m
+        return(lowest)
 
     def isLinkedByFilename(self, filename):
         elem = self.getAttachedByFilename(filename)

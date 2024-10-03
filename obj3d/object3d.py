@@ -810,7 +810,7 @@ class object3d:
         n = [ self.getCenterWidth(),  self.getCenterHeight(), self.getCenterDepth() ]
         return (n)
 
-    def getZMin(self):
+    def getLowestPos(self):
         return (self.gl_coord[self.min_index[1]*3+1])
 
     def getHeightInUnits(self):

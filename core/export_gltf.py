@@ -2,6 +2,13 @@ import os
 import json
 import struct
 import numpy as np
+"""
+    GLTF module:
+    Orientation
+    + Y = up
+    + z = to front
+    + x = right
+"""
 
 class gltfExport:
     def __init__(self, glob, exportfolder, hiddenverts=False, onground=True, scale =0.1):
@@ -14,7 +21,7 @@ class gltfExport:
         self.hiddenverts = hiddenverts
         self.onground = onground
         self.scale = scale
-        self.zmin = 0.0
+        self.lowestPos = 0.0
 
         # all constants used
         #
@@ -119,8 +126,8 @@ class gltfExport:
             coord = coord * self.scale
 
         meshCoords = np.reshape(coord, (cnt,3))
-        if self.zmin != 0.0:
-            meshCoords -= [0.0, self.zmin, 0.0]
+        if self.lowestPos != 0.0:
+            meshCoords -= [0.0, self.lowestPos, 0.0]
         minimum = meshCoords.min(axis=0).tolist()
         maximum = meshCoords.max(axis=0).tolist()
 
@@ -175,12 +182,16 @@ class gltfExport:
         bindmat = np.zeros((cnt, 4,4), dtype=np.float32)
         n = 0
         for elem in self.bonenames:
-            #bonemat = self.bonenames[elem][1].getBindMatrix()
-            bindmat[n], bindinv = self.bonenames[elem][1].getBindMatrix(2, 'y')
+            bone = self.bonenames[elem][1]
+            bindmat[n], bindinv = bone.getBindMatrix(0, 'y') # best so far
+            #bindmat[n], bindinv = bone.getBindMatrix(2, 'y') # 'z' character points down, skeleton wrong
+            if bone.name == "root" or bone.name == "spine05" or bone.name == "shoulder01.L":
+                print (bone.name)
+                bone.getQuatRotationMatrix()
+                print (bindmat[n].transpose())
+                print (bindinv.transpose())
             n += 1
 
-        #bindmat = np.tile(np.identity(4, dtype=np.float32).flatten(), cnt).reshape(cnt,4,4) # still empty to get dummy values
-        #print(bindmat)
         data = bindmat.tobytes()
         buf = self.addBufferView(None, data)
 
@@ -405,13 +416,13 @@ class gltfExport:
         # bone-translations have to be relative in GLTF
         #
         trans = ((bone.headPos - pos) * self.scale).tolist()
-        if bone.name == "root" or bone.name == "spine05":
-            bone.debugMats()
-
         node = {"name": bone.name, "translation": trans, "children": []  }
         self.json["nodes"].append(node)
         self.bonelist.append(num)
         self.bonenames[bone.name] = [ len(self.bonelist) -1, bone]   # because mesh was loaded before, just a hack :(
+        if bone.name == "root" or bone.name == "spine05":
+            print (bone.name)
+            print (trans)
         num += 1
         nextnode = num
         for child in bone.children:
@@ -445,7 +456,7 @@ class gltfExport:
         # in case of onground we need a translation which is then added to the mesh
         #
         if self.onground:
-            self.zmin = baseclass.getZMin() * self.scale
+            self.lowestPos = baseclass.getLowestPos() * self.scale
 
         baseweights = baseclass.skeleton.bWeights.bWeights if baseclass.skeleton is not None else None
 
@@ -465,8 +476,8 @@ class gltfExport:
             bonename = list(skeleton.bones)[0]
             bone = skeleton.bones[bonename]
             startpos = np.zeros(3,dtype=np.float32)
-            if self.zmin != 0.0:
-                startpos[1] = baseclass.getZMin()  # unscaled needed
+            if self.lowestPos != 0.0:
+                startpos[1] = baseclass.getLowestPos()  # unscaled needed
 
             children.append(childnum)
             childnum = self.addBones(bone, childnum, startpos)

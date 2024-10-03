@@ -85,7 +85,28 @@ def quaternionFromMatrix(matrix):
         q[j] = M[i, j] + M[j, i]
         q[k] = M[k, i] + M[i, k]
         q[3] = M[k, j] - M[j, k]
-    q *= 0.5 / math.sqrt(t * M[3, 3])
+    try:
+        q *= 0.5 / math.sqrt(t * M[3, 3])
+    except:
+        m00 = M[0, 0]
+        m01 = M[0, 1]
+        m02 = M[0, 2]
+        m10 = M[1, 0]
+        m11 = M[1, 1]
+        m12 = M[1, 2]
+        m20 = M[2, 0]
+        m21 = M[2, 1]
+        m22 = M[2, 2]
+        # symmetric matrix K
+        K = np.array([[m00-m11-m22, 0.0,         0.0,         0.0],
+                     [m01+m10,     m11-m00-m22, 0.0,         0.0],
+                     [m02+m20,     m12+m21,     m22-m00-m11, 0.0],
+                     [m21-m12,     m02-m20,     m10-m01,     m00+m11+m22]])
+        K /= 3.0
+        # quaternion is eigenvector of K that corresponds to largest eigenvalue
+        w, V = np.linalg.eigh(K)
+        q = V[[3, 0, 1, 2], np.argmax(w)]
+
     if q[0] < 0.0:
         np.negative(q, q)
     return q

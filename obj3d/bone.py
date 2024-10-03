@@ -68,16 +68,27 @@ class cBone():
         print ("Rest-Local:")
         print (self.matRestLocal)
 
+    def getQuatRotationMatrix(self):
+        if self.name == "root":
+            print (self.matRestLocal)
+        quat = mquat.quaternionFromMatrix(self.matRestLocal)    # yields the rotation for bones
+        print("QUAT")
+        print(quat)
+
     # def getBindMatrix(self, offset=[0,0,0]):
     def getBindMatrix(self, orientation=0, rotAxis='y', offset=[0,0,0]):
         """
         this is used for export mainly
         """
-        restmat = self.matRestGlobal.copy()
-        restmat[:3,3] += offset
-        #restmat = self.getTransformedRestMatrix(orientation, rotAxis, offset)
+        #restmat = self.matRestGlobal.copy()
+        #restmat[:3,3] += offset
+        if self.name == "root":
+            print ("Global")
+            print (self.matRestGlobal)
+        restmat = self.getTransformedRestMatrix(orientation, rotAxis, offset)
         bindinv = np.transpose(restmat)
         bindmat = np.linalg.inv(bindinv)
+        #bindmat = mquat.changeOrientation(bindmat, orientation, rotAxis, offset)
         return bindmat,bindinv
 
     def getTransformedRestMatrix(self, orientation=0, rotAxis='y', offset=[0,0,0]):
@@ -122,7 +133,7 @@ class cBone():
 
         # one axis missing, so same with z_axis / bone_direction
         #
-        cross = np.cross(z_axis, bone_direction)
+        cross = np.cross(bone_direction, z_axis)
         x_axis = cross / np.linalg.norm(cross)
 
         # Now we construct our orthonormal base
@@ -135,7 +146,6 @@ class cBone():
 
     def calcRestMatFromSkeleton(self):
         normal = self.getNormal()
-        # print ("Normal of " + self.name + " is " + str(normal))
         self.matRestGlobal = self.calcLocalRestMat(normal)
         if self.parent:
             self.matRestLocal = np.dot(np.linalg.inv(self.parent.matRestGlobal), self.matRestGlobal)
@@ -304,7 +314,7 @@ class boneWeights():
                 else:
                     self.vertWeights[base_vert] = [(idx, w)]
 
-        # now generate the weights to be calculated by createWeightsPerBone, not yet working
+        # now generate the weights to be calculated by createWeightsPerBone
         #
         weights = {}
         for bname, (indxs, wghts) in list(base.bWeights.items()):

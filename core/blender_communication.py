@@ -19,7 +19,7 @@ class blendCom:
         self.hiddenverts = hiddenverts
         self.onground = onground
         self.scale = scale
-        self.zmin = 0.0
+        self.lowestPos = 0.0
 
         # all constants used
         #
@@ -91,8 +91,8 @@ class blendCom:
         if self.scale != 1.0:
             coord = coord * self.scale
 
-        if self.zmin != 0.0:
-            sub = np.array([0.0, self.zmin, 0.0], dtype=np.float32)
+        if self.lowestPos != 0.0:
+            sub = np.array([0.0, self.lowestPos, 0.0], dtype=np.float32)
             change = np.tile(sub, len(coord)//3)
             coord = coord - change
 
@@ -265,7 +265,7 @@ class blendCom:
         # in case of onground we need a translation
         #
         if self.onground:
-            self.zmin = baseclass.getZMin() * self.scale
+            self.lowestPos = baseclass.getLowestPos() * self.scale
 
         mesh = self.addMesh(baseobject, mat)
 
