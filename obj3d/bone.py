@@ -69,11 +69,8 @@ class cBone():
         print (self.matRestLocal)
 
     def getQuatRotationMatrix(self):
-        if self.name == "root":
-            print (self.matRestLocal)
         quat = mquat.quaternionFromMatrix(self.matRestLocal)    # yields the rotation for bones
-        print("QUAT")
-        print(quat)
+        return(quat)
 
     # def getBindMatrix(self, offset=[0,0,0]):
     def getBindMatrix(self, orientation=0, rotAxis='y', offset=[0,0,0]):

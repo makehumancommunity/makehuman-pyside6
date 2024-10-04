@@ -414,15 +414,21 @@ class gltfExport:
     def addBones(self, bone, num, pos):
         #
         # bone-translations have to be relative in GLTF
+        # Order of quaternions in GLTF: X Y Z W
         #
         trans = ((bone.headPos - pos) * self.scale).tolist()
-        node = {"name": bone.name, "translation": trans, "children": []  }
+        rot   = bone.getQuatRotationMatrix()
+        rot[[0, 1, 2, 3]] = rot[[1, 2, 3, 0]]       # change quaternion order (W is last element)
+        rot = rot.tolist()
+
+        node = {"name": bone.name, "translation": trans, "rotation": rot, "children": []  }
         self.json["nodes"].append(node)
         self.bonelist.append(num)
         self.bonenames[bone.name] = [ len(self.bonelist) -1, bone]   # because mesh was loaded before, just a hack :(
         if bone.name == "root" or bone.name == "spine05":
             print (bone.name)
-            print (trans)
+            print ("Trans:", trans)
+            print ("Rot:", rot)
         num += 1
         nextnode = num
         for child in bone.children:
