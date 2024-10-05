@@ -68,24 +68,19 @@ class cBone():
         print ("Rest-Local:")
         print (self.matRestLocal)
 
-    def getQuatRotationMatrix(self):
-        quat = mquat.quaternionFromMatrix(self.matRestLocal)    # yields the rotation for bones
-        return(quat)
+    def getLocalRotationQVector(self):
+        return mquat.quaternionFromMatrix(self.matRestLocal)    # yields the rotation for bones
 
-    # def getBindMatrix(self, offset=[0,0,0]):
+    def getLocalTransitionVector(self):         # return first 3 elements of last column 
+        return self.matRestLocal[:3,3]
+
     def getBindMatrix(self, orientation=0, rotAxis='y', offset=[0,0,0]):
         """
         this is used for export mainly
         """
-        #restmat = self.matRestGlobal.copy()
-        #restmat[:3,3] += offset
-        if self.name == "root":
-            print ("Global")
-            print (self.matRestGlobal)
         restmat = self.getTransformedRestMatrix(orientation, rotAxis, offset)
         bindinv = np.transpose(restmat)
         bindmat = np.linalg.inv(bindinv)
-        #bindmat = mquat.changeOrientation(bindmat, orientation, rotAxis, offset)
         return bindmat,bindinv
 
     def getTransformedRestMatrix(self, orientation=0, rotAxis='y', offset=[0,0,0]):

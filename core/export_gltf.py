@@ -183,13 +183,7 @@ class gltfExport:
         n = 0
         for elem in self.bonenames:
             bone = self.bonenames[elem][1]
-            bindmat[n], bindinv = bone.getBindMatrix(0, 'y') # best so far
-            #bindmat[n], bindinv = bone.getBindMatrix(2, 'y') # 'z' character points down, skeleton wrong
-            if bone.name == "root" or bone.name == "spine05" or bone.name == "shoulder01.L":
-                print (bone.name)
-                bone.getQuatRotationMatrix()
-                print (bindmat[n].transpose())
-                print (bindinv.transpose())
+            bindmat[n], bindinv = bone.getBindMatrix(0, 'y')
             n += 1
 
         data = bindmat.tobytes()
@@ -413,11 +407,12 @@ class gltfExport:
 
     def addBones(self, bone, num, pos):
         #
-        # bone-translations have to be relative in GLTF
+        # bone-translations and rotations are fetched from local rest matrix, have to be relative in GLTF
         # Order of quaternions in GLTF: X Y Z W
         #
-        trans = ((bone.headPos - pos) * self.scale).tolist()
-        rot   = bone.getQuatRotationMatrix()
+        trans = (bone.getLocalTransitionVector() * self.scale).tolist()
+
+        rot   = bone.getLocalRotationQVector()
         rot[[0, 1, 2, 3]] = rot[[1, 2, 3, 0]]       # change quaternion order (W is last element)
         rot = rot.tolist()
 
@@ -425,10 +420,6 @@ class gltfExport:
         self.json["nodes"].append(node)
         self.bonelist.append(num)
         self.bonenames[bone.name] = [ len(self.bonelist) -1, bone]   # because mesh was loaded before, just a hack :(
-        if bone.name == "root" or bone.name == "spine05":
-            print (bone.name)
-            print ("Trans:", trans)
-            print ("Rot:", rot)
         num += 1
         nextnode = num
         for child in bone.children:

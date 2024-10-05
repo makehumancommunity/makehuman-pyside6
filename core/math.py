@@ -61,56 +61,38 @@ def quaternionToRotMatrix(quaternion):
         [    q[1, 3]-q[2, 0],     q[2, 3]+q[1, 0], 1.0-q[1, 1]-q[2, 2], 0.0],
         [                0.0,                 0.0,                 0.0, 1.0]])
 
-
-def quaternionFromMatrix(matrix):
+def quaternionFromMatrix(m):
     """
     Return quaternion from rotation matrix.
     """
-    M = np.array(matrix, dtype=np.float64, copy=True)[:4, :4]
-    q = np.empty((4, ))
-    t = np.trace(M) # diagonal sum
-    if t > M[3, 3]:
-        q[0] = t
-        q[3] = M[1, 0] - M[0, 1]
-        q[2] = M[0, 2] - M[2, 0]
-        q[1] = M[2, 1] - M[1, 2]
+    tr = m[0][0] + m[1][1] + m[2][2]
+
+    if tr > 0:
+        S = math.sqrt(tr+1.0) * 2 # S=4*qw
+        qw = 0.25 * S
+        qx = (m[2][1] - m[1][2]) / S
+        qy = (m[0][2] - m[2][0]) / S
+        qz = (m[1][0] - m[0][1]) / S
+    elif (m[0][0] > m[1][1]) and (m[0][0] > m[2][2]):
+        S = math.sqrt(1.0 + m[0][0] - m[1][1] -  m[2][2]) * 2 # S=4*qx
+        qw = (m[2][1] - m[1][2]) / S
+        qx = 0.25 * S;
+        qy = (m[0][1] + m[1][0]) / S
+        qz = (m[0][2] + m[2][0]) / S
+    elif m[1][1] > m[2][2]:
+        S = math.sqrt(1.0 + m[1][1] - m[0][0] - m[2][2]) * 2  # S=4*qy
+        qw = (m[0][2] - m[2][0]) / S
+        qx = (m[0][1] + m[1][0]) / S
+        qy = 0.25 * S
+        qz = (m[1][2] + m[2][1]) / S
     else:
-        i, j, k = 1, 2, 3
-        if M[1, 1] > M[0, 0]:
-            i, j, k = 2, 3, 1
-        if M[2, 2] > M[i, i]:
-            i, j, k = 3, 1, 2
-        t = M[i, i] - (M[j, j] + M[k, k]) + M[3, 3]
-        q[i] = t
-        q[j] = M[i, j] + M[j, i]
-        q[k] = M[k, i] + M[i, k]
-        q[3] = M[k, j] - M[j, k]
-    try:
-        q *= 0.5 / math.sqrt(t * M[3, 3])
-    except:
-        m00 = M[0, 0]
-        m01 = M[0, 1]
-        m02 = M[0, 2]
-        m10 = M[1, 0]
-        m11 = M[1, 1]
-        m12 = M[1, 2]
-        m20 = M[2, 0]
-        m21 = M[2, 1]
-        m22 = M[2, 2]
-        # symmetric matrix K
-        K = np.array([[m00-m11-m22, 0.0,         0.0,         0.0],
-                     [m01+m10,     m11-m00-m22, 0.0,         0.0],
-                     [m02+m20,     m12+m21,     m22-m00-m11, 0.0],
-                     [m21-m12,     m02-m20,     m10-m01,     m00+m11+m22]])
-        K /= 3.0
-        # quaternion is eigenvector of K that corresponds to largest eigenvalue
-        w, V = np.linalg.eigh(K)
-        q = V[[3, 0, 1, 2], np.argmax(w)]
+        S = math.sqrt(1.0 +  m[2][2] - m[0][0] - m[1][1]) * 2 # S=4*qz
+        qw = (m[1][0] - m[0][1]) / S
+        qx = (m[0][2] + m[2][0]) / S
+        qy = (m[1][2] + m[2][1]) / S
+        qz = 0.25 * S
 
-    if q[0] < 0.0:
-        np.negative(q, q)
-    return q
-
+    return np.asarray([qw, qx, qy, qz], dtype=np.float32)
 
 def quaternionMult(quaternion1, quaternion0):
     """
