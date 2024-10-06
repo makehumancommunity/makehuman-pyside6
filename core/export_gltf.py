@@ -2,6 +2,8 @@ import os
 import json
 import struct
 import numpy as np
+from obj3d.skeleton import skeleton as newSkeleton
+
 """
     GLTF module:
     Orientation
@@ -17,6 +19,7 @@ class gltfExport:
         #
         self.imagefolder = "textures"
         self.exportfolder = exportfolder
+        self.glob = glob
         self.env = glob.env
         self.hiddenverts = hiddenverts
         self.onground = onground
@@ -122,16 +125,18 @@ class gltfExport:
 
         cnt = len(coord) // 3
 
-        if self.scale != 1.0:
-            coord = coord * self.scale
+        ncoord = np.copy(coord)
 
-        meshCoords = np.reshape(coord, (cnt,3))
+        meshCoords = np.reshape(ncoord, (cnt,3))
         if self.lowestPos != 0.0:
             meshCoords -= [0.0, self.lowestPos, 0.0]
+
+        if self.scale != 1.0:
+            ncoord = ncoord * self.scale
         minimum = meshCoords.min(axis=0).tolist()
         maximum = meshCoords.max(axis=0).tolist()
 
-        data = coord.tobytes()
+        data = ncoord.tobytes()
         buf = self.addBufferView(self.ARRAY_BUFFER, data)
 
         self.json["accessors"].append({"bufferView": buf, "componentType": self.FLOAT, "count": cnt, "type": "VEC3", "min": minimum, "max": maximum})
@@ -405,12 +410,12 @@ class gltfExport:
         ptr = self.addBindMatAccessor(self.bonelist)
         self.json["skins"].append({ "inverseBindMatrices": ptr, "joints": self.bonelist, "name": name + "_skeleton" })
 
-    def addBones(self, bone, num, pos):
+    def addBones(self, bone, num):
         #
         # bone-translations and rotations are fetched from local rest matrix, have to be relative in GLTF
         # Order of quaternions in GLTF: X Y Z W
         #
-        trans = (bone.getLocalTransitionVector() * self.scale).tolist()
+        trans = bone.getLocalTransitionVector().tolist()
 
         rot   = bone.getLocalRotationQVector()
         rot[[0, 1, 2, 3]] = rot[[1, 2, 3, 0]]       # change quaternion order (W is last element)
@@ -423,7 +428,7 @@ class gltfExport:
         num += 1
         nextnode = num
         for child in bone.children:
-            nextnode = self.addBones(child, num, bone.headPos)
+            nextnode = self.addBones(child, num)
             node["children"].append(num)
             num = nextnode
         return (num)
@@ -453,7 +458,7 @@ class gltfExport:
         # in case of onground we need a translation which is then added to the mesh
         #
         if self.onground:
-            self.lowestPos = baseclass.getLowestPos() * self.scale
+            self.lowestPos = baseclass.getLowestPos()
 
         baseweights = baseclass.skeleton.bWeights.bWeights if baseclass.skeleton is not None else None
 
@@ -469,15 +474,18 @@ class gltfExport:
         #
         if baseweights is not None:
             self.json["nodes"][0]["skin"] = 0
-            skeleton = baseclass.skeleton
+            if self.scale != 1.0 or self.onground:
+                print ("get a new skeleton")
+                skeleton = newSkeleton(self.glob, "copy")
+                skeleton.copyScaled(baseclass.skeleton, self.scale, self.lowestPos)
+            else:
+                skeleton = baseclass.skeleton
+
             bonename = list(skeleton.bones)[0]
             bone = skeleton.bones[bonename]
-            startpos = np.zeros(3,dtype=np.float32)
-            if self.lowestPos != 0.0:
-                startpos[1] = baseclass.getLowestPos()  # unscaled needed
 
             children.append(childnum)
-            childnum = self.addBones(bone, childnum, startpos)
+            childnum = self.addBones(bone, childnum)
             self.addSkins(charactername)
 
             # now add weights and joints

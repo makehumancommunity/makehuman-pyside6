@@ -115,7 +115,7 @@ class skeleton:
             rotplane = val["rotation_plane"] if "rotation_plane" in val else 0
             reference = val["reference"] if "reference" in val else None
             weights = val["weights_reference"] if "weights_reference" in val else None
-            cbone = cBone(self, bone, val, rotplane, reference, weights)
+            cbone = cBone(self, bone, val["parent"], val["head"], val["tail"], rotplane, reference, weights)
             self.bones[bone] = cbone
 
         """
@@ -124,6 +124,29 @@ class skeleton:
         """
         self.calcRestMat()
         self.filename = path
+
+    def copyScaled(self, source, scale, offset):
+        """
+        generate a resized skeleton
+        """
+
+        self.jointVerts = source.jointVerts
+        self.bWeights = source.bWeights
+
+        for bone in source.bones:
+            b = source.bones[bone]
+
+            cbone = cBone(self, b.name, b.parentname, b.head, b.tail, b.localplane, b.reference, b.weightref)
+            head, tail = b.getJointPos()
+            head = np.asarray(head, dtype=np.float32)
+            tail = np.asarray(tail, dtype=np.float32)
+            head[1] -= offset
+            tail[1] -= offset
+            cbone.assignJointPos(head * scale , tail * scale)
+            self.bones[bone] = cbone
+
+        self.calcRestMat()
+
 
     def getNormal(self, plane_name):
         """

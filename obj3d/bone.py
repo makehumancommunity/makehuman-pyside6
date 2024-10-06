@@ -3,12 +3,13 @@ import numpy as np
 import core.math as mquat
 
 class cBone():
-    def __init__(self, skel, name, val, localplane=0, reference=None, weights=None):
+    def __init__(self, skel, name, parent, head, tail, localplane=0, reference=None, weights=None):
         """
         headPos and tailPos should be in world space coordinates (relative to root).
         parent should be None for a root bone.
         """
         self.glob = skel.glob
+        self.parentname = parent
         self.name = name
         self.skeleton = skel
         self.children = []
@@ -17,16 +18,16 @@ class cBone():
 
         # sorted structure allows to add hierarchy to each bone, also add level
         #
-        if val["parent"] is not None:
-            self.parent = skel.bones[val["parent"]]
+        if parent is not None:
+            self.parent = skel.bones[parent]
             self.parent.children.append(self)
             self.level = self.parent.level + 1
         else:
             self.parent = None
             self.level = 0
 
-        self.head = val["head"]
-        self.tail = val["tail"]
+        self.head = head
+        self.tail = tail
         self.localplane = localplane
 
         # coordinates for head and tail
@@ -103,6 +104,14 @@ class cBone():
             normal = np.asarray([0.0, 1.0, 0.0], dtype=np.float32)
 
         return (normal)
+
+    def assignJointPos(self, head, tail):
+        self.headPos[:] = head
+        self.tailPos[:] = tail
+
+    def getJointPos(self):
+        return (self.skeleton.mesh.getMeanPosition(self.skeleton.jointVerts[self.head]), \
+                self.skeleton.mesh.getMeanPosition(self.skeleton.jointVerts[self.tail]))
 
     def setJointPos(self):
         self.headPos[:] = self.skeleton.mesh.getMeanPosition(self.skeleton.jointVerts[self.head])
