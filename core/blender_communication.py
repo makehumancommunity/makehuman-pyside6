@@ -7,6 +7,7 @@ import os
 import json
 import struct
 import numpy as np
+from obj3d.skeleton import skeleton as newSkeleton
 
 class blendCom:
     def __init__(self, glob, exportfolder, hiddenverts=False, onground=True, scale =0.1):
@@ -15,6 +16,7 @@ class blendCom:
         #
         self.imagefolder = "textures"
         self.exportfolder = exportfolder
+        self.glob = glob
         self.env = glob.env
         self.hiddenverts = hiddenverts
         self.onground = onground
@@ -28,6 +30,7 @@ class blendCom:
         self.FACE_BUFFER = 12
         self.UV_BUFFER = 13
         self.OV_BUFFER = 14
+        self.RMAT_BUFFER = 15       # rest matrix
         self.MH2B_VERSION = 1
         self.MAGIC = b'MH2B'
         self.JSON = b'JSON'
@@ -64,6 +67,8 @@ class blendCom:
 
         self.bufferoffset = 0
         self.buffers = []       # will hold the pointers
+
+        # additional block: skeleton
 
     def __str__(self):
         return (json.dumps(self.json, indent=3))
@@ -243,6 +248,30 @@ class blendCom:
             self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "VPF": vpf, "FACE": face, "TEXCOORD_0": texcoord }, "material": nodenumber }]})
         return (self.mesh_cnt)
 
+    def addBone(self, bone, restmat, num):
+        entry = {"id": num, "name": bone.name, "head": list(bone.headPos.astype(float)), "tail": list(bone.tailPos.astype(float))}
+        restmat[num] = bone.matRestGlobal
+        if bone.parentname:
+            entry["parent"] = bone.parentname
+        return entry
+
+    def addSkeleton(self, skeleton):
+        """
+        skeleton definition uses an array of bones + pointer to binary restmatrices
+        """
+        bones = []
+
+        cnt = len(skeleton.bones)
+        restmat = np.zeros((cnt, 4,4), dtype=np.float32)
+        n = 0
+        for bone in skeleton.bones:
+            bones.append(self.addBone(skeleton.bones[bone], restmat, n))
+            n += 1
+        data = restmat.tobytes()
+        buf = self.addBufferView( self.RMAT_BUFFER, data)
+        self.json["skeleton"] = {"name": self.nodeName(skeleton.name), "bones": bones, "RESTMAT": buf}
+
+
     def addNodes(self, baseclass):
         #
         # add the basemesh itself, the other nodes will be children
@@ -267,6 +296,8 @@ class blendCom:
         if self.onground:
             self.lowestPos = baseclass.getLowestPos() * self.scale
 
+        baseweights = baseclass.skeleton.bWeights.bWeights if baseclass.skeleton is not None else None
+
         mesh = self.addMesh(baseobject, mat)
 
         self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh,  "children": []  })
@@ -274,6 +305,19 @@ class blendCom:
         children = self.json["nodes"][0]["children"]
 
         childnum = 1
+
+        # add skeleton, if baseweights are available
+        #
+        if baseweights is not None:
+            if self.scale != 1.0 or self.onground:
+                print ("get a new skeleton")
+                skeleton = newSkeleton(self.glob, "copy")
+                skeleton.copyScaled(baseclass.skeleton, self.scale, self.lowestPos)
+            else:
+                skeleton = baseclass.skeleton
+
+            self.addSkeleton(skeleton)
+
         for elem in baseclass.attachedAssets[start:]:
             mat =  self.addMaterial(elem.obj.material)
             if mat == -1:
