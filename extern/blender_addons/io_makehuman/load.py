@@ -143,6 +143,16 @@ class MH2B_OT_Loader:
 
         return(nobject)
 
+    def getSkeleton(self, jdata, fp):
+        """
+        read restmatrix in case of skeleton not break importer
+        """
+        restmatnum = jdata["skeleton"]["RESTMAT"]
+        length = jdata["bufferViews"][restmatnum]["byteLength"] 
+        print ("restmat need to read " + str(length) + " bytes")
+        restmat = fp.read(length)
+        self.bufferoffset += length
+
     def createObjects(self, jdata, fp, dirname):
         #
         # just creates empties (will be change to a mesh soon), use an array
@@ -154,6 +164,8 @@ class MH2B_OT_Loader:
         nodes.append([self.firstname, n["mesh"]])
         lastmesh = n["mesh"]
         children = n["children"]
+        if "skeleton" in jdata:
+            nodes.append(["skeleton", None])
         for elem in children:
             n = jdata["nodes"][elem]
             name = n["name"]
@@ -164,9 +176,13 @@ class MH2B_OT_Loader:
             else:
                 # TODO insert
                 pass
+
         for elem in nodes:
-            mesh = self.getMesh(jdata, elem[0], elem[1], fp, dirname)
-            self.collection.objects.link(mesh)
+            if elem[1] is None:
+                skeleton = self.getSkeleton(jdata, fp)
+            else:
+                mesh = self.getMesh(jdata, elem[0], elem[1], fp, dirname)
+                self.collection.objects.link(mesh)
 
     def loadMH2B(self, props):
         with open(props.filepath, 'rb') as f:
