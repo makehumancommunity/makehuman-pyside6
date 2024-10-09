@@ -3,6 +3,7 @@ import json
 import os
 import struct
 from bpy_extras.io_utils import (ImportHelper, ExportHelper)
+from mathutils import Vector
 from bpy.props import StringProperty
 from .materials import MH2B_OT_Material
 
@@ -14,6 +15,13 @@ class MH2B_OT_Loader:
         self.collection = None
         self.bufferoffset = 0
         self.subsurf = subsurf
+
+    def activateObject(self, ob):
+        scn = self.context.scene
+        for ob1 in scn.collection.objects:
+            ob1.select_set(False)
+        ob.select_set(True)
+        self.context.view_layer.objects.active = ob
 
     def createCollection(self, jdata):
         #
@@ -147,16 +155,40 @@ class MH2B_OT_Loader:
         """
         read restmatrix in case of skeleton not break importer
         """
-        restmatnum = jdata["skeleton"]["RESTMAT"]
+        skel =  jdata["skeleton"]
+        restmatnum = skel["RESTMAT"]
         length = jdata["bufferViews"][restmatnum]["byteLength"] 
         print ("restmat need to read " + str(length) + " bytes")
         restmat = fp.read(length)
         self.bufferoffset += length
 
+        amt = bpy.data.armatures.new(skel["name"])
+        rig = bpy.data.objects.new(skel["name"], amt)
+        setattr(amt, "display_type", 'STICK')
+        setattr(rig, "show_in_front" , True)
+        self.collection.objects.link(rig)
+        self.activateObject(rig)
+
+        bpy.ops.object.mode_set(mode='EDIT')
+        for bone in skel["bones"]:
+            eb = amt.edit_bones.new(bone["name"])
+            h = bone["head"]
+            t = bone["tail"]
+            eb.head = Vector((h[0], -h[2], h[1]))
+            eb.tail = Vector((t[0], -t[2], t[1]))
+            if "parent" in bone:
+                eb.parent = amt.edit_bones[bone["parent"]]
+            print (bone)
+
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+
+
+
     def createObjects(self, jdata, fp, dirname):
         #
-        # just creates empties (will be change to a mesh soon), use an array
-        # try to read buffers one after the other later
+        # just creates meshes and skeleton, use an array
+        # optimized to read the buffer only once
         #
         self.bufferoffset = 0
         nodes = []
