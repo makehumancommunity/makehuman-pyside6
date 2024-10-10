@@ -3,7 +3,7 @@ import json
 import os
 import struct
 from bpy_extras.io_utils import (ImportHelper, ExportHelper)
-from mathutils import Vector
+from mathutils import Vector, Matrix
 from bpy.props import StringProperty
 from .materials import MH2B_OT_Material
 
@@ -153,15 +153,18 @@ class MH2B_OT_Loader:
 
     def getSkeleton(self, jdata, fp):
         """
-        read restmatrix in case of skeleton not break importer
+        read restmatrix then create skeleton by tail, head, matrix and parent relation-ship
         """
         skel =  jdata["skeleton"]
         restmatnum = skel["RESTMAT"]
         length = jdata["bufferViews"][restmatnum]["byteLength"] 
         print ("restmat need to read " + str(length) + " bytes")
-        restmat = fp.read(length)
+        buf = fp.read(length)
         self.bufferoffset += length
+        restmat = list(struct.iter_unpack('<ffffffffffffffff',  buf))
 
+        # prepare skeleton
+        #
         amt = bpy.data.armatures.new(skel["name"])
         rig = bpy.data.objects.new(skel["name"], amt)
         setattr(amt, "display_type", 'STICK')
@@ -169,19 +172,42 @@ class MH2B_OT_Loader:
         self.collection.objects.link(rig)
         self.activateObject(rig)
 
+        # edit bones
+        #
         bpy.ops.object.mode_set(mode='EDIT')
         for bone in skel["bones"]:
+
+            # create bone, by head, tail
+            #
             eb = amt.edit_bones.new(bone["name"])
             h = bone["head"]
             t = bone["tail"]
             eb.head = Vector((h[0], -h[2], h[1]))
             eb.tail = Vector((t[0], -t[2], t[1]))
+
+            # now create bone orientation by restmatrix
+            # change of bone directions (Blender: z up), do not wonder about the order in matrix
+            # do not work on eb.matrix directly, copy location in the end (column 3)
+            #
+            mat = restmat[bone["id"]]
+            nmat = Matrix()
+            nmat.col[0] = [mat[0], -mat[8], mat[4], 0.0]
+            nmat.col[1] = [mat[1], -mat[9], mat[5], 0.0]
+            nmat.col[2] = [mat[2], -mat[10], mat[6], 0.0]
+            nmat.col[3] = eb.matrix.col[3]
+            eb.matrix = nmat
+
             if "parent" in bone:
                 eb.parent = amt.edit_bones[bone["parent"]]
-            print (bone)
 
+
+        # lock the bones in pose mode
+        #
         bpy.ops.object.mode_set(mode='OBJECT')
-
+        for bone in skel["bones"]:
+            pb = rig.pose.bones[bone["name"]]
+            if pb.parent:
+                pb.lock_location = [True,True,True]
 
 
 
