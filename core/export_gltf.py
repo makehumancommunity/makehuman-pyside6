@@ -226,7 +226,7 @@ class gltfExport:
                 if i not in vertex:
                     vertex[i] = []
                 vertex[i].append((bonenumber, w[n]))
-        print ("Maxv:" + str(numverts))
+        print ("Maxv:" + str(maxv))
 
         for v in vertex:
             m = vertex[v]
@@ -440,11 +440,16 @@ class gltfExport:
         # here one node will always have one mesh
         #
         skin = baseclass.baseMesh.material
+        baseweights = baseclass.skeleton.bWeights.bWeights if baseclass.skeleton is not None else None
 
-        # in case of a proxy use the proxy as first mesh
+        # in case of a proxy use the proxy as first mesh, get weights for proxy
         #
         if baseclass.proxy:
-            baseobject = baseclass.attachedAssets[0].obj
+            proxy = baseclass.attachedAssets[0]
+            if baseweights is not None:
+                proxy.calculateBoneWeights()
+                baseweights = proxy.bWeights.bWeights
+                baseobject = proxy.obj
             start = 1
         else:
             baseobject = baseclass.baseMesh
@@ -460,7 +465,6 @@ class gltfExport:
         if self.onground:
             self.lowestPos = baseclass.getLowestPos()
 
-        baseweights = baseclass.skeleton.bWeights.bWeights if baseclass.skeleton is not None else None
 
         mesh = self.addMesh(baseobject, mat, baseweights)
 

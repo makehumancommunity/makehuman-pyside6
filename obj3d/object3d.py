@@ -321,7 +321,7 @@ class object3d:
         #
         numind, numfaces = self.calcFaceBufSize(mask)
 
-        vertsperface = np.zeros(numfaces, dtype=np.dtype('i4'))
+        vertsperface = np.zeros(numfaces, dtype=np.dtype('i1'))
         faceverts = np.zeros(numind, dtype=np.dtype('i4'))
 
         mx = self.fillFaceBuffers(vertsperface, faceverts, mask)

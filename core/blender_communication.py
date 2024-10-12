@@ -1,7 +1,15 @@
 #
-# new Blender exchange format similar to glTF, so binary buffers for verts and uvs and faces
-# to read with from_pydata(), rest JSON, should create files but should also be used as an API 
+# new Blender exchange format similar to glTF, so binary buffers for
+# verts, vertex per faces, faces, uvs => to read with from_pydata() in Blender
 #
+# definition of structure is in JSON
+#
+# it is planned to use this module for files but should also be used as an API 
+#
+# so order of buffers is significant to be able to read the file chunk by chunk
+#
+# start must be skeleton (if available) to get the restmatrix buffer first,
+# then all othter future components not directly associated with a mesh
 
 import os
 import json
@@ -25,12 +33,15 @@ class blendCom:
 
         # all constants used
         #
-        self.POS_BUFFER = 10        # targets
-        self.VPF_BUFFER = 11        # vertex per face
-        self.FACE_BUFFER = 12
-        self.UV_BUFFER = 13
-        self.OV_BUFFER = 14
-        self.RMAT_BUFFER = 15       # rest matrix
+        self.RMAT_BUFFER   = 1  # rest matrix (skeleton)
+        self.POS_BUFFER    = 10 # target: position
+        self.VPF_BUFFER    = 11 # vertex per face
+        self.FACE_BUFFER   = 12
+        self.UV_BUFFER     = 13
+        self.OV_BUFFER     = 14
+        self.WPV_BUFFER    = 16 # weight per vertex
+        self.JOINT_BUFFER  = 17
+        self.WEIGHT_BUFFER = 18
         self.MH2B_VERSION = 1
         self.MAGIC = b'MH2B'
         self.JSON = b'JSON'
@@ -42,7 +53,7 @@ class blendCom:
 
         self.json = {}
         # change asset version to add a name for collection
-        self.json["asset"] = {"generator": "makehuman2", "version": "1.0", "mode": 0, "nodes": []  } # mode=0 complete file
+        self.json["asset"] = {"generator": "makehuman2", "version": "1.0", "mode": 0, "buffersize": 0, "nodes": []  } # mode=0 complete file
 
         self.json["nodes"] = [] # list of nodes
 
@@ -51,8 +62,6 @@ class blendCom:
 
         self.json["bufferViews"] = []   # list of bufferviews, mode of buffer, length, offset, buffer number
         self.bufferview_cnt = -1
-
-        self.json["buffers"] = []       # at the moment we try one view = one buffer
 
         # texture and material
         #
@@ -67,6 +76,8 @@ class blendCom:
 
         self.bufferoffset = 0
         self.buffers = []       # will hold the pointers
+
+        self.bonenames = {}
 
         # additional block: skeleton
 
@@ -87,7 +98,7 @@ class blendCom:
         length = len(data)
 
         self.bufferview_cnt += 1
-        self.json["bufferViews"].append({"buffer": 0, "byteOffset": self.bufferoffset, "byteLength": length, "target": target })
+        self.json["bufferViews"].append({"byteOffset": self.bufferoffset, "byteLength": length, "target": target })
         self.buffers.append(data)
         self.bufferoffset += length
         return(self.bufferview_cnt)
@@ -234,18 +245,75 @@ class blendCom:
         self.json["materials"].append(mat)
         return (self.material_cnt)
 
-    def addMesh(self, obj, nodenumber):
+    def addWeightBuffers(self, coords, bweights):
+        print ("We have weights")
+        wpvlen = len(coords) // 3   # length of vertex per face derived from flattened coords
+
+        lsize = 0
+
+        vertex = {}
+
+        # TODO: how to deal with empty weights
+
+        for bone, t in bweights.items():
+            lsize += len(t[0])
+            bonenumber = self.bonenames[bone]
+            ind, w = bweights[bone]
+            for n, i in enumerate (ind):
+                if i < wpvlen:
+                    if i not in vertex:
+                        vertex[i] = []
+                    vertex[i].append((bonenumber, w[n]))
+
+
+        print ("Verts:" + str(wpvlen))
+        print ("Weight array:" + str(lsize))
+        weightpervertex = np.zeros(wpvlen, dtype=np.dtype('i1'))
+        joints =  np.zeros(lsize, dtype=np.dtype('i4'))
+        weights = np.zeros(lsize, dtype=np.float32)
+
+        i = 0
+        for j in range(0, wpvlen):
+            cnt = 0
+            if j in vertex:
+                for n,w in vertex[j]:
+                    joints[i] = n
+                    weights[i] = w
+                    i += 1
+                    cnt += 1
+            weightpervertex[j] = cnt
+
+        bufwpv    = self.addBufferView(self.WPV_BUFFER, weightpervertex.tobytes())
+        bufjoint  = self.addBufferView(self.JOINT_BUFFER, joints.tobytes())
+        bufweight = self.addBufferView(self.WEIGHT_BUFFER, weights.tobytes())
+
+        return bufwpv, bufjoint, bufweight
+
+    def addMesh(self, obj, nodenumber, bweights):
         self.mesh_cnt += 1
         (coords, uvcoords, vpface, faces, overflows) = obj.getVisGeometry(self.hiddenverts)
         pos = self.addPosBuffer(coords)
         face = self.addFaceBuffer(faces)
         vpf = self.addVPFBuffer(vpface)
         texcoord = self.addTPosBuffer(uvcoords)
+
+        jmesh = {"primitives": [ {"attributes": { "POSITION": pos, "VPF": vpf, "FACE": face, "TEXCOORD_0": texcoord }, "material": nodenumber }]}
+
+        # add the overflow
+        #
         if len(overflows) > 0:
             overflow = self.addOverflowBuffer(overflows)
-            self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "VPF": vpf, "FACE": face, "TEXCOORD_0": texcoord, "OVERFLOW": overflow  }, "material": nodenumber }]})
-        else:
-            self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "VPF": vpf, "FACE": face, "TEXCOORD_0": texcoord }, "material": nodenumber }]})
+            jmesh["primitives"][0]["attributes"]["OVERFLOW"] = overflow
+
+        # add weights in case of skeleton
+        #
+        if bweights is not None:
+            bufwpv, bufjoint, bufweight = self.addWeightBuffers(coords, bweights)
+            jmesh["primitives"][0]["attributes"]["WPF"] = bufwpv
+            jmesh["primitives"][0]["attributes"]["JOINTS"] = bufjoint
+            jmesh["primitives"][0]["attributes"]["WEIGHTS"] = bufweight
+
+        self.json["meshes"].append(jmesh)
         return (self.mesh_cnt)
 
     def addBone(self, bone, restmat, num):
@@ -253,6 +321,7 @@ class blendCom:
         restmat[num] = bone.matRestGlobal
         if bone.parentname:
             entry["parent"] = bone.parentname
+        self.bonenames[bone.name] = num       # keep position in dictionary
         return entry
 
     def addSkeleton(self, skeleton):
@@ -274,39 +343,22 @@ class blendCom:
 
     def addNodes(self, baseclass):
         #
+        # start with all non-meshes using extra buffers (so skeleton with restmatrix etc.)
+        #
         # add the basemesh itself, the other nodes will be children
         # here one node will always have one mesh
         #
-        skin = baseclass.baseMesh.material
-
-        # in case of a proxy use the proxy as first mesh
-        #
-        if baseclass.proxy:
-            baseobject = baseclass.attachedAssets[0].obj
-            start = 1
-        else:
-            baseobject = baseclass.baseMesh
-            start = 0
-        mat  = self.addMaterial(skin)
-        if mat == -1:
-            return (False)
 
         # in case of onground we need a translation
         #
         if self.onground:
             self.lowestPos = baseclass.getLowestPos() * self.scale
 
+        # use baseweights as a hint for having a skeleton
+        #
         baseweights = baseclass.skeleton.bWeights.bWeights if baseclass.skeleton is not None else None
 
-        mesh = self.addMesh(baseobject, mat)
-
-        self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh,  "children": []  })
-        self.json["asset"]["nodes"].append(0)
-        children = self.json["nodes"][0]["children"]
-
-        childnum = 1
-
-        # add skeleton, if baseweights are available
+        # add skeleton, if available
         #
         if baseweights is not None:
             if self.scale != 1.0 or self.onground:
@@ -318,16 +370,50 @@ class blendCom:
 
             self.addSkeleton(skeleton)
 
+
+        skin = baseclass.baseMesh.material
+
+        # add the base object,  in case of a proxy use the proxy as first mesh, get weights for proxy
+        #
+        if baseclass.proxy:
+            proxy = baseclass.attachedAssets[0]
+            if baseweights is not None:
+                proxy.calculateBoneWeights()
+                baseweights = proxy.bWeights.bWeights
+                baseobject = proxy.obj
+            start = 1
+        else:
+            baseobject = baseclass.baseMesh
+            start = 0
+        mat  = self.addMaterial(skin)
+        if mat == -1:
+            return (False)
+
+        mesh = self.addMesh(baseobject, mat, baseweights)
+
+        self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh,  "children": []  })
+        self.json["asset"]["nodes"].append(0)
+        children = self.json["nodes"][0]["children"]
+
+        childnum = 1
+
         for elem in baseclass.attachedAssets[start:]:
             mat =  self.addMaterial(elem.obj.material)
             if mat == -1:
                 return (False)
-            mesh = self.addMesh(elem.obj, mat)
+            if baseweights is not None:
+                elem.calculateBoneWeights()
+                weights = elem.bWeights.bWeights
+            else:
+                weights = None
+            mesh = self.addMesh(elem.obj, mat, weights)
             self.json["nodes"].append({"name": self.nodeName(elem.filename), "mesh": mesh })
             children.append(childnum)
             childnum += 1
 
-        self.json["buffers"].append({"byteLength": self.bufferoffset})
+        # now insert correct lenght of available buffers
+        #
+        self.json["asset"]["buffersize"] =  self.bufferoffset
         print (self)
         return (True)
 

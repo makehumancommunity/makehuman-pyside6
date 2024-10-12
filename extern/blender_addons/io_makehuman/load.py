@@ -14,6 +14,8 @@ class MH2B_OT_Loader:
         self.firstname = "unknown"
         self.collection = None
         self.bufferoffset = 0
+        self.skeleton = None
+        self.bonelist = {}
         self.subsurf = subsurf
 
     def activateObject(self, ob):
@@ -51,6 +53,18 @@ class MH2B_OT_Loader:
             ov   = attrib['OVERFLOW']
             buffers.append ({ "type": "O", "start": jdata["bufferViews"][ov]["byteOffset"], "len": jdata["bufferViews"][ov]["byteLength"] })
 
+        if "WPF" in attrib:
+            wpf = attrib["WPF"]
+            buffers.append ({ "type": "N", "start": jdata["bufferViews"][wpf]["byteOffset"], "len": jdata["bufferViews"][wpf]["byteLength"] })
+
+        if "JOINTS" in attrib:
+            jo = attrib["JOINTS"]
+            buffers.append ({ "type": "J", "start": jdata["bufferViews"][jo]["byteOffset"], "len": jdata["bufferViews"][jo]["byteLength"] })
+
+        if "WEIGHTS" in attrib:
+            we = attrib["WEIGHTS"]
+            buffers.append ({ "type": "W", "start": jdata["bufferViews"][we]["byteOffset"], "len": jdata["bufferViews"][we]["byteLength"] })
+
         bufs = len(buffers)
         # TODO: find less stupid method
         #
@@ -64,6 +78,11 @@ class MH2B_OT_Loader:
                     break
 
         overflow = {}
+
+        wpf     = []
+        joints  = []
+        weights = []
+
         # now the conversions will be done (replacement)
         for cnt in range(0,bufs):
             t = buffers[cnt]["type"]
@@ -79,7 +98,7 @@ class MH2B_OT_Loader:
                     b.append(l)
                 buffers[cnt]["data"] = b
             elif t == "V":
-                m = struct.iter_unpack('<i',  buffers[cnt]["data"])
+                m = struct.iter_unpack('<B',  buffers[cnt]["data"])
                 for l in m:
                     b.append(l)
                 buffers[cnt]["data"] = b
@@ -88,6 +107,21 @@ class MH2B_OT_Loader:
                 for l in m:
                     b.append(l)
                 buffers[cnt]["data"] = b
+            elif  t == "N":
+                m = struct.iter_unpack('<B',  buffers[cnt]["data"])
+                for l in m:
+                    wpf.append(l[0])
+                buffers[cnt]["data"] = wpf
+            elif  t == "J":
+                m = struct.iter_unpack('<i',  buffers[cnt]["data"])
+                for l in m:
+                    joints.append(l[0])
+                buffers[cnt]["data"] = joints
+            elif  t == "W":
+                m = struct.iter_unpack('<f',  buffers[cnt]["data"])
+                for l in m:
+                    weights.append(l[0])
+                buffers[cnt]["data"] = weights
             else:
                 m = struct.iter_unpack('<ii',  buffers[cnt]["data"])
                 for l in m:
@@ -119,14 +153,37 @@ class MH2B_OT_Loader:
                 b.append(tuple(c))
                 uv.append(tuple(u))
 
-        bufarr = [buffers[0]["data"], b, buffers[3]["data"], uv]
+        bufarr = [buffers[0]["data"], b, buffers[3]["data"], uv, wpf, joints, weights]
         return (bufarr)
+    
+    def createVGroups(self, ob, wpf, joints, weights):
+        bonenums = {}
+        vgroups = []
+        for l in joints:
+            bonenums[l] = 1
+
+        for l in self.bonelist:
+            vgrp = None
+            if l in bonenums:
+                vgname = self.bonelist[l]
+                vgrp = ob.vertex_groups.new(name=vgname)
+            vgroups.append(vgrp)
                 
 
+        i = 0
+        for vn, cnt in enumerate(wpf):
+            for l in range(0, cnt):
+                jnum = joints[i]
+                weight = weights[i]
+                vgroups[jnum].add([vn], weight, 'REPLACE')
+                i += 1
+
+
     def getMesh(self, jdata, name, num, fp, dirname):
+
         m = jdata["meshes"][num]["primitives"][0]   # only one primitive
         attributes = m["attributes"]
-        (coords, faces, uvdata, uvfaces)  = self.getBuffers(jdata, attributes, fp)
+        (coords, faces, uvdata, uvfaces, wpf, joints, weights)  = self.getBuffers(jdata, attributes, fp)
 
         mesh = bpy.data.meshes.new(name)
         nobject = bpy.data.objects.new(name, mesh)
@@ -139,6 +196,17 @@ class MH2B_OT_Loader:
             for vert in face:
                 uvlayer.data[n].uv = (uvdata[vert][0], 1.0 - uvdata[vert][1])
                 n += 1
+
+        # create groups
+        #
+        if self.skeleton:
+            print ("Create a skeleton")
+            self.createVGroups(nobject, wpf, joints, weights)
+            mod = nobject.modifiers.new('ARMATURE', 'ARMATURE')
+            mod.use_vertex_groups = True
+            mod.use_bone_envelopes = False
+            mod.object = self.skeleton
+
 
         if "material" in m:
             material =  m["material"]
@@ -185,11 +253,16 @@ class MH2B_OT_Loader:
             eb.head = Vector((h[0], -h[2], h[1]))
             eb.tail = Vector((t[0], -t[2], t[1]))
 
+            # keep information for vertex groups
+            #
+            idx = bone["id"]
+            self.bonelist[idx] = bone["name"]
+
             # now create bone orientation by restmatrix
             # change of bone directions (Blender: z up), do not wonder about the order in matrix
             # do not work on eb.matrix directly, copy location in the end (column 3)
             #
-            mat = restmat[bone["id"]]
+            mat = restmat[idx]
             nmat = Matrix()
             nmat.col[0] = [mat[0], -mat[8], mat[4], 0.0]
             nmat.col[1] = [mat[1], -mat[9], mat[5], 0.0]
@@ -209,21 +282,23 @@ class MH2B_OT_Loader:
             if pb.parent:
                 pb.lock_location = [True,True,True]
 
-
+        return(rig)
 
     def createObjects(self, jdata, fp, dirname):
         #
-        # just creates meshes and skeleton, use an array
-        # optimized to read the buffer only once
+        # start with skeleton if available, then just creates meshes
+        # use an array optimized to read the buffer only once
         #
         self.bufferoffset = 0
+
+        if "skeleton" in jdata:
+            self.skeleton = self.getSkeleton(jdata, fp)
+
         nodes = []
         n = jdata["nodes"][self.firstnode]
         nodes.append([self.firstname, n["mesh"]])
         lastmesh = n["mesh"]
         children = n["children"]
-        if "skeleton" in jdata:
-            nodes.append(["skeleton", None])
         for elem in children:
             n = jdata["nodes"][elem]
             name = n["name"]
@@ -236,11 +311,8 @@ class MH2B_OT_Loader:
                 pass
 
         for elem in nodes:
-            if elem[1] is None:
-                skeleton = self.getSkeleton(jdata, fp)
-            else:
-                mesh = self.getMesh(jdata, elem[0], elem[1], fp, dirname)
-                self.collection.objects.link(mesh)
+            mesh = self.getMesh(jdata, elem[0], elem[1], fp, dirname)
+            self.collection.objects.link(mesh)
 
     def loadMH2B(self, props):
         with open(props.filepath, 'rb') as f:
