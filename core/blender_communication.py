@@ -30,6 +30,7 @@ class blendCom:
         self.onground = onground
         self.scale = scale
         self.lowestPos = 0.0
+        self.rootname = "generic"
 
         # all constants used
         #
@@ -84,12 +85,15 @@ class blendCom:
     def __str__(self):
         return (json.dumps(self.json, indent=3))
 
-    def nodeName(self, filename):
+    def nodeName(self, filename, prefix=False):
         if filename is None:
-            return("generic")
-
-        fname = os.path.basename(filename)
-        return(os.path.splitext(fname)[0])
+            name = "generic"
+        else:
+            name = os.path.basename(filename)
+            name = os.path.splitext(name)[0]
+        if prefix:
+            name = self.rootname + ":" + name
+        return(name)
 
     def addBufferView(self, target, data):
         #
@@ -256,7 +260,6 @@ class blendCom:
         # TODO: how to deal with empty weights
 
         for bone, t in bweights.items():
-            lsize += len(t[0])
             bonenumber = self.bonenames[bone]
             ind, w = bweights[bone]
             for n, i in enumerate (ind):
@@ -264,7 +267,7 @@ class blendCom:
                     if i not in vertex:
                         vertex[i] = []
                     vertex[i].append((bonenumber, w[n]))
-
+                    lsize += 1
 
         print ("Verts:" + str(wpvlen))
         print ("Weight array:" + str(lsize))
@@ -297,31 +300,42 @@ class blendCom:
         vpf = self.addVPFBuffer(vpface)
         texcoord = self.addTPosBuffer(uvcoords)
 
-        jmesh = {"primitives": [ {"attributes": { "POSITION": pos, "VPF": vpf, "FACE": face, "TEXCOORD_0": texcoord }, "material": nodenumber }]}
+        attrib = { "POSITION": pos, "VPF": vpf, "FACE": face, "TEXCOORD_0": texcoord }
 
         # add the overflow
         #
         if len(overflows) > 0:
             overflow = self.addOverflowBuffer(overflows)
-            jmesh["primitives"][0]["attributes"]["OVERFLOW"] = overflow
+            attrib["OVERFLOW"] = overflow
 
         # add weights in case of skeleton
         #
         if bweights is not None:
-            bufwpv, bufjoint, bufweight = self.addWeightBuffers(coords, bweights)
-            jmesh["primitives"][0]["attributes"]["WPF"] = bufwpv
-            jmesh["primitives"][0]["attributes"]["JOINTS"] = bufjoint
-            jmesh["primitives"][0]["attributes"]["WEIGHTS"] = bufweight
+            attrib["WPV"], attrib["JOINTS"], attrib["WEIGHTS"] = self.addWeightBuffers(coords, bweights)
+
+        jmesh = {"primitives": [ {"attributes": attrib, "material": nodenumber }]}
 
         self.json["meshes"].append(jmesh)
         return (self.mesh_cnt)
 
     def addBone(self, bone, restmat, num):
-        entry = {"id": num, "name": bone.name, "head": list(bone.headPos.astype(float)), "tail": list(bone.tailPos.astype(float))}
+        """
+        add a bone, here we need to change the position (recalculation like in glTF will not work, since we need all bones heads and tails
+        """
+        if self.onground:
+            head = bone.headPos.copy()
+            head[1] -= self.lowestPos
+            tail = bone.tailPos.copy()
+            tail[1] -= self.lowestPos
+        else:
+            head = bone.headPos
+            tail = bone.tailPos
+
+        entry = {"id": num, "name": bone.name, "head": list(head.astype(float)), "tail": list(tail.astype(float))}
         restmat[num] = bone.matRestGlobal
         if bone.parentname:
             entry["parent"] = bone.parentname
-        self.bonenames[bone.name] = num       # keep position in dictionary
+        self.bonenames[bone.name] = num       # keep position as an index in dictionary
         return entry
 
     def addSkeleton(self, skeleton):
@@ -338,16 +352,21 @@ class blendCom:
             n += 1
         data = restmat.tobytes()
         buf = self.addBufferView( self.RMAT_BUFFER, data)
-        self.json["skeleton"] = {"name": self.nodeName(skeleton.name), "bones": bones, "RESTMAT": buf}
+        self.json["skeleton"] = {"name": self.rootname, "bones": bones, "RESTMAT": buf}
 
 
-    def addNodes(self, baseclass):
+    def addNodes(self, baseclass, fname):
         #
         # start with all non-meshes using extra buffers (so skeleton with restmatrix etc.)
         #
         # add the basemesh itself, the other nodes will be children
         # here one node will always have one mesh
         #
+
+        # generate name for 'root-object' (skeleton)
+        #
+        self.rootname = self.nodeName(fname)
+        print (self.rootname)
 
         # in case of onground we need a translation
         #
@@ -361,10 +380,13 @@ class blendCom:
         # add skeleton, if available
         #
         if baseweights is not None:
-            if self.scale != 1.0 or self.onground:
+
+            # rescaling produces a new skeleton, on ground is done by changing bone positions
+            #
+            if self.scale != 1.0:
                 print ("get a new skeleton")
                 skeleton = newSkeleton(self.glob, "copy")
-                skeleton.copyScaled(baseclass.skeleton, self.scale, self.lowestPos)
+                skeleton.copyScaled(baseclass.skeleton, self.scale, 0.0)
             else:
                 skeleton = baseclass.skeleton
 
@@ -391,7 +413,7 @@ class blendCom:
 
         mesh = self.addMesh(baseobject, mat, baseweights)
 
-        self.json["nodes"].append({"name": self.nodeName(baseobject.filename), "mesh": mesh,  "children": []  })
+        self.json["nodes"].append({"name": self.nodeName(baseobject.filename, True), "mesh": mesh,  "children": []  })
         self.json["asset"]["nodes"].append(0)
         children = self.json["nodes"][0]["children"]
 
@@ -407,7 +429,7 @@ class blendCom:
             else:
                 weights = None
             mesh = self.addMesh(elem.obj, mat, weights)
-            self.json["nodes"].append({"name": self.nodeName(elem.filename), "mesh": mesh })
+            self.json["nodes"].append({"name": self.nodeName(elem.filename, True), "mesh": mesh })
             children.append(childnum)
             childnum += 1
 
@@ -427,7 +449,7 @@ class blendCom:
         # BIN chunk:
         # chunklength 4 Byte, chunk type JSON, chunkData (4 Byte boundaries, padding)
         self.env.last_error ="okay"
-        if self.addNodes(baseclass) is False:
+        if self.addNodes(baseclass, filename) is False:
             return False
 
         version = struct.pack('<I', self.MH2B_VERSION)

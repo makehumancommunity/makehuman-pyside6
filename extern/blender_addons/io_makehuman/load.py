@@ -38,110 +38,100 @@ class MH2B_OT_Loader:
         return (self.collection )
 
     def getBuffers(self, jdata, attrib, fp):
-        pos  = attrib['POSITION']
-        vpf  = attrib['VPF']
-        face = attrib['FACE']
-        uv   = attrib['TEXCOORD_0']
-        buffers = [
-                { "type": "P", "start": jdata["bufferViews"][pos]["byteOffset"], "len": jdata["bufferViews"][pos]["byteLength"] },
-                { "type": "V", "start": jdata["bufferViews"][vpf]["byteOffset"], "len": jdata["bufferViews"][vpf]["byteLength"] },
-                { "type": "F", "start": jdata["bufferViews"][face]["byteOffset"], "len": jdata["bufferViews"][face]["byteLength"] },
-                { "type": "U", "start": jdata["bufferViews"][uv]["byteOffset"], "len": jdata["bufferViews"][uv]["byteLength"] }
-                 ]
+        """
+        get all data from buffers
+        * sort buffers first to be able to read them without seeking
+        * control the buffers
+        * read and prepare faces, uvs
+        * return all parameters
+        """
 
-        if "OVERFLOW" in attrib:
-            ov   = attrib['OVERFLOW']
-            buffers.append ({ "type": "O", "start": jdata["bufferViews"][ov]["byteOffset"], "len": jdata["bufferViews"][ov]["byteLength"] })
+        binfo = []
+        names  = ['FACE', 'JOINTS', 'OVERFLOW', 'POSITION', 'TEXCOORD_0', 'VPF', 'WEIGHTS', 'WPV' ]
+        for name in names:
+            if name in attrib:
+                item = attrib[name]
+                binfo.append((name, jdata["bufferViews"][item]["byteOffset"], jdata["bufferViews"][item]["byteLength"]))
 
-        if "WPF" in attrib:
-            wpf = attrib["WPF"]
-            buffers.append ({ "type": "N", "start": jdata["bufferViews"][wpf]["byteOffset"], "len": jdata["bufferViews"][wpf]["byteLength"] })
+        binfo.sort(key=lambda tup: tup[1])  # sort by byteoffset
 
-        if "JOINTS" in attrib:
-            jo = attrib["JOINTS"]
-            buffers.append ({ "type": "J", "start": jdata["bufferViews"][jo]["byteOffset"], "len": jdata["bufferViews"][jo]["byteLength"] })
-
-        if "WEIGHTS" in attrib:
-            we = attrib["WEIGHTS"]
-            buffers.append ({ "type": "W", "start": jdata["bufferViews"][we]["byteOffset"], "len": jdata["bufferViews"][we]["byteLength"] })
-
-        bufs = len(buffers)
-        # TODO: find less stupid method
-        #
-        for cnt in range(0,bufs):
-            for elem in range(0,bufs):
-                if buffers[elem]["start"] == self.bufferoffset:
-                    length = buffers[elem]["len"]
-                    print (buffers[elem]["type"] + " need to read " + str(length) + " bytes")
-                    buffers[elem]["data"] = fp.read(length)
-                    self.bufferoffset += length
-                    break
+        # now test if we have gaps
+        name, lastpos, lastlen  = binfo[0]
+        newpos = lastpos + lastlen
+        for name, pos, length in binfo[1:]:
+            if pos != newpos:
+                return (None)
+            newpos = pos + length
 
         overflow = {}
 
-        wpf     = []
+        faces   = []
         joints  = []
+        pos     = []
+        texco   = []
+        vpf     = []
         weights = []
+        wpv     = []
 
-        # now the conversions will be done (replacement)
-        for cnt in range(0,bufs):
-            t = buffers[cnt]["type"]
-            b = []
-            if t == "P":
-                m = struct.iter_unpack('<fff',  buffers[cnt]["data"])
+        for name, start, length in binfo:
+            print ("read " + str(length) + " bytes for " + name)
+            buf = fp.read(length)
+            self.bufferoffset += length
+            if name == 'FACE':
+                m = struct.iter_unpack('<i',  buf)
                 for l in m:
-                    b.append((l[0], -l[2], l[1]))
-                buffers[cnt]["data"] = b
-            elif t == "U":
-                m = struct.iter_unpack('<ff',  buffers[cnt]["data"])
-                for l in m:
-                    b.append(l)
-                buffers[cnt]["data"] = b
-            elif t == "V":
-                m = struct.iter_unpack('<B',  buffers[cnt]["data"])
-                for l in m:
-                    b.append(l)
-                buffers[cnt]["data"] = b
-            elif  t == "F":
-                m = struct.iter_unpack('<i',  buffers[cnt]["data"])
-                for l in m:
-                    b.append(l)
-                buffers[cnt]["data"] = b
-            elif  t == "N":
-                m = struct.iter_unpack('<B',  buffers[cnt]["data"])
-                for l in m:
-                    wpf.append(l[0])
-                buffers[cnt]["data"] = wpf
-            elif  t == "J":
-                m = struct.iter_unpack('<i',  buffers[cnt]["data"])
+                    faces.append(l)
+
+            elif name == 'JOINTS':
+                m = struct.iter_unpack('<i',  buf)
                 for l in m:
                     joints.append(l[0])
-                buffers[cnt]["data"] = joints
-            elif  t == "W":
-                m = struct.iter_unpack('<f',  buffers[cnt]["data"])
-                for l in m:
-                    weights.append(l[0])
-                buffers[cnt]["data"] = weights
-            else:
-                m = struct.iter_unpack('<ii',  buffers[cnt]["data"])
+
+            elif name == 'OVERFLOW':
+                m = struct.iter_unpack('<ii',  buf)
                 for l in m:
                     overflow[l[1]] = l[0]
 
+            elif name == 'POSITION':
+                m = struct.iter_unpack('<fff',  buf)
+                for l in m:
+                    pos.append((l[0], -l[2], l[1]))
+
+            elif name == 'TEXCOORD_0':
+                m = struct.iter_unpack('<ff',  buf)
+                for l in m:
+                    texco.append(l)
+
+            elif name == 'VPF':
+                m = struct.iter_unpack('<B',  buf)
+                for l in m:
+                    vpf.append(l)
+
+            elif name == 'WEIGHTS':
+                m = struct.iter_unpack('<f',  buf)
+                for l in m:
+                    weights.append(l[0])
+
+            else:   # WPV
+                m = struct.iter_unpack('<B',  buf)
+                for l in m:
+                    wpv.append(l[0])
+
         print ("calculate faces and uvs")
-        b = []
-        uv = []
-        maxp =  len(buffers[0]["data"])
-        vpb = buffers[1]["data"]
-        face = buffers[2]["data"]
+
+        maxp =  len(pos)
+
+        bfaces = []
+        ufaces = []
 
         n = 0
-        for nfaces in vpb:
+        for nfaces in vpf:
             l = nfaces[0]
             c = []
             u = []
             faceok = True
             for i in range(0,l):
-                v = face[n][0]
+                v = faces[n][0]
                 n += 1
                 u.append(v)
                 if v in overflow:
@@ -150,13 +140,13 @@ class MH2B_OT_Loader:
                     faceok = False
                 c.append(v)
             if faceok:
-                b.append(tuple(c))
-                uv.append(tuple(u))
+                bfaces.append(tuple(c))
+                ufaces.append(tuple(u))
 
-        bufarr = [buffers[0]["data"], b, buffers[3]["data"], uv, wpf, joints, weights]
+        bufarr = [pos, bfaces, texco, ufaces, wpv, joints, weights]
         return (bufarr)
     
-    def createVGroups(self, ob, wpf, joints, weights):
+    def createVGroups(self, ob, wpv, joints, weights):
         bonenums = {}
         vgroups = []
         for l in joints:
@@ -171,7 +161,7 @@ class MH2B_OT_Loader:
                 
 
         i = 0
-        for vn, cnt in enumerate(wpf):
+        for vn, cnt in enumerate(wpv):
             for l in range(0, cnt):
                 jnum = joints[i]
                 weight = weights[i]
@@ -183,7 +173,11 @@ class MH2B_OT_Loader:
 
         m = jdata["meshes"][num]["primitives"][0]   # only one primitive
         attributes = m["attributes"]
-        (coords, faces, uvdata, uvfaces, wpf, joints, weights)  = self.getBuffers(jdata, attributes, fp)
+        result = self.getBuffers(jdata, attributes, fp)
+        if result is None:
+            return None
+            
+        (coords, faces, uvdata, uvfaces, wpv, joints, weights)  = result
 
         mesh = bpy.data.meshes.new(name)
         nobject = bpy.data.objects.new(name, mesh)
@@ -201,7 +195,7 @@ class MH2B_OT_Loader:
         #
         if self.skeleton:
             print ("Create a skeleton")
-            self.createVGroups(nobject, wpf, joints, weights)
+            self.createVGroups(nobject, wpv, joints, weights)
             mod = nobject.modifiers.new('ARMATURE', 'ARMATURE')
             mod.use_vertex_groups = True
             mod.use_bone_envelopes = False
@@ -312,7 +306,18 @@ class MH2B_OT_Loader:
 
         for elem in nodes:
             mesh = self.getMesh(jdata, elem[0], elem[1], fp, dirname)
+            if mesh is None:
+                return False
             self.collection.objects.link(mesh)
+            if self.skeleton:
+                mesh.parent = self.skeleton
+                mesh.lock_location = (True,True,True)
+                mesh.lock_rotation = (True,True,True)
+                mesh.lock_scale = (True,True,True)
+
+        return True
+
+
 
     def loadMH2B(self, props):
         with open(props.filepath, 'rb') as f:
@@ -354,8 +359,9 @@ class MH2B_OT_Loader:
                 return(False, "bad binary header")
 
             self.createCollection(jdata)
-            self.createObjects(jdata, f, os.path.dirname(props.filepath))
-
+            if not self.createObjects(jdata, f, os.path.dirname(props.filepath)):
+                f.close()
+                return (False, "bad file structure")
 
         return (True, "okay")
 
