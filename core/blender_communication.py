@@ -373,13 +373,15 @@ class blendCom:
         if self.onground:
             self.lowestPos = baseclass.getLowestPos() * self.scale
 
-        # use baseweights as a hint for having a skeleton
-        #
-        baseweights = baseclass.skeleton.bWeights.bWeights if baseclass.skeleton is not None else None
+        baseweights = None
 
         # add skeleton, if available
         #
-        if baseweights is not None:
+        if baseclass.skeleton is not None:
+
+            # recalculate weights for different skeleton
+            #
+            baseweights =  baseclass.default_skeleton.bWeights.transferWeights(baseclass.skeleton)
 
             # rescaling produces a new skeleton, on ground is done by changing bone positions
             #

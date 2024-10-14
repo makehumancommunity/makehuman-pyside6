@@ -203,10 +203,11 @@ class cBone():
 
 
 class boneWeights():
-    def __init__(self, glob, root, mesh):
+    def __init__(self, glob, default_skeleton, mesh):
         self.glob = glob
         self.env  = glob.env
-        self.root = root
+        self.default_skeleton = default_skeleton
+        self.root = default_skeleton.root
         self.bWeights = {}
         self.mesh = mesh
 
@@ -216,16 +217,15 @@ class boneWeights():
         # calculate sums to normalize weights
         #
         wtot = np.zeros(cnt, np.float32)
-        for bone in wdict:
-            g = wdict[bone]
+
+        for bone, g in wdict.items():
             for item in g:
                 vn,w = item
                 wtot[vn] += w
 
         # calculate weights
         #
-        for bone in wdict:
-            g = wdict[bone]
+        for bone, g in wdict.items():
             if len(g) == 0:
                 continue
             verts = []
@@ -271,13 +271,14 @@ class boneWeights():
         if len(vs) > 0:
             self.bWeights[self.root] = (np.asarray(vs, dtype=np.uint32), np.asarray(ws, dtype=np.float32))
 
-    def deDuplicateWeights(self):
+    def deDuplicateWeights(self, weights):
         """
         for assets weights are calculated using 3 values from the base mesh, this means that values are used multiple times
         the skinning algorithm expects them once. This procedure is doing that by using np.unique to get occurences
         """
-        for bone in self.bWeights:
-            v, w = self.bWeights[bone]
+
+        for bone in weights:
+            v, w = weights[bone]
             m, ind = np.unique(v, return_index=True)
             m, cnt = np.unique(v, return_counts=True)
 
@@ -293,7 +294,9 @@ class boneWeights():
                     sumw +=  w[pos+l]
                 sumweights[i] = sumw
                 i+=1
-            self.bWeights[bone] = (m, sumweights)
+            weights[bone] = (m, sumweights)
+
+        return weights
 
 
     def approxWeights(self, asset, base):
@@ -334,8 +337,42 @@ class boneWeights():
 
         # since the algorithm above also creates multiple values for one index it must be changed to unique
         #
-        self.deDuplicateWeights()
+        self.bWeights = self.deDuplicateWeights(self.bWeights)
 
+    def transferWeights(self, customskeleton):
+
+        # in case skeleton is default skeleton, do nothing
+        #
+        if customskeleton is self.default_skeleton:
+            print ("no transfer, default skeleton")
+            return self.bWeights
+
+        weights = {}
+        print ("is a different skeleton")
+        print (self.default_skeleton.name)
+        print (customskeleton.name)
+        for bone, b in customskeleton.bones.items():
+
+            # if bone is found in default, test "weights_reference"
+            # if available sum these up to one bone
+            # otherwise simply "copy" the weights
+            #
+            if bone in self.bWeights:
+                if b.weightref is not None and len(b.weightref) > 0:
+                    bonegroup = []
+                    for  elem in b.weightref:
+                        if elem in  self.bWeights:
+                            bonegroup.append(elem)
+                    vn =  np.concatenate((tuple(self.bWeights[elem][0] for elem in bonegroup)), axis=0)
+                    w  =  np.concatenate((tuple(self.bWeights[elem][1] for elem in bonegroup)), axis=0)
+                    weights[bone] = (vn, w)
+                else:
+                    weights[bone] = self.bWeights[bone]
+
+            #print (b.reference) # array
+        weights = self.deDuplicateWeights(weights)
+
+        return weights
 
     def loadJSON(self, path):
         json = self.env.readJSON(path)

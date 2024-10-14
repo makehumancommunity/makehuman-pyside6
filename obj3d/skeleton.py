@@ -93,7 +93,7 @@ class skeleton:
             self.env.logLine(1, "Missing weight file " + weightname)
             return False
 
-        self.bWeights = boneWeights(self.glob, self.root, self.mesh)
+        self.bWeights = boneWeights(self.glob, self, self.mesh)
         self.bWeights.loadJSON(weightfile)
 
         # array with ordered bones

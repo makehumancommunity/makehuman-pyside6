@@ -50,6 +50,7 @@ class baseClass():
         self.env.basename = name
         self.name = name                # will hold the character name
         self.pose_skeleton = None
+        self.default_skeleton = None
         self.reset()
         memInfo()
 
@@ -558,6 +559,7 @@ class baseClass():
             if self.pose_skelpath is not None:
                 self.pose_skeleton = skeleton(self.glob, skelname)
                 self.pose_skeleton.loadJSON(self.pose_skelpath)
+                self.default_skeleton = self.pose_skeleton
 
         # set here or/and in mhm
         #

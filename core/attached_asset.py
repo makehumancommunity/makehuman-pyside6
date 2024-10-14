@@ -317,7 +317,7 @@ class attachedAsset:
         calculateBoneWeights either import weight from file or calculates weights for
         assets via pose_skeleton weights
         """
-        self.bWeights = boneWeights(self.glob, self.glob.baseClass.pose_skeleton.root, self.obj)
+        self.bWeights = boneWeights(self.glob, self.glob.baseClass.default_skeleton, self.obj)
 
         if self.vertexboneweights_file is not None:
             weightfile =  os.path.normpath(os.path.join(os.path.dirname(self.obj_file), self.vertexboneweights_file))
