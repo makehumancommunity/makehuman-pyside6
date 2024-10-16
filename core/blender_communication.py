@@ -403,7 +403,7 @@ class blendCom:
             proxy = baseclass.attachedAssets[0]
             if baseweights is not None:
                 proxy.calculateBoneWeights()
-                baseweights = proxy.bWeights.bWeights
+                baseweights = proxy.bWeights.transferWeights(baseclass.skeleton)
                 baseobject = proxy.obj
             start = 1
         else:
@@ -427,7 +427,7 @@ class blendCom:
                 return (False)
             if baseweights is not None:
                 elem.calculateBoneWeights()
-                weights = elem.bWeights.bWeights
+                weights = elem.bWeights.transferWeights(baseclass.skeleton)
             else:
                 weights = None
             mesh = self.addMesh(elem.obj, mat, weights)

@@ -348,6 +348,8 @@ class boneWeights():
             return self.bWeights
 
         weights = {}
+        bonesref = {}
+
         print ("is a different skeleton")
         print (self.default_skeleton.name)
         print (customskeleton.name)
@@ -356,20 +358,71 @@ class boneWeights():
             # if bone is found in default, test "weights_reference"
             # if available sum these up to one bone
             # otherwise simply "copy" the weights
+            # it is possible to define the same name for another bone
+            # but in this case reference must have 0 elements
             #
-            if bone in self.bWeights:
+            if b.weightref is not None and len(b.weightref) > 0:
+                 for  elem in b.weightref:
+                     bonesref[elem] = bone
+            else:
+                bonesref[bone] = bone
+            for elem in b.reference:
+                bonesref[elem] = bone
+
+            if bone in self.bWeights and len(b.reference) == 0:
                 if b.weightref is not None and len(b.weightref) > 0:
                     bonegroup = []
                     for  elem in b.weightref:
                         if elem in  self.bWeights:
                             bonegroup.append(elem)
-                    vn =  np.concatenate((tuple(self.bWeights[elem][0] for elem in bonegroup)), axis=0)
-                    w  =  np.concatenate((tuple(self.bWeights[elem][1] for elem in bonegroup)), axis=0)
-                    weights[bone] = (vn, w)
+                    if len(bonegroup) > 0:
+                        vn =  np.concatenate((tuple(self.bWeights[elem][0] for elem in bonegroup)), axis=0)
+                        w  =  np.concatenate((tuple(self.bWeights[elem][1] for elem in bonegroup)), axis=0)
+                        weights[bone] = (vn, w)
                 else:
                     weights[bone] = self.bWeights[bone]
 
-            #print (b.reference) # array
+            else:
+                print (b.name, b.reference) # array
+                bonegroup = []
+                for  elem in b.reference:
+                    if elem in  self.bWeights:
+                        bonegroup.append(elem)
+
+                if b.weightref is not None and len(b.weightref) > 0:
+                    for  elem in b.weightref:
+                        if elem in  self.bWeights and elem not in bonegroup:
+                            bonegroup.append(elem)
+                print (bonegroup) # array
+                if len(bonegroup) > 0:
+                    vn =  np.concatenate((tuple(self.bWeights[elem][0] for elem in bonegroup)), axis=0)
+                    w  =  np.concatenate((tuple(self.bWeights[elem][1] for elem in bonegroup)), axis=0)
+                    weights[bone] = (vn, w)
+
+        # distribute missing vertices
+        #
+        for bone in self.bWeights:
+            if bone not in bonesref:
+                print (bone + ": no reference found")
+                nbone = self.default_skeleton.bones[bone]
+                while nbone.parent is not None:
+                    nbone = nbone.parent
+                    if nbone.name in bonesref:
+                        dest = bonesref[nbone.name]
+                        if dest in weights:
+                            print (bone + ": parent chain reference: " + nbone.name + " should be appended to " + dest)
+                            vn =  np.concatenate((self.bWeights[bone][0], weights[dest][0] ), axis=0)
+                            w  =  np.concatenate((self.bWeights[bone][1], weights[dest][1] ), axis=0)
+                        else:
+                            print (bone + ": parent chain reference: " + nbone.name + " should be created as " + dest)
+                            vn =  self.bWeights[bone][0]
+                            w  =  self.bWeights[bone][1]
+
+                        weights[dest] = (vn, w)
+                        break
+            else:
+                print (bone + ": " + bonesref[bone])
+
         weights = self.deDuplicateWeights(weights)
 
         return weights
