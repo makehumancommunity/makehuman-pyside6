@@ -137,7 +137,7 @@ class blendCom:
         return(self.addBufferView(self.VPF_BUFFER, data))
 
     def copyImage(self, source, dest):
-        print ("Need to copy " + source + " to " + dest)
+        self.env.logLine (8, "Copy " + source + " to " + dest)
 
         if self.env.mkdir(dest) is False:
             return False
@@ -250,7 +250,6 @@ class blendCom:
         return (self.material_cnt)
 
     def addWeightBuffers(self, coords, bweights):
-        print ("We have weights")
         wpvlen = len(coords) // 3   # length of vertex per face derived from flattened coords
 
         lsize = 0
@@ -269,8 +268,8 @@ class blendCom:
                     vertex[i].append((bonenumber, w[n]))
                     lsize += 1
 
-        print ("Verts:" + str(wpvlen))
-        print ("Weight array:" + str(lsize))
+        #print ("Verts:" + str(wpvlen))
+        #print ("Weight array:" + str(lsize))
         weightpervertex = np.zeros(wpvlen, dtype=np.dtype('i1'))
         joints =  np.zeros(lsize, dtype=np.dtype('i4'))
         weights = np.zeros(lsize, dtype=np.float32)
@@ -366,7 +365,7 @@ class blendCom:
         # generate name for 'root-object' (skeleton)
         #
         self.rootname = self.nodeName(fname)
-        print (self.rootname)
+        #print (self.rootname)
 
         # in case of onground we need a translation
         #
@@ -386,7 +385,7 @@ class blendCom:
             # rescaling produces a new skeleton, on ground is done by changing bone positions
             #
             if self.scale != 1.0:
-                print ("get a new skeleton")
+                #print ("get a new skeleton")
                 skeleton = newSkeleton(self.glob, "copy")
                 skeleton.copyScaled(baseclass.skeleton, self.scale, 0.0)
             else:
@@ -438,7 +437,7 @@ class blendCom:
         # now insert correct lenght of available buffers
         #
         self.json["asset"]["buffersize"] =  self.bufferoffset
-        print (self)
+        self.env.logLine(32, self)
         return (True)
 
 
@@ -468,7 +467,6 @@ class blendCom:
         lenjson = len(jsondata)
         length += (8 + lenjson) # add header + json-blob to length
         chunkjsonlen = struct.pack('<I', lenjson)
-        #print (jsondata)
 
         # now the binary buffer. try to work with pointers here
         # the number of maximum used data is in bufferoffset

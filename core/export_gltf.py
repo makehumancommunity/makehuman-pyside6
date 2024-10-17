@@ -211,8 +211,7 @@ class gltfExport:
 
         vertex = {}
 
-        # print (bweights)
-        print ("Verts:" + str(numverts))
+        #print ("Verts:" + str(numverts))
         maxv = 0
         for elem in bweights:
             print (self.bonenames[elem][0])
@@ -226,7 +225,7 @@ class gltfExport:
                 if i not in vertex:
                     vertex[i] = []
                 vertex[i].append((bonenumber, w[n]))
-        print ("Maxv:" + str(maxv))
+        #print ("Maxv:" + str(maxv))
 
         for v in vertex:
             m = vertex[v]
@@ -257,7 +256,7 @@ class gltfExport:
 
 
     def copyImage(self, source, dest):
-        print ("Need to copy " + source + " to " + dest)
+        self.env.logLine (8, "Need to copy " + source + " to " + dest)
 
         if self.env.mkdir(dest) is False:
             return False
@@ -374,8 +373,6 @@ class gltfExport:
         icoord = None
         if self.hiddenverts is False:
             icoord, coord, uvcoord, norm, nweights, overflow = obj.optimizeHiddenMesh(bweights)
-            if icoord is None:
-                print ("Not hidden")
 
         self.mesh_cnt += 1
         if icoord is not None:
@@ -398,7 +395,6 @@ class gltfExport:
         print ("Adding weights to " +  str(self.json["nodes"][num]) )
         meshnum = self.json["nodes"][num]["mesh"]
         if elem is not None:
-            print (meshnum)
             ( numverts, weights, overflow) = self.meshindices[meshnum]
             weightbuf = self.addJointAndWeightAccessor(numverts, weights, overflow)
             jointbuf = weightbuf -1
@@ -440,7 +436,16 @@ class gltfExport:
         # here one node will always have one mesh
         #
         skin = baseclass.baseMesh.material
-        baseweights = baseclass.skeleton.bWeights.bWeights if baseclass.skeleton is not None else None
+
+        baseweights = None
+
+
+        if baseclass.skeleton is not None:
+
+            # recalculate weights for different skeleton
+            #
+            baseweights =  baseclass.default_skeleton.bWeights.transferWeights(baseclass.skeleton)
+
 
         # in case of a proxy use the proxy as first mesh, get weights for proxy
         #
@@ -448,7 +453,7 @@ class gltfExport:
             proxy = baseclass.attachedAssets[0]
             if baseweights is not None:
                 proxy.calculateBoneWeights()
-                baseweights = proxy.bWeights.bWeights
+                baseweights = proxy.bWeights.transferWeights(baseclass.skeleton)
                 baseobject = proxy.obj
             start = 1
         else:
@@ -502,7 +507,8 @@ class gltfExport:
             mat =  self.addMaterial(elem.obj.material)
             if mat == -1:
                 return (False)
-            mesh = self.addMesh(elem.obj, mat, elem.bWeights.bWeights)
+            weights = elem.bWeights.transferWeights(baseclass.skeleton) if baseweights is not None else None
+            mesh = self.addMesh(elem.obj, mat, weights)
             self.json["nodes"].append({"name": self.nodeName(elem.filename), "mesh": mesh })
             children.append(childnum)
             if baseweights is not None:
@@ -512,7 +518,7 @@ class gltfExport:
             childnum += 1
 
         self.json["buffers"].append({"byteLength": self.bufferoffset})
-        print (self)
+        self.env.logLine(32, self)
         return (True)
 
 
@@ -544,7 +550,6 @@ class gltfExport:
         lenjson = len(jsondata)
         length += (8 + lenjson) # add header + json-blob to length
         chunkjsonlen = struct.pack('<I', lenjson)
-        #print (jsondata)
 
         # now the binary buffer. try to work with pointers here
         # the number of maximum used data is in bufferoffset

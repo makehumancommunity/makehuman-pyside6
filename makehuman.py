@@ -40,7 +40,8 @@ def main():
             2 mid log level
             4 memory management
             8 file access
-            16 enable numpy runtime error messages'''))
+            16 enable numpy runtime error messages
+            32 JSON for e.g glTF'''))
 
     args = parser.parse_args()
 

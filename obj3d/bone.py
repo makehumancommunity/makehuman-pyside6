@@ -271,8 +271,22 @@ class boneWeights():
         if len(vs) > 0:
             self.bWeights[self.root] = (np.asarray(vs, dtype=np.uint32), np.asarray(ws, dtype=np.float32))
 
+    def sortWeights(self, weights):
+        """
+        when using a custom skeleton, one bone may contain more than one bone of the
+        default skeleton, call sortWeights, since deduplication is only working on sorted arrays
+        """
+        for bone in weights:
+            v, w = weights[bone]
+            i_s = np.argsort(v)
+            v = v[i_s]
+            w = w[i_s]
+            weights[bone] = (v,w)
+        return weights
+
     def deDuplicateWeights(self, weights):
         """
+        weight arrays must be sorted
         for assets weights are calculated using 3 values from the base mesh, this means that values are used multiple times
         the skinning algorithm expects them once. This procedure is doing that by using np.unique to get occurences
         """
@@ -347,19 +361,15 @@ class boneWeights():
             print ("no transfer, default skeleton")
             return self.bWeights
 
-        weights = {}
-        bonesref = {}
+        weights = {}    # new weights
+        bonesref = {}   # contains all bones referenced by custom skeleton
 
         print ("is a different skeleton")
         print (self.default_skeleton.name)
         print (customskeleton.name)
         for bone, b in customskeleton.bones.items():
 
-            # if bone is found in default, test "weights_reference"
-            # if available sum these up to one bone
-            # otherwise simply "copy" the weights
-            # it is possible to define the same name for another bone
-            # but in this case reference must have 0 elements
+            # first collect which bones of standard-skeleton  are referenced by this bone
             #
             if b.weightref is not None and len(b.weightref) > 0:
                  for  elem in b.weightref:
@@ -368,6 +378,13 @@ class boneWeights():
                 bonesref[bone] = bone
             for elem in b.reference:
                 bonesref[elem] = bone
+
+            # if bone is found in default, test "weights_reference"
+            # if available sum these up to one bone
+            # otherwise simply "copy" the weights
+            # it is possible to define the same name for another bone
+            # but in this case reference must have 0 elements
+            #
 
             if bone in self.bWeights and len(b.reference) == 0:
                 if b.weightref is not None and len(b.weightref) > 0:
@@ -383,7 +400,7 @@ class boneWeights():
                     weights[bone] = self.bWeights[bone]
 
             else:
-                print (b.name, b.reference) # array
+                # print (b.name, b.reference) # array
                 bonegroup = []
                 for  elem in b.reference:
                     if elem in  self.bWeights:
@@ -393,7 +410,6 @@ class boneWeights():
                     for  elem in b.weightref:
                         if elem in  self.bWeights and elem not in bonegroup:
                             bonegroup.append(elem)
-                print (bonegroup) # array
                 if len(bonegroup) > 0:
                     vn =  np.concatenate((tuple(self.bWeights[elem][0] for elem in bonegroup)), axis=0)
                     w  =  np.concatenate((tuple(self.bWeights[elem][1] for elem in bonegroup)), axis=0)
@@ -403,26 +419,26 @@ class boneWeights():
         #
         for bone in self.bWeights:
             if bone not in bonesref:
-                print (bone + ": no reference found")
                 nbone = self.default_skeleton.bones[bone]
                 while nbone.parent is not None:
                     nbone = nbone.parent
                     if nbone.name in bonesref:
                         dest = bonesref[nbone.name]
                         if dest in weights:
-                            print (bone + ": parent chain reference: " + nbone.name + " should be appended to " + dest)
+                            self.env.logLine(2, bone + ": parent chain reference: " + nbone.name + " should be appended to " + dest)
                             vn =  np.concatenate((self.bWeights[bone][0], weights[dest][0] ), axis=0)
                             w  =  np.concatenate((self.bWeights[bone][1], weights[dest][1] ), axis=0)
                         else:
-                            print (bone + ": parent chain reference: " + nbone.name + " should be created as " + dest)
+                            self.env.logLine(2, bone + ": parent chain reference: " + nbone.name + " should be created as " + dest)
                             vn =  self.bWeights[bone][0]
                             w  =  self.bWeights[bone][1]
 
                         weights[dest] = (vn, w)
                         break
             else:
-                print (bone + ": " + bonesref[bone])
+                self.env.logLine(2, bone + ": " + bonesref[bone])
 
+        weights = self.sortWeights(weights)
         weights = self.deDuplicateWeights(weights)
 
         return weights
