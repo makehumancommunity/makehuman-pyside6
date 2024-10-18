@@ -65,7 +65,6 @@ class object3d:
                 str(self.n_origverts) + " vertices, " + str(self.n_faces) + " faces (" +
                 str(self.n_fuvs) + " uv-faces)\nOpenGL triangles: " +
                 str(self.prim) + "\nOpenGL DrawElements: " + str(self.n_verts)) 
-                #+ "\nMaximum attached faces for one vertex: " + str(self.maxAttachedFaces))
 
     def load(self, path, use_obj=False):
         """
@@ -816,14 +815,16 @@ class object3d:
     def getHeightInUnits(self):
         return (self.gl_coord[self.max_index[1]*3+1]-self.gl_coord[self.min_index[1]*3+1])
 
-    """
-    def calculateMaxAttachedFaces(self):
-        attachedFaces = np.zeros(self.n_verts, dtype=np.uint8)
-        for elem in faceverts:
+    def calculateAttachedFaces(self, faces):
+        attachedFaces = {}
+        for i, elem in enumerate(faces):
             for vert in elem:
-                attachedFaces[vert] += 1
+                if vert not in attachedFaces:
+                    attachedFaces[vert] = [i]
+                else:
+                    attachedFaces[vert].append(i)
 
-        self.maxAttachedFaces  = np.max(attachedFaces)
-    """
+        return (attachedFaces)
+
     def __del__(self):
         self.env.logLine (4, " -- delete object3d: " + str(self.name))

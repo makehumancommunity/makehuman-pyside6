@@ -5,6 +5,7 @@ from gui.common import IconButton, MHFileRequest
 from gui.slider import SimpleSlider
 
 from opengl.buffers import PixelBuffer
+from core.loopapproximation import LoopApproximation
 
 import os
 
@@ -24,6 +25,7 @@ class Renderer(QVBoxLayout):
 
         self.image = None
         self.transparent = False
+        self.subdiv = False
 
         glayout = QGridLayout()
         glayout.addWidget(QLabel("Width"), 0, 0)
@@ -41,6 +43,11 @@ class Renderer(QVBoxLayout):
         self.transButton.setLayoutDirection(Qt.LeftToRight)
         self.transButton.toggled.connect(self.changeTransparency)
         self.addWidget(self.transButton)
+
+        self.subdivButton = QCheckBox("smooth mesh")
+        self.subdivButton.setLayoutDirection(Qt.LeftToRight)
+        self.subdivButton.toggled.connect(self.smoothMesh)
+        self.addWidget(self.subdivButton)
 
         if self.anim:
             self.posed = True
@@ -101,6 +108,9 @@ class Renderer(QVBoxLayout):
     def changeTransparency(self, param):
         self.transparent = param
 
+    def smoothMesh(self, param):
+        self.subdiv = param
+
     def changePosed(self, param):
         if self.posed:
             self.leave()
@@ -127,9 +137,21 @@ class Renderer(QVBoxLayout):
                 i = 4096
             m.setText(str(i))
 
+    def subdivideObjects(self):
+        if self.bc.proxy is None:
+            sobj = LoopApproximation(self.bc.baseMesh)
+            sobj.doCalculation()
+
+        for elem in self.glob.baseClass.attachedAssets:
+            sobj = LoopApproximation(elem.obj)
+            sobj.doCalculation()
+
     def render(self):
         width  = int(self.width.text())
         height = int(self.height.text())
+        if self.subdiv:
+            self.subdivideObjects()
+
         pix = PixelBuffer(self.glob, self.view, self.transparent)
         #self.glob.openGLBlock = True
         pix.getBuffer(width, height)
