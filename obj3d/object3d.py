@@ -816,6 +816,9 @@ class object3d:
         return (self.gl_coord[self.max_index[1]*3+1]-self.gl_coord[self.min_index[1]*3+1])
 
     def calculateAttachedFaces(self, faces):
+        """
+        get a dictionary of attached faces for each vertex
+        """
         attachedFaces = {}
         for i, elem in enumerate(faces):
             for vert in elem:
