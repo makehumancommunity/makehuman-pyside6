@@ -30,6 +30,7 @@ class LoopApproximation:
         self.adjacent_even = {}
         self.adjacent_odd = {}
         self.facesAttached = {}
+        self.edgesAttached = {}
 
     def createBetas(self, maxn):
         """
@@ -66,17 +67,26 @@ class LoopApproximation:
         the edge also contained. If a common edge is found and it is not the same, figure out
         the missing vertex of the neighbour triangle, set -1 for missing vertex (boundary)
         """
+
         for fIndex, face in enumerate(faceverts):
             self.adjacent_odd[fIndex] = [-1, -1, -1]
             for i in range(0,3):
                 j = (i+1) % 3               # to generate 0, 1, 2, 0
-                v1, v2 = face[i], face[j]
-                for l in self.facesAttached[v1]:
-                    if l != fIndex and l in self.facesAttached[v2]:
-                        for nv in faceverts[l]:
-                            if nv != v1 and nv != v2:
-                                self.adjacent_odd[fIndex][i] = nv
-                                break
+                if face[i] > face[j]:
+                    v1, v2 = face[j], face[i]
+                else:
+                    v1, v2 = face[i], face[j]
+
+                nface = self.edgesAttached[v1][v2][0]
+                if nface == fIndex:
+                    if self.edgesAttached[v1][v2][1] < 0:
+                        continue
+                    nface = self.edgesAttached[v1][v2][1]
+
+                for nv in faceverts[nface]:
+                    if nv != v1 and nv != v2:
+                        self.adjacent_odd[fIndex][i] = nv
+                    break
 
     def createSubTriangle(self, fIndex, verts, coords):
         """
@@ -85,41 +95,42 @@ class LoopApproximation:
         # The odd vertices are the new ones
         #
         a_odd = self.adjacent_odd[fIndex]
+        for i in range(0,3):
+            j = (i+1) % 3               # to generate 0, 1, 2, 0
+            k = (i+2) % 3
+            v1, v2, v3 = verts[i], verts[j], verts[k]
+            a, b, c = coords[v1], coords[v2], coords[v3]
 
-        a, b, c = coords[verts[0]], coords[verts[1]], coords[verts[2]]
-        if a_odd[0] != -1:
-            # not a boundary, so calculate interior vertex
-            #
-            d = coords[a_odd[0]]
-            v = 0.375 *( a + b)+  0.125 *(c + d)
-        else:
-            # calculate on boundary
-            #
-            v = 0.5 * (a + b)
-        print (v)
+            if v1 > v2:
+                v1, v2 = v2, v1
 
-        if a_odd[1] != -1:
-            d = coords[a_odd[1]]
-            v = 0.375 *(b + c)+  0.125 *(a + d)
-        else:
-            v = 0.5 * (b + c)
-        print (v)
+            if self.edgesAttached[v1][v2][2] is not None:
+                v = self.edgesAttached[v1][v2][2]
+                print (str(i) + " is already calculated as " + str(v))
+                continue
 
-        if a_odd[2] != -1:
-            d = coords[a_odd[2]]
-            v = 0.375 *(c + a)+  0.125 *(b + d)
-        else:
-            v = 0.5 * (c + a)
-        print (v)
+            if a_odd[i] != -1:
+                # not a boundary, so calculate interior vertex
+                #
+                d = coords[a_odd[0]]
+                v = 0.375 *( a + b)+  0.125 *(c + d)
+            else:
+                # calculate on boundary
+                #
+                v = 0.5 * (a + b)
+            print (v)
+            self.edgesAttached[v1][v2][2] = v
+
 
         # the even ones should replace the orignal vertices
         # (TODO: could be merged with code above, to avoid boundary if/then/else)
+        a, b, c = coords[verts[0]], coords[verts[1]], coords[verts[2]]
 
         if a_odd[0] != -1:
             adj = self.adjacent_even[verts[0]]
             k = len(adj)
             beta = self.beta[k]
-            sumk = coords[adj[0]]
+            sumk = coords[adj[0]].copy()
 
             for elem in adj[1:]:
                 sumk+=coords[elem]
@@ -132,7 +143,7 @@ class LoopApproximation:
             adj = self.adjacent_even[verts[1]]
             k = len(adj)
             beta = self.beta[k]
-            sumk = coords[adj[0]]
+            sumk = coords[adj[0]].copy()
 
             for elem in adj[1:]:
                 sumk+=coords[elem]
@@ -145,7 +156,7 @@ class LoopApproximation:
             adj = self.adjacent_even[verts[2]]
             k = len(adj)
             beta = self.beta[k]
-            sumk = coords[adj[0]]
+            sumk = coords[adj[0]].copy()
 
             for elem in adj[1:]:
                 sumk+=coords[elem]
@@ -168,9 +179,9 @@ class LoopApproximation:
         clen = len(self.obj.gl_coord) // 3
         coords = np.reshape(self.obj.gl_coord , (clen,3))
 
-        # get a dictionary of vertices with all faces attached
+        # get a dictionary of faces and edges
         #
-        self.facesAttached = self.obj.calculateAttachedFaces(faceverts)
+        self.facesAttached, self.edgesAttached = self.obj.calculateAttachedGeom(faceverts)
 
         # calculate even and odd Neighbours
         #
@@ -182,8 +193,9 @@ class LoopApproximation:
         self.createBetas(maxn)
 
         # foreach triangle now 4 triangles are created, make sure that the odd neighbors are not
-        # added twice, Test for one triangle (deduplication method NEEDED!)
-        self.createSubTriangle(0, faceverts[0], coords)
+        # added twice, Test for one triangle (deduplication for edges done, even neighbors not yet)
+        for i in range(0, 5):
+            self.createSubTriangle(i, faceverts[i], coords)
 
 
 

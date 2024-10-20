@@ -15,7 +15,6 @@ class object3d:
         self.npGrpNames = []  # ordered list of groupnames numpy format
 
         self.prim    = 0    # will contain number primitives (tris)
-        self.maxAttachedFaces  = 0 # will contain "maxpole"
         self.n_origverts = 0 # number of vertices after loading
         self.n_verts = 0    # number of vertices
         self.n_faces = 0    # number of faces
@@ -815,19 +814,36 @@ class object3d:
     def getHeightInUnits(self):
         return (self.gl_coord[self.max_index[1]*3+1]-self.gl_coord[self.min_index[1]*3+1])
 
-    def calculateAttachedFaces(self, faces):
+    def calculateAttachedGeom(self, faces):
         """
-        get a dictionary of attached faces for each vertex
+        get a dictionary of attached facenumbers and edgenumbers per vertex
         """
         attachedFaces = {}
-        for i, elem in enumerate(faces):
-            for vert in elem:
-                if vert not in attachedFaces:
-                    attachedFaces[vert] = [i]
-                else:
-                    attachedFaces[vert].append(i)
+        attachedEdges = {}
+        for fn, verts in enumerate(faces):
+            for i in range(0,3):
+                j = (i+1) % 3               # to generate 0, 1, 2, 0
+                v = verts[i]
 
-        return (attachedFaces)
+                if v not in attachedFaces:      # create face dictionary
+                    attachedFaces[v] = [fn]
+                else:
+                    attachedFaces[v].append(fn)
+
+                if v > verts[j]:
+                    v1, v2 = verts[j], v
+                else:
+                    v1, v2 = v, verts[j]
+
+                if v1 not in attachedEdges:     # create edge dictionary
+                    attachedEdges[v1] = {}
+                if v2 not in attachedEdges[v1]:
+                    attachedEdges[v1][v2] = [fn, -1, None] # None will hold the future coordinates
+                else:
+                    attachedEdges[v1][v2][1] = fn
+
+        return attachedFaces, attachedEdges
+
 
     def __del__(self):
         self.env.logLine (4, " -- delete object3d: " + str(self.name))
