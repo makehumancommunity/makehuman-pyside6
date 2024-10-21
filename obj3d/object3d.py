@@ -415,7 +415,6 @@ class object3d:
         #del self.uvs           # save memory
         #del self.fvert
 
-        #self.calculateMaxAttachedFaces()
         self.calcNormals()
 
     def getPosition(self, num):

@@ -31,6 +31,9 @@ class LoopApproximation:
         self.adjacent_odd = {}
         self.facesAttached = {}
         self.edgesAttached = {}
+        self.evenVertsNew = None        # array filled with -1 at start, later contains position of newly created vertex
+        self.ncoords = None             # new coordinates
+        self.ncount  = 0                # counter for new coordinates
 
     def createBetas(self, maxn):
         """
@@ -90,7 +93,8 @@ class LoopApproximation:
 
     def createSubTriangle(self, fIndex, verts, coords):
         """
-        calculate the triangle sequence
+        calculate 4 sub triangles (atm only vertices)
+        (coords array like in object3d.py)
         """
         # The odd vertices are the new ones
         #
@@ -118,66 +122,61 @@ class LoopApproximation:
                 # calculate on boundary
                 #
                 v = 0.5 * (a + b)
-            print (v)
             self.edgesAttached[v1][v2][2] = v
+            self.ncoords[self.ncount] = v
+            self.ncount += 1
 
 
         # the even ones should replace the orignal vertices
-        # (TODO: could be merged with code above, to avoid boundary if/then/else)
+        #
         a, b, c = coords[verts[0]], coords[verts[1]], coords[verts[2]]
 
-        if a_odd[0] != -1:
-            adj = self.adjacent_even[verts[0]]
-            k = len(adj)
-            beta = self.beta[k]
-            sumk = coords[adj[0]].copy()
+        for i in range(0,3):
+            j = (i+1) % 3               # to generate 0, 1, 2, 0
 
-            for elem in adj[1:]:
-                sumk+=coords[elem]
+            v1 = coords[verts[i]]
+            if self.evenVertsNew[verts[i]] == -1:
+                if a_odd[i] != -1:
+                    adj = self.adjacent_even[verts[0]]
+                    k = len(adj)
+                    beta = self.beta[k]
+                    sumk = coords[adj[0]].copy()
 
-            a_new = a *(1-k*beta) + sumk *beta
-        else:
-            a_new = 0.125 *(a + b) + 0.75 * a
+                    for elem in adj[1:]:
+                        sumk+=coords[elem]
+                    vn = v1 *(1-k*beta) + sumk *beta
+                else:
+                    v2 = coords[verts[j]]
+                    vn = 0.125 *(v1 + v2) + 0.75 * v1
 
-        if a_odd[1] != -1:
-            adj = self.adjacent_even[verts[1]]
-            k = len(adj)
-            beta = self.beta[k]
-            sumk = coords[adj[0]].copy()
-
-            for elem in adj[1:]:
-                sumk+=coords[elem]
-
-            b_new = b *(1-k*beta) + sumk *beta
-        else:
-            b_new = 0.125 *(b + c) + 0.75 * b
-
-        if a_odd[2] != -1:
-            adj = self.adjacent_even[verts[2]]
-            k = len(adj)
-            beta = self.beta[k]
-            sumk = coords[adj[0]].copy()
-
-            for elem in adj[1:]:
-                sumk+=coords[elem]
-
-            c_new = c *(1-k*beta) + sumk *beta
-        else:
-            c_new = 0.125 *(c + a) + 0.75 * c
-
-        print (a_new, b_new, c_new)
-
+                self.ncoords[self.ncount] = vn
+                self.evenVertsNew[verts[i]] = self.ncount
+                self.ncount += 1
+            else:
+                print (str(i) + " already calculate as " + str(self.ncoords[self.evenVertsNew[verts[i]]]))
 
 
     def doCalculation(self):
 
         #TODO this should work with hidden verts etc.
         #
+        # prepare algorithm, reshape coords to vectors and get a new index to mark the calculated indices
+
         print ("Subdividing " + self.obj.filename)
 
         faceverts = self.obj.gl_fvert
         clen = len(self.obj.gl_coord) // 3
         coords = np.reshape(self.obj.gl_coord , (clen,3))
+
+        # helper for even vertices, which contains positions in new array
+        #
+        self.evenVertsNew = np.full(clen, -1,  dtype=np.int32)
+
+        # new coordinates (maximum is double size)
+        #
+        self.ncoords =  np.zeros((clen*2, 3), dtype=np.float32)
+
+
 
         # get a dictionary of faces and edges
         #
@@ -193,9 +192,12 @@ class LoopApproximation:
         self.createBetas(maxn)
 
         # foreach triangle now 4 triangles are created, make sure that the odd neighbors are not
-        # added twice, Test for one triangle (deduplication for edges done, even neighbors not yet)
+        # atm the deduplication is implemented completely ..
         for i in range(0, 5):
             self.createSubTriangle(i, faceverts[i], coords)
 
-
+        # reduce to size .. at least this is needed for testing
+        #
+        self.ncoords = np.resize(self.ncoords, (self.ncount, 3))
+        print (self.ncoords)
 
