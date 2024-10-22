@@ -25,6 +25,8 @@ class object3d:
         self.coord = []     # will contain positions of vertices, array of float32 for openGL
         self.uvs   = []     # will contain coordinates for uvs
         self.fuvs  = None   # will contain UV buffer or will stay none (TODO: is that needed?)
+        self.fverts  = []   # will contain vertices per face, [verts, 3] array of uint32 for openGL > 2
+        self.n_fverts = 0    # number of vertices for open gl
         self.loadedgroups = None # will contain the group after loading from file (also for hidden geometry)
         self.group = []     # will contain pointer to group per face
 
@@ -39,8 +41,6 @@ class object3d:
 
         self.gl_uvcoord = []  # will contain flattened gluv-Buffer
         self.gl_norm  = []    # will contain flattended normal buffer
-        self.gl_fvert  = []   # will contain vertices per face, [verts, 3] array of uint32 for openGL > 2
-        self.n_glverts = 0    # number of vertices for open gl
         self.n_glnorm  = 0    # number of normals for open gl
 
         self.gl_icoord = []     # openGL-Drawarray Index
@@ -178,7 +178,7 @@ class object3d:
 
         # calculate face normal and summarize them with other (for each 3 verts per triangle)
         #
-        for elem in self.gl_fvert:
+        for elem in self.fverts:
             v = self.coord[elem]
             norm = np.cross(v[0] - v[1], v[1] - v[2])
 
@@ -367,7 +367,7 @@ class object3d:
         self.n_fuvs =  ufaces
         self.group = np.zeros(nfaces, dtype=np.uint16)
 
-        self.gl_fvert = np.zeros((self.prim, 3), dtype=np.uint32)
+        self.fverts = np.zeros((self.prim, 3), dtype=np.uint32)
         # fill faces and group buffer
         # ( array of numbers per face determining the group-number )
 
@@ -379,23 +379,23 @@ class object3d:
             faces = groups[elem]["v"]
             for face in faces:
                 l = len(face)
-                self.gl_fvert[cnt] = face[:3]
+                self.fverts[cnt] = face[:3]
                 cnt += 1
                 # rest for quad and n-gons 
                 if l > 3:
                     i=2
                     while i < l-1:
-                        self.gl_fvert[cnt] = [face[0], face[i], face[i+1]]
+                        self.fverts[cnt] = [face[0], face[i], face[i+1]]
                         cnt += 1
                         i += 1
 
         # resize to visible groups only TODO not sure if it should stay like this
         #
-        self.gl_fvert.resize((cnt, 3), refcheck=False)
-        self.n_glverts = cnt * 3
-        self.gl_icoord = np.zeros(self.n_glverts, dtype=np.uint32)
+        self.fverts.resize((cnt, 3), refcheck=False)
+        self.n_fverts = cnt * 3
+        self.gl_icoord = np.zeros(self.n_fverts, dtype=np.uint32)
         cnt = 0
-        for face in self.gl_fvert:
+        for face in self.fverts:
             for vert in face:
                 self.gl_icoord[cnt] = vert
                 cnt += 1
@@ -409,7 +409,7 @@ class object3d:
         if self.n_fuvs > 0:
             self.gl_uvcoord = self.uvs.flatten()
         else:
-            self.gl_uvcoord = np.zeros(2 * self.n_glverts, dtype=np.float32)
+            self.gl_uvcoord = np.zeros(2 * self.n_fverts, dtype=np.float32)
 
 
         #del self.uvs           # save memory
@@ -780,7 +780,7 @@ class object3d:
         do that only for visible groups
         """
         coord = np.zeros((self.n_origverts, 3), dtype=np.float32)
-        for i in range (0, self.n_glverts):
+        for i in range (0, self.n_fverts):
             cnt = self.gl_icoord[i]
             if cnt < self.n_origverts:
                 coord[cnt] = self.coord[cnt]
@@ -837,7 +837,7 @@ class object3d:
                 if v1 not in attachedEdges:     # create edge dictionary
                     attachedEdges[v1] = {}
                 if v2 not in attachedEdges[v1]:
-                    attachedEdges[v1][v2] = [fn, -1, None] # None will hold the future coordinates
+                    attachedEdges[v1][v2] = [fn, -1, None] # None will hold the future index for gl
                 else:
                     attachedEdges[v1][v2][1] = fn
 

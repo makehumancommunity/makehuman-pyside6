@@ -33,7 +33,11 @@ class LoopApproximation:
         self.edgesAttached = {}
         self.evenVertsNew = None        # array filled with -1 at start, later contains position of newly created vertex
         self.ncoords = None             # new coordinates
-        self.ncount  = 0                # counter for new coordinates
+        self.nuvs = None                # new uv coordinates
+        self.indices = None             # new indices for drawarray
+        self.ncount  = 0                # counter for new coordinates   TODO make local
+        self.ucount  = 0                # counter for new uvs   TODO make local
+        self.icount  = 0                # counter for new indices   TODO make local
 
     def createBetas(self, maxn):
         """
@@ -91,7 +95,7 @@ class LoopApproximation:
                         self.adjacent_odd[fIndex][i] = nv
                     break
 
-    def createSubTriangle(self, fIndex, verts, coords):
+    def createSubTriangle(self, fIndex, verts, coords, uvs):
         """
         calculate 4 sub triangles (atm only vertices)
         (coords array like in object3d.py)
@@ -99,6 +103,7 @@ class LoopApproximation:
         # The odd vertices are the new ones
         #
         a_odd = self.adjacent_odd[fIndex]
+        oddIndex = [0, 0, 0]
         for i in range(0,3):
             j = (i+1) % 3               # to generate 0, 1, 2, 0
             k = (i+2) % 3
@@ -108,28 +113,29 @@ class LoopApproximation:
             if v1 > v2:
                 v1, v2 = v2, v1
 
-            if self.edgesAttached[v1][v2][2] is not None:
-                v = self.edgesAttached[v1][v2][2]
-                print (str(i) + " is already calculated as " + str(v))
-                continue
-
-            if a_odd[i] != -1:
-                # not a boundary, so calculate interior vertex
-                #
-                d = coords[a_odd[0]]
-                v = 0.375 *( a + b)+  0.125 *(c + d)
+            if self.edgesAttached[v1][v2][2] is None:
+                if a_odd[i] != -1:
+                    # not a boundary, so calculate interior vertex
+                    #
+                    d = coords[a_odd[0]]
+                    v = 0.375 *( a + b)+  0.125 *(c + d)
+                else:
+                    # calculate on boundary
+                    #
+                    v = 0.5 * (a + b)
+                self.edgesAttached[v1][v2][2] = self.ncount
+                oddIndex[i] = self.ncount
+                self.ncoords[self.ncount] = v
+                self.ncount += 1
             else:
-                # calculate on boundary
-                #
-                v = 0.5 * (a + b)
-            self.edgesAttached[v1][v2][2] = v
-            self.ncoords[self.ncount] = v
-            self.ncount += 1
+                #n = self.edgesAttached[v1][v2][2]
+                #print (str(i) + " is already calculated as vertex number " + str(n))
+                oddIndex[i] = self.edgesAttached[v1][v2][2]
 
 
         # the even ones should replace the orignal vertices
         #
-        a, b, c = coords[verts[0]], coords[verts[1]], coords[verts[2]]
+        evenIndex = [0, 0, 0]
 
         for i in range(0,3):
             j = (i+1) % 3               # to generate 0, 1, 2, 0
@@ -151,9 +157,22 @@ class LoopApproximation:
 
                 self.ncoords[self.ncount] = vn
                 self.evenVertsNew[verts[i]] = self.ncount
+                evenIndex[i] = self.ncount
                 self.ncount += 1
             else:
-                print (str(i) + " already calculate as " + str(self.ncoords[self.evenVertsNew[verts[i]]]))
+                evenIndex[i] = self.evenVertsNew[verts[i]]
+                #print (str(i) + " already calculate as number " + str(self.evenVertsNew[verts[i]]))
+
+        # now create opengl index for these 4 new triangles
+        #
+        c = self.icount
+        self.indices[c:c+12] = [
+            evenIndex[0], oddIndex[0], oddIndex[2],
+            evenIndex[1], oddIndex[1], oddIndex[0],
+            evenIndex[2], oddIndex[2], oddIndex[1],
+            oddIndex[0], oddIndex[1], oddIndex[2]
+        ]
+        self.icount += 12
 
 
     def doCalculation(self):
@@ -164,18 +183,22 @@ class LoopApproximation:
 
         print ("Subdividing " + self.obj.filename)
 
-        faceverts = self.obj.gl_fvert
+        faceverts = self.obj.fverts
         clen = len(self.obj.gl_coord) // 3
         coords = np.reshape(self.obj.gl_coord , (clen,3))
+        ulen = len(self.obj.gl_uvcoord) // 2
+        uvs = np.reshape(self.obj.gl_uvcoord , (ulen,2))
 
         # helper for even vertices, which contains positions in new array
         #
         self.evenVertsNew = np.full(clen, -1,  dtype=np.int32)
 
         # new coordinates (maximum is double size)
+        # new index array (4 triangles instead of one, so 4 times obj.n_fverts
         #
-        self.ncoords =  np.zeros((clen*2, 3), dtype=np.float32)
-
+        self.ncoords = np.zeros((clen*2, 3), dtype=np.float32)
+        self.nuvs    = np.zeros((ulen*4, 2), dtype=np.float32)
+        self.indices = np.zeros(self.obj.n_fverts * 4, dtype=np.uint32)
 
 
         # get a dictionary of faces and edges
@@ -192,12 +215,16 @@ class LoopApproximation:
         self.createBetas(maxn)
 
         # foreach triangle now 4 triangles are created, make sure that the odd neighbors are not
-        # atm the deduplication is implemented completely ..
+        # atm the deduplication is implemented completely, coords and indices are calculated
+        # TODO: overflow uvs?
+        #
         for i in range(0, 5):
-            self.createSubTriangle(i, faceverts[i], coords)
+            self.createSubTriangle(i, faceverts[i], coords, uvs)
 
         # reduce to size .. at least this is needed for testing
         #
         self.ncoords = np.resize(self.ncoords, (self.ncount, 3))
         print (self.ncoords)
+        self.indices = np.resize(self.indices, (self.icount))
+        print (self.indices)
 

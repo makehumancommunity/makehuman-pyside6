@@ -38,7 +38,7 @@ class stlExport:
         hiddenmask = obj.hiddenMask() if self.hidden is False else None
         norm = obj.gl_norm
         coord = obj.gl_coord * self.scale
-        for elem in obj.gl_fvert:
+        for elem in obj.fverts:
             if hiddenmask is not None:
                 if (hiddenmask[elem[0]] & hiddenmask[elem[1]] & hiddenmask[elem[2]]) == 0:
                     continue
@@ -59,7 +59,7 @@ class stlExport:
         norm = obj.gl_norm
         coord = obj.gl_coord * self.scale
         cnt = 0
-        for elem in obj.gl_fvert:
+        for elem in obj.fverts:
             if hiddenmask is not None:
                 if (hiddenmask[elem[0]] & hiddenmask[elem[1]] & hiddenmask[elem[2]]) == 0:
                     continue
