@@ -77,6 +77,7 @@ class attachedAsset:
         self.license = ""
         self.author = ""
         self.uuid = ""
+        self.name = "generic"
         self.meshtype = self.env.basename  # for binary saving
         self.scaleMat = None            # numpy matrix for scaling -or - none
 
@@ -347,6 +348,7 @@ class attachedAsset:
                 if self.type == "hair":
                     self.z_depth = 255
                 self.obj.setZDepth(self.z_depth)
+                self.obj.setName(self.name)
                 return self.calculateBoneWeights()
             use_ascii = True
 
@@ -358,6 +360,7 @@ class attachedAsset:
             (res, err) = obj.load(self.obj_file, use_ascii)
             if res is True:
                 self.obj = obj
+                self.obj.setName(self.name)
                 self.obj.setZDepth(self.z_depth)
                 self.calculateBoneWeights()
                 return(self.exportBinary())

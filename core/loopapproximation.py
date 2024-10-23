@@ -109,6 +109,7 @@ class LoopApproximation:
             k = (i+2) % 3
             v1, v2, v3 = verts[i], verts[j], verts[k]
             a, b, c = coords[v1], coords[v2], coords[v3]
+            u1, u2, d = uvs[v1], uvs[v2], uvs[v3]
 
             if v1 > v2:
                 v1, v2 = v2, v1
@@ -126,7 +127,9 @@ class LoopApproximation:
                 self.edgesAttached[v1][v2][2] = self.ncount
                 oddIndex[i] = self.ncount
                 self.ncoords[self.ncount] = v
+                self.nuvs[self.ucount] =  0.5 * (u1 + u2)
                 self.ncount += 1
+                self.ucount += 1
             else:
                 #n = self.edgesAttached[v1][v2][2]
                 #print (str(i) + " is already calculated as vertex number " + str(n))
@@ -143,7 +146,7 @@ class LoopApproximation:
             v1 = coords[verts[i]]
             if self.evenVertsNew[verts[i]] == -1:
                 if a_odd[i] != -1:
-                    adj = self.adjacent_even[verts[0]]
+                    adj = self.adjacent_even[verts[i]]
                     k = len(adj)
                     beta = self.beta[k]
                     sumk = coords[adj[0]].copy()
@@ -158,7 +161,9 @@ class LoopApproximation:
                 self.ncoords[self.ncount] = vn
                 self.evenVertsNew[verts[i]] = self.ncount
                 evenIndex[i] = self.ncount
+                self.nuvs[self.ucount] =  uvs[verts[i]]
                 self.ncount += 1
+                self.ucount += 1
             else:
                 evenIndex[i] = self.evenVertsNew[verts[i]]
                 #print (str(i) + " already calculate as number " + str(self.evenVertsNew[verts[i]]))
@@ -178,12 +183,18 @@ class LoopApproximation:
     def doCalculation(self):
 
         #TODO this should work with hidden verts etc.
+        # could be solved via reshaped indices (?)
         #
         # prepare algorithm, reshape coords to vectors and get a new index to mark the calculated indices
 
-        print ("Subdividing " + self.obj.filename)
+        print ("Subdividing " + self.obj.name)
+        """
+        if self.obj.name != "generic":
+            return
+        """
 
-        faceverts = self.obj.fverts
+        #faceverts = self.obj.fverts
+        faceverts = self.obj.gl_icoord.copy().reshape(len(self.obj.gl_icoord) // 3, 3)
         clen = len(self.obj.gl_coord) // 3
         coords = np.reshape(self.obj.gl_coord , (clen,3))
         ulen = len(self.obj.gl_uvcoord) // 2
@@ -196,7 +207,7 @@ class LoopApproximation:
         # new coordinates (maximum is double size)
         # new index array (4 triangles instead of one, so 4 times obj.n_fverts
         #
-        self.ncoords = np.zeros((clen*2, 3), dtype=np.float32)
+        self.ncoords = np.zeros((clen*4, 3), dtype=np.float32)
         self.nuvs    = np.zeros((ulen*4, 2), dtype=np.float32)
         self.indices = np.zeros(self.obj.n_fverts * 4, dtype=np.uint32)
 
@@ -218,13 +229,28 @@ class LoopApproximation:
         # atm the deduplication is implemented completely, coords and indices are calculated
         # TODO: overflow uvs?
         #
-        for i in range(0, 5):
+        #for i in range(0, len(faceverts)):
+        for i in range(0, 1):
             self.createSubTriangle(i, faceverts[i], coords, uvs)
 
         # reduce to size .. at least this is needed for testing
         #
         self.ncoords = np.resize(self.ncoords, (self.ncount, 3))
         print (self.ncoords)
+        print (self.ncount)
         self.indices = np.resize(self.indices, (self.icount))
         print (self.indices)
+        self.nuvs = np.resize(self.nuvs, (self.ucount, 2))
+        print (self.nuvs)
+        """
+        # testing by replacing original mesh
+        self.obj.coord = self.ncoords
+        self.obj.n_verts = len(coords)
+        self.obj.gl_coord = self.ncoords.flatten()
+        self.obj.gl_icoord= self.indices
+        self.obj.gl_uvcoord=self.nuvs.flatten
+        self.obj.fverts=np.reshape(self.indices, (self.icount//3,3))
+        self.obj.overflow = []
+        self.obj.calcNormals()
+        """
 

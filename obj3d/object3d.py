@@ -11,7 +11,7 @@ class object3d:
         self.type = eqtype      # equipmentype
         self.openGL   = None    # openGL pointer
         self.filename = None    # original file name
-        self.name = None    # will contain object name derived from loaded file
+        self.name = None    # will contain object name derived from loaded file (identical to asset)
         self.npGrpNames = []  # ordered list of groupnames numpy format
 
         self.prim    = 0    # will contain number primitives (tris)
@@ -393,12 +393,11 @@ class object3d:
         #
         self.fverts.resize((cnt, 3), refcheck=False)
         self.n_fverts = cnt * 3
-        self.gl_icoord = np.zeros(self.n_fverts, dtype=np.uint32)
-        cnt = 0
-        for face in self.fverts:
-            for vert in face:
-                self.gl_icoord[cnt] = vert
-                cnt += 1
+
+        # the indices (icoord) are simply the flattened fverts of the triangles
+        #
+        self.gl_icoord =  self.fverts.copy().reshape(self.n_fverts) # Numpy 2.1 supports option copy here
+
         self.gl_coord = self.coord.flatten()
         self.gl_coord_o = self.gl_coord.copy()  # create a copy for original values
         if self.is_base:
@@ -413,7 +412,6 @@ class object3d:
 
 
         #del self.uvs           # save memory
-        #del self.fvert
 
         self.calcNormals()
 
