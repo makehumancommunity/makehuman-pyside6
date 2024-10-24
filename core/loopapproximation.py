@@ -23,10 +23,11 @@ import math
 import numpy as np
 
 class LoopApproximation:
-    def __init__(self, obj):
+    def __init__(self, glob, obj):
         self.pi2 = math.pi * 2
         self.beta = []
         self.obj = obj
+        self.glob = glob
         self.adjacent_even = {}
         self.adjacent_odd = {}
         self.facesAttached = {}
@@ -118,7 +119,7 @@ class LoopApproximation:
                 if a_odd[i] != -1:
                     # not a boundary, so calculate interior vertex
                     #
-                    d = coords[a_odd[0]]
+                    d = coords[a_odd[i]]
                     v = 0.375 *( a + b)+  0.125 *(c + d)
                 else:
                     # calculate on boundary
@@ -188,13 +189,11 @@ class LoopApproximation:
         # prepare algorithm, reshape coords to vectors and get a new index to mark the calculated indices
 
         print ("Subdividing " + self.obj.name)
-        """
-        if self.obj.name != "generic":
-            return
-        """
+        #if self.obj.name != "generic":
+        return
 
-        #faceverts = self.obj.fverts
-        faceverts = self.obj.gl_icoord.copy().reshape(len(self.obj.gl_icoord) // 3, 3)
+        faceverts = self.obj.fverts
+        #faceverts = self.obj.gl_icoord.copy().reshape(len(self.obj.gl_icoord) // 3, 3)
         clen = len(self.obj.gl_coord) // 3
         coords = np.reshape(self.obj.gl_coord , (clen,3))
         ulen = len(self.obj.gl_uvcoord) // 2
@@ -229,8 +228,8 @@ class LoopApproximation:
         # atm the deduplication is implemented completely, coords and indices are calculated
         # TODO: overflow uvs?
         #
-        #for i in range(0, len(faceverts)):
-        for i in range(0, 1):
+        #for i in range(0, 20):
+        for i in range(0, len(faceverts)):
             self.createSubTriangle(i, faceverts[i], coords, uvs)
 
         # reduce to size .. at least this is needed for testing
@@ -242,15 +241,19 @@ class LoopApproximation:
         print (self.indices)
         self.nuvs = np.resize(self.nuvs, (self.ucount, 2))
         print (self.nuvs)
-        """
         # testing by replacing original mesh
+        self.glob.midColumn.view.deleteObject(self.obj)
         self.obj.coord = self.ncoords
-        self.obj.n_verts = len(coords)
+        self.obj.n_verts = len(self.ncoords)
+        self.obj.n_origverts = self.obj.n_verts 
         self.obj.gl_coord = self.ncoords.flatten()
         self.obj.gl_icoord= self.indices
-        self.obj.gl_uvcoord=self.nuvs.flatten
+        self.obj.gl_uvcoord=self.nuvs.flatten()
         self.obj.fverts=np.reshape(self.indices, (self.icount//3,3))
+        self.obj.n_fverts = self.icount//3
         self.obj.overflow = []
         self.obj.calcNormals()
-        """
+        self.obj.min_index = None
+        self.glob.midColumn.view.createObject(self.obj)
+        self.glob.midColumn.view.Tweak()
 

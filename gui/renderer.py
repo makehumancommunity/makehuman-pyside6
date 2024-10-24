@@ -139,11 +139,11 @@ class Renderer(QVBoxLayout):
 
     def subdivideObjects(self):
         if self.bc.proxy is None:
-            sobj = LoopApproximation(self.bc.baseMesh)
+            sobj = LoopApproximation(self.glob, self.bc.baseMesh)
             sobj.doCalculation()
 
         for elem in self.glob.baseClass.attachedAssets:
-            sobj = LoopApproximation(elem.obj)
+            sobj = LoopApproximation(self.glob, elem.obj)
             sobj.doCalculation()
 
     def render(self):

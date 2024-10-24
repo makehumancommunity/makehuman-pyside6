@@ -527,7 +527,7 @@ class FilterTree(QTreeView):
 
 
 
-    def filterChanged(self, qobject, clear=False):
+    def filterChanged(self, clear=False):
         """
         create a ruleset from selected items and repopulate the flow-Layout
         blocking must be used not to call filter 5 times for same menu
@@ -535,7 +535,6 @@ class FilterTree(QTreeView):
         if self.flowLayout is None or self.blockfilter is True:
             return
 
-        # print ("Filter", qobject)
         self.blockfilter = True
         if clear:
             self.clearSelection()
