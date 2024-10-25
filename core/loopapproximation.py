@@ -21,6 +21,7 @@ Algorithm (one iteration)
 
 import math
 import numpy as np
+from core.debug import measureTime
 
 class LoopApproximation:
     def __init__(self, glob, obj):
@@ -180,6 +181,20 @@ class LoopApproximation:
         ]
         self.icount += 12
 
+    def deDupFaceVerts(self):
+        # sort overflow
+        #
+        mx = self.obj.n_origverts
+        ov = self.obj.overflow
+        ov = ov[ov[:,1].argsort()]
+        fv = self.obj.fverts.copy()
+        for elem in fv:
+            for i,v in enumerate(elem):
+                if v >= mx:
+                    elem[i] = ov[v-mx][0]
+        return(fv)
+
+
 
     def doCalculation(self):
 
@@ -192,13 +207,16 @@ class LoopApproximation:
         #if self.obj.name != "generic":
         return
 
-        faceverts = self.obj.fverts
-        #faceverts = self.obj.gl_icoord.copy().reshape(len(self.obj.gl_icoord) // 3, 3)
+        m = measureTime("subdivision")
         clen = len(self.obj.gl_coord) // 3
-        coords = np.reshape(self.obj.gl_coord , (clen,3))
+        coords = np.reshape(self.obj.gl_coord , (clen,3))  # coordinates are including overflow
+
+        #faceverts = self.obj.fverts
+        faceverts = self.deDupFaceVerts()
+        m.passed("deduplication of faces")
+
         ulen = len(self.obj.gl_uvcoord) // 2
         uvs = np.reshape(self.obj.gl_uvcoord , (ulen,2))
-
         # helper for even vertices, which contains positions in new array
         #
         self.evenVertsNew = np.full(clen, -1,  dtype=np.int32)
@@ -210,15 +228,17 @@ class LoopApproximation:
         self.nuvs    = np.zeros((ulen*4, 2), dtype=np.float32)
         self.indices = np.zeros(self.obj.n_fverts * 4, dtype=np.uint32)
 
-
         # get a dictionary of faces and edges
         #
         self.facesAttached, self.edgesAttached = self.obj.calculateAttachedGeom(faceverts)
+        m.passed("attached geometry calculated")
 
         # calculate even and odd Neighbours
         #
         maxn = self.calcNeighboursEven(faceverts)
+        m.passed("even faces vertices calculated")
         self.calcNeighboursOdd(faceverts)
+        m.passed("odd faces vertices calculated")
 
         # number of max. connected vertices will form betas
         #
@@ -231,12 +251,13 @@ class LoopApproximation:
         #for i in range(0, 20):
         for i in range(0, len(faceverts)):
             self.createSubTriangle(i, faceverts[i], coords, uvs)
+        m.passed("sub triangles calculated")
 
         # reduce to size .. at least this is needed for testing
         #
         self.ncoords = np.resize(self.ncoords, (self.ncount, 3))
-        print (self.ncoords)
-        print (self.ncount)
+        #print (self.ncoords)
+        #print (self.ncount)
         self.indices = np.resize(self.indices, (self.icount))
         print (self.indices)
         self.nuvs = np.resize(self.nuvs, (self.ucount, 2))
@@ -252,7 +273,9 @@ class LoopApproximation:
         self.obj.fverts=np.reshape(self.indices, (self.icount//3,3))
         self.obj.n_fverts = self.icount//3
         self.obj.overflow = []
+        m.passed("all assignments done")
         self.obj.calcNormals()
+        m.passed("normals calculated")
         self.obj.min_index = None
         self.glob.midColumn.view.createObject(self.obj)
         self.glob.midColumn.view.Tweak()

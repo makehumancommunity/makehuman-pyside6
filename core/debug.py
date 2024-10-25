@@ -1,4 +1,17 @@
 import psutil
+import time
+
+class measureTime():
+    def __init__(self, what):
+        self.last = self.start = time.time()
+        self.what = what
+
+    def passed(self, what=None):
+        if what is not None:
+            self.what = what
+        last = time.time()
+        print ("   %s: %2.5f [sum: %2.5f]" % (self.what,last-self.last, last-self.start))
+        self.last = last
 
 def memInfo():
     process = psutil.Process()
