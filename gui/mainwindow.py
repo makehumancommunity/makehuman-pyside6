@@ -678,7 +678,7 @@ class MHMainWindow(QMainWindow):
         if filename is not None and self.glob.parallel is None:
             self.setToolModeAndPanel(0, 0)
             self.glob.openGLBlock = True
-            self.graph.view.noAssets()
+            self.graph.view.noGLObjects(leavebase=True)
             self.glob.freeTextures()
             self.glob.baseClass.reset()
             self.prog_window = MHBusyWindow("Load character", "start")

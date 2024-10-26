@@ -327,11 +327,12 @@ class OpenGLView(QOpenGLWidget):
         baseMesh = self.glob.baseClass.baseMesh
         self.camera.setCenter(baseMesh.getCenter(), baseMesh.getHeightInUnits())
 
-    def noAssets(self):
-        for glbuffer in self.buffers[1:]:
+    def noGLObjects(self, leavebase=False):
+        start = 1 if leavebase else 0
+        for glbuffer in self.buffers[start:]:
             glbuffer.Delete()
-        self.objects = self.objects[:1]
-        self.buffers = self.buffers[:1]
+        self.objects = self.objects[:start]
+        self.buffers = self.buffers[:start]
 
     def addAssets(self):
         """
@@ -344,10 +345,7 @@ class OpenGLView(QOpenGLWidget):
         """
         create of complete new mesh with assets
         """
-        for glbuffer in self.buffers:
-            glbuffer.Delete()
-        self.objects = []
-        self.buffers = []
+        self.noGLObjects()
 
         if "skeleton" in self.prims:
             self.prims["skeleton"].delete()

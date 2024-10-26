@@ -105,7 +105,8 @@ class globalObjects():
                 del t[name]
 
     def addTexture(self, path, texture):
-        self.textures[path] = texture
+        if path not in self.textures:
+            self.textures[path] = texture
 
     def freeTexture(self, texture):
         t = self.textures

@@ -79,12 +79,25 @@ class Renderer(QVBoxLayout):
             self.setFrame(0)
 
     def leave(self):
+        if self.subdiv:
+            if self.bc.proxy is None:
+                self.view.noGLObjects()
+                self.view.createObject(self.bc.baseMesh)
+            else:
+                self.view.noGLObjects(leavebase=True)
+
+            for elem in self.glob.baseClass.attachedAssets:
+                self.view.createObject(elem.obj)
+
+
         if self.anim and self.posed:
             self.setFrame(0)
             self.mesh.resetFromCopy()
             self.view.addSkeleton(False)
             self.bc.updateAttachedAssets()
-            self.view.Tweak()
+
+
+        self.view.Tweak()
 
     def setFrame(self, value):
         if self.anim is None:
@@ -138,13 +151,19 @@ class Renderer(QVBoxLayout):
             m.setText(str(i))
 
     def subdivideObjects(self):
+        self.glob.openGLBlock = True
+
         if self.bc.proxy is None:
+            self.view.noGLObjects()
             sobj = LoopApproximation(self.glob, self.bc.baseMesh)
             sobj.doCalculation()
+        else:
+            self.view.noGLObjects(leavebase=True)
 
         for elem in self.glob.baseClass.attachedAssets:
             sobj = LoopApproximation(self.glob, elem.obj)
             sobj.doCalculation()
+        self.glob.openGLBlock = False
 
     def render(self):
         width  = int(self.width.text())

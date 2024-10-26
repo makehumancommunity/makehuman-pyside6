@@ -22,6 +22,7 @@ Algorithm (one iteration)
 import math
 import numpy as np
 from core.debug import measureTime
+from obj3d.object3d import object3d
 
 class LoopApproximation:
     def __init__(self, glob, obj):
@@ -40,6 +41,8 @@ class LoopApproximation:
         self.ncount  = 0                # counter for new coordinates   TODO make local
         self.ucount  = 0                # counter for new uvs   TODO make local
         self.icount  = 0                # counter for new indices   TODO make local
+        self.overflow = {}
+        self.ovcount = 0
 
     def createBetas(self, maxn):
         """
@@ -97,7 +100,7 @@ class LoopApproximation:
                         self.adjacent_odd[fIndex][i] = nv
                     break
 
-    def createSubTriangle(self, fIndex, verts, coords, uvs):
+    def createSubTriangle(self, fIndex, verts, uvverts, coords, uvs, maxmesh):
         """
         calculate 4 sub triangles (atm only vertices)
         (coords array like in object3d.py)
@@ -111,7 +114,10 @@ class LoopApproximation:
             k = (i+2) % 3
             v1, v2, v3 = verts[i], verts[j], verts[k]
             a, b, c = coords[v1], coords[v2], coords[v3]
-            u1, u2, d = uvs[v1], uvs[v2], uvs[v3]
+
+            # UVS
+            w1, w2, w3 = uvverts[i], uvverts[j], uvverts[k]
+            u1, u2, d = uvs[w1], uvs[w2], uvs[w3]
 
             if v1 > v2:
                 v1, v2 = v2, v1
@@ -129,16 +135,34 @@ class LoopApproximation:
                 self.edgesAttached[v1][v2][2] = self.ncount
                 oddIndex[i] = self.ncount
                 self.ncoords[self.ncount] = v
-                self.nuvs[self.ucount] =  0.5 * (u1 + u2)
                 self.ncount += 1
+                # UVS
+                self.nuvs[self.ucount] =  0.5 * (u1 + u2)
                 self.ucount += 1
+                # mark it as done? like this self.edgesAttached[v1][v2][3] = True
+
             else:
                 #n = self.edgesAttached[v1][v2][2]
                 #print (str(i) + " is already calculated as vertex number " + str(n))
                 oddIndex[i] = self.edgesAttached[v1][v2][2]
 
+            if w1 >= maxmesh and w2 >= maxmesh:
+                if w1 > w2:
+                    w1, w2 = w2, w1
+
+                uvn = (w1,w2)
+                oi = oddIndex[i]
+                if uvn not in self.overflow:
+                    ni = 0x80000000 + self.ovcount
+                    self.ovcount += 1
+                    self.overflow[uvn] = { "oldindex": oi, "newindex": ni,  "uv": 0.5 * (u1 + u2) }
+                    oddIndex[i] = ni
+                else:
+                    oddIndex[i] = self.overflow[uvn]["newindex"]
+
 
         # the even ones should replace the orignal vertices
+        # edges-vertex: two edges are border
         #
         evenIndex = [0, 0, 0]
 
@@ -146,6 +170,7 @@ class LoopApproximation:
             j = (i+1) % 3               # to generate 0, 1, 2, 0
 
             v1 = coords[verts[i]]
+            uvn = uvverts[i]
             if self.evenVertsNew[verts[i]] == -1:
                 if a_odd[i] != -1:
                     adj = self.adjacent_even[verts[i]]
@@ -158,17 +183,30 @@ class LoopApproximation:
                     vn = v1 *(1-k*beta) + sumk *beta
                 else:
                     v2 = coords[verts[j]]
-                    vn = 0.125 *(v1 + v2) + 0.75 * v1
+                    vn = 0.125 *(v1 + v2) + 0.75 * v1       # TODO:  I am not sure. the border method is a bit strange
 
                 self.ncoords[self.ncount] = vn
                 self.evenVertsNew[verts[i]] = self.ncount
                 evenIndex[i] = self.ncount
-                self.nuvs[self.ucount] =  uvs[verts[i]]
                 self.ncount += 1
+
+                # UVS
+                self.nuvs[self.ucount] =  uvs[uvn]
                 self.ucount += 1
             else:
                 evenIndex[i] = self.evenVertsNew[verts[i]]
                 #print (str(i) + " already calculate as number " + str(self.evenVertsNew[verts[i]]))
+
+            if uvn >= maxmesh:
+                oi = evenIndex[i]
+                if uvn not in self.overflow:
+                    ni = 0x80000000 + self.ovcount
+                    self.ovcount += 1
+                    self.overflow[uvn] = { "oldindex": oi, "newindex": ni,  "uv": uvs[uvn] }
+                    evenIndex[i] = ni
+                else:
+                    evenIndex[i] = self.overflow[uvn]["newindex"]
+
 
         # now create opengl index for these 4 new triangles
         #
@@ -194,8 +232,6 @@ class LoopApproximation:
                     elem[i] = ov[v-mx][0]
         return(fv)
 
-
-
     def doCalculation(self):
 
         #TODO this should work with hidden verts etc.
@@ -205,8 +241,6 @@ class LoopApproximation:
 
         print ("Subdividing " + self.obj.name)
         #if self.obj.name != "generic":
-        return
-
         m = measureTime("subdivision")
         clen = len(self.obj.gl_coord) // 3
         coords = np.reshape(self.obj.gl_coord , (clen,3))  # coordinates are including overflow
@@ -246,37 +280,63 @@ class LoopApproximation:
 
         # foreach triangle now 4 triangles are created, make sure that the odd neighbors are not
         # atm the deduplication is implemented completely, coords and indices are calculated
-        # TODO: overflow uvs?
+        # TODO: not yet working 100 % percent correct no hidden verts
         #
-        #for i in range(0, 20):
         for i in range(0, len(faceverts)):
-            self.createSubTriangle(i, faceverts[i], coords, uvs)
+            self.createSubTriangle(i, faceverts[i], self.obj.fverts[i], coords, uvs, self.obj.n_origverts)
         m.passed("sub triangles calculated")
+
+
+        # we need duplicate vertices into the overflow buffer
+        #
+        numextra = len(self.overflow)
+        # then copy change size and copy coords to end
 
         # reduce to size .. at least this is needed for testing
         #
-        self.ncoords = np.resize(self.ncoords, (self.ncount, 3))
-        #print (self.ncoords)
+        self.ncoords = np.resize(self.ncoords, (self.ncount + numextra, 3))
+        self.nuvs = np.resize(self.nuvs, (self.ucount + numextra, 2))
         #print (self.ncount)
+        #print (self.ucount)
         self.indices = np.resize(self.indices, (self.icount))
-        print (self.indices)
-        self.nuvs = np.resize(self.nuvs, (self.ucount, 2))
-        print (self.nuvs)
-        # testing by replacing original mesh
-        self.glob.midColumn.view.deleteObject(self.obj)
-        self.obj.coord = self.ncoords
-        self.obj.n_verts = len(self.ncoords)
-        self.obj.n_origverts = self.obj.n_verts 
-        self.obj.gl_coord = self.ncoords.flatten()
-        self.obj.gl_icoord= self.indices
-        self.obj.gl_uvcoord=self.nuvs.flatten()
-        self.obj.fverts=np.reshape(self.indices, (self.icount//3,3))
-        self.obj.n_fverts = self.icount//3
-        self.obj.overflow = []
-        m.passed("all assignments done")
-        self.obj.calcNormals()
+
+
+        overflowtable = np.empty((numextra, 2), dtype=np.uint32)
+        ncount = self.ncount 
+        for elem in self.overflow.values():
+            # print(elem)
+            oind =  elem["oldindex"]
+            ind = elem["newindex"] - 0x80000000
+            overflowtable[ind] = [ oind , ncount]
+            self.nuvs[ncount] = elem["uv"]
+            self.ncoords[ncount] = self.ncoords[oind]
+            ncount += 1
+
+        for i, n in enumerate(self.indices):
+            if n >=  0x80000000:
+                self.indices[i] = self.ncount + n - 0x80000000
+        #
+        # better "new" function needed
+
+        subdiv = object3d(self.glob, None, self.obj.type)
+        subdiv.visible = self.obj.visible
+        subdiv.is_base = self.obj.is_base
+        subdiv.material = self.obj.material
+        subdiv.z_depth = self.obj.z_depth
+
+        subdiv.coord = self.ncoords
+        subdiv.n_verts = len(self.ncoords)
+        subdiv.n_origverts = subdiv.n_verts 
+        subdiv.gl_coord = self.ncoords.flatten()
+        subdiv.gl_icoord= self.indices
+        subdiv.gl_uvcoord=self.nuvs.flatten()
+        subdiv.fverts=np.reshape(self.indices, (self.icount//3,3))
+        subdiv.n_fverts = self.icount//3
+        subdiv.overflow = overflowtable
+        subdiv.calcNormals()
         m.passed("normals calculated")
-        self.obj.min_index = None
-        self.glob.midColumn.view.createObject(self.obj)
+        subdiv.min_index = None
+        self.glob.midColumn.view.createObject(subdiv)
         self.glob.midColumn.view.Tweak()
+        m.passed("all assignments done")
 
