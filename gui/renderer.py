@@ -44,11 +44,6 @@ class Renderer(QVBoxLayout):
         self.transButton.toggled.connect(self.changeTransparency)
         self.addWidget(self.transButton)
 
-        self.subdivButton = QCheckBox("smooth mesh")
-        self.subdivButton.setLayoutDirection(Qt.LeftToRight)
-        self.subdivButton.toggled.connect(self.smoothMesh)
-        self.addWidget(self.subdivButton)
-
         if self.anim:
             self.posed = True
             self.posedButton = QCheckBox("character posed")
@@ -63,6 +58,13 @@ class Renderer(QVBoxLayout):
         else:
             self.posed = False
 
+        self.subdivbutton = QPushButton("Smooth (subdivided)")
+        self.subdivbutton.clicked.connect(self.toggleSmooth)
+        self.subdivbutton.setCheckable(True)
+        self.subdivbutton.setChecked(False)
+        self.subdivbutton.setToolTip("select all other options before using subdivision!")
+        self.addWidget(self.subdivbutton)
+
         button = QPushButton("Render")
         button.clicked.connect(self.render)
         self.addWidget(button)
@@ -71,6 +73,7 @@ class Renderer(QVBoxLayout):
         self.addWidget(self.saveButton)
         self.setButtons()
 
+
     def enter(self):
         if self.anim:
             self.view.addSkeleton(True)
@@ -78,24 +81,21 @@ class Renderer(QVBoxLayout):
             self.mesh.createWCopy()
             self.setFrame(0)
 
-    def leave(self):
+    def setUnsubdivided(self):
+        self.subdivbutton.setStyleSheet("background-color : lightgrey")
+        self.subdivbutton.setChecked(False)
         if self.subdiv:
-            if self.bc.proxy is None:
-                self.view.noGLObjects()
-                self.view.createObject(self.bc.baseMesh)
-            else:
-                self.view.noGLObjects(leavebase=True)
+            self.unSubdivide()
+            self.subdiv = False
 
-            for elem in self.glob.baseClass.attachedAssets:
-                self.view.createObject(elem.obj)
-
+    def leave(self):
+        self.setUnsubdivided()
 
         if self.anim and self.posed:
             self.setFrame(0)
             self.mesh.resetFromCopy()
             self.view.addSkeleton(False)
             self.bc.updateAttachedAssets()
-
 
         self.view.Tweak()
 
@@ -116,18 +116,17 @@ class Renderer(QVBoxLayout):
         self.bc.showPose()
 
     def frameChanged(self, value):
+        self.setUnsubdivided()
         self.setFrame(int(value))
 
     def changeTransparency(self, param):
         self.transparent = param
 
-    def smoothMesh(self, param):
-        self.subdiv = param
-
     def changePosed(self, param):
         if self.posed:
             self.leave()
         else:
+            self.setUnsubdivided()
             self.enter()
         self.posed = param
 
@@ -150,9 +149,9 @@ class Renderer(QVBoxLayout):
                 i = 4096
             m.setText(str(i))
 
-    def subdivideObjects(self):
-        self.glob.openGLBlock = True
+    def Subdivide(self):
 
+        self.glob.openGLBlock = True
         if self.bc.proxy is None:
             self.view.noGLObjects()
             sobj = LoopApproximation(self.glob, self.bc.baseMesh)
@@ -164,6 +163,31 @@ class Renderer(QVBoxLayout):
             sobj = LoopApproximation(self.glob, elem.obj)
             sobj.doCalculation()
         self.glob.openGLBlock = False
+
+    def unSubdivide(self):
+        self.glob.openGLBlock = True
+        if self.bc.proxy is None:
+            self.view.noGLObjects()
+            self.view.createObject(self.bc.baseMesh)
+        else:
+            self.view.noGLObjects(leavebase=True)
+
+        for elem in self.glob.baseClass.attachedAssets:
+            self.view.createObject(elem.obj)
+        self.glob.openGLBlock = False
+
+    def toggleSmooth(self):
+        b = self.sender()
+        self.subdiv = b.isChecked()
+        if self.subdiv:
+            b.setStyleSheet("background-color : orange")
+            print ("toggle to smooth")
+            self.Subdivide()
+        else:
+            b.setStyleSheet("background-color : lightgrey")
+            print ("toggle to normal")
+            self.unSubdivide()
+        self.view.Tweak()
 
     def render(self):
         width  = int(self.width.text())

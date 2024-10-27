@@ -679,7 +679,7 @@ class MHMainWindow(QMainWindow):
             self.setToolModeAndPanel(0, 0)
             self.glob.openGLBlock = True
             self.graph.view.noGLObjects(leavebase=True)
-            self.glob.freeTextures()
+            self.glob.cleanupTextures()
             self.glob.baseClass.reset()
             self.prog_window = MHBusyWindow("Load character", "start")
             self.prog_window.progress.forceShow()

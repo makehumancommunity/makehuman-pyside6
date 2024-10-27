@@ -323,6 +323,7 @@ class LoopApproximation:
         subdiv.is_base = self.obj.is_base
         subdiv.material = self.obj.material
         subdiv.z_depth = self.obj.z_depth
+        subdiv.name = self.obj.name
 
         subdiv.coord = self.ncoords
         subdiv.n_verts = len(self.ncoords)

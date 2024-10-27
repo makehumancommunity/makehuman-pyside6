@@ -337,10 +337,18 @@ shaderConfig diffuse {self.sc_diffuse}
 
     def emptyTexture(self, rgb = [0.5, 0.5, 0.5], noglob=False):
         self.sc_diffuse = False
+        color = QColor.fromRgbF(rgb[0], rgb[1], rgb[2])
+        name = "Generated color [" + hex(color.rgb()) + "]"
+        existent_tex = self.glob.getTexture(name)
+        if existent_tex is not None:
+            self.glob.incTextureReference(name)
+            self._textures.append(existent_tex)
+            return (existent_tex)
+
         image = QImage(QSize(1,1),QImage.Format_ARGB32)
         color = QColor.fromRgbF(rgb[0], rgb[1], rgb[2])
+        um =  hex(color.rgb())
         image.fill(color)
-        name = "Generated " + repr(self) + " [" +str(len(self._textures)+1) + "]"
         return self.newTexture(name, image, noglob)
 
     def mixColors(self, colors, values):
@@ -355,6 +363,12 @@ shaderConfig diffuse {self.sc_diffuse}
         return(self.emptyTexture([newcolor[0], newcolor[1], newcolor[2]]))
 
     def loadTexture(self, path):
+        existent_tex = self.glob.getTexture(path)
+        if existent_tex is not None:
+            self.glob.incTextureReference(path)
+            self._textures.append(existent_tex)
+            return (existent_tex)
+
         image = QImage(path)
         self.sc_diffuse = True
         return(self.newTexture(path, image))

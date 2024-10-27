@@ -29,7 +29,7 @@ class globalObjects():
 
     def reset(self):
         self.project_changed = False        # will contain if sth. has changed
-        self.freeTextures()
+        self.cleanupTextures()
         self.cachedInfo = []                # cached data 
         self.Targets = None                 # is a pointer to target objects
         self.targetCategories = None        # will contain the category object
@@ -90,30 +90,42 @@ class globalObjects():
         if 0 < num <=5:
             self.textSlot[num-1] = target
 
-    def freeTextures(self, name=None):
+    def cleanupTextures(self):
         """
         central location to delete textures
         """
-        t = self.textures
-        if name is None:
-            for elem in t:
-                t[elem].destroy()
-            self.textures = {}
-        else:
-            if name in t:
-                t[name].destroy()
-                del t[name]
-
-    def addTexture(self, path, texture):
-        if path not in self.textures:
-            self.textures[path] = texture
-
-    def freeTexture(self, texture):
+        print ("*** cleanup Textures")
         t = self.textures
         for elem in t:
-            if t[elem] == texture:
-                t[elem].destroy()
-                del t[elem]
+            t[elem][0].destroy()
+        self.textures = {}
+
+    def addTexture(self, path, texture):
+        print ("*** addTexture")
+        if path not in self.textures:
+            self.textures[path] = [texture, 1]
+
+    def incTextureReference(self, path):
+        print ("*** incTextureReference")
+        if path in self.textures:
+            self.textures[path][1] += 1
+
+    def getTexture(self, path):
+        if path in self.textures:
+            return(self.textures[path][0])
+
+    def freeTexture(self, texture):
+        print ("*** freeTexture")
+        t = self.textures
+        for elem in t:
+            if t[elem][0] == texture:
+                if t[elem][1] > 1:
+                    print ("***** freeTextures by texture ref count")
+                    t[elem][1] -= 1
+                else:
+                    print ("***** freeTextures by texture completely")
+                    t[elem][0].destroy()
+                    del t[elem]
                 return
 
     def generateBaseSubDirs(self, basename):
