@@ -179,7 +179,6 @@ class OpenGLView(QOpenGLWidget):
         if obj.type != "proxy":
             obj.material.freeTextures()
         self.objects.remove(obj.openGL)
-        self.Tweak()
         obj.openGL = None
 
     def newSkin(self, obj):
@@ -328,25 +327,18 @@ class OpenGLView(QOpenGLWidget):
         self.camera.setCenter(baseMesh.getCenter(), baseMesh.getHeightInUnits())
 
     def noGLObjects(self, leavebase=False):
+        """
+        should be called with block
+        """
         for elem in self.glob.baseClass.attachedAssets:
             obj = elem.obj
-            if  obj.openGL is not None:
-                print ("delete " + obj.name)
-                obj.openGL.delete()
-                if obj.type != "proxy":
-                    obj.material.freeTextures()
-                self.objects.remove(obj.openGL)
-                obj.openGL = None
+            if obj.openGL is not None:
+                self.deleteObject(obj)
 
         if leavebase is False:
             obj = self.glob.baseClass.baseMesh
-            if  obj.openGL is not None:
-                print ("delete " + obj.name)
-                obj.openGL.delete()
-                if obj.type != "proxy":
-                    obj.material.freeTextures()
-                self.objects.remove(obj.openGL)
-                obj.openGL = None
+            if obj.openGL is not None:
+                self.deleteObject(obj)
 
         start = 1 if leavebase else 0
         for glbuffer in self.buffers[start:]:

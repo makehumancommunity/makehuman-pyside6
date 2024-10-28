@@ -242,6 +242,7 @@ class LoopApproximation:
         print ("Subdividing " + self.obj.name)
         #if self.obj.name != "generic":
         m = measureTime("subdivision")
+
         clen = len(self.obj.gl_coord) // 3
         coords = np.reshape(self.obj.gl_coord , (clen,3))  # coordinates are including overflow
 
@@ -324,6 +325,7 @@ class LoopApproximation:
         subdiv.material = self.obj.material
         subdiv.z_depth = self.obj.z_depth
         subdiv.name = self.obj.name
+        subdiv.filename = "subdiv of " + self.obj.name
 
         subdiv.coord = self.ncoords
         subdiv.n_verts = len(self.ncoords)
@@ -335,9 +337,7 @@ class LoopApproximation:
         subdiv.n_fverts = self.icount//3
         subdiv.overflow = overflowtable
         subdiv.calcNormals()
-        m.passed("normals calculated")
         subdiv.min_index = None
-        self.glob.midColumn.view.createObject(subdiv)
-        self.glob.midColumn.view.Tweak()
-        m.passed("all assignments done")
+        m.passed("normals calculated, done")
+        return(subdiv)
 

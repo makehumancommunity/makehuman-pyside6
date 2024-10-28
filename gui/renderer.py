@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLineEdit, QGridLayout, QLabel, QMessageBox,  QCheckBox
 
-from gui.common import IconButton, MHFileRequest
+from gui.common import IconButton, MHFileRequest, MHBusyWindow, WorkerThread
 from gui.slider import SimpleSlider
 
 from opengl.buffers import PixelBuffer
@@ -26,6 +26,19 @@ class Renderer(QVBoxLayout):
         self.image = None
         self.transparent = False
         self.subdiv = False
+
+        self.prog_window = None     # progressbar
+
+        # store used n_objects (used for unsubdividing)
+        #
+        self.n_objects = []
+        if self.bc.proxy is None:
+            self.n_objects.append(self.bc.baseMesh)
+        for elem in self.glob.baseClass.attachedAssets:
+            self.n_objects.append(elem.obj)
+
+        # subdivided objects
+        self.s_objects = []
 
         glayout = QGridLayout()
         glayout.addWidget(QLabel("Width"), 0, 0)
@@ -149,51 +162,85 @@ class Renderer(QVBoxLayout):
                 i = 4096
             m.setText(str(i))
 
-    def Subdivide(self):
-
-        self.glob.openGLBlock = True
+    def Subdivide(self, bckproc, *args):
+        """
+        replaces meshes
+        """
+        self.s_objects = []
         if self.bc.proxy is None:
-            self.view.noGLObjects()
+            self.prog_window.setLabelText("Subdiving basemesh")
             sobj = LoopApproximation(self.glob, self.bc.baseMesh)
-            sobj.doCalculation()
-        else:
-            self.view.noGLObjects(leavebase=True)
+            self.bc.baseMesh = sobj.doCalculation()
+            self.s_objects.append(self.bc.baseMesh)
+            #self.view.createObject(self.bc.baseMesh)
 
         for elem in self.glob.baseClass.attachedAssets:
+            self.prog_window.setLabelText("Subdiving " + elem.obj.name)
             sobj = LoopApproximation(self.glob, elem.obj)
-            sobj.doCalculation()
-        self.glob.openGLBlock = False
+            elem.obj = sobj.doCalculation()
+            self.s_objects.append(elem.obj)
+            #self.view.createObject(elem.obj)
+
+
+    def finishSubdivide(self):
+        if self.prog_window is not None:
+            self.prog_window.progress.close()
+            self.prog_window = None
+            for obj in self.s_objects:
+                self.view.createObject(obj)
+            self.glob.openGLBlock = False
+            self.view.Tweak()
+            self.glob.parallel = None
+
+    def parSubdivide(self):
+        if self.glob.parallel is None:
+            self.prog_window = MHBusyWindow("Subdivision", "start")
+            self.prog_window.progress.forceShow()
+            self.glob.openGLBlock = True
+            if self.bc.proxy is None:
+                self.view.noGLObjects()
+            else:
+                self.view.noGLObjects(leavebase=True)
+            self.glob.parallel = WorkerThread(self.Subdivide)
+            self.glob.parallel.start()
+            self.glob.parallel.finished.connect(self.finishSubdivide)
+
 
     def unSubdivide(self):
+        """
+        replaces meshes back to normal
+        """
         self.glob.openGLBlock = True
+
         if self.bc.proxy is None:
             self.view.noGLObjects()
+            self.bc.baseMesh = self.n_objects[0]
             self.view.createObject(self.bc.baseMesh)
+            n = 1
         else:
             self.view.noGLObjects(leavebase=True)
+            n = 0
 
         for elem in self.glob.baseClass.attachedAssets:
+            elem.obj = self.n_objects[n]
             self.view.createObject(elem.obj)
+            n +=1
         self.glob.openGLBlock = False
+        self.view.Tweak()
 
     def toggleSmooth(self):
         b = self.sender()
         self.subdiv = b.isChecked()
         if self.subdiv:
             b.setStyleSheet("background-color : orange")
-            print ("toggle to smooth")
-            self.Subdivide()
+            self.parSubdivide()
         else:
             b.setStyleSheet("background-color : lightgrey")
-            print ("toggle to normal")
             self.unSubdivide()
-        self.view.Tweak()
 
     def render(self):
         width  = int(self.width.text())
         height = int(self.height.text())
-        if self.subdiv:
-            self.subdivideObjects()
 
         pix = PixelBuffer(self.glob, self.view, self.transparent)
         #self.glob.openGLBlock = True

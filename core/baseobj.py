@@ -341,6 +341,7 @@ class baseClass():
             return
 
         self.glob.openGLWindow.deleteObject(elem.obj)
+        self.glob.openGLWindow.Tweak()
         self.attachedAssets.remove(elem)
         self.glob.markAssetByFileName(filename, False)
 
@@ -354,6 +355,7 @@ class baseClass():
         for elem in self.attachedAssets:
             if elem.type == "proxy":
                 self.glob.openGLWindow.deleteObject(elem.obj)
+                self.glob.openGLWindow.Tweak()
                 self.attachedAssets.remove(elem)
                 self.glob.markAssetByFileName(elem.filename, False)
                 self.proxy  = None

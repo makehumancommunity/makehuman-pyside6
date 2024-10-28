@@ -94,19 +94,16 @@ class globalObjects():
         """
         central location to delete textures
         """
-        print ("*** cleanup Textures")
         t = self.textures
         for elem in t:
             t[elem][0].destroy()
         self.textures = {}
 
     def addTexture(self, path, texture):
-        print ("*** addTexture")
         if path not in self.textures:
             self.textures[path] = [texture, 1]
 
     def incTextureReference(self, path):
-        print ("*** incTextureReference")
         if path in self.textures:
             self.textures[path][1] += 1
 
@@ -115,15 +112,12 @@ class globalObjects():
             return(self.textures[path][0])
 
     def freeTexture(self, texture):
-        print ("*** freeTexture")
         t = self.textures
         for elem in t:
             if t[elem][0] == texture:
                 if t[elem][1] > 1:
-                    print ("***** freeTextures by texture ref count")
                     t[elem][1] -= 1
                 else:
-                    print ("***** freeTextures by texture completely")
                     t[elem][0].destroy()
                     del t[elem]
                 return

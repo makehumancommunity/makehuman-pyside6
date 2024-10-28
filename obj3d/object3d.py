@@ -176,27 +176,53 @@ class object3d:
         fa_norm = np.zeros((self.n_verts, 3), dtype=np.float32)
         fa_cnt  = np.zeros(self.n_verts, dtype=np.uint32)
 
-        # calculate face normal and summarize them with other (for each 3 verts per triangle)
+        lfv = len(self.fverts)
+        fnorm = np.zeros((lfv,3), dtype=np.float32)
+
+        # numpy: create index to iterate and 3 vectors and put result to fnorm
+        # for elem in self.fverts:
+        #    v = self.coord[elem]
+        #    norm = np.cross(v[0] - v[1], v[1] - v[2])
         #
-        for elem in self.fverts:
-            v = self.coord[elem]
-            norm = np.cross(v[0] - v[1], v[1] - v[2])
+        ix = np.s_[:lfv]
+        fvert = self.coord[self.fverts[ix]]
+        v1 = fvert[:,0,:]
+        v2 = fvert[:,1,:]
+        v3 = fvert[:,2,:]
+        va = v1 - v2
+        vb = v2 - v3
+        fnorm[ix] = np.cross(va, vb)
 
-            # done on flattened array it works like this
-            #x = elem * 3
-            #a = [ self.gl_coord[x][0] - self.gl_coord[x][1], self.gl_coord[x+1][0] - self.gl_coord[x+1][1], self.gl_coord[x+2][0] - self.gl_coord[x+2][1] ]
-            #b = [ self.gl_coord[x][1] - self.gl_coord[x][2], self.gl_coord[x+1][1] - self.gl_coord[x+1][2], self.gl_coord[x+2][1] - self.gl_coord[x+2][2] ]
-            #norm = np.cross(a, b)
+        # calculate face normal and summarize them with other (for each 3 verts per triangle)
+        for ix, elem in enumerate(self.fverts):
+            fa_norm[elem[0]] += fnorm[ix]
+            fa_norm[elem[1]] += fnorm[ix]
+            fa_norm[elem[2]] += fnorm[ix]
+            fa_cnt[elem[0]] += 1
+            fa_cnt[elem[1]] += 1
+            fa_cnt[elem[2]] += 1
 
-            for i in range(3):
-                fa_norm[elem[i]] += norm
-                fa_cnt[elem[i]] += 1
+        """
+        if np.count_nonzero(fa_cnt) != fa_cnt.size:
+            print ("******************** there is an element not used")
+            print ( np.count_nonzero(fa_cnt))
+            print ( fa_cnt.size)
+            print(np.where(fa_cnt == 0))
+        else:
+            print ("******************** All vertices used")
+        """
 
         # because part of the faces belong to the overflow buffer add them as well
         #
-        for (source, dest) in self.overflow:
-            fa_norm[source] += fa_norm[dest]
-            fa_cnt[source]  += fa_cnt[dest]
+        #for (source, dest) in self.overflow:
+        #    fa_norm[source] += fa_norm[dest]
+        #    fa_cnt[source]  += fa_cnt[dest]
+
+        src = self.overflow[:,0]
+        dst = self.overflow[:,1]
+
+        fa_cnt[src] += fa_cnt[dst]
+        fa_norm[src] += fa_norm[dst]
 
         # now divide by the number of edges and normalize length with np.linalg.norm
         #
@@ -211,8 +237,10 @@ class object3d:
 
         # simply copy for the doubles in the end using overflow
         #
-        for (source, dest) in self.overflow:
-            self.gi_norm[dest] =  self.gi_norm[source]
+        # for (source, dest) in self.overflow:
+        #    self.gi_norm[dest] =  self.gi_norm[source]
+
+        self.gi_norm[dst] = self.gi_norm[src]
 
         # flatten vector
         #
