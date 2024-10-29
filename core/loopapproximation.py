@@ -34,6 +34,7 @@ class LoopApproximation:
         self.adjacent_odd = {}
         self.facesAttached = {}
         self.edgesAttached = {}
+        self.border = None
         self.evenVertsNew = None        # array filled with -1 at start, later contains position of newly created vertex
         self.ncoords = None             # new coordinates
         self.nuvs = None                # new uv coordinates
@@ -167,13 +168,17 @@ class LoopApproximation:
         evenIndex = [0, 0, 0]
 
         for i in range(0,3):
-            j = (i+1) % 3               # to generate 0, 1, 2, 0
-
-            v1 = coords[verts[i]]
+            vi = verts[i]
+            v1 = coords[vi]
             uvn = uvverts[i]
-            if self.evenVertsNew[verts[i]] == -1:
-                if a_odd[i] != -1:
-                    adj = self.adjacent_even[verts[i]]
+            if self.evenVertsNew[vi] == -1:
+
+                if self.border[vi][1] != 0xffffffff:
+                    # in case of border get the border neighbours
+                    #
+                    vn = 0.125 *(coords[self.border[vi][0]] + coords[self.border[vi][1]]) + 0.75 * v1
+                else:
+                    adj = self.adjacent_even[vi]
                     k = len(adj)
                     beta = self.beta[k]
                     sumk = coords[adj[0]].copy()
@@ -181,9 +186,6 @@ class LoopApproximation:
                     for elem in adj[1:]:
                         sumk+=coords[elem]
                     vn = v1 *(1-k*beta) + sumk *beta
-                else:
-                    v2 = coords[verts[j]]
-                    vn = 0.125 *(v1 + v2) + 0.75 * v1       # TODO:  I am not sure. the border method is a bit strange
 
                 self.ncoords[self.ncount] = vn
                 self.evenVertsNew[verts[i]] = self.ncount
@@ -265,7 +267,7 @@ class LoopApproximation:
 
         # get a dictionary of faces and edges
         #
-        self.facesAttached, self.edgesAttached = self.obj.calculateAttachedGeom(faceverts)
+        self.facesAttached, self.edgesAttached, self.border = self.obj.calculateAttachedGeom(faceverts)
         m.passed("attached geometry calculated")
 
         # calculate even and odd Neighbours

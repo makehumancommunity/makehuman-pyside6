@@ -842,9 +842,15 @@ class object3d:
     def calculateAttachedGeom(self, faces):
         """
         get a dictionary of attached facenumbers and edgenumbers per vertex
+        for borders, get the next border neighbours (used in loop subdivision)
         """
         attachedFaces = {}
         attachedEdges = {}
+
+        # the neighbours on a border of a single vertex will be two vertices, set them all to -1 before
+        # if both entries are not -1 we found the border vertices
+        #
+        borderneighbour = np.full((self.n_origverts,2), 0xffffffff, dtype=np.uint32)
         for fn, verts in enumerate(faces):
             for i in range(0,3):
                 j = (i+1) % 3               # to generate 0, 1, 2, 0
@@ -867,7 +873,20 @@ class object3d:
                 else:
                     attachedEdges[v1][v2][1] = fn
 
-        return attachedFaces, attachedEdges
+        for v1 in attachedEdges:
+            for v2 in attachedEdges[v1]:
+                if attachedEdges[v1][v2][1] == -1:
+                    if borderneighbour[v1][0] == 0xffffffff:
+                        borderneighbour[v1][0] = v2
+                    else:
+                        borderneighbour[v1][1] = v2
+
+                    if borderneighbour[v2][0] == 0xffffffff:
+                        borderneighbour[v2][0] = v1
+                    else:
+                        borderneighbour[v2][1] = v1
+
+        return attachedFaces, attachedEdges, borderneighbour
 
 
     def __del__(self):
