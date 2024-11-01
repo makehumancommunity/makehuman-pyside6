@@ -29,7 +29,10 @@ class LoopApproximation:
         self.pi2 = math.pi * 2
         self.beta = []
         self.obj = obj
+        self.maxmesh = self.obj.n_origverts
         self.glob = glob
+        self.org_uvs = None
+        self.org_coords = None
         self.adjacent_even = {}
         self.adjacent_odd = {}
         self.facesAttached = {}
@@ -39,11 +42,8 @@ class LoopApproximation:
         self.ncoords = None             # new coordinates
         self.nuvs = None                # new uv coordinates
         self.indices = None             # new indices for drawarray
-        self.ncount  = 0                # counter for new coordinates   TODO make local
-        self.ucount  = 0                # counter for new uvs   TODO make local
-        self.icount  = 0                # counter for new indices   TODO make local
         self.overflow = {}
-        self.ovcount = 0
+        self.seam = {}
 
     def createBetas(self, maxn):
         """
@@ -101,159 +101,179 @@ class LoopApproximation:
                         self.adjacent_odd[fIndex][i] = nv
                     break
 
-    def createSubTriangle(self, fIndex, verts, uvverts, coords, uvs, maxmesh):
+    def createSubTriangles(self, faceverts, uvvertsarr):
         """
         calculate 4 sub triangles (atm only vertices)
         (coords array like in object3d.py)
         """
-        # The odd vertices are the new ones
-        #
-        a_odd = self.adjacent_odd[fIndex]
-        oddIndex = [0, 0, 0]
-        for i in range(0,3):
-            j = (i+1) % 3               # to generate 0, 1, 2, 0
-            k = (i+2) % 3
-            v1, v2, v3 = verts[i], verts[j], verts[k]
-            a, b, c = coords[v1], coords[v2], coords[v3]
 
-            # UVS
-            w1, w2, w3 = uvverts[i], uvverts[j], uvverts[k]
-            u1, u2, d = uvs[w1], uvs[w2], uvs[w3]
-
-            if v1 > v2:
-                v1, v2 = v2, v1
-
-            if self.edgesAttached[v1][v2][2] is None:
-                if a_odd[i] != -1:
-                    # not a boundary, so calculate interior vertex
-                    #
-                    d = coords[a_odd[i]]
-                    v = 0.375 *( a + b)+  0.125 *(c + d)
-                else:
-                    # calculate on boundary
-                    #
-                    v = 0.5 * (a + b)
-                self.edgesAttached[v1][v2][2] = self.ncount
-                oddIndex[i] = self.ncount
-                self.ncoords[self.ncount] = v
-                self.ncount += 1
-                # UVS
-                self.nuvs[self.ucount] =  0.5 * (u1 + u2)
-                self.ucount += 1
-                # mark it as done? like this self.edgesAttached[v1][v2][3] = True
-
-            else:
-                #n = self.edgesAttached[v1][v2][2]
-                #print (str(i) + " is already calculated as vertex number " + str(n))
-                oddIndex[i] = self.edgesAttached[v1][v2][2]
-
-            if w1 >= maxmesh and w2 >= maxmesh:
-                if w1 > w2:
-                    w1, w2 = w2, w1
-
-                uvn = (w1,w2)
-                oi = oddIndex[i]
-                if uvn not in self.overflow:
-                    ni = 0x80000000 + self.ovcount
-                    self.ovcount += 1
-                    self.overflow[uvn] = { "oldindex": oi, "newindex": ni,  "uv": 0.5 * (u1 + u2) }
-                    oddIndex[i] = ni
-                else:
-                    oddIndex[i] = self.overflow[uvn]["newindex"]
-
-
-        # the even ones should replace the orignal vertices
-        # edges-vertex: two edges are border
-        #
+        uvs = self.org_uvs
+        coords = self.org_coords
+        maxmesh = self.maxmesh
         evenIndex = [0, 0, 0]
+        oddIndex = [0, 0, 0]
+        ncount = 0
+        ucount = 0
+        icount = 0
+        ovcount = 0
 
-        for i in range(0,3):
-            vi = verts[i]
-            v1 = coords[vi]
-            uvn = uvverts[i]
-            if self.evenVertsNew[vi] == -1:
+        for fIndex in range(0, len(faceverts)):
+            verts = faceverts[fIndex]
+            uvverts = uvvertsarr[fIndex]
 
-                if self.border[vi][1] != 0xffffffff:
-                    # in case of border get the border neighbours
-                    #
-                    vn = 0.125 *(coords[self.border[vi][0]] + coords[self.border[vi][1]]) + 0.75 * v1
-                else:
-                    adj = self.adjacent_even[vi]
-                    k = len(adj)
-                    beta = self.beta[k]
-                    sumk = coords[adj[0]].copy()
-
-                    for elem in adj[1:]:
-                        sumk+=coords[elem]
-                    vn = v1 *(1-k*beta) + sumk *beta
-
-                self.ncoords[self.ncount] = vn
-                self.evenVertsNew[verts[i]] = self.ncount
-                evenIndex[i] = self.ncount
-                self.ncount += 1
+            # The odd vertices are the new ones
+            #
+            a_odd = self.adjacent_odd[fIndex]
+            for i in range(0,3):
+                j = (i+1) % 3               # to generate 0, 1, 2, 0
+                k = (i+2) % 3
+                v1, v2, v3 = verts[i], verts[j], verts[k]
+                a, b, c = coords[v1], coords[v2], coords[v3]
 
                 # UVS
-                self.nuvs[self.ucount] =  uvs[uvn]
-                self.ucount += 1
-            else:
-                evenIndex[i] = self.evenVertsNew[verts[i]]
-                #print (str(i) + " already calculate as number " + str(self.evenVertsNew[verts[i]]))
+                w1, w2 = uvverts[i], uvverts[j]
+                un = 0.5 * (uvs[w1]+ uvs[w2]) # new value
 
-            if uvn >= maxmesh:
-                oi = evenIndex[i]
-                if uvn not in self.overflow:
-                    ni = 0x80000000 + self.ovcount
-                    self.ovcount += 1
-                    self.overflow[uvn] = { "oldindex": oi, "newindex": ni,  "uv": uvs[uvn] }
-                    evenIndex[i] = ni
+                if v1 > v2:
+                    v1, v2 = v2, v1
+
+                if self.edgesAttached[v1][v2][2] is None:
+                    if a_odd[i] != -1:
+                        # not a boundary, so calculate interior vertex
+                        #
+                        d = coords[a_odd[i]]
+                        v = 0.375 *( a + b)+  0.125 *(c + d)
+                    else:
+                        # calculate on boundary
+                        #
+                        v = 0.5 * (a + b)
+                    self.edgesAttached[v1][v2][2] = ncount
+                    oddIndex[i] = ncount
+                    self.ncoords[ncount] = v
+                    ncount += 1
+                    # UVS
+                    self.nuvs[ucount] =  un
+                    ucount += 1
+
                 else:
-                    evenIndex[i] = self.overflow[uvn]["newindex"]
+                    oddIndex[i] = self.edgesAttached[v1][v2][2]
+
+                # calculate UVs for seams
+                #
+                if v1 in self.seam and v2 in self.seam:
+                    if w1 > w2:
+                        w1, w2 = w2, w1
+
+                    uvn = (w1,w2)
+                    oi = oddIndex[i]
+                    if uvn not in self.overflow:
+                        ni = 0x80000000 + ovcount
+                        ovcount += 1
+                        self.overflow[uvn] = [ oi, ni, un ]
+                        oddIndex[i] = ni
+                    else:
+                        oddIndex[i] = self.overflow[uvn][1]
+
+            # the even ones should replace the orignal vertices
+            # edge-vertex: two edges are border
+            #
+
+            for i in range(0,3):
+                vi = verts[i]
+                v1 = coords[vi]
+                uvn = uvverts[i]
+                if self.evenVertsNew[vi] == -1:
+
+                    if self.border[vi][1] != 0xffffffff:
+                        # in case of border get the border neighbours
+                        #
+                        vn = 0.125 *(coords[self.border[vi][0]] + coords[self.border[vi][1]]) + 0.75 * v1
+                    else:
+                        adj = self.adjacent_even[vi]
+                        k = len(adj)
+                        beta = self.beta[k]
+                        sumk = coords[adj[0]].copy()
+
+                        for elem in adj[1:]:
+                            sumk+=coords[elem]
+                        vn = v1 *(1-k*beta) + sumk *beta
+    
+                    self.ncoords[ncount] = vn
+                    self.evenVertsNew[verts[i]] = ncount
+                    evenIndex[i] = ncount
+                    ncount += 1
+
+                    # UVS
+                    self.nuvs[ucount] =  uvs[uvn]
+                    ucount += 1
+                else:
+                    evenIndex[i] = self.evenVertsNew[verts[i]]
+
+                if uvn >= maxmesh:
+                    oi = evenIndex[i]
+                    if uvn not in self.overflow:
+                        ni = 0x80000000 + ovcount
+                        ovcount += 1
+                        self.overflow[uvn] = [ oi, ni, un ]
+                        evenIndex[i] = ni
+                    else:
+                        evenIndex[i] = self.overflow[uvn][1]
 
 
-        # now create opengl index for these 4 new triangles
-        #
-        c = self.icount
-        self.indices[c:c+12] = [
-            evenIndex[0], oddIndex[0], oddIndex[2],
-            evenIndex[1], oddIndex[1], oddIndex[0],
-            evenIndex[2], oddIndex[2], oddIndex[1],
-            oddIndex[0], oddIndex[1], oddIndex[2]
-        ]
-        self.icount += 12
+            # now create opengl index for these 4 new triangles
+            #
+            c = icount
+            self.indices[c:c+12] = [
+                evenIndex[0], oddIndex[0], oddIndex[2],
+                evenIndex[1], oddIndex[1], oddIndex[0],
+                evenIndex[2], oddIndex[2], oddIndex[1],
+                oddIndex[0], oddIndex[1], oddIndex[2]
+            ]
+            icount += 12
+
+        return ncount, ucount, icount
 
     def deDupFaceVerts(self):
-        # sort overflow
+        # 
+        # create a reduced mesh, when hidden
+        # regenerate the overflow in a second mesh
         #
-        mx = self.obj.n_origverts
+        mx = self.maxmesh
         ov = self.obj.overflow
         ov = ov[ov[:,1].argsort()]
-        fv = self.obj.fverts.copy()
-        for elem in fv:
+
+        indices = self.obj.getOpenGLIndex()
+        ilen= len(indices) // 3
+        fverts = indices.copy().reshape((ilen, 3))
+        uvverts = fverts.copy()
+
+        for elem in fverts:
             for i,v in enumerate(elem):
                 if v >= mx:
                     elem[i] = ov[v-mx][0]
-        return(fv)
+        return fverts, uvverts
+
+    def markSeam(self):
+        for s,d in self.obj.overflow:
+            self.seam[s] = True
 
     def doCalculation(self):
 
-        #TODO this should work with hidden verts etc.
-        # could be solved via reshaped indices (?)
-        #
         # prepare algorithm, reshape coords to vectors and get a new index to mark the calculated indices
+        # for hidden vertices, partly coords and uv-coords are not used
 
         print ("Subdividing " + self.obj.name)
-        #if self.obj.name != "generic":
         m = measureTime("subdivision")
 
         clen = len(self.obj.gl_coord) // 3
-        coords = np.reshape(self.obj.gl_coord , (clen,3))  # coordinates are including overflow
+        self.org_coords = np.reshape(self.obj.gl_coord , (clen,3))  # coordinates are including overflow
 
-        #faceverts = self.obj.fverts
-        faceverts = self.deDupFaceVerts()
-        m.passed("deduplication of faces")
+        faceverts, uvverts = self.deDupFaceVerts()
+        self.markSeam()
 
         ulen = len(self.obj.gl_uvcoord) // 2
-        uvs = np.reshape(self.obj.gl_uvcoord , (ulen,2))
+        self.org_uvs = np.reshape(self.obj.gl_uvcoord , (ulen,2))
+
         # helper for even vertices, which contains positions in new array
         #
         self.evenVertsNew = np.full(clen, -1,  dtype=np.int32)
@@ -265,61 +285,52 @@ class LoopApproximation:
         self.nuvs    = np.zeros((ulen*4, 2), dtype=np.float32)
         self.indices = np.zeros(self.obj.n_fverts * 4, dtype=np.uint32)
 
-        # get a dictionary of faces and edges
+        # get attached faces, edges and border-neighbours for each vertex
         #
         self.facesAttached, self.edgesAttached, self.border = self.obj.calculateAttachedGeom(faceverts)
         m.passed("attached geometry calculated")
 
-        # calculate even and odd Neighbours
+        # calculate even and odd neighbours
         #
         maxn = self.calcNeighboursEven(faceverts)
-        m.passed("even faces vertices calculated")
         self.calcNeighboursOdd(faceverts)
-        m.passed("odd faces vertices calculated")
+        m.passed("even and odd face vertices calculated")
 
         # number of max. connected vertices will form betas
         #
         self.createBetas(maxn)
 
-        # foreach triangle now 4 triangles are created, make sure that the odd neighbors are not
-        # atm the deduplication is implemented completely, coords and indices are calculated
-        # TODO: not yet working 100 % percent correct no hidden verts
+        # foreach triangle now 4 triangles are created
         #
-        for i in range(0, len(faceverts)):
-            self.createSubTriangle(i, faceverts[i], self.obj.fverts[i], coords, uvs, self.obj.n_origverts)
+        ncount, ucount, icount = self.createSubTriangles(faceverts, uvverts)
         m.passed("sub triangles calculated")
 
-
-        # we need duplicate vertices into the overflow buffer
+        # reduce to size including UV buffer
         #
         numextra = len(self.overflow)
-        # then copy change size and copy coords to end
 
-        # reduce to size .. at least this is needed for testing
+        self.ncoords = np.resize(self.ncoords, (ncount + numextra, 3))
+        self.nuvs = np.resize(self.nuvs, (ucount + numextra, 2))
+        self.indices = np.resize(self.indices, (icount))
+
+        # create overflow-table, add missing UVs  and duplicate coordinates
         #
-        self.ncoords = np.resize(self.ncoords, (self.ncount + numextra, 3))
-        self.nuvs = np.resize(self.nuvs, (self.ucount + numextra, 2))
-        #print (self.ncount)
-        #print (self.ucount)
-        self.indices = np.resize(self.indices, (self.icount))
-
-
         overflowtable = np.empty((numextra, 2), dtype=np.uint32)
-        ncount = self.ncount 
-        for elem in self.overflow.values():
-            # print(elem)
-            oind =  elem["oldindex"]
-            ind = elem["newindex"] - 0x80000000
-            overflowtable[ind] = [ oind , ncount]
-            self.nuvs[ncount] = elem["uv"]
-            self.ncoords[ncount] = self.ncoords[oind]
-            ncount += 1
+        nind = ncount 
 
+        for oind, ind, uv in self.overflow.values():
+            overflowtable[ind - 0x80000000] = [ oind , nind]
+            self.nuvs[nind] = uv
+            self.ncoords[nind] = self.ncoords[oind]
+            nind += 1
+
+        # correct indices marked by first bit
+        #
         for i, n in enumerate(self.indices):
             if n >=  0x80000000:
-                self.indices[i] = self.ncount + n - 0x80000000
+                self.indices[i] = ncount + n - 0x80000000
         #
-        # better "new" function needed
+        # create the new object, TODO better "new" function needed
 
         subdiv = object3d(self.glob, None, self.obj.type)
         subdiv.visible = self.obj.visible
@@ -335,8 +346,8 @@ class LoopApproximation:
         subdiv.gl_coord = self.ncoords.flatten()
         subdiv.gl_icoord= self.indices
         subdiv.gl_uvcoord=self.nuvs.flatten()
-        subdiv.fverts=np.reshape(self.indices, (self.icount//3,3))
-        subdiv.n_fverts = self.icount//3
+        subdiv.fverts=np.reshape(self.indices, (icount//3,3))
+        subdiv.n_fverts = icount//3
         subdiv.overflow = overflowtable
         subdiv.calcNormals()
         subdiv.min_index = None

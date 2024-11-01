@@ -72,6 +72,7 @@ class MHGraphicWindow(QWidget):
         #
         self.eventFilter = NavigationEvent(self)
         self.installEventFilter(self.eventFilter)
+        self.hiddenbutton = None
 
 
     def navButtons(self, vlayout):
@@ -94,14 +95,13 @@ class MHGraphicWindow(QWidget):
 
         # hidden geometry
         #
-        hidden= QCheckBox("show hidden geometry")
-        hidden.setLayoutDirection(Qt.LeftToRight)
-        hidden.toggled.connect(self.changeHidden)
+        self.hiddenbutton= QCheckBox("show hidden geometry")
+        self.hiddenbutton.setLayoutDirection(Qt.LeftToRight)
+        self.hiddenbutton.toggled.connect(self.changeHidden)
         if self.glob.baseClass is not None and self.glob.baseClass.hide_verts is False:
-            hidden.setChecked(True)
-        hidden.setToolTip('do not delete vertices under clothes')
-        vlayout.addWidget(hidden )
-
+            self.hiddenbutton.setChecked(True)
+        self.renderView(False)
+        vlayout.addWidget(self.hiddenbutton )
 
         button = IconButton(1, os.path.join(self.env.path_sysicon, elems[0][1]), elems[0][0], elems[0][2])
         vlayout.addWidget(button)
@@ -144,7 +144,13 @@ class MHGraphicWindow(QWidget):
         self.focusSlider = SimpleSlider("Focal Length: ", 15, 200, self.focusChanged)
         vlayout.addWidget(self.focusSlider )
 
-
+    def renderView(self, param):
+        if param:
+            self.hiddenbutton.setEnabled(False)
+            self.hiddenbutton.setToolTip('hidden geometry cannot be changed in render view')
+        else:
+            self.hiddenbutton.setEnabled(True)
+            self.hiddenbutton.setToolTip('do not delete vertices under clothes')
 
     def changeHidden(self, param):
         if self.glob.baseClass is None:

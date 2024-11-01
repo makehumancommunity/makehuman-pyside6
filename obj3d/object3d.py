@@ -202,16 +202,6 @@ class object3d:
             fa_cnt[elem[1]] += 1
             fa_cnt[elem[2]] += 1
 
-        """
-        if np.count_nonzero(fa_cnt) != fa_cnt.size:
-            print ("******************** there is an element not used")
-            print ( np.count_nonzero(fa_cnt))
-            print ( fa_cnt.size)
-            print(np.where(fa_cnt == 0))
-        else:
-            print ("******************** All vertices used")
-        """
-
         # because part of the faces belong to the overflow buffer add them as well
         #
         #for (source, dest) in self.overflow:
@@ -225,15 +215,16 @@ class object3d:
         fa_norm[src] += fa_norm[dst]
 
         # now divide by the number of edges and normalize length with np.linalg.norm
+        # ignore zero weights ( fa_norm = fa_norm / fa_cnt), set these to 1.0
         #
-        for i in range(0, self.n_origverts):
-            if fa_cnt[i] != 0:
-                norm = fa_norm[i] / fa_cnt[i]
-                l = np.linalg.norm(norm)
-                if l != 0.0:
-                    self.gi_norm[i] = norm / np.linalg.norm(norm)
-                else:
-                    self.gi_norm[i] = norm
+        with np.errstate(divide='ignore', invalid='ignore'):
+            divisor = np.divide(fa_norm, np.expand_dims(fa_cnt, axis=1))
+        divisor = np.nan_to_num(divisor, nan=1.0)
+
+        # calculate norm
+        #
+        ix = np.s_[:]
+        self.gi_norm[ix] = divisor / np.linalg.norm(divisor)
 
         # simply copy for the doubles in the end using overflow
         #

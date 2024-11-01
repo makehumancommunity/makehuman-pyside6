@@ -93,6 +93,7 @@ class Renderer(QVBoxLayout):
             self.bc.pose_skeleton.newGeometry()
             self.mesh.createWCopy()
             self.setFrame(0)
+        self.glob.midColumn.renderView(True)
 
     def setUnsubdivided(self):
         self.subdivbutton.setStyleSheet("background-color : lightgrey")
@@ -111,6 +112,7 @@ class Renderer(QVBoxLayout):
             self.bc.updateAttachedAssets()
 
         self.view.Tweak()
+        self.glob.midColumn.renderView(False)
 
     def setFrame(self, value):
         if self.anim is None:
