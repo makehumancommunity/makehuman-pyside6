@@ -47,6 +47,7 @@ class MHMainWindow(QMainWindow):
         self.lastClass = None       # needed for close functions
 
         self.rightColumn = None
+        self.visRightColumn = None  # QWidget to hide right column
         self.ToolBox = None
 
         self.graph = None
@@ -375,13 +376,16 @@ class MHMainWindow(QMainWindow):
         frame = MHGroupBox("Viewport")
         hLayout.addLayout(frame.MHLayout(gLayout),3)
 
-        # right side, ToolBox
+        # right side, ToolBox, can be hidden by visRightColumn
         #
+        self.visRightColumn = QWidget()
         self.ToolBox = QVBoxLayout()
-        self.drawRightPanel()
-        self.rightColumn = MHGroupBox("No additional infomation")
+        vis = self.drawRightPanel()
+        self.visRightColumn.setVisible(vis)
+        self.rightColumn = MHGroupBox("Default")  # default values
         self.rightColumn.setMinimumWidth(300)
-        hLayout.addLayout(self.rightColumn.MHLayout(self.ToolBox), 2)
+        self.visRightColumn.setLayout(self.rightColumn.MHLayout(self.ToolBox))
+        hLayout.addWidget(self.visRightColumn, 2)
 
         #
         self.central_widget.setLayout(hLayout)
@@ -478,7 +482,7 @@ class MHMainWindow(QMainWindow):
             self.LeftBox.addLayout(self.lastClass)
             self.LeftBox.addStretch()
         else:
-            self.leftColumn.setTitle("Not yet implemented")
+            self.leftColumn.setTitle("Not yet implemented") # not reached
 
 
     def drawExpressionPanel(self, text=""):
@@ -516,17 +520,18 @@ class MHMainWindow(QMainWindow):
         self.ToolBox.addLayout(layout)
 
     def drawRightPanel(self, text="None"):
-        #
-        # works according to tool_mode and category_mode
-        #
-        print (self.tool_mode, self.category_mode)
+        """
+        create panel for right column according to tool_mode and category_mode
+        :param text: headline
+        :returns: True (to be generated) else False
+        """
         if self.glob.baseClass is None:
-            return
+            return False
         if self.tool_mode == 0:
             if self.category_mode == 0:
                 if self.rightColumn is None:
-                    return
-                self.rightColumn.setTitle("No additional infomation")
+                    return False
+                return False
             elif self.category_mode == 1:
                 self.drawImageSelector(self.charselect, "Character MHM Files", 4)
             elif self.category_mode == 2:
@@ -534,9 +539,9 @@ class MHMainWindow(QMainWindow):
             elif self.category_mode == 3:
                 self.drawExportPanel(self.exportForm, "Export character")
             elif self.category_mode == 4:
-                self.rightColumn.setTitle("No additional infomation")
+                return False
             else:
-                self.rightColumn.setTitle("Not yet implemented")
+                return False
         elif self.tool_mode == 1:
             self.drawMorphPanel(text)
         elif self.tool_mode == 2:
@@ -551,9 +556,10 @@ class MHMainWindow(QMainWindow):
             elif self.category_mode == 4:
                 self.drawExpressionPanel(text)
             else:
-                self.rightColumn.setTitle("Not yet implemented")
+                return False
         else:
-            self.rightColumn.setTitle("Not yet implemented")
+            return False
+        return True
 
 
     def emptyLayout(self, layout):
@@ -589,7 +595,9 @@ class MHMainWindow(QMainWindow):
                 self.ButtonBox.insertLayout(1, self.CategoryBox)
                 self.markSelectedButtons(buttons, buttons[category])
             self.drawLeftPanel()
-            self.drawRightPanel()
+            vis = self.drawRightPanel()
+            self.visRightColumn.setVisible(vis)
+
 
     def deb_cam(self):
         self.graph.setDebug(self.deb_act.isChecked())
@@ -764,7 +772,9 @@ class MHMainWindow(QMainWindow):
         self.graph.view.newMesh()
         self.createImageSelection()
         self.emptyLayout(self.ToolBox)
-        self.drawRightPanel()
+        vis = self.drawRightPanel()
+        self.visRightColumn.setVisible(vis)
+
         self.ToolBox.update()
 
         self.emptyLayout(self.LeftBox)
