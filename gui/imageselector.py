@@ -525,9 +525,17 @@ class FilterTree(QTreeView):
 
                 self.setSelectedByRuleset(ruleset, child)
 
+    def removeAllFilters(self):
+        """
+        enable clearing of filter when entry field is cleared or all other filter are cleared
+        """
+        self.blockfilter = True
+        self.clearSelection()
+        self.blockfilter = False
+        self.filterChanged()
 
 
-    def filterChanged(self, clear=False):
+    def filterChanged(self):
         """
         create a ruleset from selected items and repopulate the flow-Layout
         blocking must be used not to call filter 5 times for same menu
@@ -536,8 +544,6 @@ class FilterTree(QTreeView):
             return
 
         self.blockfilter = True
-        if clear:
-            self.clearSelection()
         ruleset = {}
         for ix in self.selectedIndexes():
             item = self.model.itemFromIndex(ix)
@@ -563,14 +569,15 @@ class editBox(QLineEdit):
         self.setMaximumWidth(170)
         self.setFixedWidth(190)
 
-    def addConnect(self, changeFilter):
+    def addConnect(self, changeFilter, removeAllFilters):
         self.changeFilter = changeFilter
+        self.removeAllFilters = removeAllFilters
         self.returnPressed.connect(changeFilter)
 
     def clearEditBox(self):
         self.clear()
-        if self.changeFilter is not None:
-            self.changeFilter(None, clear=True)
+        if self.removeAllFilters is not None:
+            self.removeAllFilters()
 
 class ImageSelection():
     def __init__(self, parent, assetrepo, eqtype, selmode, callback, scale=2):
@@ -834,7 +841,7 @@ class ImageSelection():
         self.filterview.addTree(self.filterjson)
         self.filterview.selectionModel().selectionChanged.connect(self.filterview.filterChanged)
         shortcuts = self.filterview.addShortCuts()
-        filteredit.addConnect(self.filterview.filterChanged)
+        filteredit.addConnect(self.filterview.filterChanged, self.filterview.removeAllFilters)
 
         v1layout.addWidget(self.filterview)
         if shortcuts is not None:
