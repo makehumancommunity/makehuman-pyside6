@@ -67,7 +67,7 @@ class Material:
         self.sc_vertexColors = False
         self.sc_spec = False
         self.sc_transparency = False
-        self.shader = None
+        self.shader = "phong3l"
 
         self.description = None
         self.aomapIntensity = 1.0
@@ -146,8 +146,14 @@ class Material:
                 setattr (self, key, " ".join(words[1:]))
             elif key == "tag":
                 self.tags.append( " ".join(words[1:]).lower() )
+
+            # shader is shadertype, old path is replaced by last term. default is phong3l
+            #
             elif key == "shader":
-                self.shader = words[1]
+                arg = words[1]
+                if "/" in arg:
+                    arg = arg.split("/")[-1]
+                self.shader = arg
 
             # simple bools:
             #
@@ -170,10 +176,15 @@ class Material:
             elif key in ["sssRScale", "sssGScale", "sssBScale"]:
                 setattr (self, key, max(0.0, float(words[1])))
 
-            # shaderparam will be prefixed by sp_
+            # shaderparam will be prefixed by sp_, search for litsphere
             #
             elif key == "shaderParam":
-                setattr (self, "sp_" + words[1], words[2])
+                if words[1] == "litsphereTexture":
+                    path = self.env.existDataFile("shaders", "litspheres", os.path.basename(words[2]))
+                    if path is not None:
+                        setattr (self, "sp_litsphereTexture", path)
+                else:
+                    setattr (self, "sp_" + words[1], words[2])
 
             # shaderconfig will be prefixed by sc_
             #
@@ -189,6 +200,12 @@ class Material:
             self.name = os.path.basename(path)
         if self.description is None:
             self.description = self.name + " material"
+
+        # avoid empty litsphere textures (switch back to phong3l
+        #
+        if self.shader == "litsphere" and not hasattr(self, "sp_litsphereTexture"):
+            self.shader = "phong3l"
+
         print(self)
         return (True)
 
@@ -242,15 +259,14 @@ class Material:
         else:
             metrough = ""
 
+        # for litsphere save only name to avoid trouble
+        #
         if hasattr(self, "sp_litsphereTexture"):
-            litsphere = "shaderParam litsphereTexture " + self.sp_litsphereTexture
+            litsphere = "shaderParam litsphereTexture " + os.path.basename(self.sp_litsphereTexture)
         else:
             litsphere = ""
 
-        if self.shader is not None:
-            shader = "shader " + self.shader + "\n"
-        else:
-            shader = ""
+        shader = "shader " + self.shader + "\n"
 
         try:
             fp = open(path, "w", encoding="utf-8", errors='ignore')
@@ -362,7 +378,10 @@ shaderConfig diffuse {self.sc_diffuse}
         self.freeTextures()
         return(self.emptyTexture([newcolor[0], newcolor[1], newcolor[2]]))
 
-    def loadTexture(self, path):
+    def loadTexture(self, path, ttype=0):
+        """
+        load textures, TODO: change types
+        """
         existent_tex = self.glob.getTexture(path)
         if existent_tex is not None:
             self.glob.incTextureReference(path)
@@ -370,7 +389,8 @@ shaderConfig diffuse {self.sc_diffuse}
             return (existent_tex)
 
         image = QImage(path)
-        self.sc_diffuse = True
+        if ttype == 0:
+            self.sc_diffuse = True
         return(self.newTexture(path, image))
 
     def freeTextures(self, noglob=False):

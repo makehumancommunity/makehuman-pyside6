@@ -127,7 +127,6 @@ class globalObjects():
             folder = os.path.join(self.env.path_userdata, name, basename)
             if self.env.mkdir(folder) is False:
                 return (False)
-
         return (True)
 
 class cacheRepoEntry():
@@ -510,10 +509,16 @@ class programInfo():
 
         # subfolder inside userdata, so usually base folder + special ones
         #
-        for name in self.basefolders + ["themes", "exports","skins", "models", "target", "dbcache" ]:
+        for name in self.basefolders + ["themes", "exports","skins", "models", "target", "dbcache", "shaders" ]:
             folder = os.path.join(userdata, name)
             if self.mkdir(folder) is False:
                 return (False)
+
+        # and private litsphere folder
+        #
+        folder = os.path.join(userdata, "shaders", "litspheres")
+        if self.mkdir(folder) is False:
+            return (False)
 
         return (True)
 

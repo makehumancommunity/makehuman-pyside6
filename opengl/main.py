@@ -204,11 +204,12 @@ class OpenGLView(QOpenGLWidget):
         self.glfunc.glEnable(gl.GL_DEPTH_TEST)
 
         #
-        # load shaders and get  positions of variables 
+        # load shaders and get  positions of variables
+        # TODO: better concept to align objects and variables to shader array
         #
         self.mh_shaders = ShaderRepository(self.glob)
 
-        for shader in ["phong3l", "fixcolor", "xray"]:
+        for shader in ["phong3l", "fixcolor", "xray", "litsphere"]:
             s = self.mh_shaders.loadShaders(shader)
             self.mh_shaders.attribVertShader(s)
             self.mh_shaders.getUniforms(s)
@@ -298,8 +299,11 @@ class OpenGLView(QOpenGLWidget):
 
             # either with xray or normal shader draw assets
             #
-            shader = 2 if self.xrayed else 0
             for obj in self.objects[asset_start:]:
+                if obj.material.shader == "litsphere":
+                    shader = 2 if self.xrayed else 0    # TODO: must be 3
+                else:
+                    shader = 2 if self.xrayed else 0
                 if self.wireframe:
                     obj.drawWireframe(self.mh_shaders._shaders[shader], proj_view_matrix, self.black, self.white)
                 else:

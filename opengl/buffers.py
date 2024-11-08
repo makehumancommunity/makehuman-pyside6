@@ -84,6 +84,8 @@ class RenderedObject:
         self.material = obj.material
         self.texture = self.textureFromMaterial()
 
+        if self.material.shader == "litsphere":
+            self.litsphere = self.material.loadTexture(self.material.sp_litsphereTexture, ttype=1)
         self.position = pos
 
     def __str__(self):
