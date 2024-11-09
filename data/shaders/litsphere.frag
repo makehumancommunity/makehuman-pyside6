@@ -23,11 +23,11 @@ void main()
 	vec3 normal = fs_in.Normal; // normalize(fs_in.Normal);
 	vec3 shading = texture2D(litsphereTexture, vec2(normal * vec3(0.495) + vec3(0.5))).rgb;
 
-	vec3 outColor;
-	outColor = (1.0 - AdditiveShading)*shading * color.rgb * vec3(2.0 - (shading.r + shading.g + shading.b)/3.0);
+	vec3 outColor = (1.0 - AdditiveShading)*shading * color.rgb * vec3(2.0 - (shading.r + shading.g + shading.b)/3.0);
         outColor += AdditiveShading*(shading + color.rgb);
 
-	if (transp < 0.01) discard;
+	// if (transp < 0.01) discard;
 	FragColor = vec4(outColor, transp);
+
 }
 

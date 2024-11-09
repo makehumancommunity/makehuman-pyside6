@@ -68,6 +68,7 @@ class Material:
         self.sc_spec = False
         self.sc_transparency = False
         self.shader = "phong3l"
+        self.sp_AdditiveShading = 0.0
 
         self.description = None
         self.aomapIntensity = 1.0
@@ -183,6 +184,10 @@ class Material:
                     path = self.env.existDataFile("shaders", "litspheres", os.path.basename(words[2]))
                     if path is not None:
                         setattr (self, "sp_litsphereTexture", path)
+                    else:
+                        self.env.logLine(1, "missing litsphereTexture: " + words[2])
+                elif words[1] == "AdditiveShading":
+                    setattr (self, "sp_" + words[1], float(words[2]))
                 else:
                     setattr (self, "sp_" + words[1], words[2])
 

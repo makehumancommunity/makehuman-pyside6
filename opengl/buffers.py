@@ -61,10 +61,13 @@ class OpenGlBuffers():
             self.tex_coord_buffer.destroy()
 
 class RenderedObject:
-    def __init__(self, glob, context, obj, boundingbox, glbuffers, pos):
+    def __init__(self, glob, context, shaderlist, obj, boundingbox, glbuffers, pos):
         self.glob = glob
         self.env = glob.env
         self.context = context
+        self.texture = None
+        self.litsphere = None
+        self.shaderlist = shaderlist
         self.z_depth = obj.z_depth
         self.name = obj.filename
         self.boundingbox = boundingbox
@@ -81,11 +84,8 @@ class RenderedObject:
         self.normal_buffer = glbuffers.normal_buffer
         self.tex_coord_buffer = glbuffers.tex_coord_buffer
 
-        self.material = obj.material
-        self.texture = self.textureFromMaterial()
+        self.setMaterial(obj.material)
 
-        if self.material.shader == "litsphere":
-            self.litsphere = self.material.loadTexture(self.material.sp_litsphereTexture, ttype=1)
         self.position = pos
 
     def __str__(self):
@@ -102,43 +102,67 @@ class RenderedObject:
         return(self.material.emptyTexture())
 
     def setMaterial(self, material):
+        """
+        set Texture, litSphere and AdditiveLight
+        """
         functions = self.context.functions()
+        if material.shader == "litsphere":
+            self.shader = self.shaderlist[3]
+        else:
+            self.shader = self.shaderlist[0]
+
         self.material = material
         self.texture = self.textureFromMaterial()
+
+        t1 = self.shader.uniforms['Texture']
+        functions.glUniform1i(t1, 0)
         functions.glActiveTexture(gl.GL_TEXTURE0)
         self.texture.bind()
         self.texture.setMinMagFilters(QOpenGLTexture.Linear, QOpenGLTexture.Linear)
         self.texture.setWrapMode(QOpenGLTexture.ClampToEdge)
+
+        if material.shader == "litsphere":
+            self.litsphere = self.material.loadTexture(self.material.sp_litsphereTexture, ttype=1)
+            self.litsphere.setMinMagFilters(QOpenGLTexture.Linear, QOpenGLTexture.Linear)
+            self.litsphere.setWrapMode(QOpenGLTexture.ClampToEdge)
+            t2 = self.shader.uniforms['litsphereTexture']
+            add =self.shader.uniforms['AdditiveShading']
+            functions.glUniform1i(t2, 1)
+            functions.glUniform1f(add, self.material.sp_AdditiveShading)
+            functions.glActiveTexture(gl.GL_TEXTURE1)
+            self.litsphere.bind()
+
+        functions.glActiveTexture(gl.GL_TEXTURE0)
 
 
     def setTexture(self, texture):
         # only used for colors
         self.texture = texture
 
-    def geomToShader(self,shaderprog, proj_view_matrix):
+    def geomToShader(self, shader, proj_view_matrix):
         """
-        :param shaderprog: QOpenGLShaderProgram
+        create geometry
         """
-        self.mvp_matrix_location = shaderprog.uniforms["uMvpMatrix" ]
-        self.model_matrix_location = shaderprog.uniforms["uModelMatrix"]
-        self.normal_matrix_location = shaderprog.uniforms["uNormalMatrix"]
+        self.mvp_matrix_location = shader.uniforms["uMvpMatrix" ]
+        self.model_matrix_location = shader.uniforms["uModelMatrix"]
+        self.normal_matrix_location = shader.uniforms["uNormalMatrix"]
 
-        shaderprog.bind()
+        shader.bind()
 
         # VAO, bind the position-buffer, normal-buffer and texture-coordinates to attribute 0, 1, 2
         # these are the values changed per vertex
         #
         self.vert_pos_buffer.bind()
-        shaderprog.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3)     # OpenGL glVertexAttribPointer
-        shaderprog.enableAttributeArray(0)                      # OpenGL glEnableVertexAttribArray
+        shader.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3)     # OpenGL glVertexAttribPointer
+        shader.enableAttributeArray(0)                      # OpenGL glEnableVertexAttribArray
 
         self.normal_buffer.bind()
-        shaderprog.setAttributeBuffer(1, gl.GL_FLOAT, 0, 3)
-        shaderprog.enableAttributeArray(1)
+        shader.setAttributeBuffer(1, gl.GL_FLOAT, 0, 3)
+        shader.enableAttributeArray(1)
 
         self.tex_coord_buffer.bind()
-        shaderprog.setAttributeBuffer(2, gl.GL_FLOAT, 0, 2)
-        shaderprog.enableAttributeArray(2)
+        shader.setAttributeBuffer(2, gl.GL_FLOAT, 0, 2)
+        shader.enableAttributeArray(2)
 
         self.model_matrix.setToIdentity()
         self.model_matrix.translate(self.position)
@@ -150,23 +174,25 @@ class RenderedObject:
 
         # now set uMvpMatrix, uModelMatrix, uNormalMatrix
 
-        shaderprog.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)
-        shaderprog.setUniformValue(self.model_matrix_location, self.model_matrix)
-        shaderprog.setUniformValue(self.normal_matrix_location, self.normal_matrix)
+        shader.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)
+        shader.setUniformValue(self.model_matrix_location, self.model_matrix)
+        shader.setUniformValue(self.normal_matrix_location, self.normal_matrix)
 
 
-    def draw(self, shaderprog, proj_view_matrix, light, xrayed = False):
+    def draw(self, proj_view_matrix, light, xrayed = False):
         """
-        :param shaderprog: QOpenGLShaderProgram
+        :param proj_view_matrix: matrix
         """
-        self.geomToShader(shaderprog, proj_view_matrix)
+        shader = self.shaderlist[2] if xrayed else self.shader
+        self.geomToShader(shader, proj_view_matrix)
         functions = self.context.functions()
+
 
         if self.material.pbrMetallicRoughness is not None:
             lightWeight = QVector3D(1.0 - self.material.pbrMetallicRoughness, light.lightWeight.y(), 0)
         else:
             lightWeight = QVector3D(0.5, light.lightWeight.y(), 0)
-        shaderprog.setUniformValue("lightWeight", lightWeight)
+        shader.setUniformValue("lightWeight", lightWeight)
 
         # alphaCoverage demands samples buffers, so if these are not given
         # do not use alphaToCoverage, use BLEND instead
@@ -190,27 +216,43 @@ class RenderedObject:
         else:
             functions.glDisable(gl.GL_CULL_FACE)
 
-        functions.glActiveTexture(gl.GL_TEXTURE0)
-        self.texture.bind()
+        if not xrayed:
+            t1 = shader.uniforms['Texture']
+            functions.glUniform1i(t1, 0)
+            functions.glActiveTexture(gl.GL_TEXTURE0)
+            self.texture.bind()
+            if self.material.shader == "litsphere":
+                t2 = shader.uniforms['litsphereTexture']
+                add = shader.uniforms['AdditiveShading']
+                functions.glUniform1i(t2, 1)
+                functions.glUniform1f(add, self.material.sp_AdditiveShading)
+                functions.glActiveTexture(gl.GL_TEXTURE1)
+                self.litsphere.bind()
+
         indices = self.getindex()
         functions.glDrawElements(gl.GL_TRIANGLES, len(indices), gl.GL_UNSIGNED_INT, indices)
         #
-        # TODO: this is done always to reset
+        # TODO: this is done always to reset, also setting of gl.GL_TEXTURE0
         #
         functions.glDisable(gl.GL_CULL_FACE)
         functions.glDisable(gl.GL_SAMPLE_ALPHA_TO_COVERAGE)
         functions.glDisable(gl.GL_BLEND)
         functions.glDisable(gl.GL_MULTISAMPLE)
+        functions.glDisable(gl.GL_TEXTURE1)
+        functions.glActiveTexture(gl.GL_TEXTURE0)
 
-    def drawWireframe(self, shaderprog, proj_view_matrix, black, white):
+    def drawWireframe(self, proj_view_matrix, black, white):
         """
-        :param shaderprog: QOpenGLShaderProgram
+        creates a wireframe model
         """
-        self.geomToShader(shaderprog, proj_view_matrix)
+        shader = self.shaderlist[0]
+        self.geomToShader(shader, proj_view_matrix)
         functions = self.context.functions()
 
         oldtexture = self.texture
         self.setTexture(black)
+        t1 = shader.uniforms['Texture']
+        functions.glUniform1i(t1, 0)
         functions.glActiveTexture(gl.GL_TEXTURE0)
         self.texture.bind()
 
@@ -223,7 +265,6 @@ class RenderedObject:
         
         gl.glPolygonMode(gl.GL_FRONT_AND_BACK, gl.GL_LINE)
         functions.glDrawElements(gl.GL_TRIANGLES, len(indices), gl.GL_UNSIGNED_INT, indices)
-
 
         functions.glEnable(gl.GL_CULL_FACE)
         functions.glEnable(gl.GL_POLYGON_OFFSET_FILL)

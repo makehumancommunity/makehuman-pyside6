@@ -73,6 +73,8 @@ class OpenGLSkyBox:
         self.vbuffer.bind()
         self.prog.enableAttributeArray(0)
         self.prog.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3, 3 * 4)
+        t1 = self.prog.uniforms['skybox']
+        self.func.glUniform1i(t1, 0)
         self.func.glActiveTexture(gl.GL_TEXTURE0)
         self.texture.bind()
         self.func.glDrawArrays(gl.GL_TRIANGLES, 0, 36)

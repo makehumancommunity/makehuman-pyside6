@@ -37,20 +37,24 @@ class MHMaterialEditor(QWidget):
         self.metalRoughness = SimpleSlider("Roughness Factor: ", 0, 100, self.metalroughchanged, minwidth=250)
         self.aomapIntensity = SimpleSlider("AO map Strength: ", 0, 100, self.aomapchanged, minwidth=250)
         self.normalmapIntensity = SimpleSlider("Normal Map Scale: ", 0, 100, self.normalmapchanged, minwidth=250)
+        self.litsphereAddShade = SimpleSlider("Litsphere additive shading: ", 0, 100, self.litspherechanged, minwidth=250)
 
         self.diffuselab = QLabel()
         self.normlab = QLabel()
         self.aolab = QLabel()
         self.mrlab = QLabel()
+        self.litlab = QLabel()
         self.diffuse = IconButton(1, self.emptyIcon, "base color texture", self.change_diff, 128)
         self.normtex = IconButton(2, self.emptyIcon, "normalmap texture", self.change_diff, 128)
         self.aotex = IconButton(3, self.emptyIcon, "ambient occlusion texture", self.change_diff, 128)
         self.mrtex = IconButton(4, self.emptyIcon, "metallic roughness texture", self.change_diff, 128)
+        self.littex = IconButton(5, self.emptyIcon, "litsphere texture", self.change_diff, 128)
 
         self.sweep1 = IconButton(1, sweep, "No texture", self.noTexture, 32)
         self.sweep2 = IconButton(2, sweep, "No texture", self.noTexture, 32)
         self.sweep3 = IconButton(3, sweep, "No texture", self.noTexture, 32)
         self.sweep4 = IconButton(4, sweep, "No texture", self.noTexture, 32)
+        self.sweep5 = IconButton(5, sweep, "No texture", self.noTexture, 32)
 
         scrollContainer = QWidget()
         slayout = QVBoxLayout()
@@ -107,7 +111,7 @@ class MHMaterialEditor(QWidget):
         slayout.addWidget(gb)
 
         
-        gb = QGroupBox("Shader-specific")
+        gb = QGroupBox("OpenGL shader-specific")
         gb.setObjectName("subwindow")
         vlayout = QVBoxLayout()
         self.transparent = QCheckBox("Material is transparent")
@@ -120,6 +124,20 @@ class MHMaterialEditor(QWidget):
         vlayout.addWidget(self.backfacecull)
         vlayout.addWidget(self.alphacov)
         gb.setLayout(vlayout)
+        slayout.addWidget(gb)
+
+        gb = QGroupBox("OpenGL only valid inside MakeHuman")
+        gb.setObjectName("subwindow")
+        hlayout = QHBoxLayout()
+        hlayout.addWidget(self.littex)
+        vlayout = QVBoxLayout()
+        h2layout =  QHBoxLayout()
+        h2layout.addWidget(self.litlab)
+        h2layout.addWidget(self.sweep5)
+        vlayout.addLayout(h2layout)
+        vlayout.addWidget(self.litsphereAddShade)
+        hlayout.addLayout(vlayout)
+        gb.setLayout(hlayout)
         slayout.addWidget(gb)
 
         scrollContainer.setLayout(slayout)
@@ -153,6 +171,7 @@ class MHMaterialEditor(QWidget):
         self.metalNess.setSliderValue(self.material.metallicFactor * 100)
         self.aomapIntensity.setSliderValue(self.material.aomapIntensity * 100)
         self.normalmapIntensity.setSliderValue(self.material.normalmapIntensity * 100)
+        self.litsphereAddShade.setSliderValue(self.material.sp_AdditiveShading * 100)
 
         self.transparent.setChecked(self.material.transparent)
         self.backfacecull.setChecked(self.material.backfaceCull)
@@ -186,6 +205,13 @@ class MHMaterialEditor(QWidget):
             self.mrtex.newIcon(self.emptyIcon)
             self.mrlab.setText("None")
 
+        if hasattr(self.material, "sp_litsphereTexture"):
+            self.littex.newIcon(self.material.sp_litsphereTexture)
+            self.litlab.setText(self.shortenName(self.material.sp_litsphereTexture))
+        else:
+            self.littex.newIcon(self.emptyIcon)
+            self.litlab.setText("None")
+
     def change_diff(self):
         s = self.sender()
         m = s._funcid
@@ -210,6 +236,11 @@ class MHMaterialEditor(QWidget):
                 self.material.metallicRoughnessTexture = filename
                 self.mrtex.newIcon(self.material.metallicRoughnessTexture)
                 self.mrlab.setText(self.shortenName(self.material.metallicRoughnessTexture))
+            elif m==5:
+                self.material.sp_litsphereTexture = filename
+                self.littex.newIcon(self.material.sp_litsphereTexture)
+                self.litlab.setText(self.shortenName(self.material.sp_litsphereTexture))
+                self.material.shader = "litsphere"
 
 
     def noTexture(self):
@@ -231,6 +262,11 @@ class MHMaterialEditor(QWidget):
             delattr( self.material, "metallicRoughnessTexture")
             self.mrtex.newIcon(self.emptyIcon)
             self.mrlab.setText("None")
+        elif m==5 and hasattr(self.material, "sp_litsphereTexture"):
+            delattr( self.material, "sp_litsphereTexture")
+            self.material.shader = "phong3l"
+            self.littex.newIcon(self.emptyIcon)
+            self.litlab.setText("None")
 
     def metalchanged(self, value):
         self.material.metallicFactor =  value / 100.0
@@ -243,6 +279,9 @@ class MHMaterialEditor(QWidget):
 
     def normalmapchanged(self, value):
         self.material.normalmapIntensity = value / 100.0
+
+    def litspherechanged(self, value):
+        self.material.sp_AdditiveShading = value / 100.0
 
     def backfacecullchanged(self):
         self.material.backfaceCull = self.backfacecull.isChecked()
@@ -265,5 +304,6 @@ class MHMaterialEditor(QWidget):
         self.close()
 
     def use_call(self):
+        self.object.openGL.setMaterial(self.material)
         self.close()
 

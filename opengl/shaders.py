@@ -11,7 +11,8 @@ class ShaderPair(QOpenGLShaderProgram):
         self.uniforms = { "uMvpMatrix": -1, "uModelMatrix": -1, "uNormalMatrix": -1,
                 "lightPos1": -1, "lightPos2": -1, "lightPos3": -1,
                 "lightVol1": -1, "lightVol2": -1, "lightVol3": -1,
-                "ambientLight": -1, "lightWeight": -1, "viewPos": -1, "blinn": -1}
+                "ambientLight": -1, "lightWeight": -1, "viewPos": -1, "blinn": -1,
+                "Texture": -1, "litsphereTexture": -1, "AdditiveShading": -1, "skybox": -1}
         self.env = env
         self.frag_id = None
         self.vert_id = None
@@ -38,6 +39,9 @@ class ShaderRepository():
         self.glob = glob
         self.env = glob.env
         self._shaders = []
+
+    def getShaders(self):
+        return self._shaders
 
     def loadShaders(self, filename):
         path = os.path.join (self.env.path_sysdata, "shaders", filename)
