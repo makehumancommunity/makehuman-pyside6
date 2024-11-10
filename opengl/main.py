@@ -94,7 +94,8 @@ class OpenGLView(QOpenGLWidget):
             del self.prims["skeleton"]
 
         if skeleton is not None:
-            self.prims["skeleton"] = BoneList("skeleton", skeleton, col, self.context(), self.mh_shaders.getShaders()[1])
+            shader = self.mh_shaders.getShader("fixcolor")
+            self.prims["skeleton"] = BoneList(self.context(), shader, "skeleton", skeleton, col)
             if self.objects_invisible is True:
                 self.togglePrims("skeleton", True)
         self.Tweak()
@@ -138,12 +139,12 @@ class OpenGLView(QOpenGLWidget):
 
 
     def createPrims(self):
-        lineshader = self.mh_shaders.getShaders()[1]
-        self.prims["axes"] = CoordinateSystem("axes", 10.0, self.context(), lineshader)
+        shader = self.mh_shaders.getShader("fixcolor")
+        self.prims["axes"] = CoordinateSystem(self.context(), shader, "axes", 10.0)
         lowestPos = self.glob.baseClass.getLowestPos() if self.glob.baseClass is not None else 20
-        self.prims["xygrid"] = Grid("xygrid", 10.0, lowestPos, self.context(), lineshader, "xy")
-        self.prims["yzgrid"] = Grid("yzgrid", 10.0, lowestPos, self.context(), lineshader, "yz")
-        self.prims["xzgrid"] = Grid("xzgrid", 10.0, lowestPos, self.context(), lineshader, "xz")
+        self.prims["xygrid"] = Grid(self.context(), shader, "xygrid", 10.0, lowestPos, "xy")
+        self.prims["yzgrid"] = Grid(self.context(), shader, "yzgrid", 10.0, lowestPos, "yz")
+        self.prims["xzgrid"] = Grid(self.context(), shader, "xzgrid", 10.0, lowestPos, "xz")
 
     def compareBoundingBoxes(self, box1, box2):
         n = 0
@@ -172,7 +173,7 @@ class OpenGLView(QOpenGLWidget):
                 if (self.compareBoundingBoxes(elem.boundingbox, boundingbox)) is False:
                     break
             cnt += 1
-        obj.openGL = RenderedObject(self.glob, self.context(), self.mh_shaders.getShaders(), obj, boundingbox, glbuffer, pos=QVector3D(0, 0, 0))
+        obj.openGL = RenderedObject(self.glob, self.context(), self.mh_shaders, obj, boundingbox, glbuffer, pos=QVector3D(0, 0, 0))
         self.objects.insert(cnt, obj.openGL)
 
     def deleteObject(self,obj):
@@ -204,19 +205,10 @@ class OpenGLView(QOpenGLWidget):
 
         self.glfunc.glEnable(gl.GL_DEPTH_TEST)
 
-        #
-        # load shaders and get  positions of variables
-        # TODO: better concept to align objects and variables to shader array
+        # initialize shaders
         #
         self.mh_shaders = ShaderRepository(self.glob)
-
-        for shader in ["phong3l", "fixcolor", "xray", "litsphere", "skybox"]:
-            s = self.mh_shaders.loadShaders(shader)
-            self.mh_shaders.attribVertShader(s)
-            self.mh_shaders.getUniforms(s)
-
-        #skb = self.mh_shaders.loadShaders("skybox")
-        skb = 4
+        self.mh_shaders.loadShaders(["phong3l", "fixcolor", "xray", "litsphere", "skybox"])
 
         self.light = Light(self.mh_shaders, self.glob)
         self.light.setShader()
@@ -232,7 +224,10 @@ class OpenGLView(QOpenGLWidget):
         if baseClass is not None:
             self.newMesh()
 
-        self.skybox = OpenGLSkyBox(self.env, self.mh_shaders._shaders[skb], self.glfunc)
+        # create environment
+        #
+        shader = self.mh_shaders.getShader("skybox")
+        self.skybox = OpenGLSkyBox(self.env, shader, self.glfunc)
         self.skybox.create()
         self.createPrims()
 
@@ -315,7 +310,7 @@ class OpenGLView(QOpenGLWidget):
             self.prims["skeleton"].newGeometry(posed)
 
         for name in self.prims:
-            self.prims[name].draw(self.mh_shaders.getShaders()[1], proj_view_matrix)
+            self.prims[name].draw(proj_view_matrix)
 
 
     def Tweak(self):

@@ -19,6 +19,9 @@ class ShaderPair(QOpenGLShaderProgram):
         self.path = path
         super().__init__()
 
+    def __str__(self):
+        return "Shader Pair: "+ self.path
+
     def loadFragShader(self):
         path = self.path + ".frag"
         self.env.logLine(8, "Load: " + path)
@@ -38,22 +41,38 @@ class ShaderRepository():
     def __init__(self, glob):
         self.glob = glob
         self.env = glob.env
-        self._shaders = []
+        self._shaders = []          # list of shaders
+        self._shadernames = {}      # shaders by name reference to _shaders
 
-    def getShaders(self):
-        return self._shaders
+    def getShader(self, name):
+        """
+        return shader by name
+        if not known, return default
+        """
+        shadernum = self._shadernames[name] if name in self._shadernames else 0
+        return  self._shaders[shadernum]
 
-    def loadShaders(self, filename):
+    def loadShader(self, filename):
         path = os.path.join (self.env.path_sysdata, "shaders", filename)
-        for cnt, elem in enumerate(self._shaders):
-            if elem.path == path:
-                return(cnt)
+        if path in self._shadernames:
+            return self._shadernames[path]
 
         pair = ShaderPair(self.env, path)
         pair.loadFragShader()
         pair.loadVertShader()
         self._shaders.append(pair)
-        return(len(self._shaders)-1)
+        shadernum = len(self._shaders)-1
+        self._shadernames[filename] = shadernum
+        return shadernum
+
+    def loadShaders(self, filenames):
+        """
+        load a list of shaders
+        """
+        for shader in filenames:
+            s = self.loadShader(shader)
+            self.attribVertShader(s)
+            self.getUniforms(s)
 
     def attribVertShader(self, num=0):
         shader = self._shaders[num]
@@ -63,8 +82,7 @@ class ShaderRepository():
         shader.link()
         shader.bind()
 
-    def bind(self, num=0):
-        shader = self._shaders[num]
+    def bindShader(self, shader):
         shader.bind()
 
     def getUniforms(self, num=0):
@@ -74,8 +92,7 @@ class ShaderRepository():
         print ("shader: " + str(num))
         print (shader.uniforms)
 
-    def setUniform(self, name, var, num=0):
-        shader = self._shaders[num]
+    def setShaderUniform(self, shader, name, var):
         if name in shader.uniforms:
             if shader.uniforms[name] != -1:
                 shader.setUniformValue(shader.uniforms[name], var)

@@ -9,10 +9,11 @@ class LineElements:
     create geometry for gdrawelements
     array of positions, array of colors or one color to be repeated
     """
-    def __init__(self, name, pos, cols):
+    def __init__(self, context, shader, name, pos, cols):
         self.name = name
         self.lines = None
-        self.glfunc = None
+        self.glfunc =  context.functions()
+        self.shader = shader
         self.width = 1.0
         self.visible = False
         self.gl_coord = np.asarray(pos, dtype=np.float32).flatten()
@@ -30,33 +31,32 @@ class LineElements:
     def setVisible(self, status):
         self.visible = status
 
-    def create(self, context, shaders, width=1.0):
-        self.glfunc = context.functions()
+    def create(self, width=1.0):
         self.width = width
-        self.lines = RenderedLines(context, self.icoord, self.name, self.glbuffer, shaders, pos=QVector3D(0, 0, 0))
+        self.lines = RenderedLines(self.glfunc, self.shader, self.icoord, self.name, self.glbuffer, pos=QVector3D(0, 0, 0))
 
     def newGeometry(self, pos):
         self.gl_coord[:] = np.asarray(pos, dtype=np.float32).flatten()
         self.glbuffer.Tweak()
 
-    def draw(self, shaderprog, proj_view_matrix):
+    def draw(self, proj_view_matrix):
         if self.lines and self.visible:
             self.glfunc.glLineWidth(self.width)
-            self.lines.draw(shaderprog, proj_view_matrix)
+            self.lines.draw(proj_view_matrix)
 
     def delete(self):
         if self.lines:
             self.lines.delete()
 
 class CoordinateSystem(LineElements):
-    def __init__(self, name, size, context, shaders, width=2.0):
-        super().__init__(name,
+    def __init__(self, context, shader, name, size, width=2.0):
+        super().__init__(context, shader, name,
                 [[ -size, 0.0, 0.0],  [ size, 0.0, 0.0],  [ 0.0, -size, 0.0], [ 0.0, size, 0.0], [ 0.0, 0.0, -size], [ 0.0, 0.0, size]],
                 [[ 1.0, 0.0, 0.0],  [ 1.0, 0.0, 0.0],  [ 0.0, 1.0, 0.0], [ 0.0, 1.0, 0.0], [ 0.0, 0.0, 1.0], [ 0.0, 0.0, 1.0]])
-        self.create(context, shaders, width)
+        self.create(width)
 
 class Grid(LineElements):
-    def __init__(self, name, size, ground, context, shaders, direction):
+    def __init__(self, context, shader, name, size, ground, direction):
         lines = []
         cols = []
         self.border = int(size)
@@ -76,8 +76,8 @@ class Grid(LineElements):
                 # xz-plane
                 cols.extend ([[0.0, 0.4, 0.0], [0.0, 0.4, 0.0], [0.0, 0.4, 0.0], [0.0, 0.4, 0.0]])
 
-        super().__init__(name, lines, cols)
-        self.create(context, shaders)
+        super().__init__(context, shader, name, lines, cols)
+        self.create()
 
     def setGrid(self, ground, direction):
         size = float(self.border)
@@ -102,13 +102,13 @@ class Grid(LineElements):
         super().newGeometry(self.setGrid(ground, direction))
 
 class BoneList(LineElements):
-    def __init__(self, name, skeleton, col, context, shaders):
+    def __init__(self, context, shader, name, skeleton, col):
         self.skeleton = skeleton
         lines = []
         for bone in skeleton.bones:
             lines.extend ([skeleton.bones[bone].headPos, skeleton.bones[bone].tailPos])
-        super().__init__(name, lines, col)
-        self.create(context, shaders, width=3.0)
+        super().__init__(context, shader, name, lines, col)
+        self.create(width=3.0)
 
     def newGeometry(self,posed=True):
         skeleton = self.skeleton

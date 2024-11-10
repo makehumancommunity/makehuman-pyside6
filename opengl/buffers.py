@@ -61,13 +61,13 @@ class OpenGlBuffers():
             self.tex_coord_buffer.destroy()
 
 class RenderedObject:
-    def __init__(self, glob, context, shaderlist, obj, boundingbox, glbuffers, pos):
+    def __init__(self, glob, context, shaders, obj, boundingbox, glbuffers, pos):
         self.glob = glob
         self.env = glob.env
         self.context = context
         self.texture = None
         self.litsphere = None
-        self.shaderlist = shaderlist
+        self.shaders = shaders
         self.z_depth = obj.z_depth
         self.name = obj.filename
         self.boundingbox = boundingbox
@@ -107,9 +107,9 @@ class RenderedObject:
         """
         functions = self.context.functions()
         if material.shader == "litsphere":
-            self.shader = self.shaderlist[3]
+            self.shader = self.shaders.getShader("litsphere")
         else:
-            self.shader = self.shaderlist[0]
+            self.shader = self.shaders.getShader("phong3l")
 
         self.material = material
         self.texture = self.textureFromMaterial()
@@ -183,7 +183,7 @@ class RenderedObject:
         """
         :param proj_view_matrix: matrix
         """
-        shader = self.shaderlist[2] if xrayed else self.shader
+        shader = self.shaders.getShader("xray") if xrayed else self.shader
         self.geomToShader(shader, proj_view_matrix)
         functions = self.context.functions()
 
@@ -245,7 +245,7 @@ class RenderedObject:
         """
         creates a wireframe model
         """
-        shader = self.shaderlist[0]
+        shader = self.shaders.getShader("phong3l")
         self.geomToShader(shader, proj_view_matrix)
         functions = self.context.functions()
 
@@ -285,8 +285,9 @@ class RenderedObject:
 
 
 class RenderedLines:
-    def __init__(self, context, indices, name, glbuffers, shaders, pos):
-        self.context = context
+    def __init__(self, functions, shader, indices, name, glbuffers, pos):
+        self.functions = functions
+        self.shader = shader
         self.name = name
         self.position = QVector3D(0, 0, 0)
         self.rotation = QVector3D(0, 0, 0)
@@ -299,8 +300,8 @@ class RenderedLines:
 
         self.vert_pos_buffer = glbuffers.vert_pos_buffer
         self.color_buffer = glbuffers.normal_buffer
-        self.mvp_matrix_location = shaders.uniforms["uMvpMatrix" ]
-        self.model_matrix_location = shaders.uniforms["uModelMatrix"]
+        self.mvp_matrix_location = shader.uniforms["uMvpMatrix" ]
+        self.model_matrix_location = shader.uniforms["uModelMatrix"]
 
         self.position = pos
 
@@ -310,23 +311,22 @@ class RenderedLines:
     def delete(self):
         self.glbuffers.Delete()
 
-    def draw(self, shaderprog, proj_view_matrix):
+    def draw(self, proj_view_matrix):
         """
         :param shaderprog: QOpenGLShaderProgram
         """
-        shaderprog.bind()
-        functions = self.context.functions()
+        self.shader.bind()
 
         # VAO, bind the position-buffer, color-buffer and texture-coordinates to attribute 0, 1
         # these are the values changed per vertex
         #
         self.vert_pos_buffer.bind()
-        shaderprog.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3)     # OpenGL glVertexAttribPointer
-        shaderprog.enableAttributeArray(0)                      # OpenGL glEnableVertexAttribArray
+        self.shader.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3)     # OpenGL glVertexAttribPointer
+        self.shader.enableAttributeArray(0)                      # OpenGL glEnableVertexAttribArray
 
         self.color_buffer.bind()
-        shaderprog.setAttributeBuffer(1, gl.GL_FLOAT, 0, 3)
-        shaderprog.enableAttributeArray(1)
+        self.shader.setAttributeBuffer(1, gl.GL_FLOAT, 0, 3)
+        self.shader.enableAttributeArray(1)
 
         self.model_matrix.setToIdentity()
         self.model_matrix.translate(self.position)
@@ -335,13 +335,13 @@ class RenderedLines:
 
         # now set uMvpMatrix, uModelMatrix
 
-        functions.glEnable(gl.GL_BLEND)
-        shaderprog.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)
-        shaderprog.setUniformValue(self.model_matrix_location, self.model_matrix)
+        self.functions.glEnable(gl.GL_BLEND)
+        self.shader.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)
+        self.shader.setUniformValue(self.model_matrix_location, self.model_matrix)
 
         indices = self.indices
-        functions.glDrawElements(gl.GL_LINES, len(indices), gl.GL_UNSIGNED_INT, indices)
-        functions.glDisable(gl.GL_BLEND)
+        self.functions.glDrawElements(gl.GL_LINES, len(indices), gl.GL_UNSIGNED_INT, indices)
+        self.functions.glDisable(gl.GL_BLEND)
 
 
 class PixelBuffer:

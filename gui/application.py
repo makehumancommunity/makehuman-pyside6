@@ -23,10 +23,15 @@ class MHApplication(QApplication):
         self.env = glob.env
         super().__init__(argv)
 
+        # set openGL Parameters (Minimum 3.3)
+        sformat = QSurfaceFormat()
         if self.env.noalphacover is False:
-            format = QSurfaceFormat()
-            format.setSamples(4)
-            QSurfaceFormat.setDefaultFormat(format)
+            sformat.setSamples(4)
+            QSurfaceFormat.setDefaultFormat(sformat)
+
+        sformat.setMajorVersion(3)
+        sformat.setMinorVersion(3)
+        QSurfaceFormat.setDefaultFormat(sformat)
 
     def setStyles(self, theme):
         if theme is None:
