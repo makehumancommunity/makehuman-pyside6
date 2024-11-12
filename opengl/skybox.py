@@ -79,4 +79,5 @@ class OpenGLSkyBox:
         self.texture.bind()
         self.func.glDrawArrays(gl.GL_TRIANGLES, 0, 36)
         self.func.glDepthFunc(gl.GL_LESS)
+        self.texture.release()
 

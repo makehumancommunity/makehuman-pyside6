@@ -348,6 +348,6 @@ class MHGraphicWindow(QWidget):
         self.view.togglePerspective(v)
 
     def cleanUp(self):
-        self.glob.cleanupTextures()
+        self.glob.textureRepo.cleanup()
         if self.view is not None:
             self.view.cleanUp()

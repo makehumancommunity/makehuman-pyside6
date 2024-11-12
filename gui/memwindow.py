@@ -261,7 +261,7 @@ class MHMemWindow(QWidget):
 
     def refreshTextureTable(self):
         data = []
-        t = self.glob.textures
+        t = self.glob.textureRepo.getTextures()
         if len(t) > 0:
             for texture in t:
                 data.append([t[texture][1], texture, t[texture][0].width(), t[texture][0].height()])

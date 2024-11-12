@@ -445,6 +445,9 @@ class MHMainWindow(QMainWindow):
             self.LeftBox.addLayout(layout)
 
         elif self.tool_mode == 3:
+            if self.glob.baseClass.pose_skeleton is None:
+                ErrorBox(self.central_widget, "no poseskeleton added")
+                return
             if self.category_mode == 0:
                 self.leftColumn.setTitle("Rigs :: filter")
                 layout = self.animation[self.category_mode]["func"].leftPanel()
@@ -489,13 +492,14 @@ class MHMainWindow(QMainWindow):
         self.rightColumn.setTitle("Expressions, category: " + text)
         widget = QWidget()
         sweep = os.path.join(self.glob.env.path_sysicon, "sweep.png")
-        expressions = self.lastClass.fillExpressions()
-        self.exprArray = ScaleComboArray(widget, expressions, self.expressionfilter, sweep)
-        widget.setLayout(self.exprArray.layout)
-        scrollArea = QScrollArea()
-        scrollArea.setWidget(widget)
-        scrollArea.setWidgetResizable(True)
-        self.ToolBox.addWidget(scrollArea)
+        if self.lastClass is not None:
+            expressions = self.lastClass.fillExpressions()
+            self.exprArray = ScaleComboArray(widget, expressions, self.expressionfilter, sweep)
+            widget.setLayout(self.exprArray.layout)
+            scrollArea = QScrollArea()
+            scrollArea.setWidget(widget)
+            scrollArea.setWidgetResizable(True)
+            self.ToolBox.addWidget(scrollArea)
 
     def drawMorphPanel(self, text=""):
         self.rightColumn.setTitle("Morph, category: " + text)
@@ -687,7 +691,7 @@ class MHMainWindow(QMainWindow):
             self.setToolModeAndPanel(0, 0)
             self.glob.openGLBlock = True
             self.graph.view.noGLObjects(leavebase=True)
-            self.glob.cleanupTextures()
+            self.glob.textureRepo.cleanup()
             self.glob.baseClass.reset()
             self.prog_window = MHBusyWindow("Load character", "start")
             self.prog_window.progress.forceShow()

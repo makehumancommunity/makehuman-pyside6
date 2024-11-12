@@ -318,6 +318,8 @@ class attachedAsset:
         calculateBoneWeights either import weight from file or calculates weights for
         assets via pose_skeleton weights
         """
+        if self.glob.baseClass.default_skeleton == None:
+            return False, "no skeleton added"
         self.bWeights = boneWeights(self.glob, self.glob.baseClass.default_skeleton, self.obj)
 
         if self.vertexboneweights_file is not None:

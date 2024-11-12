@@ -9,10 +9,11 @@ import glob
 import shutil
 from uuid import uuid4
 from gui.application import QTVersion
-from opengl.info import GLDebug
 from core.debug import dumper
 from core.importfiles import UserEnvironment
 from core.sql_cache  import FileCache
+from opengl.info import GLDebug
+from opengl.texture import TextureRepo
 
 class globalObjects():
     def __init__(self, env):
@@ -24,12 +25,12 @@ class globalObjects():
         self.midColumn    = None
         self.centralWidget= None
         self.baseClass = None
-        self.textures = {}
+        self.textureRepo = TextureRepo()
         self.reset()
 
     def reset(self):
         self.project_changed = False        # will contain if sth. has changed
-        self.cleanupTextures()
+        self.textureRepo.cleanup()
         self.cachedInfo = []                # cached data 
         self.Targets = None                 # is a pointer to target objects
         self.targetCategories = None        # will contain the category object
@@ -89,38 +90,6 @@ class globalObjects():
     def setTextSlot(self, num, target):
         if 0 < num <=5:
             self.textSlot[num-1] = target
-
-    def cleanupTextures(self):
-        """
-        central location to delete textures
-        """
-        t = self.textures
-        for elem in t:
-            t[elem][0].destroy()
-        self.textures = {}
-
-    def addTexture(self, path, texture):
-        if path not in self.textures:
-            self.textures[path] = [texture, 1]
-
-    def incTextureReference(self, path):
-        if path in self.textures:
-            self.textures[path][1] += 1
-
-    def getTexture(self, path):
-        if path in self.textures:
-            return(self.textures[path][0])
-
-    def freeTexture(self, texture):
-        t = self.textures
-        for elem in t:
-            if t[elem][0] == texture:
-                if t[elem][1] > 1:
-                    t[elem][1] -= 1
-                else:
-                    t[elem][0].destroy()
-                    del t[elem]
-                return
 
     def generateBaseSubDirs(self, basename):
         for name in self.env.basefolders + ["exports", "skins", "models", "target", "dbcache"]:

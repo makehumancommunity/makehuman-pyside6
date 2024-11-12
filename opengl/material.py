@@ -1,29 +1,13 @@
-from PySide6.QtOpenGL import QOpenGLTexture
-from PySide6.QtGui import QImage, QColor
-from PySide6.QtCore import QSize
-
 import os
 import numpy
 from core.debug import dumper
+from opengl.texture import MH_Texture
 
 
 """
-    try to put all Texture and Material Stuff here
+    try to put all Material Stuff here
 """
 
-class MH_Image(QImage):
-    """
-    this may be used later when working on big textures
-    """
-    def __init__(self,name,env):
-         self.env = env
-         self.name = name
-         self.env.logLine(8, "Load: " + name)
-         super().__init__(name)
-
-    def __del__(self):
-        self.env.logLine(4, "Release: " + self.name)
-        
 
 class Material:
     def __init__(self, glob, objdir, eqtype):
@@ -32,7 +16,6 @@ class Material:
         self.objdir = objdir
         self.type = eqtype
         self.tags = []
-        self._textures = []
         self.default()
         self.name = None
         self.filename = None
@@ -41,6 +24,8 @@ class Material:
         return(dumper(self))
 
     def default(self):
+        self.tex_diffuse = None
+        self.tex_litsphere = None
         self.ambientColor = [0.5, 0.5, 0.5 ]
         self.diffuseColor = [1.0, 1.0, 1.0 ]
         self.specularColor = [0.5, 0.5, 0.5 ]
@@ -345,33 +330,6 @@ shaderConfig diffuse {self.sc_diffuse}
 
         return(materialfiles)
 
-    def newTexture(self, path, image, noglob=False):
-        texture = QOpenGLTexture(QOpenGLTexture.Target2D)
-        texture.create()
-        texture.setData(image)
-        if noglob is False:
-            self.glob.addTexture(path, texture)
-        texture.setMinMagFilters(QOpenGLTexture.Linear, QOpenGLTexture.Linear)
-        texture.setWrapMode(QOpenGLTexture.ClampToEdge)
-        self._textures.append(texture)
-        return texture
-
-    def emptyTexture(self, rgb = [0.5, 0.5, 0.5], noglob=False):
-        self.sc_diffuse = False
-        color = QColor.fromRgbF(rgb[0], rgb[1], rgb[2])
-        name = "Generated color [" + hex(color.rgb()) + "]"
-        existent_tex = self.glob.getTexture(name)
-        if existent_tex is not None:
-            self.glob.incTextureReference(name)
-            self._textures.append(existent_tex)
-            return (existent_tex)
-
-        image = QImage(QSize(1,1),QImage.Format_ARGB32)
-        color = QColor.fromRgbF(rgb[0], rgb[1], rgb[2])
-        um =  hex(color.rgb())
-        image.fill(color)
-        return self.newTexture(name, image, noglob)
-
     def mixColors(self, colors, values):
         """
         generates a texture from a number of colors (e.g. ethnic slider)
@@ -381,27 +339,37 @@ shaderConfig diffuse {self.sc_diffuse}
         for n, elem in enumerate(col):
             newcolor += elem * values[n]
         self.freeTextures()
-        return(self.emptyTexture([newcolor[0], newcolor[1], newcolor[2]]))
+        self.tex_diffuse = MH_Texture(self.glob.textureRepo)
+        return self.tex_diffuse.unicolor([newcolor[0], newcolor[1], newcolor[2]])
 
-    def loadTexture(self, path, ttype=0):
-        """
-        load textures, TODO: change types
-        """
-        existent_tex = self.glob.getTexture(path)
-        if existent_tex is not None:
-            self.glob.incTextureReference(path)
-            self._textures.append(existent_tex)
-            return (existent_tex)
+    def uniColor(self, rgb):
+        self.tex_diffuse = MH_Texture(self.glob.textureRepo)
+        return self.tex_diffuse.unicolor(rgb)
 
-        image = QImage(path)
-        if ttype == 0:
+    def loadLitSphere(self):
+        self.tex_litsphere = MH_Texture(self.glob.textureRepo)
+        return self.tex_litsphere.load(self.sp_litsphereTexture)
+
+    def loadDiffuse(self):
+        self.tex_diffuse = MH_Texture(self.glob.textureRepo)
+        if hasattr(self, 'diffuseTexture'):
             self.sc_diffuse = True
-        return(self.newTexture(path, image))
+            return self.tex_diffuse.load(self.diffuseTexture)
 
-    def freeTextures(self, noglob=False):
-        for elem in self._textures:
-            if noglob is False:
-                self.glob.freeTexture(elem)
+        self.sc_diffuse = False
+        if hasattr(self, 'diffuseColor'):
+            return self.tex_diffuse.unicolor(self.diffuseColor)
+        return self.tex_diffuse.unicolor()
+
+    def freeTextures(self):
+        # in case of system, cleanup is done in the end
+        #
+        if self.tex_diffuse:
+            if self.type != "system":
+                self.tex_diffuse.delete()
             else:
-                elem.destroy()
-        self._textures = []
+                self.tex_diffuse.destroy()
+
+        if self.tex_litsphere:
+            self.tex_litsphere.delete()
+

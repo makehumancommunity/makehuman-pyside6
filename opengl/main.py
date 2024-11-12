@@ -217,9 +217,9 @@ class OpenGLView(QOpenGLWidget):
         self.camera.resizeViewPort(self.width(), self.height())
 
         self.blackmat = Material(self.glob, "black", "system")
-        self.black = self.blackmat.emptyTexture(rgb = [0.0, 0.0, 0.0], noglob=True)
+        self.black = self.blackmat.uniColor([0.0, 0.0, 0.0])
         self.whitemat = Material(self.glob, "white", "system")
-        self.white = self.whitemat.emptyTexture(rgb = [1.0, 1.0, 1.0], noglob=True)
+        self.white = self.whitemat.uniColor([1.0, 1.0, 1.0])
 
         if baseClass is not None:
             self.newMesh()
@@ -378,8 +378,8 @@ class OpenGLView(QOpenGLWidget):
 
     def cleanUp(self):
         print ("cleanup openGL")
-        self.blackmat.freeTextures(True)
-        self.whitemat.freeTextures(True)
+        self.blackmat.freeTextures()
+        self.whitemat.freeTextures()
         if self.skybox is not None:
             self.skybox.delete()
             self.skybox = None

@@ -94,13 +94,6 @@ class RenderedObject:
     def delete(self):
         self.glbuffers.Delete()
 
-    def textureFromMaterial(self):
-        if hasattr(self.material, 'diffuseTexture'):
-            return(self.material.loadTexture(self.material.diffuseTexture))
-        if hasattr(self.material, 'diffuseColor'):
-            return(self.material.emptyTexture(self.material.diffuseColor))
-        return(self.material.emptyTexture())
-
     def setMaterial(self, material):
         """
         set Texture, litSphere and AdditiveLight
@@ -112,25 +105,22 @@ class RenderedObject:
             self.shader = self.shaders.getShader("phong3l")
 
         self.material = material
-        self.texture = self.textureFromMaterial()
+        self.texture = self.material.loadDiffuse()
 
         t1 = self.shader.uniforms['Texture']
         functions.glUniform1i(t1, 0)
         functions.glActiveTexture(gl.GL_TEXTURE0)
-        self.texture.bind()
-        self.texture.setMinMagFilters(QOpenGLTexture.Linear, QOpenGLTexture.Linear)
-        self.texture.setWrapMode(QOpenGLTexture.ClampToEdge)
 
         if material.shader == "litsphere":
-            self.litsphere = self.material.loadTexture(self.material.sp_litsphereTexture, ttype=1)
-            self.litsphere.setMinMagFilters(QOpenGLTexture.Linear, QOpenGLTexture.Linear)
-            self.litsphere.setWrapMode(QOpenGLTexture.ClampToEdge)
+            self.litsphere = self.material.loadLitSphere()
             t2 = self.shader.uniforms['litsphereTexture']
             add =self.shader.uniforms['AdditiveShading']
             functions.glUniform1i(t2, 1)
             functions.glUniform1f(add, self.material.sp_AdditiveShading)
             functions.glActiveTexture(gl.GL_TEXTURE1)
+            """
             self.litsphere.bind()
+            """
 
         functions.glActiveTexture(gl.GL_TEXTURE0)
 
