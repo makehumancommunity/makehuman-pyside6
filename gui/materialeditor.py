@@ -2,11 +2,11 @@ import os
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
         QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QGroupBox, QCheckBox, QSizePolicy, QScrollArea, 
-        QLineEdit, QMessageBox
+        QLineEdit, QMessageBox, QRadioButton
         )
 from PySide6.QtGui import QPixmap
 from obj3d.object3d import object3d
-from gui.common import MHTagEdit, IconButton, MHFileRequest
+from gui.common import MHTagEdit, IconButton, MHFileRequest,  ErrorBox
 from gui.slider import SimpleSlider
 
 
@@ -21,8 +21,11 @@ class MHMaterialEditor(QWidget):
         self.glob = parent.glob
         self.object = obj
         self.material = obj.material
-        print (self.material)
-
+        self.shadertypes = [ 
+                [None, "Phong", "phong3l", "combination of ambient, diffuse and specular reflection"],
+                [None, "Litpshere", "litsphere", "IBL (image based lighting), MatCap"],
+                [None, "PBR", "pbr", "physical based rendering (openGL)"]
+        ]
         self.setWindowTitle("Material Editor")
         self.resize(600, 750)
 
@@ -110,9 +113,22 @@ class MHMaterialEditor(QWidget):
         gb.setLayout(hlayout)
         slayout.addWidget(gb)
 
-        
         gb = QGroupBox("OpenGL shader-specific")
         gb.setObjectName("subwindow")
+        hlayout = QHBoxLayout()
+
+        # shader buttons
+        #
+        vlayout = QVBoxLayout()
+        #        ["Phong", "phong3l", "combination of ambient, diffuse and specular reflection", None],
+        for shader in self.shadertypes:
+            shader[0] = QRadioButton(shader[1])
+            shader[0].setToolTip(shader[3])
+            shader[0].toggled.connect(self.updateShaderType)
+            vlayout.addWidget(shader[0])
+
+        hlayout.addLayout(vlayout)
+
         vlayout = QVBoxLayout()
         self.transparent = QCheckBox("Material is transparent")
         self.transparent.stateChanged.connect(self.transparentchanged)
@@ -123,7 +139,8 @@ class MHMaterialEditor(QWidget):
         vlayout.addWidget(self.transparent)
         vlayout.addWidget(self.backfacecull)
         vlayout.addWidget(self.alphacov)
-        gb.setLayout(vlayout)
+        hlayout.addLayout(vlayout)
+        gb.setLayout(hlayout)
         slayout.addWidget(gb)
 
         gb = QGroupBox("OpenGL only valid inside MakeHuman")
@@ -167,6 +184,12 @@ class MHMaterialEditor(QWidget):
         self.object = obj
         self.material = obj.material
         self.namebox.setText(self.material.name)
+
+        # activate shaderbuttons
+        #
+        for shader in self.shadertypes:
+            shader[0].setChecked(self.material.shader == shader[2])
+
         self.metalRoughness.setSliderValue(self.material.pbrMetallicRoughness * 100)
         self.metalNess.setSliderValue(self.material.metallicFactor * 100)
         self.aomapIntensity.setSliderValue(self.material.aomapIntensity * 100)
@@ -212,6 +235,13 @@ class MHMaterialEditor(QWidget):
             self.littex.newIcon(self.emptyIcon)
             self.litlab.setText("None")
 
+    def updateShaderType(self, _):
+        m = self.sender()
+        if m.isChecked():
+            for shader in self.shadertypes:
+                if m is shader[0]:
+                    self.material.shader =  shader[2]
+
     def change_diff(self):
         s = self.sender()
         m = s._funcid
@@ -240,7 +270,6 @@ class MHMaterialEditor(QWidget):
                 self.material.sp_litsphereTexture = filename
                 self.littex.newIcon(self.material.sp_litsphereTexture)
                 self.litlab.setText(self.shortenName(self.material.sp_litsphereTexture))
-                self.material.shader = "litsphere"
 
 
     def noTexture(self):
@@ -264,7 +293,6 @@ class MHMaterialEditor(QWidget):
             self.mrlab.setText("None")
         elif m==5 and hasattr(self.material, "sp_litsphereTexture"):
             delattr( self.material, "sp_litsphereTexture")
-            self.material.shader = "phong3l"
             self.littex.newIcon(self.emptyIcon)
             self.litlab.setText("None")
 
@@ -292,7 +320,16 @@ class MHMaterialEditor(QWidget):
     def alphacovchanged(self):
         self.material.alphaToCoverage = self.alphacov.isChecked()
 
+    def checkLitsphere(self):
+        if self.material.shader == "litsphere" and not hasattr(self.material, "sp_litsphereTexture"):
+            self.material.shader = "phong3l"
+            ErrorBox(self, "Litpshere cannot be used without a litsphere texture.")
+            return False
+        return True
+
     def save_call(self):
+        if self.checkLitsphere() is False:
+            return
         directory = self.material.objdir
         freq = MHFileRequest("Material (MHMAT)", "material files (*.mhmat)", directory, save=".mhmat")
         filename = freq.request()
@@ -304,6 +341,11 @@ class MHMaterialEditor(QWidget):
         self.close()
 
     def use_call(self):
+        if self.checkLitsphere() is False:
+            return
         self.object.openGL.setMaterial(self.material)
         self.close()
+
+    def closeEvent(self, event):
+        self.checkLitsphere()
 
