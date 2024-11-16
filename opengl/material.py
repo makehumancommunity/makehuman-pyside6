@@ -26,6 +26,7 @@ class Material:
     def default(self):
         self.tex_diffuse = None
         self.tex_litsphere = None
+        self.tex_aomap = None
         self.ambientColor = [0.5, 0.5, 0.5 ]
         self.diffuseColor = [1.0, 1.0, 1.0 ]
         self.specularColor = [0.5, 0.5, 0.5 ]
@@ -350,6 +351,14 @@ shaderConfig diffuse {self.sc_diffuse}
         self.tex_litsphere = MH_Texture(self.glob.textureRepo)
         return self.tex_litsphere.load(self.sp_litsphereTexture)
 
+    def loadAOMap(self, white):
+        if hasattr(self, 'aomapTexture'):
+            self.tex_aomap = MH_Texture(self.glob.textureRepo)
+            return self.tex_aomap.load(self.aomapTexture)
+
+        return white
+
+
     def loadDiffuse(self):
         self.tex_diffuse = MH_Texture(self.glob.textureRepo)
         if hasattr(self, 'diffuseTexture'):
@@ -370,6 +379,7 @@ shaderConfig diffuse {self.sc_diffuse}
             else:
                 self.tex_diffuse.destroy()
 
-        if self.tex_litsphere:
-            self.tex_litsphere.delete()
+        for elem in [self.tex_litsphere, self.tex_aomap]:
+            if elem:
+                elem.delete()
 

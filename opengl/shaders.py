@@ -12,7 +12,8 @@ class ShaderPair(QOpenGLShaderProgram):
                 "lightPos1": -1, "lightPos2": -1, "lightPos3": -1,
                 "lightVol1": -1, "lightVol2": -1, "lightVol3": -1,
                 "ambientLight": -1, "lightWeight": -1, "viewPos": -1, "blinn": -1,
-                "Texture": -1, "litsphereTexture": -1, "AdditiveShading": -1, "skybox": -1}
+                "Texture": -1, "litsphereTexture": -1, "AdditiveShading": -1,
+                "AOTexture": -1, "AOMult": -1, "skybox": -1}
         self.env = env
         self.frag_id = None
         self.vert_id = None

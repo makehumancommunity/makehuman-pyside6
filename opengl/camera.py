@@ -87,7 +87,7 @@ class Camera():
         self.view_matrix.setToIdentity()
         self.view_matrix.lookAt( self.cameraPos, self.lookAt, self.cameraDir)
         self.proj_view_matrix = self.proj_matrix * self.view_matrix
-        self.shaders.setShaderUniform(self.phong, "viewPos", self.view_matrix)
+        #self.shaders.setShaderUniform(self.phong, "viewPos", self.view_matrix) # TODO is that needed here?
 
     def calculateOrthoMatrix(self):
         self.proj_matrix.setToIdentity()
@@ -277,6 +277,7 @@ class Light():
         self.shaderInit = glob.shaderInit
         self.shaders = shaders
         self.phong = shaders.getShader("phong3l")
+        self.pbr = shaders.getShader("pbr")
         #
         # volume of scene in units
         #
@@ -344,16 +345,17 @@ class Light():
             d["color"]    = self.q4ToList(s["vol"])
 
     def setShader(self):
-        for elem in self.lights:
-            self.shaders.setShaderUniform(self.phong, elem["namepos"], elem["pos"])
-            self.shaders.setShaderUniform(self.phong, elem["namevol"], elem["vol"])
-        self.shaders.setShaderUniform(self.phong, "ambientLight", self.ambientLight)
-        self.shaders.setShaderUniform(self.phong, "lightWeight", self.lightWeight)
-        self.shaders.setShaderUniform(self.phong, "blinn", self.blinn)
+        for shader in [self.phong, self.pbr]:
+            self.shaders.bindShader(shader)
+            for elem in self.lights:
+                self.shaders.setShaderUniform(shader, elem["namepos"], elem["pos"])
+                self.shaders.setShaderUniform(shader, elem["namevol"], elem["vol"])
+            self.shaders.setShaderUniform(shader, "ambientLight", self.ambientLight)
+            self.shaders.setShaderUniform(shader, "lightWeight", self.lightWeight)
+            self.shaders.setShaderUniform(shader, "blinn", self.blinn)
 
     def useBlinn(self, value):
         if value != self.blinn:
-            self.shaders.bindShader(self.phong)
             self.blinn = value
             self.setShader()
 
@@ -361,17 +363,14 @@ class Light():
         self.skybox = value
 
     def setAmbientLuminance(self, value):
-        self.shaders.bindShader(self.phong)
         self.ambientLight.setW(value)
         self.setShader()
 
     def setSpecularLuminance(self, value):
-        self.shaders.bindShader(self.phong)
         self.lightWeight.setX(value)
         self.setShader()
 
     def setSpecularFocus(self, value):
-        self.shaders.bindShader(self.phong)
         self.lightWeight.setY(value)
         self.setShader()
 
@@ -382,32 +381,27 @@ class Light():
         self.glclearcolor.setW(1.0)
 
     def setAmbientColor(self, value):
-        self.shaders.bindShader(self.phong)
         self.ambientLight.setX(value.redF())
         self.ambientLight.setY(value.greenF())
         self.ambientLight.setZ(value.blueF())
         self.setShader()
 
     def setHPos(self, num, y):
-        self.shaders.bindShader(self.phong)
         m =  self.lights[num]["pos"]
         m.setY(y)
         self.setShader()
 
     def setLPos(self, num, x, z):
-        self.shaders.bindShader(self.phong)
         m =  self.lights[num]["pos"]
         m.setX(x)
         m.setZ(z)
         self.setShader()
 
     def setLLuminance(self, num, value):
-        self.shaders.bindShader(self.phong)
         self.lights[num]["vol"].setW(value)
         self.setShader()
 
     def setLColor(self, num, value):
-        self.shaders.bindShader(self.phong)
         m =  self.lights[num]["vol"]
         m.setX(value.redF())
         m.setY(value.greenF())

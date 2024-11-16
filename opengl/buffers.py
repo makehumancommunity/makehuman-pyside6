@@ -61,13 +61,16 @@ class OpenGlBuffers():
             self.tex_coord_buffer.destroy()
 
 class RenderedObject:
-    def __init__(self, glob, context, shaders, obj, boundingbox, glbuffers, pos):
-        self.glob = glob
-        self.env = glob.env
-        self.context = context
+    def __init__(self, parent, obj, boundingbox, glbuffers, pos):
+        self.parent = parent
+        self.glob = parent.glob
+        self.context = parent.context()
+        self.shaders = parent.mh_shaders
+
+        self.env = self.glob.env
         self.texture = None
         self.litsphere = None
-        self.shaders = shaders
+        self.aomap = None
         self.z_depth = obj.z_depth
         self.name = obj.filename
         self.boundingbox = boundingbox
@@ -96,11 +99,13 @@ class RenderedObject:
 
     def setMaterial(self, material):
         """
-        set Texture, litSphere and AdditiveLight
+        set Texture, litSphere and AdditiveLight, prb = ambientocclusion
         """
         functions = self.context.functions()
         if material.shader == "litsphere":
             self.shader = self.shaders.getShader("litsphere")
+        elif material.shader == "pbr":
+            self.shader = self.shaders.getShader("pbr")
         else:
             self.shader = self.shaders.getShader("phong3l")
 
@@ -118,9 +123,13 @@ class RenderedObject:
             functions.glUniform1i(t2, 1)
             functions.glUniform1f(add, self.material.sp_AdditiveShading)
             functions.glActiveTexture(gl.GL_TEXTURE1)
-            """
-            self.litsphere.bind()
-            """
+        elif material.shader == "pbr":
+            self.aomap = self.material.loadAOMap(self.parent.white)
+            t2 = self.shader.uniforms['AOTexture']
+            intense =self.shader.uniforms['AOMult']
+            functions.glUniform1i(t2, 1)
+            functions.glUniform1f(intense, self.material.aomapIntensity)
+            functions.glActiveTexture(gl.GL_TEXTURE1)
 
         functions.glActiveTexture(gl.GL_TEXTURE0)
 
@@ -218,6 +227,13 @@ class RenderedObject:
                 functions.glUniform1f(add, self.material.sp_AdditiveShading)
                 functions.glActiveTexture(gl.GL_TEXTURE1)
                 self.litsphere.bind()
+            elif self.material.shader == "pbr":
+                t2 = shader.uniforms['AOTexture']
+                intense =self.shader.uniforms['AOMult']
+                functions.glUniform1i(t2, 1)
+                functions.glUniform1f(intense, self.material.aomapIntensity)
+                functions.glActiveTexture(gl.GL_TEXTURE1)
+                self.aomap.bind()
 
         indices = self.getindex()
         functions.glDrawElements(gl.GL_TRIANGLES, len(indices), gl.GL_UNSIGNED_INT, indices)

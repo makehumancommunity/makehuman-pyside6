@@ -173,7 +173,7 @@ class OpenGLView(QOpenGLWidget):
                 if (self.compareBoundingBoxes(elem.boundingbox, boundingbox)) is False:
                     break
             cnt += 1
-        obj.openGL = RenderedObject(self.glob, self.context(), self.mh_shaders, obj, boundingbox, glbuffer, pos=QVector3D(0, 0, 0))
+        obj.openGL = RenderedObject(self, obj, boundingbox, glbuffer, pos=QVector3D(0, 0, 0))
         self.objects.insert(cnt, obj.openGL)
 
     def deleteObject(self,obj):
@@ -208,7 +208,7 @@ class OpenGLView(QOpenGLWidget):
         # initialize shaders
         #
         self.mh_shaders = ShaderRepository(self.glob)
-        self.mh_shaders.loadShaders(["phong3l", "fixcolor", "xray", "litsphere", "skybox"])
+        self.mh_shaders.loadShaders(["phong3l", "fixcolor", "xray", "litsphere", "pbr", "skybox"])
 
         self.light = Light(self.mh_shaders, self.glob)
         self.light.setShader()
