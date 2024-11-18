@@ -179,9 +179,9 @@ class MHSceneWindow(QWidget):
         self.specFocus.setSliderValue(self.light.lightWeight.y())
         self.clearColor.setColorValue(self.vec4ToCol(self.light.glclearcolor))
         lights = self.light.lights
-        self.l1Luminance.setSliderValue(lights[0]["vol"].w() * 10)
-        self.l2Luminance.setSliderValue(lights[1]["vol"].w() * 10)
-        self.l3Luminance.setSliderValue(lights[2]["vol"].w() * 10)
+        self.l1Luminance.setSliderValue(lights[0]["int"] * 10)
+        self.l2Luminance.setSliderValue(lights[1]["int"] * 10)
+        self.l3Luminance.setSliderValue(lights[2]["int"] * 10)
         self.ambColor.setColorValue(self.vec4ToCol(self.light.ambientLight))
         self.l1Color.setColorValue(self.vec4ToCol(lights[0]["vol"]))
         self.l2Color.setColorValue(self.vec4ToCol(lights[1]["vol"]))

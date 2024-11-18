@@ -9,8 +9,6 @@ from PySide6.QtOpenGL import QOpenGLBuffer, QOpenGLShader, QOpenGLShaderProgram
 class ShaderPair(QOpenGLShaderProgram):
     def __init__(self, env, path):
         self.uniforms = { "uMvpMatrix": -1, "uModelMatrix": -1, "uNormalMatrix": -1,
-                "lightPos1": -1, "lightPos2": -1, "lightPos3": -1,
-                "lightVol1": -1, "lightVol2": -1, "lightVol3": -1,
                 "ambientLight": -1, "lightWeight": -1, "viewPos": -1, "blinn": -1,
                 "Texture": -1, "litsphereTexture": -1, "AdditiveShading": -1,
                 "AOTexture": -1, "AOMult": -1, "skybox": -1}
@@ -99,3 +97,15 @@ class ShaderRepository():
                 shader.setUniformValue(shader.uniforms[name], var)
             else:
                 print (name + " not registered")
+
+    def setShaderArrayStruct(self, shader, name, index, member, var):
+        name = name + "[" + str(index) + "]." + member
+        loc = shader.uniformLocation(name)
+        if loc != -1:
+            if isinstance(var, float):
+                shader.setUniformValue1f(loc, var)
+            else:
+                shader.setUniformValue(loc, var)
+        else:
+            print (name + " not registered")
+

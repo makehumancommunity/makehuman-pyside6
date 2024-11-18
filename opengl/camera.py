@@ -291,12 +291,9 @@ class Light():
         self.skybox = True
 
         self.lights = [ 
-                { "namepos": "lightPos1", "pos": QVector3D(),
-                    "namevol": "lightVol1", "vol": QVector4D() }, 
-                { "namepos": "lightPos2", "pos": QVector3D(),
-                    "namevol": "lightVol2", "vol": QVector4D() },
-                { "namepos": "lightPos3", "pos": QVector3D(),
-                    "namevol": "lightVol3", "vol": QVector4D() },
+                { "pos": QVector3D(), "vol": QVector3D(), "int": 0.0 }, 
+                { "pos": QVector3D(), "vol": QVector3D(), "int": 0.0 },
+                { "pos": QVector3D(), "vol": QVector3D(), "int": 0.0 },
                 ]
         self.fromGlobal(False)
     
@@ -330,7 +327,8 @@ class Light():
             d = self.lights[i]
             s = self.shaderInit["lamps"][i]
             self.listTo3D(d["pos"], s["position"])
-            self.listTo4D(d["vol"], s["color"])
+            self.listTo3D(d["vol"], s["color"][:3])     # color + intensity are in one array in json
+            d["int"] = s["color"][3]
         self.setShader()
 
     def toGlobal(self):
@@ -342,14 +340,15 @@ class Light():
             d = self.shaderInit["lamps"][i]
             s = self.lights[i]
             d["position"] = self.q3ToList(s["pos"])
-            d["color"]    = self.q4ToList(s["vol"])
+            d["color"]    = [self.q3ToList(s["vol"]),  s["int"]]    # recombine array
 
     def setShader(self):
         for shader in [self.phong, self.pbr]:
             self.shaders.bindShader(shader)
-            for elem in self.lights:
-                self.shaders.setShaderUniform(shader, elem["namepos"], elem["pos"])
-                self.shaders.setShaderUniform(shader, elem["namevol"], elem["vol"])
+            for i, elem in enumerate(self.lights):
+                self.shaders.setShaderArrayStruct(shader, "pointLights", i, "position", elem["pos"])
+                self.shaders.setShaderArrayStruct(shader, "pointLights", i, "color", elem["vol"])
+                self.shaders.setShaderArrayStruct(shader, "pointLights", i, "intensity", elem["int"])
             self.shaders.setShaderUniform(shader, "ambientLight", self.ambientLight)
             self.shaders.setShaderUniform(shader, "lightWeight", self.lightWeight)
             self.shaders.setShaderUniform(shader, "blinn", self.blinn)
@@ -398,7 +397,7 @@ class Light():
         self.setShader()
 
     def setLLuminance(self, num, value):
-        self.lights[num]["vol"].setW(value)
+        self.lights[num]["int"] = value
         self.setShader()
 
     def setLColor(self, num, value):
