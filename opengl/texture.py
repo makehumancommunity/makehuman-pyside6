@@ -5,6 +5,7 @@ from PySide6.QtCore import QSize
 class TextureRepo():
     def __init__(self):
         self.textures = {}
+        self.systextures = {}
 
     def getTextures(self):
         return self.textures
@@ -13,9 +14,12 @@ class TextureRepo():
         for t in self.textures.keys():
             print (t, self.textures[t][1])
 
-    def add(self, path, texture):
-        if path not in self.textures:
-            self.textures[path] = [texture, 1]
+    def add(self, path, texture, textype="user"):
+        if textype == "system":
+            self.systextures[path] = [texture, 1]
+        else:
+            if path not in self.textures:
+                self.textures[path] = [texture, 1]
 
     def exists(self, path):
         if path in self.textures:
@@ -36,18 +40,27 @@ class TextureRepo():
                     del t[elem]
                 return
 
-    def cleanup(self):
+    def cleanup(self, textype="user"):
         """
         central location to delete textures
+        (systextures only by demand)
         """
         t = self.textures
         for elem in t:
             t[elem][0].destroy()
+
         self.textures = {}
 
+        if textype == "system":
+            t = self.systextures
+            for elem in t:
+                t[elem][0].destroy()
+
+
 class MH_Texture():
-    def __init__(self, repo):
+    def __init__(self, repo,  textype="user"):
         self.repo = repo
+        self.textype = textype
         self.texture = QOpenGLTexture(QOpenGLTexture.Target2D)
 
     def create(self, name, image):
@@ -79,7 +92,7 @@ class MH_Texture():
         image = QImage(QSize(1,1),QImage.Format_ARGB32)
         image.fill(color)
         self.texture = self.create(name, image)
-        self.repo.add(name, self.texture)
+        self.repo.add(name, self.texture, self.textype)
         return self.texture
 
 

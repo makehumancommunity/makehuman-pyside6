@@ -344,7 +344,7 @@ shaderConfig diffuse {self.sc_diffuse}
         return self.tex_diffuse.unicolor([newcolor[0], newcolor[1], newcolor[2]])
 
     def uniColor(self, rgb):
-        self.tex_diffuse = MH_Texture(self.glob.textureRepo)
+        self.tex_diffuse = MH_Texture(self.glob.textureRepo, self.type)
         return self.tex_diffuse.unicolor(rgb)
 
     def loadLitSphere(self):
