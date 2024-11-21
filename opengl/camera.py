@@ -350,8 +350,12 @@ class Light():
                 self.shaders.setShaderArrayStruct(shader, "pointLights", i, "color", elem["vol"])
                 self.shaders.setShaderArrayStruct(shader, "pointLights", i, "intensity", elem["int"])
             self.shaders.setShaderUniform(shader, "ambientLight", self.ambientLight)
-            self.shaders.setShaderUniform(shader, "lightWeight", self.lightWeight)
-            self.shaders.setShaderUniform(shader, "blinn", self.blinn)
+        
+        # next ones are only for phong
+        #
+        self.shaders.bindShader(self.phong)
+        self.shaders.setShaderUniform(self.phong, "blinn", self.blinn)
+        self.shaders.setShaderUniform(self.phong, "lightWeight", self.lightWeight)
 
     def useBlinn(self, value):
         if value != self.blinn:
