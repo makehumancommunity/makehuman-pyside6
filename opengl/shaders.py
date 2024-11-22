@@ -11,7 +11,7 @@ class ShaderPair(QOpenGLShaderProgram):
         self.uniforms = { "uMvpMatrix": -1, "uModelMatrix": -1, "uNormalMatrix": -1,
                 "ambientLight": -1, "lightWeight": -1, "viewPos": -1, "blinn": -1,
                 "Texture": -1, "litsphereTexture": -1, "AdditiveShading": -1,
-                "AOTexture": -1, "AOMult": -1, "skybox": -1}
+                "AOTexture": -1, "AOMult": -1, "MRTexture": -1, "MeMult": -1, "RoMult": -1, "skybox": -1}
         self.env = env
         self.frag_id = None
         self.vert_id = None

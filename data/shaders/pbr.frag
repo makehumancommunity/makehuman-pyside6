@@ -21,18 +21,19 @@ in VS_OUT {
 
 uniform sampler2D Texture;
 uniform sampler2D AOTexture;
-uniform PointLight pointLights[3];
+uniform sampler2D MRTexture;
 
-uniform vec3 lightWeight;
+uniform float AOMult;
+uniform float RoMult;
+uniform float MeMult;
+
 uniform vec4 ambientLight;
 uniform vec3 viewPos;
-uniform bool blinn;
-uniform float AOMult;
+
+uniform PointLight pointLights[3];
 
 const float PI = 3.14159265359;
 const float min_roughness = 0.04;
-const float metallic = 1.0;		// test
-const float roughness = 0.5;		// test
 
 // Trowbridge-Reitz GGX, original is without squaring twice the roughness
 // input N = normal, H = halfway, roughness (0 = smooth)
@@ -96,10 +97,17 @@ vec3 brdf(vec3 n, vec3 V, vec3 L, float rough, vec3 F0, vec3 c_diff, vec3 radian
 
 void main()
 {
-	vec3 color = texture(Texture, fs_in.TexCoords).rgb;
-	float ao = texture(AOTexture, fs_in.TexCoords).r;
-	float transp = texture(Texture, fs_in.TexCoords).a;
+	vec4 basecolor = texture(Texture, fs_in.TexCoords);
+	float transp = basecolor.a;
 	if (transp < 0.01) discard;
+
+	vec3 color = basecolor.rgb;
+
+	float ao = texture(AOTexture, fs_in.TexCoords).r;
+	vec2  mr = texture(MRTexture, fs_in.TexCoords).rg;
+
+	float metallic  = clamp(mr.g * MeMult, 0.0, 1.0);
+	float roughness = clamp(mr.r * RoMult, min_roughness, 1.0);
 
 	vec3 F0 = mix(vec3(min_roughness), color, metallic);
 
@@ -111,14 +119,13 @@ void main()
 	vec3 normal = normalize(fs_in.Normal);
 	vec3 viewDir = normalize(viewPos - fs_in.FragPos);
 
-	// vec3 specw = vec3(lightWeight[0]);
-
 	for (int i = 0; i < 3; i++) {
 		if (pointLights[i].intensity > 0.01) {
 			// calculate per-light radiance
 			vec3 lightpos = pointLights[i].position;
         		vec3 L = normalize(lightpos - fs_in.FragPos);
-        		float distance    = length(lightpos - fs_in.FragPos);
+        		// float distance    = length(lightpos - fs_in.FragPos);
+        		float distance    = length(L);
         		float attenuation = pointLights[i].intensity / (distance * distance);
         		vec3 radiance     = pointLights[i].color * attenuation;
 
@@ -127,10 +134,7 @@ void main()
 	}
 	vec3 ambient = ambientLight[3] * color * vec3(ambientLight) * ao * AOMult;
 	color = ambient + outcolor;
-
-	color = color / (color + vec3(1.0));
-    	color = pow(color, vec3(1.0/2.2));  
-   
-	FragColor = vec4(color, transp);
+	color = color / 1.1; // TODO: color correction is a bit odd
+	FragColor = vec4(clamp(color, 0.0, 1.0), transp);
 }
 

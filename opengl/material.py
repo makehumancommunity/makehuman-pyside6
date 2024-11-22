@@ -27,6 +27,7 @@ class Material:
         self.tex_diffuse = None
         self.tex_litsphere = None
         self.tex_aomap = None
+        self.tex_mrmap = None
         self.ambientColor = [0.5, 0.5, 0.5 ]
         self.diffuseColor = [1.0, 1.0, 1.0 ]
         self.specularColor = [0.5, 0.5, 0.5 ]
@@ -358,6 +359,13 @@ shaderConfig diffuse {self.sc_diffuse}
 
         return white
 
+    def loadMRMap(self, white):
+        if hasattr(self, 'metallicRoughnessTexture'):
+            self.tex_mrmap = MH_Texture(self.glob.textureRepo)
+            return self.tex_mrmap.load(self.metallicRoughnessTexture)
+
+        return white
+
 
     def loadDiffuse(self):
         self.tex_diffuse = MH_Texture(self.glob.textureRepo)
@@ -379,7 +387,7 @@ shaderConfig diffuse {self.sc_diffuse}
             else:
                 self.tex_diffuse.destroy()
 
-        for elem in [self.tex_litsphere, self.tex_aomap]:
+        for elem in [self.tex_litsphere, self.tex_aomap, self.tex_mrmap]:
             if elem:
                 elem.delete()
 

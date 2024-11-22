@@ -71,6 +71,7 @@ class RenderedObject:
         self.texture = None
         self.litsphere = None
         self.aomap = None
+        self.mrmap = None
         self.z_depth = obj.z_depth
         self.name = obj.filename
         self.boundingbox = boundingbox
@@ -130,6 +131,15 @@ class RenderedObject:
             functions.glUniform1i(t2, 1)
             functions.glUniform1f(intense, self.material.aomapIntensity)
             functions.glActiveTexture(gl.GL_TEXTURE1)
+
+            self.mrmap = self.material.loadMRMap(self.parent.white)
+            t3 = self.shader.uniforms['MRTexture']
+            metallic =self.shader.uniforms['MeMult']
+            roughness =self.shader.uniforms['RoMult']
+            functions.glUniform1i(t3, 2)
+            functions.glUniform1f(metallic, self.material.metallicFactor)
+            functions.glUniform1f(roughness, self.material.pbrMetallicRoughness)
+            functions.glActiveTexture(gl.GL_TEXTURE2)
 
         functions.glActiveTexture(gl.GL_TEXTURE0)
 
@@ -234,6 +244,15 @@ class RenderedObject:
                 functions.glUniform1f(intense, self.material.aomapIntensity)
                 functions.glActiveTexture(gl.GL_TEXTURE1)
                 self.aomap.bind()
+
+                t3 = shader.uniforms['MRTexture']
+                metallic =self.shader.uniforms['MeMult']
+                roughness =self.shader.uniforms['RoMult']
+                functions.glUniform1i(t3, 2)
+                functions.glUniform1f(metallic, self.material.metallicFactor)
+                functions.glUniform1f(roughness, self.material.pbrMetallicRoughness)
+                functions.glActiveTexture(gl.GL_TEXTURE2)
+                self.mrmap.bind()
 
         indices = self.getindex()
         functions.glDrawElements(gl.GL_TRIANGLES, len(indices), gl.GL_UNSIGNED_INT, indices)

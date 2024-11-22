@@ -180,6 +180,10 @@ class MHMaterialEditor(QWidget):
             return ("... " + path[len(path)-35:])
         return(path)
 
+    def Tweak(self):
+        self.object.openGL.setMaterial(self.material)
+        self.glob.openGLWindow.Tweak()
+
     def updateWidgets(self, obj):
         self.object = obj
         self.material = obj.material
@@ -241,6 +245,7 @@ class MHMaterialEditor(QWidget):
             for shader in self.shadertypes:
                 if m is shader[0]:
                     self.material.shader =  shader[2]
+        self.Tweak()
 
     def change_diff(self):
         s = self.sender()
@@ -270,6 +275,7 @@ class MHMaterialEditor(QWidget):
                 self.material.sp_litsphereTexture = filename
                 self.littex.newIcon(self.material.sp_litsphereTexture)
                 self.litlab.setText(self.shortenName(self.material.sp_litsphereTexture))
+        self.Tweak()
 
 
     def noTexture(self):
@@ -295,30 +301,39 @@ class MHMaterialEditor(QWidget):
             delattr( self.material, "sp_litsphereTexture")
             self.littex.newIcon(self.emptyIcon)
             self.litlab.setText("None")
+        self.Tweak()
 
     def metalchanged(self, value):
         self.material.metallicFactor =  value / 100.0
+        self.Tweak()
 
     def metalroughchanged(self, value):
         self.material.pbrMetallicRoughness = value / 100.0
+        self.Tweak()
 
     def aomapchanged(self, value):
         self.material.aomapIntensity = value / 100.0
+        self.Tweak()
 
     def normalmapchanged(self, value):
         self.material.normalmapIntensity = value / 100.0
+        self.Tweak()
 
     def litspherechanged(self, value):
         self.material.sp_AdditiveShading = value / 100.0
+        self.Tweak()
 
     def backfacecullchanged(self):
         self.material.backfaceCull = self.backfacecull.isChecked()
+        self.Tweak()
 
     def transparentchanged(self):
         self.material.transparent = self.transparent.isChecked()
+        self.Tweak()
 
     def alphacovchanged(self):
         self.material.alphaToCoverage = self.alphacov.isChecked()
+        self.Tweak()
 
     def checkLitsphere(self):
         if self.material.shader == "litsphere" and not hasattr(self.material, "sp_litsphereTexture"):
@@ -343,7 +358,7 @@ class MHMaterialEditor(QWidget):
     def use_call(self):
         if self.checkLitsphere() is False:
             return
-        self.object.openGL.setMaterial(self.material)
+        self.Tweak()
         self.close()
 
     def closeEvent(self, event):
