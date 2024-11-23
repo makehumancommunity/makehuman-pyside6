@@ -21,6 +21,14 @@ class MHSceneWindow(QWidget):
         self.setWindowTitle("Scene and Lighting")
         self._volume = 100.0 / (np.array(self.light.max_coords) - np.array(self.light.min_coords))
 
+        # will keep the widgets
+        #
+        self.lightsetup = [
+                [None, None, None, None, None, None],
+                [None, None, None, None, None, None],
+                [None, None, None, None, None, None]
+        ]
+
         layout = QVBoxLayout()
 
         l2layout = QHBoxLayout()
@@ -47,7 +55,7 @@ class MHSceneWindow(QWidget):
 
         # shader type
         #
-        l03 = QGroupBox("Shader Method")
+        l03 = QGroupBox("Shader Method (phong)")
         l03.setObjectName("subwindow")
         vlayout = QVBoxLayout()
         self.phong = QRadioButton("Phong")
@@ -69,65 +77,35 @@ class MHSceneWindow(QWidget):
         l2layout.addWidget(l03)
         layout.addLayout(l2layout)
 
-        # -- light 1
+        # -- lights
         #
-        l1 = QGroupBox("Light Source 1")
-        l1.setObjectName("subwindow")
-        hlayout = QHBoxLayout()
-        self.l1Luminance = SimpleSlider("Luminance: ", 0, 100, self.l1Changed)
-        hlayout.addWidget(self.l1Luminance )
+        for l, widget in enumerate(self.lightsetup):
+            lg = QGroupBox("Light Source " + str(l))
+            lg.setObjectName("subwindow")
+            hlayout = QHBoxLayout()
+            vlayout = QVBoxLayout()
+            widget[0] = SimpleSlider("Luminance: ", 0, 100, self.lChanged, ident=l)
+            vlayout.addWidget(widget[0])
 
-        self.l1Color = ColorButton("Color: ", self.l1ColorChanged)
-        hlayout.addWidget(self.l1Color)
+            widget[1] = ColorButton("Color: ", self.lColorChanged, horizontal=True, ident=l)
+            vlayout.addWidget(widget[1])
+            hlayout.addLayout(vlayout)
 
-        self.l1map = MapXYCombo([0.5,0.5], self.l1pos, displayfunc=self.xzdisplay, drawcenter=True)
-        hlayout.addWidget(self.l1map)
+            widget[4] = QRadioButton("Directional Light")
+            widget[4].toggled.connect(self.lTypeChanged)
+            vlayout.addWidget(widget[4])
+            widget[5] = QRadioButton("Point Light")
+            widget[5].toggled.connect(self.lTypeChanged)
+            vlayout.addWidget(widget[5])
 
-        self.l1Height = SimpleSlider("Height: ", y1, y2, self.l1posh, vertical=True)
-        hlayout.addWidget(self.l1Height )
+            widget[2] = MapXYCombo([0.5,0.5], self.lpos, displayfunc=self.xzdisplay, drawcenter=True, ident=l)
+            hlayout.addWidget(widget[2])
 
-        l1.setLayout(hlayout)
-        layout.addWidget(l1)
+            widget[3] = SimpleSlider("Height: ", y1, y2, self.lposh, vertical=True, ident=l)
+            hlayout.addWidget(widget[3])
 
-        # -- light 2
-
-        l2 = QGroupBox("Light Source 2")
-        l2.setObjectName("subwindow")
-        hlayout = QHBoxLayout()
-        self.l2Luminance = SimpleSlider("Luminance: ", 0, 100, self.l2Changed)
-        hlayout.addWidget(self.l2Luminance )
-    
-        self.l2Color = ColorButton("Color: ", self.l2ColorChanged)
-        hlayout.addWidget(self.l2Color)
-
-        self.l2map = MapXYCombo([0.5,0.5], self.l2pos, displayfunc=self.xzdisplay, drawcenter=True)
-        hlayout.addWidget(self.l2map)
-
-        self.l2Height = SimpleSlider("Height: ", y1, y2, self.l2posh, vertical=True)
-        hlayout.addWidget(self.l2Height )
-
-        l2.setLayout(hlayout)
-        layout.addWidget(l2)
-
-        # -- light 3
-
-        l3 = QGroupBox("Light Source 3")
-        l3.setObjectName("subwindow")
-        hlayout = QHBoxLayout()
-        self.l3Luminance = SimpleSlider("Luminance: ", 0, 100, self.l3Changed)
-        hlayout.addWidget(self.l3Luminance )
-
-        self.l3Color = ColorButton("Color: ", self.l3ColorChanged)
-        hlayout.addWidget(self.l3Color)
-
-        self.l3map = MapXYCombo([0.5,0.5], self.l3pos, displayfunc=self.xzdisplay, drawcenter=True)
-        hlayout.addWidget(self.l3map)
-
-        self.l3Height = SimpleSlider("Height: ", y1, y2, self.l3posh, vertical=True)
-        hlayout.addWidget(self.l3Height )
-
-        l3.setLayout(hlayout)
-        layout.addWidget(l3)
+            lg.setLayout(hlayout)
+            layout.addWidget(lg)
 
         hlayout = QHBoxLayout()
         button1 = QPushButton("Cancel")
@@ -179,25 +157,23 @@ class MHSceneWindow(QWidget):
         self.specFocus.setSliderValue(self.light.lightWeight.y())
         self.clearColor.setColorValue(self.vec4ToCol(self.light.glclearcolor))
         lights = self.light.lights
-        self.l1Luminance.setSliderValue(lights[0]["int"] * 10)
-        self.l2Luminance.setSliderValue(lights[1]["int"] * 10)
-        self.l3Luminance.setSliderValue(lights[2]["int"] * 10)
         self.ambColor.setColorValue(self.vec4ToCol(self.light.ambientLight))
-        self.l1Color.setColorValue(self.vec4ToCol(lights[0]["vol"]))
-        self.l2Color.setColorValue(self.vec4ToCol(lights[1]["vol"]))
-        self.l3Color.setColorValue(self.vec4ToCol(lights[2]["vol"]))
 
-        # top-view
-        #
-        self.l1map.mapInput.drawValues(lights[0]["pos"].x()* self._volume[0]+ 50, lights[0]["pos"].z()* self._volume[2] + 50)
-        self.l2map.mapInput.drawValues(lights[1]["pos"].x()* self._volume[0]+ 50, lights[1]["pos"].z()* self._volume[2] + 50)
-        self.l3map.mapInput.drawValues(lights[2]["pos"].x()* self._volume[0]+ 50, lights[2]["pos"].z()* self._volume[2] + 50)
+        for l, widget in enumerate(self.lightsetup):
 
-        # height
-        #
-        self.l1Height.setSliderValue(lights[0]["pos"].y())
-        self.l2Height.setSliderValue(lights[1]["pos"].y())
-        self.l3Height.setSliderValue(lights[2]["pos"].y())
+            widget[0].setSliderValue(lights[l]["int"] * 10)
+            widget[1].setColorValue(self.vec4ToCol(lights[l]["vol"]))
+
+            # position (top, height)
+            #
+            widget[2].mapInput.drawValues(lights[l]["pos"].x()* self._volume[l]+ 50, lights[l]["pos"].z()* self._volume[l] + 50)
+            widget[3].setSliderValue(lights[l]["pos"].y())
+
+            t = lights[l]["type"]
+            if t == 0:
+                widget[4].setChecked(True)
+            else:
+                widget[5].setChecked(True)
 
     def clearColorChanged(self, color):
         self.light.setClearColor(color)
@@ -222,61 +198,36 @@ class MHSceneWindow(QWidget):
             self.light.useBlinn(False)
         self.view.Tweak()
 
-    def l1Changed(self, value):
-        self.light.setLLuminance(0, value / 10.0)
+    def lChanged(self, ident, value):
+        self.light.setLLuminance(ident, value / 10.0)
         self.view.Tweak()
 
-    def l1ColorChanged(self, color):
-        self.light.setLColor(0, color)
+    def lColorChanged(self, ident, color):
+        self.light.setLColor(ident, color)
         self.view.Tweak()
 
-    def l1pos(self):
-        m = self.l1map.mapInput.getValues()
+    def lTypeChanged(self):
+        m = self.sender()
+        if m.isChecked():
+            for i, widget in enumerate(self.lightsetup):
+                if widget[4] is m:
+                    self.light.setType(i, 0)
+                    self.view.Tweak()
+                    return
+                if widget[5] is m:
+                    self.light.setType(i, 1)
+                    self.view.Tweak()
+                    return
+
+    def lpos(self, ident):
+        m = self.lightsetup[ident][2].mapInput.getValues()
         x = (m[0] - 0.5 ) * 100 / self._volume[0]
         z = (m[1] - 0.5 ) * 100 / self._volume[2]
-        self.light.setLPos(0, x, z)
+        self.light.setLPos(ident, x, z)
         self.view.Tweak()
 
-    def l1posh(self, value):
-        self.light.setHPos(0, value)
-        self.view.Tweak()
-
-    def l2Changed(self, value):
-        self.light.setLLuminance(1, value / 10.0)
-        self.view.Tweak()
-
-    def l2ColorChanged(self, color):
-        self.light.setLColor(1, color)
-        self.view.Tweak()
-
-    def l2pos(self):
-        m = self.l2map.mapInput.getValues()
-        x = (m[0] - 0.5 ) * 100  / self._volume[0]
-        z = (m[1] - 0.5 ) * 100  / self._volume[2]
-        self.light.setLPos(1, x, z)
-        self.view.Tweak()
-
-    def l2posh(self, value):
-        self.light.setHPos(1, value)
-        self.view.Tweak()
-
-    def l3Changed(self, value):
-        self.light.setLLuminance(2, value / 10.0)
-        self.view.Tweak()
-
-    def l3ColorChanged(self, color):
-        self.light.setLColor(2, color)
-        self.view.Tweak()
-
-    def l3pos(self):
-        m = self.l3map.mapInput.getValues()
-        x = (m[0] - 0.5 ) * 100  / self._volume[0]
-        z = (m[1] - 0.5 ) * 100  / self._volume[2]
-        self.light.setLPos(2, x, z)
-        self.view.Tweak()
-
-    def l3posh(self, value):
-        self.light.setHPos(2, value)
+    def lposh(self, ident, value):
+        self.light.setHPos(ident, value)
         self.view.Tweak()
 
     def setSkybox(self):

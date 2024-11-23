@@ -9,6 +9,7 @@ struct PointLight {
     vec3 position;
     vec3 color;
     float intensity;
+    int type;
 };
 
 out vec4 FragColor;
@@ -121,12 +122,19 @@ void main()
 
 	for (int i = 0; i < 3; i++) {
 		if (pointLights[i].intensity > 0.01) {
-			// calculate per-light radiance
 			vec3 lightpos = pointLights[i].position;
-        		vec3 L = normalize(lightpos - fs_in.FragPos);
-        		// float distance    = length(lightpos - fs_in.FragPos);
-        		float distance    = length(L);
-        		float attenuation = pointLights[i].intensity / (distance * distance);
+			float attenuation = 0.0;
+			vec3 L = vec3(0.0);
+			if (pointLights[i].type == 0) {
+				// calculate per-light radiance (point-Light)
+        			L = normalize(lightpos - fs_in.FragPos);
+        			float distance    = length(lightpos - fs_in.FragPos);
+        			// since light is lm/sr, us a factor
+        			attenuation = (pointLights[i].intensity * 50.0) / (distance * distance);
+			} else {
+				L = normalize(lightpos);
+        			attenuation = pointLights[i].intensity / 4.0;
+			}
         		vec3 radiance     = pointLights[i].color * attenuation;
 
 			outcolor += brdf(normal, viewDir, L, roughness, F0, c_diff, radiance);
@@ -134,7 +142,6 @@ void main()
 	}
 	vec3 ambient = ambientLight[3] * color * vec3(ambientLight) * ao * AOMult;
 	color = ambient + outcolor;
-	color = color / 1.1; // TODO: color correction is a bit odd
 	FragColor = vec4(clamp(color, 0.0, 1.0), transp);
 }
 

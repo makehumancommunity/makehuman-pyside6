@@ -4,10 +4,11 @@ from PySide6.QtCore import Qt, QObject, QEvent, QPointF
 from PySide6.QtGui import QPainter, QPainterPath, QPixmap, QPaintEvent, QPen, QBrush, QColor, QColor, QFont, QFontMetrics
 
 class MapInputWidget(QFrame):
-    def __init__(self, size, framewidth, info, initialValue, callback, displayfunc=None, drawcenter=False):
+    def __init__(self, size, framewidth, info, initialValue, callback, displayfunc=None, drawcenter=False, ident=None):
         super().__init__()
         self.dimension = size
         self.info = info
+        self.ident = ident
         self.displayfunc = displayfunc
         self.drawcenter = drawcenter
         self.callback = callback
@@ -104,15 +105,18 @@ class MapInputWidget(QFrame):
         if self.info is not None:
             self.displayInfo()
         if self.callback is not None:
-           self.callback()
+            if self.ident is None:
+                self.callback()
+            else:
+                self.callback(self.ident)
         self.update()
 
 
 class MapInputWidgetXY(MapInputWidget):
-    def __init__(self, size, framewidth, info=None, initialValue=None, callback=None, displayfunc=None, drawcenter=False):
+    def __init__(self, size, framewidth, info=None, initialValue=None, callback=None, displayfunc=None, drawcenter=False, ident=None):
         if initialValue is None:
             initialValue = [ 0.5, 0.5 ]
-        super().__init__(size, framewidth, info, initialValue, callback, displayfunc, drawcenter)
+        super().__init__(size, framewidth, info, initialValue, callback, displayfunc, drawcenter, ident)
 
 class MapInputWidgetBaryCentric(MapInputWidget):
     def __init__(self, size, framewidth, info=None, initialValue=None, texts=None, callback=None):
@@ -233,7 +237,7 @@ class MapBaryCentricCombo(QWidget):
         self.setLayout(hLayout)
 
 class MapXYCombo(QWidget):
-    def __init__(self, initial, callback, parent=None, displayfunc=None, drawcenter=False):
+    def __init__(self, initial, callback, parent=None, displayfunc=None, drawcenter=False, ident=None):
         super(MapXYCombo, self).__init__(parent=parent)
 
         self.info = QLabel(self)
@@ -241,7 +245,7 @@ class MapXYCombo(QWidget):
         self.info.setAlignment(Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         hLayout = QHBoxLayout()
-        self.mapInput = MapInputWidgetXY(100, 20, info=self.info, initialValue=initial, callback=callback, displayfunc=displayfunc, drawcenter=drawcenter)
+        self.mapInput = MapInputWidgetXY(100, 20, info=self.info, initialValue=initial, callback=callback, displayfunc=displayfunc, drawcenter=drawcenter, ident=ident)
         hLayout.addWidget(self.mapInput)
         hLayout.addWidget(self.info)
         self.setLayout(hLayout)

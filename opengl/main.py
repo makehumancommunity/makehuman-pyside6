@@ -24,6 +24,7 @@ class OpenGLView(QOpenGLWidget):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
         self.setMinimumSize(QSize(300, 560))
         self.setMaximumSize(QSize(2000, 2000))
+        self.sysmaterials = []
         self.buffers = []
         self.objects = []
         self.objects_invisible = False
@@ -186,6 +187,15 @@ class OpenGLView(QOpenGLWidget):
     def newSkin(self, obj):
         self.objects[0].setMaterial(obj.material)
 
+    def createSysMaterials(self):
+        for name in ("black", "white", "grey"):
+            m = Material(self.glob, name, "system")
+            self.sysmaterials.append(m)
+
+        self.black = self.sysmaterials[0].uniColor([0.0, 0.0, 0.0])
+        self.white = self.sysmaterials[1].uniColor([1.0, 1.0, 1.0])
+        self.grey  = self.sysmaterials[2].uniColor([0.5, 0.5, 0.5])
+
     def initializeGL(self):
         """
         automatically called by PySide6, terminates complete program if shader version < minversion (330)
@@ -212,14 +222,11 @@ class OpenGLView(QOpenGLWidget):
 
         self.light = Light(self.mh_shaders, self.glob)
         self.light.setShader()
+        self.createSysMaterials()
 
         self.camera = Camera(self.mh_shaders, o_size)
         self.camera.resizeViewPort(self.width(), self.height())
 
-        self.blackmat = Material(self.glob, "black", "system")
-        self.black = self.blackmat.uniColor([0.0, 0.0, 0.0])
-        self.whitemat = Material(self.glob, "white", "system")
-        self.white = self.whitemat.uniColor([1.0, 1.0, 1.0])
 
         if baseClass is not None:
             self.newMesh()
@@ -378,8 +385,8 @@ class OpenGLView(QOpenGLWidget):
 
     def cleanUp(self):
         print ("cleanup openGL")
-        self.blackmat.freeTextures()
-        self.whitemat.freeTextures()
+        for m in self.sysmaterials:
+            m.freeTextures()
         if self.skybox is not None:
             self.skybox.delete()
             self.skybox = None

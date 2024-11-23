@@ -79,7 +79,7 @@ class globalObjects():
         return(str(uuid4()))
 
     def readShaderInitJSON(self):
-        shaderfile = os.path.join(self.env.path_sysdata, "shaders", "phong3l.json")
+        shaderfile = os.path.join(self.env.path_sysdata, "shaders", "shader.json")
         self.shaderInit = self.env.readJSON(shaderfile)
         return (self.shaderInit)
 

@@ -277,11 +277,12 @@ class ScaleComboArray(QWidget):
             current.comboUpdate(True)
 
 class SimpleSlider(QWidget):
-    def __init__(self, labeltext, minimum, maximum, callback, parent=None, vertical=False, minwidth=159):
+    def __init__(self, labeltext, minimum, maximum, callback, parent=None, vertical=False, minwidth=159, ident=None):
         super().__init__()
         self.labeltext = labeltext
         self.callback = callback
         self.info = QLabel(self)
+        self.ident = ident
         if vertical:
             layout = QHBoxLayout()
             self.slider=QSlider(Qt.Vertical, self)
@@ -315,22 +316,29 @@ class SimpleSlider(QWidget):
     def sliderChanged(self):
         value = self.slider.value()
         self.setInfoText(value)
-        self.callback(value)
+        if self.ident is None:
+            self.callback(value)
+        else:
+            self.callback(self.ident, value)
 
     def setSliderValue(self, value):
         self.setInfoText(value)
         self.slider.setValue(value)
 
 class ColorButton(QWidget):
-    def __init__(self, labeltext, callback, parent=None):
+    def __init__(self, labeltext, callback, parent=None, horizontal=False, ident=None):
         super().__init__()
         self.labeltext = labeltext
         self.callback = callback
-        layout = QVBoxLayout()
+        self.ident = ident
         self.info = QLabel(self)
         self.button = QPushButton()
         self.button.setFixedSize(80,20)
         self.button.clicked.connect(self.getColor)
+        if horizontal:
+            layout = QHBoxLayout()
+        else:
+            layout = QVBoxLayout()
         layout.addWidget(self.info)
         layout.addWidget(self.button)
         layout.addStretch()
@@ -346,5 +354,8 @@ class ColorButton(QWidget):
     def getColor(self):
         color = QColorDialog.getColor()
         self.setColorValue(color)
-        self.callback(color)
+        if self.ident is None:
+            self.callback(color)
+        else:
+            self.callback(self.ident, color)
 

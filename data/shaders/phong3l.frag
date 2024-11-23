@@ -4,6 +4,7 @@ struct PointLight {
     vec3 position;
     vec3 color;
     float intensity;
+    int type;
 };
 
 out vec4 FragColor;
@@ -42,18 +43,25 @@ void main()
 		if (pointLights[i].intensity > 0.01) {
                 	// diffuse
                 	vec3 position = pointLights[i].position;
-                	vec3 lightDir = normalize(position - fs_in.FragPos);
+			vec3 L = vec3(0.0);
+			float diff = 0.0;
                 	float l = length(position - fs_in.FragPos) / pointLights[i].intensity;
-                	float diff = max(dot(lightDir, normal), 0.0) /l;
-                	diffuse += diff * pointLights[i].color * color;
+			if (pointLights[i].type == 0) {
+                		L = normalize(position - fs_in.FragPos);
+                		diff = max(dot(L, normal), 0.0) /l;
+			} else {
+                		L = normalize(position);
+                		diff = clamp(dot(L, normal), 0.0, 1.0) / 2.0;
+			}
+               		diffuse += diff * pointLights[i].color * color;
 
                 	// specular
                 	float spec = 0.0;
                 	if(blinn) {
-                        	vec3 halfwayDir = normalize(lightDir + viewDir);
+                        	vec3 halfwayDir = normalize(L + viewDir);
                         	spec = pow(max(dot(normal, halfwayDir), 0.0), lightWeight[1]) / l;
                 	} else {
-                        	vec3 reflectDir = reflect(-lightDir, normal);
+                        	vec3 reflectDir = reflect(-L, normal);
                         	spec = pow(max(dot(viewDir, reflectDir), 0.0), lightWeight[1]) / l;
                 	}
                 	specular += specw * pointLights[i].color * spec;

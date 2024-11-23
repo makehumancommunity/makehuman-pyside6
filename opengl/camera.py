@@ -169,8 +169,6 @@ class Camera():
         """
         xAngle = (self.last_mousex - x) * self.deltaAngleX
         yAngle = (self.last_mousey - y) * self.deltaAngleY
-        #print (xAngle)
-        #print (yAngle)
 
         # avoid camera direction is identical to up vector
         #
@@ -281,8 +279,8 @@ class Light():
         #
         # volume of scene in units
         #
-        self.min_coords = [-25.0, -15.0, -25.0 ]
-        self.max_coords = [25.0, 15.0, 25.0 ]
+        self.min_coords = [-25.0, -25.0, -25.0 ]
+        self.max_coords = [25.0, 25.0, 25.0 ]
 
         self.glclearcolor = QVector4D()
         self.ambientLight = QVector4D()
@@ -291,9 +289,9 @@ class Light():
         self.skybox = True
 
         self.lights = [ 
-                { "pos": QVector3D(), "vol": QVector3D(), "int": 0.0 }, 
-                { "pos": QVector3D(), "vol": QVector3D(), "int": 0.0 },
-                { "pos": QVector3D(), "vol": QVector3D(), "int": 0.0 },
+                { "pos": QVector3D(), "vol": QVector3D(), "int": 0.0, "type": 0 }, 
+                { "pos": QVector3D(), "vol": QVector3D(), "int": 0.0, "type": 0 },
+                { "pos": QVector3D(), "vol": QVector3D(), "int": 0.0, "type": 0 },
                 ]
         self.fromGlobal(False)
     
@@ -323,12 +321,12 @@ class Light():
         self.listTo4D(self.glclearcolor, self.shaderInit["glclearcolor"])
         self.listTo4D(self.ambientLight, self.shaderInit["ambientcolor"])
         self.lightWeight.setY(self.shaderInit["specularfocus"])
-        for i in range (0,3):
-            d = self.lights[i]
+        for i, d in enumerate(self.lights):
             s = self.shaderInit["lamps"][i]
             self.listTo3D(d["pos"], s["position"])
             self.listTo3D(d["vol"], s["color"][:3])     # color + intensity are in one array in json
             d["int"] = s["color"][3]
+            d["type"] = s["type"]
         self.setShader()
 
     def toGlobal(self):
@@ -336,11 +334,11 @@ class Light():
         self.shaderInit["glclearcolor"] = self.q4ToList(self.glclearcolor)
         self.shaderInit["ambientcolor"] = self.q4ToList(self.ambientLight)
         self.shaderInit["specularfocus"] =  self.lightWeight.y()
-        for i in range (0,3):
+        for i, s in enumerate(self.lights):
             d = self.shaderInit["lamps"][i]
-            s = self.lights[i]
             d["position"] = self.q3ToList(s["pos"])
             d["color"]    = [self.q3ToList(s["vol"]),  s["int"]]    # recombine array
+            d["type"] = s["type"]
 
     def setShader(self):
         for shader in [self.phong, self.pbr]:
@@ -349,6 +347,7 @@ class Light():
                 self.shaders.setShaderArrayStruct(shader, "pointLights", i, "position", elem["pos"])
                 self.shaders.setShaderArrayStruct(shader, "pointLights", i, "color", elem["vol"])
                 self.shaders.setShaderArrayStruct(shader, "pointLights", i, "intensity", elem["int"])
+                self.shaders.setShaderArrayStruct(shader, "pointLights", i, "type", elem["type"])
             self.shaders.setShaderUniform(shader, "ambientLight", self.ambientLight)
         
         # next ones are only for phong
@@ -398,6 +397,10 @@ class Light():
         m =  self.lights[num]["pos"]
         m.setX(x)
         m.setZ(z)
+        self.setShader()
+
+    def setType(self, num, ltype):
+        self.lights[num]["type"] = ltype
         self.setShader()
 
     def setLLuminance(self, num, value):
