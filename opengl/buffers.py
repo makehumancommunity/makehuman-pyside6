@@ -147,6 +147,9 @@ class RenderedObject:
     def setTexture(self, texture):
         # only used for colors
         self.texture = texture
+    
+    def setPosition(self, pos):
+        self.position = pos
 
     def geomToShader(self, shader, proj_view_matrix):
         """

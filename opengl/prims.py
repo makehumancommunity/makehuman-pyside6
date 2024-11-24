@@ -1,8 +1,10 @@
-from opengl.buffers import OpenGlBuffers, RenderedLines
+from opengl.buffers import OpenGlBuffers, RenderedLines, RenderedObject
 
 from PySide6.QtGui import QVector3D
-
 import numpy as np
+import os
+
+from obj3d.object3d import object3d
 
 class LineElements:
     """
@@ -27,6 +29,9 @@ class LineElements:
         self.glbuffer = OpenGlBuffers()
         self.glbuffer.VertexBuffer(self.gl_coord)
         self.glbuffer.NormalBuffer(self.gl_cols)   # used for color
+
+    def isVisible(self):
+        return self.visible
 
     def setVisible(self, status):
         self.visible = status
@@ -120,4 +125,40 @@ class BoneList(LineElements):
             for bone in skeleton.bones:
                 lines.extend ([skeleton.bones[bone].headPos, skeleton.bones[bone].tailPos])
         super().newGeometry(lines)
+
+
+class VisLights():
+    """
+    should create symbolic lamps
+    """
+    def __init__(self, parent, light):
+        self.parent = parent
+        self.glob =  parent.glob
+        self.light = light
+        self.lampobj =  object3d(self.glob, None, "system")
+        self.obj = []
+
+    def setup(self):
+        lampfile = os.path.join(self.glob.env.path_sysdata, "shaders", "meshes", "lampsymbol.obj")
+        (success, text) =self.lampobj.load(lampfile)
+
+        if not success:
+            self.glob.env.logLine(1, text)
+            return False
+
+        glbuffer = OpenGlBuffers()
+        glbuffer.GetBuffers(self.lampobj.gl_coord, self.lampobj.gl_norm, self.lampobj.gl_uvcoord)
+        boundingbox = self.lampobj.boundingBox()
+
+        for light in self.light.lights:
+            l = RenderedObject(self.parent, self.lampobj, boundingbox, glbuffer, pos=light["pos"])
+            self.obj.append(l)
+        return True
+
+    def draw(self, proj_view_matrix):
+        for i, light in enumerate(self.light.lights):
+            self.obj[i].setPosition(light["pos"])
+            self.obj[i].setTexture(self.parent.white)
+            self.obj[i].draw(proj_view_matrix, self.light, False)
+
 
