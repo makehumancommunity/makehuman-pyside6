@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QGridLayout
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QGridLayout, QGroupBox
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from gui.common import IconButton, WorkerThread, ErrorBox, MHFileRequest
@@ -47,9 +47,10 @@ class AnimPlayer(QVBoxLayout):
         self.mesh = self.bc.baseMesh
         self.anim = self.bc.bvh
         self.speedValue = 24
+        self.rotAngle = 2
         super().__init__()
 
-        vlayout = QVBoxLayout()
+        layout = QVBoxLayout()
         if self.anim:
             name = self.anim.name
             frames = self.anim.frameCount
@@ -57,11 +58,14 @@ class AnimPlayer(QVBoxLayout):
             name = "(no animation loaded)"
             frames = 0
 
-        vlayout.addWidget(QLabel("Animation: " + name))
+        gb = QGroupBox("Animation")
+        gb.setObjectName("subwindow")
+
+        vlayout = QVBoxLayout()
+        vlayout.addWidget(QLabel(name))
         vlayout.addWidget(QLabel("Frames: " + str(frames)))
 
         ilayout = QHBoxLayout()
-
         ilayout.addWidget(IconButton(1,  os.path.join(env.path_sysicon, "playerfirstimage.png"), "first frame", self.firstframe))
         ilayout.addWidget(IconButton(2,  os.path.join(env.path_sysicon, "playerprevimage.png"), "previous frame", self.prevframe))
         ilayout.addWidget(IconButton(3,  os.path.join(env.path_sysicon, "playernextimage.png"), "next frame", self.nextframe))
@@ -69,6 +73,7 @@ class AnimPlayer(QVBoxLayout):
         self.loopbutton = IconButton(5,  os.path.join(env.path_sysicon, "reset.png"), "toggle animation", self.loop)
         self.loopbutton.setCheckable(True)
         ilayout.addWidget(self.loopbutton)
+
         vlayout.addLayout(ilayout)
         if frames > 0:
             self.frameSlider = SimpleSlider("Frame number: ", 0, frames-1, self.frameChanged, minwidth=250)
@@ -79,7 +84,25 @@ class AnimPlayer(QVBoxLayout):
             self.speedSlider.setSliderValue(self.speedValue)
             vlayout.addWidget(self.speedSlider )
 
-        self.addLayout(vlayout)
+        gb.setLayout(vlayout)
+        layout.addWidget(gb)
+
+        gb = QGroupBox("Rotator")
+        gb.setObjectName("subwindow")
+        vlayout = QVBoxLayout()
+        ilayout = QHBoxLayout()
+        ilayout.addWidget(IconButton(6,  os.path.join(env.path_sysicon, "none.png"), "reset to 0 degrees", self.resetrot))
+        self.rotatorbutton = IconButton(7,  os.path.join(env.path_sysicon, "reset.png"), "rotator", self.rotator)
+        self.rotatorbutton.setCheckable(True)
+        ilayout.addWidget(self.rotatorbutton)
+        vlayout.addLayout(ilayout)
+
+        self.rotangSlider = SimpleSlider("Rotation in degrees per frame: ", -20, 20, self.rotangChanged, minwidth=250)
+        self.rotangSlider.setSliderValue(self.rotAngle)
+        vlayout.addWidget(self.rotangSlider )
+        gb.setLayout(vlayout)
+        layout.addWidget(gb)
+        self.addLayout(layout)
 
     def enter(self):
         self.loopbutton.setChecked(False)
@@ -91,6 +114,8 @@ class AnimPlayer(QVBoxLayout):
 
     def leave(self):
         self.view.stopTimer()
+        self.view.stopRotate()
+        self.view.setYRotation()
         self.firstframe()
         self.mesh.resetFromCopy()
         self.view.addSkeleton(False)
@@ -120,6 +145,11 @@ class AnimPlayer(QVBoxLayout):
         if self.loopbutton.isChecked():
             self.view.setFPS(self.speedValue)
 
+    def rotangChanged(self, value):
+        self.rotAngle = value
+        if self.rotatorbutton.isChecked():
+            self.view.setYRotAngle(self.rotAngle)
+
     def firstframe(self):
         self.setFrame(0)
 
@@ -147,6 +177,20 @@ class AnimPlayer(QVBoxLayout):
         else:
             self.view.stopTimer()
         b.setChecked(v)
+
+    def rotator(self):
+        b = self.sender()
+        v = b.isChecked()
+        if v:
+            self.view.setYRotAngle(self.rotAngle)
+            self.view.startRotate()
+        else:
+            self.view.stopRotate()
+        b.setChecked(v)
+
+    def resetrot(self):
+        self.view.setYRotation()
+        self.view.Tweak()
 
 class ExpressionItem(ScaleComboItem):
     def __init__(self, glob, name, icon, callback, expression):

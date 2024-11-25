@@ -77,8 +77,8 @@ class RenderedObject:
         self.boundingbox = boundingbox
         self.getindex = obj.getOpenGLIndex
         self.position = QVector3D(0, 0, 0)
-        self.rotation = QVector3D(0, 0, 0)
         self.scale = QVector3D(1, 1, 1)
+        self.y_rotation = 0.0
         self.mvp_matrix = QMatrix4x4()
         self.model_matrix = QMatrix4x4()
         self.normal_matrix = QMatrix4x4()
@@ -151,6 +151,9 @@ class RenderedObject:
     def setPosition(self, pos):
         self.position = pos
 
+    def setYRotation(self, rot):
+        self.y_rotation = rot
+
     def geomToShader(self, shader, proj_view_matrix):
         """
         create geometry
@@ -178,6 +181,8 @@ class RenderedObject:
 
         self.model_matrix.setToIdentity()
         self.model_matrix.translate(self.position)
+        if self.y_rotation != 0.0:
+            self.model_matrix.rotate(self.y_rotation, 0.0, 1.0, 0.0)
         self.model_matrix.scale(self.scale)
         self.mvp_matrix = proj_view_matrix * self.model_matrix
 
@@ -318,7 +323,6 @@ class RenderedLines:
         self.shader = shader
         self.name = name
         self.position = QVector3D(0, 0, 0)
-        self.rotation = QVector3D(0, 0, 0)
         self.scale = QVector3D(1, 1, 1)
         self.mvp_matrix = QMatrix4x4()
         self.model_matrix = QMatrix4x4()

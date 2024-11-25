@@ -35,8 +35,12 @@ class OpenGLView(QOpenGLWidget):
         self.skybox = None
         self.framefeedback = None
         self.fps = 24
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.nextFrame)
+        self.timer1 = QTimer()
+        self.timer2 = QTimer()
+        self.timer1.timeout.connect(self.nextFrame)
+        self.timer2.timeout.connect(self.yRotator)
+        self.yangle = 0.0
+        self.yrot = 2.0
         self.blocked = False
         self.glfunc = None
         self.visLights = None
@@ -49,17 +53,20 @@ class OpenGLView(QOpenGLWidget):
 
     def setFPS(self, value):
         self.fps = value
-        self.timer.stop()
-        self.timer.start(1000 / self.fps)
+        self.timer1.stop()
+        self.timer1.start(1000 / self.fps)
+
+    def setYRotAngle(self, value):
+        self.yrot = value
 
     def startTimer(self, framefeedback):
         self.framefeedback = framefeedback
-        self.timer.start(1000 / self.fps)
+        self.timer1.start(1000 / self.fps)
 
     def stopTimer(self):
         if self.framefeedback is not None:
             self.framefeedback()
-        self.timer.stop()
+        self.timer1.stop()
         self.blocked = False
 
     def nextFrame(self):
@@ -76,6 +83,26 @@ class OpenGLView(QOpenGLWidget):
             bvh.currentFrame += 1
         else:
             bvh.currentFrame = 0
+        self.Tweak()
+        self.blocked = False
+
+    def startRotate(self):
+        self.timer2.start(1000 / 24)
+
+    def stopRotate(self):
+        self.timer2.stop()
+        self.blocked = False
+
+    def yRotator(self):
+        if self.blocked:
+            return
+        self.blocked = True
+        self.yangle = self.yangle + self.yrot
+        if self.yangle >= 360.0:
+            self.yangle = self.yangle - 360.0
+        elif self.yangle < 0.0:
+            self.yangle = self.yangle + 360.0
+        self.setYRotation(float(self.yangle))
         self.Tweak()
         self.blocked = False
 
@@ -191,6 +218,11 @@ class OpenGLView(QOpenGLWidget):
             obj.material.freeTextures()
         self.objects.remove(obj.openGL)
         obj.openGL = None
+
+    def setYRotation(self, angle=0.0):
+        self.yangle = angle
+        for obj in self.objects:
+            obj.setYRotation(angle)
 
     def newSkin(self, obj):
         self.objects[0].setMaterial(obj.material)
