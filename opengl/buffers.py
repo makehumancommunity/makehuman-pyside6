@@ -375,6 +375,80 @@ class RenderedLines:
         self.functions.glDrawElements(gl.GL_LINES, len(indices), gl.GL_UNSIGNED_INT, indices)
         self.functions.glDisable(gl.GL_BLEND)
 
+class RenderedSimple:
+    def __init__(self, functions, shaders, indices, name, glbuffers):
+        self.functions = functions
+        self.name = name
+        self.position = QVector3D(0, 0, 0)
+        self.scale = QVector3D(1, 1, 1)
+        self.mvp_matrix = QMatrix4x4()
+        self.model_matrix = QMatrix4x4()
+        self.normal_matrix = QMatrix4x4()
+        self.glbuffers = glbuffers
+        self.indices = indices
+
+        self.vert_pos_buffer = glbuffers.vert_pos_buffer
+        self.normal_buffer = glbuffers.normal_buffer
+        self.tex_coord_buffer = glbuffers.tex_coord_buffer
+        self.shader = shaders.getShader("phong3l")
+        self.mvp_matrix_location = self.shader.uniforms["uMvpMatrix" ]
+        self.model_matrix_location = self.shader.uniforms["uModelMatrix"]
+        self.normal_matrix_location = self.shader.uniforms["uNormalMatrix"]
+
+    def __str__(self):
+        return("GL Simple " + str(self.name))
+
+    def setPosition(self, pos):
+        self.position = pos
+
+    def delete(self):
+        self.glbuffers.Delete()
+
+    def draw(self, proj_view_matrix, white):
+        shader = self.shader
+        self.shader.bind()
+
+        # VAO, bind the position-buffer, color-buffer and texture-coordinates to attribute 0, 1
+        # these are the values changed per vertex
+        #
+        self.vert_pos_buffer.bind()
+        shader.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3)     # OpenGL glVertexAttribPointer
+        shader.enableAttributeArray(0)                      # OpenGL glEnableVertexAttribArray
+
+        self.normal_buffer.bind()
+        shader.setAttributeBuffer(1, gl.GL_FLOAT, 0, 3)
+        shader.enableAttributeArray(1)
+
+        self.tex_coord_buffer.bind()
+        shader.setAttributeBuffer(2, gl.GL_FLOAT, 0, 2)
+        shader.enableAttributeArray(2)
+
+        self.model_matrix.setToIdentity()
+        self.model_matrix.translate(self.position)
+        #if self.y_rotation != 0.0:
+        #    self.model_matrix.rotate(self.y_rotation, 0.0, 1.0, 0.0)
+        #self.model_matrix.scale(self.scale)
+        self.mvp_matrix = proj_view_matrix * self.model_matrix
+
+        self.normal_matrix = self.model_matrix.inverted()
+        self.normal_matrix = self.normal_matrix[0].transposed()
+
+        # now set uMvpMatrix, uModelMatrix, uNormalMatrix
+
+        shader.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)
+        shader.setUniformValue(self.model_matrix_location, self.model_matrix)
+        shader.setUniformValue(self.normal_matrix_location, self.normal_matrix)
+        self.texture = white
+        t1 = shader.uniforms['Texture']
+        self.functions.glActiveTexture(gl.GL_TEXTURE0)
+        self.functions.glUniform1i(t1, 0)
+        self.texture.bind()
+        self.functions.glEnable(gl.GL_BLEND)
+        self.functions.glBlendFunc(gl.GL_ONE, gl.GL_ZERO)
+        self.functions.glDrawElements(gl.GL_TRIANGLES, len(self.indices), gl.GL_UNSIGNED_INT, self.indices)
+        self.functions.glDisable(gl.GL_BLEND)
+
+
 
 class PixelBuffer:
     """

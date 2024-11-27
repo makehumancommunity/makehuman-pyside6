@@ -325,6 +325,11 @@ class SimpleSlider(QWidget):
         self.setInfoText(value)
         self.slider.setValue(value)
 
+    def setLabelText(self, label):
+        self.labeltext = label
+        value = self.slider.value()
+        self.setInfoText(value)
+
 class ColorButton(QWidget):
     def __init__(self, labeltext, callback, parent=None, horizontal=False, ident=None):
         super().__init__()

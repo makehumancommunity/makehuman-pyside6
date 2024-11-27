@@ -1,4 +1,4 @@
-from opengl.buffers import OpenGlBuffers, RenderedLines, RenderedObject
+from opengl.buffers import OpenGlBuffers, RenderedLines, RenderedObject, RenderedSimple
 
 from PySide6.QtGui import QVector3D
 import numpy as np
@@ -125,6 +125,57 @@ class BoneList(LineElements):
             for bone in skeleton.bones:
                 lines.extend ([skeleton.bones[bone].headPos, skeleton.bones[bone].tailPos])
         super().newGeometry(lines)
+
+class SimpleObject():
+    """
+    create geometry for gdrawelements
+    array of positions, array of faces, array of normals
+    """
+    def __init__(self, context, shaders, name, coords, norm, indices, uv=None):
+        self.name = name
+        self.simple = None
+        self.glfunc =  context.functions()
+        self.icoord = indices
+        self.shaders = shaders
+        if uv is None:
+            self.uv = np.zeros(len(self.icoord), dtype=np.float32)
+        else:
+            self.uv = uv
+
+        self.glbuffer = OpenGlBuffers()
+        self.glbuffer.VertexBuffer(coords)
+        self.glbuffer.NormalBuffer(norm)
+        self.glbuffer.TexCoordBuffer(self.uv)
+
+    def create(self):
+        self.simple = RenderedSimple(self.glfunc, self.shaders, self.icoord, self.name, self.glbuffer)
+
+    def draw(self, proj_view_matrix, white):
+        self.simple.draw(proj_view_matrix, white)
+
+    def setPosition(self,p):
+        self.simple.setPosition(p)
+
+    def delete(self):
+        if self.simple:
+            self.simple.delete()
+
+class Diamond(SimpleObject):
+    def __init__(self, context, shaders, name):
+        self.gl_coord = np.asarray(
+            [-1.0, 0.0, 0.0,  0.0, 0.0, 1.0,  0.0, 0.0, -1.0,
+              1.0, 0.0, 0.0,  0.0, 3.0, 0.0,  0.0, -1.0, 0.0], 
+            dtype=np.float32)
+        self.gl_norm =  np.asarray(
+            [ 0.468, 0.0, 0.0,  0.0, 0.0, -0.468,  0.0, 0.0, 0.468,
+             -0.468, 0.0, 0.0,  0.0, -0.25, 0.0,   0.0, 0.25, 0.0],
+            dtype=np.float32)
+        self.gl_icoord = np.asarray(
+                [2, 5, 3,  2, 3, 4,  0, 2, 4,  0, 5, 2,
+                 3, 1, 4,  3, 5, 1,  1, 0, 4,  1, 5, 0],
+            dtype=np.uint32)
+        super().__init__(context, shaders, name, self.gl_coord, self.gl_norm, self.gl_icoord)
+        self.create()
 
 
 class VisLights():

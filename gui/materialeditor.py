@@ -219,9 +219,11 @@ class MHMaterialEditor(QWidget):
             self.normlab.setText("None")
 
         if hasattr(self.material, "aomapTexture"):
+            self.aomapIntensity.setLabelText("[PBR] AO map Strength: ")
             self.aotex.newIcon(self.material.aomapTexture)
             self.aolab.setText(self.shortenName(self.material.aomapTexture))
         else:
+            self.aomapIntensity.setLabelText("[PBR] Ambient Occlusion: ")
             self.aotex.newIcon(self.emptyIcon)
             self.aolab.setText("None")
 
@@ -245,7 +247,10 @@ class MHMaterialEditor(QWidget):
             for shader in self.shadertypes:
                 if m is shader[0]:
                     self.material.shader =  shader[2]
-        self.Tweak()
+        if self.checkLitsphere() is False:
+            self.updateWidgets(self.object)
+        else:
+            self.Tweak()
 
     def change_diff(self):
         s = self.sender()
@@ -267,6 +272,7 @@ class MHMaterialEditor(QWidget):
                 self.material.aomapTexture = filename
                 self.aotex.newIcon(self.material.aomapTexture)
                 self.aolab.setText(self.shortenName(self.material.aomapTexture))
+                self.aomapIntensity.setLabelText("[PBR] AO map Strength: ")
             elif m==4:
                 self.material.metallicRoughnessTexture = filename
                 self.mrtex.newIcon(self.material.metallicRoughnessTexture)
@@ -293,6 +299,7 @@ class MHMaterialEditor(QWidget):
             delattr( self.material, "aomapTexture")
             self.aotex.newIcon(self.emptyIcon)
             self.aolab.setText("None")
+            self.aomapIntensity.setLabelText("[PBR] Ambient Occlusion: ")
         elif m==4 and hasattr(self.material, "metallicRoughnessTexture"):
             delattr( self.material, "metallicRoughnessTexture")
             self.mrtex.newIcon(self.emptyIcon)
