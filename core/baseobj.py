@@ -440,6 +440,7 @@ class baseClass():
         self.skeleton = None
         self.glob.markAssetByFileName(path, False)
         self.glob.openGLWindow.delSkeleton()
+        self.glob.openGLWindow.Tweak()
 
     def showPose(self):
         self.pose_skeleton.pose(self.bvh.joints, self.bvh.currentFrame)

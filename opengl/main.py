@@ -14,7 +14,7 @@ from opengl.material import Material
 from opengl.buffers import OpenGlBuffers, RenderedObject
 from opengl.camera import Camera, Light
 from opengl.skybox import OpenGLSkyBox
-from opengl.prims import CoordinateSystem, Grid, BoneList, VisLights
+from opengl.prims import CoordinateSystem, Grid, BoneList, VisLights, DiamondSkeleton
 
 class OpenGLView(QOpenGLWidget):
     def __init__(self, glob):
@@ -44,12 +44,14 @@ class OpenGLView(QOpenGLWidget):
         self.blocked = False
         self.glfunc = None
         self.visLights = None
+        self.diamondskel = None
 
     def delSkeleton(self):
         if "skeleton" in self.prims:
             self.prims["skeleton"].delete()
             del self.prims["skeleton"]
-            self.Tweak()
+            if self.diamondskel is not None:
+                self.diamondskel.delete()
 
     def setFPS(self, value):
         self.fps = value
@@ -119,14 +121,15 @@ class OpenGLView(QOpenGLWidget):
             col = [1.0, 1.0, 1.0]
 
         if "skeleton" in self.prims:
-            self.prims["skeleton"].delete()
-            del self.prims["skeleton"]
+            self.delSkeleton()
 
         if skeleton is not None:
             shader = self.mh_shaders.getShader("fixcolor")
             self.prims["skeleton"] = BoneList(self.context(), shader, "skeleton", skeleton, col)
             if self.objects_invisible is True:
                 self.togglePrims("skeleton", True)
+            # self.diamondskel = DiamondSkeleton(self.context(), self.mh_shaders, "diamondskel", skeleton, self.white)
+
         self.Tweak()
 
     def toggleObjects(self, status):
@@ -175,7 +178,7 @@ class OpenGLView(QOpenGLWidget):
         self.prims["yzgrid"] = Grid(self.context(), shader, "yzgrid", 10.0, lowestPos, "yz")
         self.prims["xzgrid"] = Grid(self.context(), shader, "xzgrid", 10.0, lowestPos, "xz")
 
-        # visualization of lamps (if obj is not find, no lamps are presented)
+        # visualization of lamps (if obj is not found, no lamps are presented)
         #
         self.visLights = VisLights(self, self.light)
         success =self.visLights.setup()
@@ -354,6 +357,10 @@ class OpenGLView(QOpenGLWidget):
 
         if self.light.skybox and self.skybox and self.camera.cameraPers:
             self.skybox.draw(proj_view_matrix)
+
+        if self.diamondskel is not None:
+            posed = (baseClass.bvh is not None) or (baseClass.expression is not None)
+            self.diamondskel.draw(proj_view_matrix, posed)
 
         if self.objects_invisible is True and "skeleton" in self.prims:
             posed = (baseClass.bvh is not None) or (baseClass.expression is not None)

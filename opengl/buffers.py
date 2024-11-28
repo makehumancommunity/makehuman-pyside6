@@ -379,11 +379,11 @@ class RenderedSimple:
     def __init__(self, functions, shaders, indices, name, glbuffers):
         self.functions = functions
         self.name = name
-        self.position = QVector3D(0, 0, 0)
         self.scale = QVector3D(1, 1, 1)
         self.mvp_matrix = QMatrix4x4()
         self.model_matrix = QMatrix4x4()
         self.normal_matrix = QMatrix4x4()
+        self.rotation = QMatrix4x4()
         self.glbuffers = glbuffers
         self.indices = indices
 
@@ -398,8 +398,11 @@ class RenderedSimple:
     def __str__(self):
         return("GL Simple " + str(self.name))
 
-    def setPosition(self, pos):
-        self.position = pos
+    def setScale(self, s):
+        self.scale = QVector3D(s, s, s)
+
+    def setRotation(self, rot):
+        self.rotation = QMatrix4x4(rot.flatten().tolist())
 
     def delete(self):
         self.glbuffers.Delete()
@@ -424,10 +427,8 @@ class RenderedSimple:
         shader.enableAttributeArray(2)
 
         self.model_matrix.setToIdentity()
-        self.model_matrix.translate(self.position)
-        #if self.y_rotation != 0.0:
-        #    self.model_matrix.rotate(self.y_rotation, 0.0, 1.0, 0.0)
-        #self.model_matrix.scale(self.scale)
+        self.model_matrix = self.model_matrix * self.rotation
+        self.model_matrix.scale(self.scale)
         self.mvp_matrix = proj_view_matrix * self.model_matrix
 
         self.normal_matrix = self.model_matrix.inverted()

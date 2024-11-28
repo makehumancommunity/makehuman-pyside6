@@ -110,8 +110,8 @@ class BoneList(LineElements):
     def __init__(self, context, shader, name, skeleton, col):
         self.skeleton = skeleton
         lines = []
-        for bone in skeleton.bones:
-            lines.extend ([skeleton.bones[bone].headPos, skeleton.bones[bone].tailPos])
+        for bone in skeleton.bones.values():
+            lines.extend ([bone.headPos, bone.tailPos])
         super().__init__(context, shader, name, lines, col)
         self.create(width=3.0)
 
@@ -119,11 +119,11 @@ class BoneList(LineElements):
         skeleton = self.skeleton
         lines = []
         if posed:
-            for bone in skeleton.bones:
-                lines.extend ([skeleton.bones[bone].poseheadPos, skeleton.bones[bone].posetailPos])
+            for bone in skeleton.bones.values():
+                lines.extend ([bone.poseheadPos, bone.posetailPos])
         else:
-            for bone in skeleton.bones:
-                lines.extend ([skeleton.bones[bone].headPos, skeleton.bones[bone].tailPos])
+            for bone in skeleton.bones.values():
+                lines.extend ([bone.headPos, bone.tailPos])
         super().newGeometry(lines)
 
 class SimpleObject():
@@ -153,8 +153,31 @@ class SimpleObject():
     def draw(self, proj_view_matrix, white):
         self.simple.draw(proj_view_matrix, white)
 
-    def setPosition(self,p):
-        self.simple.setPosition(p)
+    def setScale(self, s):
+        self.simple.setScale(s)
+
+    def setRotation(self, rot):
+        self.simple.setRotation(rot)
+
+    def flatShade(self, icoord, coord):
+        flatcoord = np.zeros((len(icoord), 3), dtype=np.float32)
+        j = 0
+        for i in icoord:
+            flatcoord[j] = coord[i]
+            icoord[j] = j
+            j+=1
+        return flatcoord
+
+    def calcNorm(self, icoord, coord):
+        norm = np.zeros((len(icoord), 3), dtype=np.float32)
+        m = len(icoord)
+        t = icoord.reshape(m//3, 3)
+        j = 0
+        for i in t:
+            fn = np.cross(coord[i][0]-coord[i][1], coord[i][1]-coord[i][2])
+            norm[j] = norm[j+1] = norm[j+2] = fn
+            j+=3
+        return norm.flatten()
 
     def delete(self):
         if self.simple:
@@ -162,22 +185,43 @@ class SimpleObject():
 
 class Diamond(SimpleObject):
     def __init__(self, context, shaders, name):
-        self.gl_coord = np.asarray(
-            [-1.0, 0.0, 0.0,  0.0, 0.0, 1.0,  0.0, 0.0, -1.0,
-              1.0, 0.0, 0.0,  0.0, 3.0, 0.0,  0.0, -1.0, 0.0], 
+        w = 0.7
+        self.coord = np.asarray(
+            [[-w, 1.0, 0.0],  [0.0, 1.0, w],  [0.0, 1.0, -w],
+             [w, 1.0, 0.0],  [0.0, 4.0, 0.0],  [0.0, 0.0, 0.0]], 
             dtype=np.float32)
-        self.gl_norm =  np.asarray(
-            [ 0.468, 0.0, 0.0,  0.0, 0.0, -0.468,  0.0, 0.0, 0.468,
-             -0.468, 0.0, 0.0,  0.0, -0.25, 0.0,   0.0, 0.25, 0.0],
-            dtype=np.float32)
-        self.gl_icoord = np.asarray(
+        self.icoord = np.asarray(
                 [2, 5, 3,  2, 3, 4,  0, 2, 4,  0, 5, 2,
                  3, 1, 4,  3, 5, 1,  1, 0, 4,  1, 5, 0],
             dtype=np.uint32)
-        super().__init__(context, shaders, name, self.gl_coord, self.gl_norm, self.gl_icoord)
+        self.coord = self.flatShade(self.icoord, self.coord)
+        self.norm = self.calcNorm(self.icoord, self.coord)
+        self.coord = self.coord.flatten()
+        super().__init__(context, shaders, name, self.coord, self.norm, self.icoord)
         self.create()
 
+class DiamondSkeleton(Diamond):
+    def __init__(self, context, shaders, name, skeleton, col):
+        self.skeleton = skeleton
+        self.texture = col
+        super().__init__(context, shaders, name)
 
+    def draw(self, proj_view_matrix, posed):
+        skeleton = self.skeleton
+        if posed:
+            for bone in skeleton.bones.values():
+                l = bone.posetailPos - bone.poseheadPos
+                self.setScale(np.sqrt(l.dot(l)) / 4.0)
+                self.setRotation(bone.matPoseGlobal)
+                super().draw(proj_view_matrix, self.texture)
+        else:
+            for bone in skeleton.bones.values():
+                l = bone.tailPos - bone.headPos
+                self.setScale(np.sqrt(l.dot(l)) / 4.0)
+                self.setRotation(bone.matRestGlobal)
+                super().draw(proj_view_matrix, self.texture)
+
+    
 class VisLights():
     """
     should create symbolic lamps
