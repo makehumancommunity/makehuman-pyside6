@@ -226,6 +226,8 @@ class OpenGLView(QOpenGLWidget):
         self.yangle = angle
         for obj in self.objects:
             obj.setYRotation(angle)
+        if "skeleton" in self.prims:
+            self.prims["skeleton"].setYRotation(angle)
 
     def newSkin(self, obj):
         self.objects[0].setMaterial(obj.material)
@@ -243,6 +245,8 @@ class OpenGLView(QOpenGLWidget):
         """
         automatically called by PySide6, terminates complete program if shader version < minversion (330)
         """
+        self.glfunc = self.context().functions()
+
         deb = GLDebug()
         if deb.checkVersion() is False:
             self.env.logLine(1, "Shader version is not sufficient, minimum version is " + str(deb.minVersion() + ". Available languages are:") )
@@ -254,7 +258,6 @@ class OpenGLView(QOpenGLWidget):
 
         baseClass = self.glob.baseClass
         o_size = baseClass.baseMesh.getHeightInUnits() if baseClass is not None else 20
-        self.glfunc = self.context().functions()
 
         self.glfunc.glEnable(gl.GL_DEPTH_TEST)
 

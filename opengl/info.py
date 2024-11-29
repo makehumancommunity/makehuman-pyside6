@@ -1,6 +1,9 @@
 import OpenGL
 from OpenGL import GL as gl
 
+def openGLReset():
+    a = gl.glGetError() # this is a joke, usually makeCurrent should work but it does not (it returns 1280)
+
 class GLDebug:
     def __init__(self, initialized=True):
         self.initialized = initialized
@@ -55,6 +58,7 @@ class GLDebug:
         return(info)
 
     def getTextInfo(self):
+        openGLReset()  
         text = "Minimum version demanded: " + str(self.min_version) + \
             "<br>Highest version available: " + str(self.getVersion()) + \
             "<br>Card Driver: " + self.getCard() + \

@@ -6,6 +6,8 @@ from PySide6.QtCore import QByteArray
 from PySide6.QtOpenGL import (QOpenGLBuffer, QOpenGLShader,
                               QOpenGLShaderProgram, QOpenGLTexture)
 
+from opengl.info import openGLReset
+
 # Constants from OpenGL GL_TRIANGLES, GL_FLOAT
 # 
 
@@ -291,10 +293,7 @@ class RenderedObject:
 
         indices = self.getindex()
 
-        try:
-            gl.glGetIntegerv(gl.GL_MAJOR_VERSION, '*')
-        except:
-            pass
+        openGLReset() # call sth stupid, becaue PolygonMode is not in the context
         
         gl.glPolygonMode(gl.GL_FRONT_AND_BACK, gl.GL_LINE)
         functions.glDrawElements(gl.GL_TRIANGLES, len(indices), gl.GL_UNSIGNED_INT, indices)
@@ -324,6 +323,7 @@ class RenderedLines:
         self.name = name
         self.position = QVector3D(0, 0, 0)
         self.scale = QVector3D(1, 1, 1)
+        self.y_rotation = 0.0
         self.mvp_matrix = QMatrix4x4()
         self.model_matrix = QMatrix4x4()
         self.normal_matrix = QMatrix4x4()
@@ -342,6 +342,9 @@ class RenderedLines:
 
     def delete(self):
         self.glbuffers.Delete()
+
+    def setYRotation(self, rot):
+        self.y_rotation = rot
 
     def draw(self, proj_view_matrix):
         """
@@ -363,6 +366,8 @@ class RenderedLines:
         self.model_matrix.setToIdentity()
         self.model_matrix.translate(self.position)
         self.model_matrix.scale(self.scale)
+        if self.y_rotation != 0.0:
+            self.model_matrix.rotate(self.y_rotation, 0.0, 1.0, 0.0)
         self.mvp_matrix = proj_view_matrix * self.model_matrix
 
         # now set uMvpMatrix, uModelMatrix
@@ -477,12 +482,7 @@ class PixelBuffer:
         self.oldwidth = self.view.window_width
         functions = self.view.context().functions()
 
-        # well sometimes solutions are odd, ask openGl one time, get a stupid error and then it works :P
-        #
-        try:
-            gl.glGetIntegerv(gl.GL_MAJOR_VERSION, '*')
-        except:
-            pass
+        openGLReset() # call sth stupid, becaue glGenFramebuffers is not in the context
 
         # frame
         self.framebuffer = gl.glGenFramebuffers(1)
@@ -521,11 +521,12 @@ class PixelBuffer:
         start = 1 if baseClass.proxy is True else 0
 
         for obj in self.view.objects[start:]:
-            obj.draw(self.view.mh_shaders._shaders[0], proj_view_matrix, self.view.light)
+            obj.draw(proj_view_matrix, self.view.light)
 
 
     def bufferToImage(self):
 
+        openGLReset() # call sth stupid, becaue glGenFramebuffers is not in the context
         gl.glReadBuffer(gl.GL_COLOR_ATTACHMENT0)
         gl.glPixelStorei(gl.GL_PACK_ALIGNMENT, 1)
 

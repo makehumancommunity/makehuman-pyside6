@@ -115,10 +115,10 @@ class AnimPlayer(QVBoxLayout):
     def leave(self):
         self.view.stopTimer()
         self.view.stopRotate()
-        self.view.setYRotation()
+        self.view.setYRotation()        # reset to 0.0
         self.firstframe()
         self.mesh.resetFromCopy()
-        self.view.addSkeleton(False)
+        self.view.addSkeleton(False)    # reset to unposed
         self.bc.updateAttachedAssets()
         self.view.Tweak()
 
@@ -189,7 +189,7 @@ class AnimPlayer(QVBoxLayout):
         b.setChecked(v)
 
     def resetrot(self):
-        self.view.setYRotation()
+        self.view.setYRotation()    # reset rotation
         self.view.Tweak()
 
 class ExpressionItem(ScaleComboItem):

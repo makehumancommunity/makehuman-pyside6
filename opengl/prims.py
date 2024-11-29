@@ -49,6 +49,9 @@ class LineElements:
             self.glfunc.glLineWidth(self.width)
             self.lines.draw(proj_view_matrix)
 
+    def setYRotation(self, rot):
+        self.lines.setYRotation(rot)
+
     def delete(self):
         if self.lines:
             self.lines.delete()
