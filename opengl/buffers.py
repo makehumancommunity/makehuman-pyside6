@@ -50,6 +50,26 @@ class OpenGlBuffers():
         self.NormalBuffer(norm)
         self.TexCoordBuffer(tpos)
 
+    def BindBuffersToShader(self, shader):
+        """
+        VAO, bind the position-buffer, normal-buffer and texture-coordinates to attribute 0, 1, 2
+        must be done on each render cycle
+        """
+        self.vert_pos_buffer.bind()
+        shader.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3)     # OpenGL = glVertexAttribPointer
+        shader.enableAttributeArray(0)                      # OpenGL = glEnableVertexAttribArray
+
+        self.normal_buffer.bind()
+        shader.setAttributeBuffer(1, gl.GL_FLOAT, 0, 3)
+        shader.enableAttributeArray(1)
+        
+        # allow none textured objects (e.g. lines, they use normal buffer as color buffer and no texture)
+        #
+        if  self.tex_coord_buffer is not None:
+            self.tex_coord_buffer.bind()
+            shader.setAttributeBuffer(2, gl.GL_FLOAT, 0, 2)
+            shader.enableAttributeArray(2)
+
     def Tweak(self):
         self.vert_pos_buffer.bind()
         self.vert_pos_buffer.write(0,self.memory_pos, self.len_memory )
@@ -85,10 +105,6 @@ class RenderedObject:
         self.model_matrix = QMatrix4x4()
         self.normal_matrix = QMatrix4x4()
         self.glbuffers = glbuffers
-
-        self.vert_pos_buffer = glbuffers.vert_pos_buffer
-        self.normal_buffer = glbuffers.normal_buffer
-        self.tex_coord_buffer = glbuffers.tex_coord_buffer
 
         self.setMaterial(obj.material)
 
@@ -166,20 +182,7 @@ class RenderedObject:
 
         shader.bind()
 
-        # VAO, bind the position-buffer, normal-buffer and texture-coordinates to attribute 0, 1, 2
-        # these are the values changed per vertex
-        #
-        self.vert_pos_buffer.bind()
-        shader.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3)     # OpenGL glVertexAttribPointer
-        shader.enableAttributeArray(0)                      # OpenGL glEnableVertexAttribArray
-
-        self.normal_buffer.bind()
-        shader.setAttributeBuffer(1, gl.GL_FLOAT, 0, 3)
-        shader.enableAttributeArray(1)
-
-        self.tex_coord_buffer.bind()
-        shader.setAttributeBuffer(2, gl.GL_FLOAT, 0, 2)
-        shader.enableAttributeArray(2)
+        self.glbuffers.BindBuffersToShader(shader)  # VAO etc.
 
         self.model_matrix.setToIdentity()
         self.model_matrix.translate(self.position)
@@ -330,8 +333,6 @@ class RenderedLines:
         self.glbuffers = glbuffers
         self.indices = indices
 
-        self.vert_pos_buffer = glbuffers.vert_pos_buffer
-        self.color_buffer = glbuffers.normal_buffer
         self.mvp_matrix_location = shader.uniforms["uMvpMatrix" ]
         self.model_matrix_location = shader.uniforms["uModelMatrix"]
 
@@ -352,16 +353,7 @@ class RenderedLines:
         """
         self.shader.bind()
 
-        # VAO, bind the position-buffer, color-buffer and texture-coordinates to attribute 0, 1
-        # these are the values changed per vertex
-        #
-        self.vert_pos_buffer.bind()
-        self.shader.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3)     # OpenGL glVertexAttribPointer
-        self.shader.enableAttributeArray(0)                      # OpenGL glEnableVertexAttribArray
-
-        self.color_buffer.bind()
-        self.shader.setAttributeBuffer(1, gl.GL_FLOAT, 0, 3)
-        self.shader.enableAttributeArray(1)
+        self.glbuffers.BindBuffersToShader(self.shader)  # VAO etc.
 
         self.model_matrix.setToIdentity()
         self.model_matrix.translate(self.position)
@@ -392,9 +384,6 @@ class RenderedSimple:
         self.glbuffers = glbuffers
         self.indices = indices
 
-        self.vert_pos_buffer = glbuffers.vert_pos_buffer
-        self.normal_buffer = glbuffers.normal_buffer
-        self.tex_coord_buffer = glbuffers.tex_coord_buffer
         self.shader = shaders.getShader("phong3l")
         self.mvp_matrix_location = self.shader.uniforms["uMvpMatrix" ]
         self.model_matrix_location = self.shader.uniforms["uModelMatrix"]
@@ -414,22 +403,9 @@ class RenderedSimple:
 
     def draw(self, proj_view_matrix, white):
         shader = self.shader
-        self.shader.bind()
+        shader.bind()
 
-        # VAO, bind the position-buffer, color-buffer and texture-coordinates to attribute 0, 1
-        # these are the values changed per vertex
-        #
-        self.vert_pos_buffer.bind()
-        shader.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3)     # OpenGL glVertexAttribPointer
-        shader.enableAttributeArray(0)                      # OpenGL glEnableVertexAttribArray
-
-        self.normal_buffer.bind()
-        shader.setAttributeBuffer(1, gl.GL_FLOAT, 0, 3)
-        shader.enableAttributeArray(1)
-
-        self.tex_coord_buffer.bind()
-        shader.setAttributeBuffer(2, gl.GL_FLOAT, 0, 2)
-        shader.enableAttributeArray(2)
+        self.glbuffers.BindBuffersToShader(self.shader)  # VAO etc.
 
         self.model_matrix.setToIdentity()
         self.model_matrix = self.model_matrix * self.rotation
@@ -460,6 +436,8 @@ class PixelBuffer:
     """
     looks like the pixelbuffer functionality can only be reached by using classical gl-Functions
     still not okay. 
+
+    TODO: multisample?
     """
     def __init__(self, glob, view, transparent=False):
         self.glob = glob
@@ -482,7 +460,7 @@ class PixelBuffer:
         self.oldwidth = self.view.window_width
         functions = self.view.context().functions()
 
-        openGLReset() # call sth stupid, becaue glGenFramebuffers is not in the context
+        openGLReset() # call sth stupid, because glGenFramebuffers is not in the context
 
         # frame
         self.framebuffer = gl.glGenFramebuffers(1)
@@ -526,7 +504,7 @@ class PixelBuffer:
 
     def bufferToImage(self):
 
-        openGLReset() # call sth stupid, becaue glGenFramebuffers is not in the context
+        openGLReset() # call sth stupid, because glGenFramebuffers is not in the context
         gl.glReadBuffer(gl.GL_COLOR_ATTACHMENT0)
         gl.glPixelStorei(gl.GL_PACK_ALIGNMENT, 1)
 

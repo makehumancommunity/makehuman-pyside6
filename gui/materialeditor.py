@@ -26,6 +26,12 @@ class MHMaterialEditor(QWidget):
                 [None, "Litpshere", "litsphere", "IBL (image based lighting), MatCap"],
                 [None, "PBR", "pbr", "physical based rendering (openGL)"]
         ]
+
+        self.factors = [
+                ["[PBR] Metal map strength: ",     "[PBR] Metallic Factor: "],
+                ["[PBR] Roughness map strength: ", "[PBR] Roughness Factor: "],
+                ["[PBR] AO map strength: ",        "[PBR] Ambient Occlusion: "]
+        ]
         self.setWindowTitle("Material Editor")
         self.resize(600, 750)
 
@@ -36,9 +42,9 @@ class MHMaterialEditor(QWidget):
         self.namebox = QLineEdit(self.material.name)
 
         layout.addWidget(self.namebox)
-        self.metalNess = SimpleSlider("Metallic Factor: ", 0, 100, self.metalchanged, minwidth=250)
-        self.metalRoughness = SimpleSlider("Roughness Factor: ", 0, 100, self.metalroughchanged, minwidth=250)
-        self.aomapIntensity = SimpleSlider("AO map Strength: ", 0, 100, self.aomapchanged, minwidth=250)
+        self.metalness = SimpleSlider(self.factors[0][0], 0, 100, self.metalchanged, minwidth=250)
+        self.roughness = SimpleSlider(self.factors[1][0], 0, 100, self.metalroughchanged, minwidth=250)
+        self.aomapIntensity = SimpleSlider(self.factors[2][0], 0, 100, self.aomapchanged, minwidth=250)
         self.normalmapIntensity = SimpleSlider("Normal Map Scale: ", 0, 100, self.normalmapchanged, minwidth=250)
         self.litsphereAddShade = SimpleSlider("Litsphere additive shading: ", 0, 100, self.litspherechanged, minwidth=250)
 
@@ -107,8 +113,8 @@ class MHMaterialEditor(QWidget):
         h2layout.addWidget(self.mrlab)
         h2layout.addWidget(self.sweep4)
         vlayout.addLayout(h2layout)
-        vlayout.addWidget(self.metalNess)
-        vlayout.addWidget(self.metalRoughness)
+        vlayout.addWidget(self.metalness)
+        vlayout.addWidget(self.roughness)
         hlayout.addLayout(vlayout)
         gb.setLayout(hlayout)
         slayout.addWidget(gb)
@@ -194,8 +200,8 @@ class MHMaterialEditor(QWidget):
         for shader in self.shadertypes:
             shader[0].setChecked(self.material.shader == shader[2])
 
-        self.metalRoughness.setSliderValue(self.material.pbrMetallicRoughness * 100)
-        self.metalNess.setSliderValue(self.material.metallicFactor * 100)
+        self.roughness.setSliderValue(self.material.pbrMetallicRoughness * 100)
+        self.metalness.setSliderValue(self.material.metallicFactor * 100)
         self.aomapIntensity.setSliderValue(self.material.aomapIntensity * 100)
         self.normalmapIntensity.setSliderValue(self.material.normalmapIntensity * 100)
         self.litsphereAddShade.setSliderValue(self.material.sp_AdditiveShading * 100)
@@ -219,18 +225,22 @@ class MHMaterialEditor(QWidget):
             self.normlab.setText("None")
 
         if hasattr(self.material, "aomapTexture"):
-            self.aomapIntensity.setLabelText("[PBR] AO map Strength: ")
+            self.aomapIntensity.setLabelText(self.factors[2][0])
             self.aotex.newIcon(self.material.aomapTexture)
             self.aolab.setText(self.shortenName(self.material.aomapTexture))
         else:
-            self.aomapIntensity.setLabelText("[PBR] Ambient Occlusion: ")
+            self.aomapIntensity.setLabelText(self.factors[2][1])
             self.aotex.newIcon(self.emptyIcon)
             self.aolab.setText("None")
 
         if hasattr(self.material, "metallicRoughnessTexture"):
+            self.roughness.setLabelText(self.factors[0][0])
+            self.metalness.setLabelText(self.factors[1][0])
             self.mrtex.newIcon(self.material.metallicRoughnessTexture)
             self.mrlab.setText(self.shortenName(self.material.metallicRoughnessTexture))
         else:
+            self.roughness.setLabelText(self.factors[0][1])
+            self.metalness.setLabelText(self.factors[1][1])
             self.mrtex.newIcon(self.emptyIcon)
             self.mrlab.setText("None")
 
@@ -272,11 +282,13 @@ class MHMaterialEditor(QWidget):
                 self.material.aomapTexture = filename
                 self.aotex.newIcon(self.material.aomapTexture)
                 self.aolab.setText(self.shortenName(self.material.aomapTexture))
-                self.aomapIntensity.setLabelText("[PBR] AO map Strength: ")
+                self.aomapIntensity.setLabelText(self.factors[2][0])
             elif m==4:
                 self.material.metallicRoughnessTexture = filename
                 self.mrtex.newIcon(self.material.metallicRoughnessTexture)
                 self.mrlab.setText(self.shortenName(self.material.metallicRoughnessTexture))
+                self.roughness.setLabelText(self.factors[0][0])
+                self.metalness.setLabelText(self.factors[1][0])
             elif m==5:
                 self.material.sp_litsphereTexture = filename
                 self.littex.newIcon(self.material.sp_litsphereTexture)
@@ -299,11 +311,13 @@ class MHMaterialEditor(QWidget):
             delattr( self.material, "aomapTexture")
             self.aotex.newIcon(self.emptyIcon)
             self.aolab.setText("None")
-            self.aomapIntensity.setLabelText("[PBR] Ambient Occlusion: ")
+            self.aomapIntensity.setLabelText(self.factors[2][1])
         elif m==4 and hasattr(self.material, "metallicRoughnessTexture"):
             delattr( self.material, "metallicRoughnessTexture")
             self.mrtex.newIcon(self.emptyIcon)
             self.mrlab.setText("None")
+            self.roughness.setLabelText(self.factors[0][1])
+            self.metalness.setLabelText(self.factors[1][1])
         elif m==5 and hasattr(self.material, "sp_litsphereTexture"):
             delattr( self.material, "sp_litsphereTexture")
             self.littex.newIcon(self.emptyIcon)

@@ -16,6 +16,7 @@ void main()
 {
 	vec3 color = texture(Texture, fs_in.TexCoords).rgb;
 	float transp = texture(Texture, fs_in.TexCoords).a;
+	if (transp < 0.01) discard;
 	// ambient
 	// vec3 ambient = ambientLight[3] * color * vec3(ambientLight);
 
@@ -26,8 +27,6 @@ void main()
 	vec3 outColor = (1.0 - AdditiveShading)*shading * color.rgb * vec3(2.0 - (shading.r + shading.g + shading.b)/3.0);
         outColor += AdditiveShading*(shading + color.rgb);
 
-	// if (transp < 0.01) discard;
 	FragColor = vec4(outColor, transp);
-
 }
 
