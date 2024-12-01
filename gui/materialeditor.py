@@ -24,7 +24,8 @@ class MHMaterialEditor(QWidget):
         self.shadertypes = [ 
                 [None, "Phong", "phong3l", "combination of ambient, diffuse and specular reflection"],
                 [None, "Litpshere", "litsphere", "IBL (image based lighting), MatCap"],
-                [None, "PBR", "pbr", "physical based rendering (openGL)"]
+                [None, "PBR", "pbr", "physical based rendering (openGL)"],
+                [None, "Toon", "toon", "a silhouette based shader (openGL)"]
         ]
 
         self.factors = [

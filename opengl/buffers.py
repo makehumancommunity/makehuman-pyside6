@@ -125,6 +125,8 @@ class RenderedObject:
             self.shader = self.shaders.getShader("litsphere")
         elif material.shader == "pbr":
             self.shader = self.shaders.getShader("pbr")
+        elif material.shader == "toon":
+            self.shader = self.shaders.getShader("toon")
         else:
             self.shader = self.shaders.getShader("phong3l")
 
