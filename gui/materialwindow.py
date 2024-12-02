@@ -291,7 +291,16 @@ class MHAssetWindow(QWidget):
         self.currentMatPath(selected.filename)
 
     def use_call(self):
-        if self.asset is not None:
+        """
+        asset is None: nothing should be done
+        skins are only saving a new icon
+        materials are using the material path
+        """
+        if self.asset is None:
+            self.close()
+            return
+
+        if self.asset.folder != "skins":
             newtags = self.tagedit.getTags()
             if len(newtags) == 0:
                 print ("Delete own entry")
@@ -323,6 +332,12 @@ class MHAssetWindow(QWidget):
                     self.env.fileCache.updateParamInfo(self.asset.uuid, iconpath)
             if self.matPath is None:
                 self.changefunc(self.asset, iconpath)
+        else:
+            if self.icon is not None:
+                iconpath, extension = os.path.splitext(self.asset.path)
+                iconpath += ".thumb"
+                print ("Save icon as " + iconpath)
+                self.icon.save(iconpath, "PNG", -1)
 
         self.close()
 

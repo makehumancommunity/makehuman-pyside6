@@ -64,7 +64,6 @@ void main (void)
                         	}
 
 				// Diffuse part
-				// float diff = max(dot(Normal, LightVert), 0.0);
 				diff = diffuseIntensity * smoothstep(diffuse_th-0.01, diffuse_th, diff);
 				diffuse += diff * pointLights[i].color  * pointLights[i].intensity * color;
 

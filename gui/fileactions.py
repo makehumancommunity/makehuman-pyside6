@@ -6,9 +6,10 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPixmap
 from gui.imageselector import MHPictSelectable, PicSelectWidget
-from gui.materialwindow import  MHMaterialWindow
+from gui.materialwindow import  MHMaterialWindow, MHAssetWindow
 from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, IconButton, MHTagEdit
 import os
+from core.globenv import cacheRepoEntry
 from core.importfiles import AssetPack
 from core.export_gltf import gltfExport
 from core.export_stl import stlExport
@@ -19,6 +20,7 @@ class BaseSelect(QVBoxLayout):
         super().__init__()
         self.parent = parent
         self.env = parent.glob.env
+        self.emptyIcon = os.path.join(self.env.path_sysdata, "icons", "empty_material.png")
         self.baseResultList = self.env.getDataDirList("base.obj", "base")
 
         self.basewidget = QListWidget()
@@ -35,9 +37,47 @@ class BaseSelect(QVBoxLayout):
         buttons.clicked.connect(callback)
         self.addWidget(buttons)
 
-        matpath = os.path.join(self.env.path_sysicon, "materials.png" )
-        matbutton = IconButton(0, matpath, "Change material", self.materialCallback)
-        self.addWidget(matbutton)
+        gb = QGroupBox("Base material")
+        gb.setObjectName("subwindow")
+        vlayout = QVBoxLayout()
+        path = os.path.join(self.env.path_sysicon, "materials.png" )
+        vlayout.addWidget(IconButton(0, path, "Set material of body (skin).", self.materialCallback))
+
+        path = os.path.join(self.env.path_sysicon, "information.png" )
+        vlayout.addWidget(IconButton(0, path, "Change skin information", self.assetCallback))
+
+        gb.setLayout(vlayout)
+        self.addWidget(gb)
+
+    def getCurrentMaterial(self):
+        return (self.parent.glob.baseClass.skinMaterial)
+        
+    def assetCallback(self):
+        material = self.getCurrentMaterial()
+
+        # get filename and thumb file, if any
+        #
+        (folder, name) = os.path.split(material)
+        thumb = material[:-6] + ".thumb"
+        if not os.path.isfile(thumb):
+            thumb =  None
+
+        # create a cacheRepoEntry for skins (there are no skins in repo currently)
+        #
+        asset = cacheRepoEntry("base", "internal", material, "skins", None, thumb, "makehuman", "")
+        p = MHPictSelectable(name[:-6], thumb, material, None, [])
+        proposals = []
+        if self.parent.asset_window is None:
+            #
+            # called with "skins" there is no change function
+            #
+            self.parent.asset_window = MHAssetWindow(self.parent, None, asset, p, self.emptyIcon, proposals)
+        else:
+            self.parent.asset_window.updateWidgets(asset, p, self.emptyIcon, proposals)
+        mw = self.parent.asset_window
+        mw.show()
+        mw.activateWindow()
+
 
     def materialCallback(self):
         p1 = self.env.stdUserPath("skins")
@@ -53,7 +93,7 @@ class BaseSelect(QVBoxLayout):
         if baseClass.proxy:
             basemesh =  baseClass.attachedAssets[0]
         matimg = []
-        oldmaterial = self.parent.glob.baseClass.skinMaterial
+        oldmaterial = self.getCurrentMaterial()
         print(oldmaterial)
         for elem in matfiles:
             #print (elem)
