@@ -13,6 +13,7 @@ from core.globenv import cacheRepoEntry
 from core.importfiles import AssetPack
 from core.export_gltf import gltfExport
 from core.export_stl import stlExport
+from core.export_obj import objExport
 from core.blender_communication import blendCom
 
 class BaseSelect(QVBoxLayout):
@@ -281,12 +282,15 @@ class ExportLeftPanel(QVBoxLayout):
         self.bc  = parent.glob.baseClass
         self.binmode = True
         self.onground = True
+        self.helper = False
+        self.normals = False
         self.savehiddenverts = False
         self.export_type = ".glb"
         super().__init__()
         self.scale_items = [
             [ 0.1, "Meter"],
             [ 1.0, "Decimeter"],
+            [ 3.937, "Inch"],
             [ 10.0, "Centimeter"],
             [ 100.0, "Millimeter"]
         ]
@@ -322,6 +326,20 @@ class ExportLeftPanel(QVBoxLayout):
         self.hverts.setChecked(False)
         self.hverts.setToolTip('Export of hidden vertices is only useful, when destination is able to edit mesh')
         self.addWidget(self.hverts)
+        
+        self.helper= QCheckBox("save helper")
+        self.helper.setLayoutDirection(Qt.LeftToRight)
+        self.helper.toggled.connect(self.changeHelper)
+        self.helper.setChecked(False)
+        self.helper.setToolTip('For special purpose the invisible helper can be exported')
+        self.addWidget(self.helper)
+
+        self.norm= QCheckBox("normals")
+        self.norm.setLayoutDirection(Qt.LeftToRight)
+        self.norm.toggled.connect(self.changeNormals)
+        self.norm.setChecked(False)
+        self.norm.setToolTip('If normals can be selected, always the tri-mesh is exported with normals, otherwise the original mesh')
+        self.addWidget(self.norm)
 
         self.addWidget(QLabel("Scaling:"))
         self.scalebox = QComboBox()
@@ -340,11 +358,13 @@ class ExportLeftPanel(QVBoxLayout):
     def setExportType(self, etype):
         common = "MakeHuman works with unit decimeter. "
         expAttrib = { ".stl":  {"tip": common + "STL files are unit less. When working with printers 1 unit equals 1 millimeter (preset scale 1:10)",
-                "num": 2, "binset": True, "binmode": "both"},
+                "num": 3, "binset": True, "binmode": "both", "helpset": False, "helpmode": False, "normset": False, "normmode": False},
             ".glb": { "tip": common + "GLB/GLTF units are usually meters",
-                "num": 0, "binset": False, "binmode": True},
+                "num": 0, "binset": False, "binmode": True, "helpset": False, "helpmode": False, "normset": False, "normmode": True},
             ".mh2b": { "tip": common + "Blender units are usually meters",
-                "num": 0, "binset": False, "binmode": True}
+                "num": 0, "binset": False, "binmode": True, "helpset": False, "helpmode": False, "normset": False, "normmode": False},
+            ".obj": { "tip": common + "Wavefront units are usually meters",
+                "num": 0, "binset": False, "binmode": False, "helpset": True, "helpmode": False, "normset": True, "normmode": False}
             }
 
         # set options according to type
@@ -354,6 +374,13 @@ class ExportLeftPanel(QVBoxLayout):
         if expAttrib[self.export_type]["binmode"] != "both":
             self.binsave.setChecked(expAttrib[self.export_type]["binmode"])
         self.binsave.setEnabled(expAttrib[self.export_type]["binset"])
+
+        self.helper.setChecked(expAttrib[self.export_type]["helpmode"])
+        self.helper.setEnabled(expAttrib[self.export_type]["helpset"])
+
+        self.norm.setChecked(expAttrib[self.export_type]["normmode"])
+        self.norm.setEnabled(expAttrib[self.export_type]["normset"])
+
         self.scalebox.setCurrentIndex(expAttrib[self.export_type]["num"])
         self.scalebox.setToolTip(expAttrib[self.export_type]["tip"])
 
@@ -365,6 +392,12 @@ class ExportLeftPanel(QVBoxLayout):
 
     def changeGround(self, param):
         self.onground = param
+
+    def changeHelper(self, param):
+        self.helper = param
+
+    def changeNormals(self, param):
+        self.normals = param
 
     def newfilename(self):
         """
@@ -398,6 +431,10 @@ class ExportLeftPanel(QVBoxLayout):
         elif self.export_type == ".mh2b":
             blcom = blendCom(self.glob, folder, self.savehiddenverts, self.onground, scale)
             success = blcom.binSave(self.bc, path)
+
+        elif self.export_type == ".obj":
+            obj = objExport(self.glob, folder, self.savehiddenverts, self.onground, self.helper, self.normals, scale)
+            success = obj.ascSave(self.bc, path)
         else:
             print ("not yet implemented")
             return
@@ -418,7 +455,8 @@ class ExportRightPanel(QVBoxLayout):
         self.exportimages = [
                 { "button": None, "icon": "gltf_sym.png", "tip": "export as GLTF2/GLB", "func": self.exportgltf},
                 { "button": None, "icon": "stl_sym.png", "tip": "export as STL (Stereolithography)", "func": self.exportstl},
-                { "button": None, "icon": "blend_sym.png", "tip": "export as MH2B (Blender)", "func": self.exportmh2b}
+                { "button": None, "icon": "blend_sym.png", "tip": "export as MH2B (Blender)", "func": self.exportmh2b},
+                { "button": None, "icon": "wavefront_sym.png", "tip": "export as OBJ (Wavefront)", "func": self.exportobj}
         ]
         for n, b in enumerate(self.exportimages):
             b["button"] = IconButton(n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"], 130)
@@ -445,6 +483,11 @@ class ExportRightPanel(QVBoxLayout):
         print ("export MH2B called")
         self.leftPanel.setExportType(".mh2b")
         self.setChecked(2)
+
+    def exportobj(self):
+        print ("export OBJ called")
+        self.leftPanel.setExportType(".obj")
+        self.setChecked(3)
 
 class DownLoadImport(QVBoxLayout):
     def __init__(self, parent, view, displaytitle):
