@@ -331,14 +331,14 @@ class ExportLeftPanel(QVBoxLayout):
         self.helper.setLayoutDirection(Qt.LeftToRight)
         self.helper.toggled.connect(self.changeHelper)
         self.helper.setChecked(False)
-        self.helper.setToolTip('For special purpose the invisible helper can be exported')
+        self.helper.setToolTip('For special purposes the invisible helper can be exported, vertices of the body are NOT hidden in this case')
         self.addWidget(self.helper)
 
         self.norm= QCheckBox("normals")
         self.norm.setLayoutDirection(Qt.LeftToRight)
         self.norm.toggled.connect(self.changeNormals)
         self.norm.setChecked(False)
-        self.norm.setToolTip('If normals can be selected, always the tri-mesh is exported with normals, otherwise the original mesh')
+        self.norm.setToolTip('Some applications need the vertex normals to create a smoothed mesh')
         self.addWidget(self.norm)
 
         self.addWidget(QLabel("Scaling:"))

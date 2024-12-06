@@ -293,7 +293,8 @@ class blendCom:
 
     def addMesh(self, obj, nodenumber, bweights):
         self.mesh_cnt += 1
-        (coords, uvcoords, vpface, faces, overflows) = obj.getVisGeometry(self.hiddenverts)
+        (coords, norm, uvcoords, vpface, faces, overflows) = obj.getVisGeometry(self.hiddenverts)
+        # norm is not used
         pos = self.addPosBuffer(coords)
         face = self.addFaceBuffer(faces)
         vpf = self.addVPFBuffer(vpface)

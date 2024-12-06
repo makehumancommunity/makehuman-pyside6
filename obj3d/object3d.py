@@ -237,12 +237,18 @@ class object3d:
         #
         self.gl_norm = self.gi_norm.flatten()
 
-    def calcFaceBufSize(self, mask):
+    def calcFaceBufSize(self, mask, overrideignore=False):
+        """
+        create buffersizes for vertsperface, faceverts buffer
+
+        :param mask: calculates if faces are used
+        :param overrideignore: normaly used when the helper as invisible group should also be considered
+        """
         numfaces = 0
         numind = 0
         for npelem in self.npGrpNames:
             elem = npelem.decode("utf-8")
-            if self.visible is not None and elem not in self.visible:
+            if self.visible is not None and elem not in self.visible and not overrideignore:
                 continue
             faces = self.loadedgroups[elem]["v"]
             if mask is None:
@@ -265,14 +271,21 @@ class object3d:
 
         return numind, numfaces
 
-    def fillFaceBuffers(self, vertsperface, faceverts, mask):
+    def fillFaceBuffers(self, vertsperface, faceverts, mask, overrideignore=False):
+        """
+        fill vertsperface, faceverts buffer
+
+        :param vertsperface: buffer to put the vertices per face
+        :param faceverts: buffer for the face vertex numbers
+        :param mask: calculates if faces are used
+        :param overrideignore: normaly used when the helper as invisible group should also be considered
+        """
         finfocnt = 0
         fvertcnt = 0
-
         highest = 0
         for npelem in self.npGrpNames:
             elem = npelem.decode("utf-8")
-            if self.visible is not None and elem not in self.visible:
+            if self.visible is not None and elem not in self.visible and not overrideignore:
                 continue
             group = self.loadedgroups[elem]
             faces = group["v"]
@@ -325,10 +338,10 @@ class object3d:
         else:
             return None
 
-    def getVisGeometry(self, displayhidden):
+    def getVisGeometry(self, displayhidden, helper=False):
         """
-        return two flattened vectors, one with faces and one with verts per face
-        deduplicate double verts
+        return flattened vectors with coordinates, norms, uvcoords, vertex-per-face, faces and overflow
+        values are deduplicated, used for exports
         """
         mask = self.hiddenMask() if displayhidden is False else None
 
@@ -336,17 +349,18 @@ class object3d:
 
         # get buffersize
         #
-        numind, numfaces = self.calcFaceBufSize(mask)
+        numind, numfaces = self.calcFaceBufSize(mask, helper)
 
         vertsperface = np.zeros(numfaces, dtype=np.dtype('i1'))
         faceverts = np.zeros(numind, dtype=np.dtype('i4'))
 
-        mx = self.fillFaceBuffers(vertsperface, faceverts, mask)
+        mx = self.fillFaceBuffers(vertsperface, faceverts, mask, helper)
         if mask is not None:
             mask = self.unUsedVerts(faceverts)
             usedmax = len(mask)
             mapping, newcoord = self.createMapping(mask)
             coord = np.zeros(newcoord*3,  dtype=np.float32)
+            norm = np.zeros(newcoord*3,  dtype=np.float32)
             gl_uvcoord = np.zeros(newcoord*2,  dtype=np.float32)
             for cnt in range(0, usedmax):
                 d = mapping[cnt]
@@ -360,6 +374,10 @@ class object3d:
                     coord[d3+1] = self.gl_coord[s3+1]
                     coord[d3+2] = self.gl_coord[s3+2]
 
+                    norm[d3] = self.gl_norm[s3]
+                    norm[d3+1] = self.gl_norm[s3+1]
+                    norm[d3+2] = self.gl_norm[s3+2]
+
                     gl_uvcoord[d2] = self.gl_uvcoord[s2]
                     gl_uvcoord[d2+1] = self.gl_uvcoord[s2+1]
 
@@ -370,14 +388,16 @@ class object3d:
             if overflow is not None:
                 mx = overflow.min(axis=0)[1]
                 coord = np.resize(coord, mx * 3)
+                norm = np.resize(norm, mx * 3)
             else:
                 overflow   =   self.overflow
         else:
             coord = np.resize(np.copy(self.gl_coord), mx * 3)
+            norm  = np.resize(np.copy(self.gl_norm), mx * 3)
             gl_uvcoord = self.gl_uvcoord
             overflow   =   self.overflow
 
-        return (coord, gl_uvcoord, vertsperface, faceverts, overflow)
+        return (coord, norm, gl_uvcoord, vertsperface, faceverts, overflow)
 
     def createGLFaces(self, nfaces, ufaces, prim, groups):
         self.loadedgroups = groups

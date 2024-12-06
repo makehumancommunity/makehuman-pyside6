@@ -1,11 +1,13 @@
 """
 wavefront exporter
 """
-
+import os
 import numpy as np
 
 class objExport:
     def __init__(self, glob, exportfolder, hiddenverts=False, onground=True, helper=False, normals=False, scale =0.1):
+
+        self.imagefolder = "textures"
         self.exportfolder = exportfolder
         self.glob = glob
         self.env = glob.env
@@ -20,11 +22,32 @@ class objExport:
         self.normlines = []
         self.uvlines = []
         self.facelines = []
+        self.matlines = []
 
         self.startvert = 1
         self.startuv = 1
 
         self.obj = []
+
+
+    def copyImage(self, source, dest):
+        self.env.logLine (8, "Need to copy " + source + " to " + dest)
+
+        if self.env.mkdir(dest) is False:
+            return False
+
+        dest = os.path.join(dest, os.path.basename(source))
+        return (self.env.copyfile(source, dest))
+
+    def addImage(self, typeid, image):
+        destination = os.path.join(self.exportfolder, self.imagefolder)
+        okay = self.copyImage(image, destination)
+        if not okay:
+            return False
+
+        name = os.path.join(self.imagefolder, os.path.basename(image))
+        self.matlines.append(typeid + " " + name + "\n")
+        return True
 
     def addCoords(self, num, coords):
         mcoord = np.reshape(coords, (len(coords)//3,3))
@@ -32,75 +55,132 @@ class objExport:
             self.coordlines.append("v %.4f %.4f %.4f\n" % (co[0]*self.scale, co[1]*self.scale -self.lowestPos, co[2]*self.scale))
         self.obj[num]["lenV"] = len(mcoord)
 
+    def addNormals(self, num, values):
+        mvalues = np.reshape(values, (len(values)//3,3))
+        for val in mvalues:
+            self.normlines.append("vn %.6f %.6f %.6f\n" % tuple(val))
+
     def addUVCoords(self, num, coords):
         mcoord = np.reshape(coords, (len(coords)//2,2))
         for co in mcoord:
             self.uvlines.append("vt %.6f %.6f\n" % (co[0], 1.0 -co[1]))
         self.obj[num]["lenUV"] = len(mcoord)
 
-    def addFaces(self, num, name, vpf, faces, ov):
-        self.facelines.append("g %s\n" % name)
+    def addFaces(self, num, name, material, vpf, faces, ov):
+        self.facelines.append("usemtl " + material.name + "\n")
+        self.facelines.append("g " + name + "\n")
         overflow = {}
         for l in ov:
             overflow[l[1]] = l[0]
         x = 0
-        for n in vpf:
-            out = "f "
-            for i in range(n):
-                uvface = faces[x]
-                face = overflow[uvface] if uvface in overflow else uvface
 
-                out += "%d/%d " % (face+self.startvert, uvface+self.startuv)
-                x += 1
-            self.facelines.append(out + "\n")
+        if self.normals:
+            for n in vpf:
+                out = "f "
+                for i in range(n):
+                    uvface = faces[x]
+                    face = overflow[uvface] if uvface in overflow else uvface
+
+                    out += "%d/%d/%d " % (face+self.startvert, uvface+self.startuv, face+self.startvert)
+                    x += 1
+                self.facelines.append(out + "\n")
+        else:
+            for n in vpf:
+                out = "f "
+                for i in range(n):
+                    uvface = faces[x]
+                    face = overflow[uvface] if uvface in overflow else uvface
+
+                    out += "%d/%d " % (face+self.startvert, uvface+self.startuv)
+                    x += 1
+                self.facelines.append(out + "\n")
 
         self.startvert += self.obj[num]["lenV"]
         self.startuv   += self.obj[num]["lenUV"]
 
+    def addMaterial(self, num, material):
+         diff = material.diffuseColor
+         spec = material.diffuseColor
+         alpha = 0 if material.sc_diffuse else material.opacity
+
+         self.matlines.append("\n")
+         self.matlines.append("newmtl " + material.name + "\n")
+         self.matlines.append("Kd %.4g %.4g %.4g\n" % (diff[0], diff[1], diff[2]))
+         self.matlines.append("Ks %.4g %.4g %.4g\n" % (spec[0], spec[1], spec[2]))
+         self.matlines.append("d %.4g\n" % alpha)
+
+         if material.sc_ambientOcclusion and hasattr(material, "aomapTexture"):
+             if self.addImage("map_Ka", material.aomapTexture) is False:
+                return False
+
+         if material.sc_diffuse and hasattr(material, "diffuseTexture"):
+             if self.addImage("map_Kd", material.diffuseTexture) is False:
+                return False
+
+         if material.sc_spec and hasattr(material, "specularmapTexture"):
+             if self.addImage("map_Ks", material.specularmapTexture) is False:
+                return False
+
+         if material.sc_normal and hasattr(material, "normalmapTexture"):
+             if self.addImage("norm", material.normalmapTexture) is False:
+                return False
+
+         return True
+
     def ascSave(self, baseclass, filename):
 
-        header = "# MakeHuman exported OBJ\n# www.makehumancommunity.org\n\n"
+        materialfile = filename[:-4]+".mtl"
+        header = "# MakeHuman exported OBJ\n# www.makehumancommunity.org\n\n" + \
+            "mtllib " + os.path.basename(materialfile) + "\n"
 
-        # TODO Materials
+        matheader = "# MakeHuman exported MTL\n# www.makehumancommunity.org\n\n"
 
         # collect objects:
         #
         if self.onground:
             self.lowestPos = baseclass.getLowestPos() * self.scale
 
-        if baseclass.proxy is None:
+        if baseclass.proxy is None or self.helper is True:
             obj = baseclass.baseMesh
-            (coords, uvcoords, vpface, faces, overflow) = obj.getVisGeometry(self.hiddenverts)
-            self.obj.append ({"name": "base", "c": coords, "uv": uvcoords, "vpf": vpface, "f": faces, "o": overflow })
+            mat = obj.material
+
+            # in case of helper NO verts on body are hidden
+            #
+            hiddenverts = True if self.helper else self.hiddenverts
+            (coords, norms, uvcoords, vpface, faces, overflow) = obj.getVisGeometry(hiddenverts, self.helper)
+            self.obj.append ({"name": "base", "mat": mat, "c": coords, "no": norms, "uv": uvcoords, "vpf": vpface, "f": faces, "o": overflow })
 
         for elem in baseclass.attachedAssets:
-            (coords, uvcoords, vpface, faces, overflow) = elem.obj.getVisGeometry(self.hiddenverts)
-            self.obj.append ({"name": elem.obj.name, "c": coords, "uv": uvcoords, "vpf": vpface, "f": faces, "o": overflow })
+            mat = elem.obj.material
+            (coords, norms, uvcoords, vpface, faces, overflow) = elem.obj.getVisGeometry(self.hiddenverts)
+            self.obj.append ({"name": elem.obj.name, "mat": mat, "c": coords, "no": norms, "uv": uvcoords, "vpf": vpface, "f": faces, "o": overflow })
 
         # vertices
         #
         for i, obj in enumerate(self.obj):
             self.addCoords(i, obj["c"])
 
+        # normals in case they are selected
+        #
         if self.normals:
-            # normals
-            pass
+            for i, obj in enumerate(self.obj):
+                self.addNormals(i, obj["no"])
 
         # UVs
         #
         for i, obj in enumerate(self.obj):
             self.addUVCoords(i, obj["uv"])
 
-
         # faces
-        if self.normals:
-            # TRI-MESH
-            pass
-        else:
-            for i, obj in enumerate(self.obj):
-                self.addFaces(i, obj["name"], obj["vpf"], obj["f"], obj["o"])
+        #
+        for i, obj in enumerate(self.obj):
+            self.addFaces(i, obj["name"], obj["mat"], obj["vpf"], obj["f"], obj["o"])
 
-        # each mesh forms a group with own material
+        # materials
+        #
+        for i, obj in enumerate(self.obj):
+            if self.addMaterial(i, obj["mat"]) is False:
+                return False
 
         try:
             with open(filename, 'w', encoding="utf-8") as f:
@@ -114,13 +194,20 @@ class objExport:
                 for line in self.facelines:
                     f.write(line)
 
-                # TODO Rest
-
         except IOError as error:
             self.env.last_error = str(error)
             return False
 
         # save material extra
+        try:
+            with open(materialfile, 'w', encoding="utf-8") as f:
+                f.write(matheader)
+                for line in self.matlines:
+                    f.write(line)
+
+        except IOError as error:
+            self.env.last_error = str(error)
+            return False
 
         return True
                                

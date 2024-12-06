@@ -156,6 +156,10 @@ QCheckBox::indicator:unchecked {
     background-color: #323232;
 }
 
+QCheckBox::disabled {
+    color: #000000;
+}
+
 QRadioButton {
     background-color: #414141;
     color: white;
