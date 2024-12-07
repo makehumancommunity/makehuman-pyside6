@@ -119,25 +119,22 @@ class MHGraphicWindow(QWidget):
         hlayout = QHBoxLayout()
         hlayout.setSpacing(1)
         for i in range(6,10):
-            button = IconButton(i, os.path.join(self.env.path_sysicon, elems[i][1]), elems[i][0], elems[i][2])
-            button.setCheckable(True)
+            button = IconButton(i, os.path.join(self.env.path_sysicon, elems[i][1]), elems[i][0], elems[i][2], checkable=True)
             hlayout.addWidget(button)
         vlayout.addLayout(hlayout)
 
         # ghost, skybox
         hlayout = QHBoxLayout()
         for i in range(10,14):
-            button = IconButton(1, os.path.join(self.env.path_sysicon, elems[i][1]), elems[i][0], elems[i][2])
+            button = IconButton(1, os.path.join(self.env.path_sysicon, elems[i][1]), elems[i][0], elems[i][2], checkable=True)
             button.setChecked(False if i != 10 else True) # skybox is true
-            button.setCheckable(True)
             hlayout.addWidget(button)
         vlayout.addLayout(hlayout)
 
         # perspective button is a toggle
         #
-        pers_button = IconButton(1, os.path.join(self.env.path_sysicon, "persp.png"), "Perspective", self.toggle_perspective)
+        pers_button = IconButton(1, os.path.join(self.env.path_sysicon, "persp.png"), "Perspective", self.toggle_perspective, checkable=True)
         pers_button.setChecked(True)
-        pers_button.setCheckable(True)
 
         vlayout.addWidget(pers_button)
 

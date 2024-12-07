@@ -139,10 +139,8 @@ class MHSceneWindow(QWidget):
 
     def getSkyBox(self):
         if self.light.skybox:
-            self.skybox.setStyleSheet("background-color : orange")
             self.skybox.setChecked(True)
         else:
-            self.skybox.setStyleSheet("background-color : lightgrey")
             self.skybox.setChecked(False)
 
     def getValues(self):

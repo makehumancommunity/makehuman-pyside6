@@ -96,7 +96,6 @@ class Renderer(QVBoxLayout):
         self.glob.midColumn.renderView(True)
 
     def setUnsubdivided(self):
-        self.subdivbutton.setStyleSheet("background-color : lightgrey")
         self.subdivbutton.setChecked(False)
         if self.subdiv:
             self.unSubdivide()
@@ -234,10 +233,8 @@ class Renderer(QVBoxLayout):
         b = self.sender()
         self.subdiv = b.isChecked()
         if self.subdiv:
-            b.setStyleSheet("background-color : orange")
             self.parSubdivide()
         else:
-            b.setStyleSheet("background-color : lightgrey")
             self.unSubdivide()
 
     def render(self):

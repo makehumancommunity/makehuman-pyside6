@@ -22,13 +22,13 @@ class clickableProgressBar(QProgressBar):
         self.callback()
 
 class IconButton(QPushButton):
-    def __init__(self, funcid, path, tip, func, fsize=36):
+    def __init__(self, funcid, path, tip, func, fsize=36, checkable=False):
         self._funcid = funcid
         icon  = QIcon(path)
         super().__init__()
         self.setIcon(icon)
         self.setIconSize(QSize(fsize,fsize))
-        self.setCheckable(True)
+        self.setCheckable(checkable)
         self.setFixedSize(fsize+4,fsize+4)
         self.setToolTip(tip)
         if func is not None:
@@ -37,13 +37,6 @@ class IconButton(QPushButton):
     def newIcon(self, path):
         icon  = QIcon(path)
         self.setIcon(icon)
-
-    def setChecked(self, value):
-        super().setChecked(value)
-        if value is True:
-            self.setStyleSheet("background-color : orange")
-        else:
-            self.setStyleSheet("background-color : lightgrey")
 
 class MHGroupBox(QFrame):
     def __init__(self, title):

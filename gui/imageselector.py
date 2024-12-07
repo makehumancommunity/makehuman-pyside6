@@ -489,7 +489,7 @@ class FilterTree(QTreeView):
         row=QHBoxLayout()
         cnt = 0
         for funcid, elem in enumerate(self.shortcut):
-            button = IconButton(funcid, os.path.join(self.iconpath, elem[0]), elem[2], self.shortCutPressed)
+            button = IconButton(funcid, os.path.join(self.iconpath, elem[0]), elem[2], self.shortCutPressed, checkable=True)
             row.addWidget(button)
             self.shortcutbutton.append(button)
             cnt += 1

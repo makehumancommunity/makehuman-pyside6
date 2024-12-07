@@ -627,6 +627,10 @@ class programInfo():
             for folder in basefolders:
                 test = os.path.join(path, folder, self.basename)
                 if os.path.isdir(test):
+                    mod = int(os.stat(test).st_mtime)
+                    if mod > latest:
+                        latest = mod
+
                     files = os.listdir(test)
                     for fname1 in files:
                         aname1 = os.path.join(test, fname1)
@@ -679,8 +683,8 @@ class programInfo():
         #
         # check date of db?
         reread = self.fileCache.createCache(latest, subdir)
-        self.logLine (8, "Recreate repo is " + str(reread))
         if reread is True:
+            self.logLine (1, "Recreate repo is " + str(reread))
             data = []
             for (folder, path) in files:
                 #print (path)

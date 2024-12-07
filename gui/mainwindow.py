@@ -228,7 +228,7 @@ class MHMainWindow(QMainWindow):
         #
         for elem in (self.tool_buttons, self.model_buttons):
             for n, b in enumerate(elem):
-                b["button"] = IconButton(n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"])
+                b["button"] = IconButton(n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"], checkable=True)
         self.markSelectedButtons(self.tool_buttons, self.tool_buttons[0])
 
         # generate category buttons
@@ -236,7 +236,7 @@ class MHMainWindow(QMainWindow):
         for m, tool in enumerate(self.category_buttons):
             offset = (m + 1) * 100
             for n, b in enumerate(tool):
-                b["button"] = IconButton(offset+n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"])
+                b["button"] = IconButton(offset+n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"], checkable=True)
         self.markSelectedButtons(self.category_buttons[0], self.category_buttons[0][0])
 
         self.createCentralWidget()
@@ -539,7 +539,7 @@ class MHMainWindow(QMainWindow):
             elif self.category_mode == 1:
                 self.drawImageSelector(self.charselect, "Character MHM Files", 4)
             elif self.category_mode == 2:
-                self.drawImageSelector(self.charselect, "Character MHM Files (select to get data)", 0)
+                self.drawImageSelector(self.charselect, "Character MHM Files (select to replace file)", 0)
             elif self.category_mode == 3:
                 self.drawExportPanel(self.exportForm, "Export character")
             elif self.category_mode == 4:

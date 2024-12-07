@@ -49,6 +49,7 @@ class BaseSelect(QVBoxLayout):
 
         gb.setLayout(vlayout)
         self.addWidget(gb)
+        self.addStretch()
 
     def getCurrentMaterial(self):
         return (self.parent.glob.baseClass.skinMaterial)
@@ -459,7 +460,7 @@ class ExportRightPanel(QVBoxLayout):
                 { "button": None, "icon": "wavefront_sym.png", "tip": "export as OBJ (Wavefront)", "func": self.exportobj}
         ]
         for n, b in enumerate(self.exportimages):
-            b["button"] = IconButton(n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"], 130)
+            b["button"] = IconButton(n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"], 130, checkable=True)
             self.addWidget(b["button"])
 
         self.setChecked(0)
