@@ -55,7 +55,8 @@ class BVH():
         self.channelname = {"Xposition":0, "Yposition":1, "Zposition":2, "Xrotation":3, "Yrotation":4, "Zrotation":5}
         self.bvhJointOrder = []
         self.joints = {}
-        self.frameCount = 1     # one frame at least (could be rest pose), will contain number of frames
+        self.frameCount = 1       # one frame at least (could be rest pose), will contain number of frames
+        self.frameTime = 0.041667 # preset that to 1/24 sec
         self.currentFrame = 0  # is used for animplayer
         self.pi_mult = math.pi / 180.0
 

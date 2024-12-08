@@ -14,6 +14,7 @@ from core.importfiles import AssetPack
 from core.export_gltf import gltfExport
 from core.export_stl import stlExport
 from core.export_obj import objExport
+from core.export_bvh import bvhExport
 from core.blender_communication import blendCom
 
 class BaseSelect(QVBoxLayout):
@@ -359,13 +360,20 @@ class ExportLeftPanel(QVBoxLayout):
     def setExportType(self, etype):
         common = "MakeHuman works with unit decimeter. "
         expAttrib = { ".stl":  {"tip": common + "STL files are unit less. When working with printers 1 unit equals 1 millimeter (preset scale 1:10)",
-                "num": 3, "binset": True, "binmode": "both", "helpset": False, "helpmode": False, "normset": False, "normmode": False},
+                "num": 3, "binset": True, "binmode": "both", "hiddenset": True, "hiddenmode": False,
+                "helpset": False, "helpmode": False, "normset": False, "normmode": False},
             ".glb": { "tip": common + "GLB/GLTF units are usually meters",
-                "num": 0, "binset": False, "binmode": True, "helpset": False, "helpmode": False, "normset": False, "normmode": True},
+                "num": 0, "binset": False, "binmode": True, "hiddenset": True, "hiddenmode": False,
+                "helpset": False, "helpmode": False, "normset": False, "normmode": True},
             ".mh2b": { "tip": common + "Blender units are usually meters",
-                "num": 0, "binset": False, "binmode": True, "helpset": False, "helpmode": False, "normset": False, "normmode": False},
+                "num": 0, "binset": False, "binmode": True, "hiddenset": True, "hiddenmode": False,
+                "helpset": False, "helpmode": False, "normset": False, "normmode": False},
             ".obj": { "tip": common + "Wavefront units are usually meters",
-                "num": 0, "binset": False, "binmode": False, "helpset": True, "helpmode": False, "normset": True, "normmode": False}
+                "num": 0, "binset": False, "binmode": False, "hiddenset": True, "hiddenmode": False,
+                "helpset": True, "helpmode": False, "normset": True, "normmode": False},
+            ".bvh": { "tip": common + "BVH units are usually meters",
+                "num": 0, "binset": False, "binmode": False,  "hiddenset": False, "hiddenmode": False,
+                "helpset": False, "helpmode": False, "normset": False, "normmode": False}
             }
 
         # set options according to type
@@ -375,6 +383,9 @@ class ExportLeftPanel(QVBoxLayout):
         if expAttrib[self.export_type]["binmode"] != "both":
             self.binsave.setChecked(expAttrib[self.export_type]["binmode"])
         self.binsave.setEnabled(expAttrib[self.export_type]["binset"])
+        #
+        self.hverts.setChecked(expAttrib[self.export_type]["hiddenmode"])
+        self.hverts.setEnabled(expAttrib[self.export_type]["hiddenset"])
 
         self.helper.setChecked(expAttrib[self.export_type]["helpmode"])
         self.helper.setEnabled(expAttrib[self.export_type]["helpset"])
@@ -436,6 +447,11 @@ class ExportLeftPanel(QVBoxLayout):
         elif self.export_type == ".obj":
             obj = objExport(self.glob, folder, self.savehiddenverts, self.onground, self.helper, self.normals, scale)
             success = obj.ascSave(self.bc, path)
+
+        elif self.export_type == ".bvh":
+            bvh = bvhExport(self.glob, self.onground, scale)
+            success = bvh.ascSave(self.bc, path)
+
         else:
             print ("not yet implemented")
             return
@@ -457,7 +473,8 @@ class ExportRightPanel(QVBoxLayout):
                 { "button": None, "icon": "gltf_sym.png", "tip": "export as GLTF2/GLB", "func": self.exportgltf},
                 { "button": None, "icon": "stl_sym.png", "tip": "export as STL (Stereolithography)", "func": self.exportstl},
                 { "button": None, "icon": "blend_sym.png", "tip": "export as MH2B (Blender)", "func": self.exportmh2b},
-                { "button": None, "icon": "wavefront_sym.png", "tip": "export as OBJ (Wavefront)", "func": self.exportobj}
+                { "button": None, "icon": "wavefront_sym.png", "tip": "export as OBJ (Wavefront)", "func": self.exportobj},
+                { "button": None, "icon": "bvh_sym.png", "tip": "export animation/pose as BVH (BioVision Hierarchy)", "func": self.exportbvh}
         ]
         for n, b in enumerate(self.exportimages):
             b["button"] = IconButton(n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"], 130, checkable=True)
@@ -489,6 +506,11 @@ class ExportRightPanel(QVBoxLayout):
         print ("export OBJ called")
         self.leftPanel.setExportType(".obj")
         self.setChecked(3)
+
+    def exportbvh(self):
+        print ("export BVH called")
+        self.leftPanel.setExportType(".bvh")
+        self.setChecked(4)
 
 class DownLoadImport(QVBoxLayout):
     def __init__(self, parent, view, displaytitle):
