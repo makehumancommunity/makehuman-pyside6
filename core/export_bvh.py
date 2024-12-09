@@ -16,6 +16,7 @@ class bvhExport:
 
         self.bvh = BVH(glob, "export")
         self.skeldef = []
+        self.motion = []
     
     def calcJoints(self, bones):
         for name, bone in bones.items():
@@ -30,6 +31,7 @@ class bvhExport:
             if len(bone.children) == 0:
                 joint = self.bvh.addJoint("", self.bvh.joints[name])
                 joint.offset = bone.tailPos - bone.headPos
+                joint.channels = None
 
 
     def writeJoint(self, joint, l):
@@ -55,6 +57,68 @@ class bvhExport:
             self.writeJoint(b, l1)
         self.skeldef.append("\t" * l + "}\n")
 
+    def writeMotion(self, destbvh, sourcebvh):
+        #
+        # TODO:
+        # create a mapping from source to dest 
+        # atm just to deal with different order amd channel number
+        # and less bones (no renaming still)
+        #
+        jointtable = []
+        jointmap = {}
+
+        # collect all new joints and save index in dict
+        #
+        cnt = 0
+        for joint in destbvh.bvhJointOrder:
+            if joint.channels is not None:
+                jointtable.append([joint, None])
+                jointmap[joint.name] = cnt
+                cnt += 1
+
+        # now assign internal animation (replace None in jointtable)
+        #
+        for joint in sourcebvh.bvhJointOrder:
+            if joint.name is not None:
+                if joint.name in jointmap:
+                    jointtable[jointmap[joint.name]][1] = joint
+                else:
+                    print (joint.name, " not found")
+
+        for frame in range(0, sourcebvh.frameCount):
+
+            line = ""
+
+            for destjoint, sourcejoint  in jointtable:
+                # get animdata from source
+                #
+                channels = len(destjoint.channels)
+                if sourcejoint is None:
+                    print ("No source joint for ", destjoint.name)
+                    line += ("0 " * channels)
+                else:
+                    # write short output in case a bone is not changed
+                    #
+                    f = sourcejoint.animdata[frame]
+                    if channels == 3:
+                        for c in range(3,6):
+                            if f[c] == 0.0:
+                                line += "0 "
+                            else:
+                                line += ("%f " % f[c])
+                    else:
+                        for c in range(channels):
+                            if f[c] == 0.0:
+                                line += "0 "
+                            else:
+                                line += ("%f " % f[c])
+
+            # replace last blank with newline (empty lines are not allowed)
+            #
+            if len(line) > 0 and line[-1] == ' ':
+                line = line[:-1] + '\n'
+                self.motion.append(line)
+
     def ascSave(self, baseclass, filename):
 
         if baseclass.skeleton is None:
@@ -72,6 +136,7 @@ class bvhExport:
         self.writeJoint(self.bvh.bvhJointOrder[0], 0)
 
         frameheader = "MOTION\nFrames: %s\nFrame Time: %f\n" % (baseclass.bvh.frameCount, baseclass.bvh.frameTime)
+        self.writeMotion(self.bvh, baseclass.bvh)
 
         try:
             with open(filename, 'w', encoding="utf-8") as f:
@@ -79,6 +144,8 @@ class bvhExport:
                 for line in self.skeldef:
                     f.write(line)
                 f.write(frameheader)
+                for line in self.motion:
+                    f.write(line)
 
         except IOError as error:
             self.env.last_error = str(error)
