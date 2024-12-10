@@ -371,7 +371,7 @@ class ExportLeftPanel(QVBoxLayout):
             ".obj": { "tip": common + "Wavefront units are usually meters",
                 "num": 0, "binset": False, "binmode": False, "hiddenset": True, "hiddenmode": False,
                 "helpset": True, "helpmode": False, "normset": True, "normmode": False},
-            ".bvh": { "tip": common + "BVH units are usually meters",
+            ".bvh": { "tip": common + "BVH units are usually the same as the internal scale",
                 "num": 0, "binset": False, "binmode": False,  "hiddenset": False, "hiddenmode": False,
                 "helpset": False, "helpmode": False, "normset": False, "normmode": False}
             }

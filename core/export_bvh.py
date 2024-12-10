@@ -1,12 +1,21 @@
 """
 bvh exporter
+
+in export we use order XYZ always
+atm only rotation is used for all bones except root
+
+Options:
+
+* on ground is used on each frame for root bone
+* scale must be for offsets and positions in frames
+
 """
 import os
 import numpy as np
 from obj3d.animation import BVH
 
 class bvhExport:
-    def __init__(self, glob, onground=False, scale =0.1):
+    def __init__(self, glob, onground=False, scale =1.0):
 
         self.glob = glob
         self.env = glob.env
@@ -37,7 +46,7 @@ class bvhExport:
     def writeJoint(self, joint, l):
         name = joint.name
         l1 = l+1
-        offset = joint.offset
+        offset = joint.offset * self.scale
         if name == "":
             self.skeldef.append("\t" * l1 + "End Site\n" + "\t" * l1 + "{\n")
             self.skeldef.append("\t" * (l1+1) + "OFFSET %f %f %f\n" % (offset[0], offset[1], offset[2]) + "\t" * l1 + "}\n")
@@ -89,7 +98,7 @@ class bvhExport:
 
             line = ""
 
-            for destjoint, sourcejoint  in jointtable:
+            for cnt, (destjoint, sourcejoint)  in enumerate(jointtable):
                 # get animdata from source
                 #
                 channels = len(destjoint.channels)
@@ -101,13 +110,19 @@ class bvhExport:
                     #
                     f = sourcejoint.animdata[frame]
                     if channels == 3:
-                        for c in range(3,6):
+                        for c in [3, 4, 5]:
                             if f[c] == 0.0:
                                 line += "0 "
                             else:
                                 line += ("%f " % f[c])
                     else:
-                        for c in range(channels):
+                        pos = f.copy() * self.scale
+                        if cnt == 0 and self.onground:
+                            line += ("%f %f %f " % (pos[0], pos[1] - self.lowestPos, pos[2]))
+                        else:
+                            line += ("%f %f %f " % (pos[0], pos[1], pos[2]))
+
+                        for c in [3, 4, 5]:
                             if f[c] == 0.0:
                                 line += "0 "
                             else:
@@ -128,6 +143,9 @@ class bvhExport:
         if baseclass.bvh is None:
             self.env.last_error = "No animation loaded"
             return False
+
+        if self.onground:
+            self.lowestPos = baseclass.getLowestPos() * self.scale
 
         bones = baseclass.skeleton.bones
         self.calcJoints(bones)
