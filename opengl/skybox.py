@@ -5,23 +5,27 @@ from OpenGL import GL as gl
 import os
 
 class OpenGLSkyBox:
-    def __init__(self, env, glprog, glfunc):
-        self.env  = env
+    def __init__(self, glob, glprog, glfunc):
+        self.glob = glob
+        self.env  = glob.env
         self.prog = glprog
         self.func = glfunc
         self.texture = None
         self.vbuffer = None
 
-    def create(self):
+    def create(self, skyboxname):
+        shaderpath = self.env.existDataDir("shaders", "skybox", skyboxname)
+
+        if shaderpath is None:
+            return False
+
         # textures
         self.image = [ None, None, None, None, None, None ]
         self.texture = QOpenGLTexture(QOpenGLTexture.TargetCubeMap)
         self.texture.setSize(2048, 2048)
         self.texture.create()
-        # self.texture.bind()
         self.texture.setFormat(QOpenGLTexture.RGBAFormat)
 
-        shaderpath = os.path.join(self.env.path_sysdata, "shaders", "img")
         for i, elem in enumerate (["posx.jpg", "negx.jpg", "posy.jpg", "negy.jpg", "posz.jpg", "negz.jpg"]):
             filename = os.path.join(shaderpath, elem)
             self.image[i] = QImage(filename)
@@ -56,6 +60,7 @@ class OpenGLSkyBox:
 
         self.prog.enableAttributeArray(0)
         self.prog.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3, 3 * 4)
+        return True
 
     def delete(self):
         if self.vbuffer is not None:

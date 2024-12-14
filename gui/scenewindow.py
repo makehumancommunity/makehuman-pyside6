@@ -1,5 +1,9 @@
+from PySide6.QtWidgets import (
+        QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTabWidget, QPushButton, QRadioButton, QGroupBox, QCheckBox, QSizePolicy,
+        QColorDialog, QListWidget, QAbstractItemView
+        )
+
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTabWidget, QPushButton, QRadioButton, QGroupBox, QCheckBox, QSizePolicy, QColorDialog
 from PySide6.QtGui import QColor, QPalette
 from gui.slider import SimpleSlider, ColorButton
 from gui.mapslider import MapXYCombo
@@ -21,6 +25,9 @@ class MHSceneWindow(QWidget):
         self.setWindowTitle("Scene and Lighting")
         self._volume = 100.0 / (np.array(self.light.max_coords) - np.array(self.light.min_coords))
 
+        self._lastusedskybox = self.light.skyboxname
+        self._lastselectedskybox = self.light.skyboxname
+
         # will keep the widgets
         #
         self.lightsetup = [
@@ -32,8 +39,8 @@ class MHSceneWindow(QWidget):
         layout = QVBoxLayout()
 
         l2layout = QHBoxLayout()
-        l01 = QGroupBox("Ambient Light")
-        l01.setObjectName("subwindow")
+        l = QGroupBox("Ambient Light")
+        l.setObjectName("subwindow")
 
         vlayout = QVBoxLayout()
         self.ambLuminance = SimpleSlider("Luminance: ", 0, 100, self.ambChanged)
@@ -41,29 +48,12 @@ class MHSceneWindow(QWidget):
 
         self.ambColor = ColorButton("Color: ", self.ambColorChanged)
         vlayout.addWidget(self.ambColor)
-        l01.setLayout(vlayout)
-        l2layout.addWidget(l01)
+        l.setLayout(vlayout)
+        l2layout.addWidget(l)
 
-        l02 = QGroupBox("Specular Light")
-        l02.setObjectName("subwindow")
-
+        l = QGroupBox("Background")
+        l.setObjectName("subwindow")
         vlayout = QVBoxLayout()
-        self.specFocus = SimpleSlider("Focus: ", 1, 64, self.specFocChanged)
-        vlayout.addWidget(self.specFocus )
-        l02.setLayout(vlayout)
-        l2layout.addWidget(l02)
-
-        # shader type
-        #
-        l03 = QGroupBox("Shader Method (phong)")
-        l03.setObjectName("subwindow")
-        vlayout = QVBoxLayout()
-        self.phong = QRadioButton("Phong")
-        self.blinn = QRadioButton("Blinn")
-        self.phong.toggled.connect(self.setMethod)
-        self.blinn.toggled.connect(self.setMethod)
-        vlayout.addWidget(self.phong)
-        vlayout.addWidget(self.blinn)
 
         self.clearColor = ColorButton("Background color: ", self.clearColorChanged)
         vlayout.addWidget(self.clearColor)
@@ -73,9 +63,41 @@ class MHSceneWindow(QWidget):
         self.skybox.clicked.connect(self.setSkybox)
         vlayout.addWidget(self.skybox)
 
-        l03.setLayout(vlayout)
-        l2layout.addWidget(l03)
+        self.skyboxlist = self.env.getDataDirList(None, "shaders", "skybox")
+        self.skyboxSelect = QListWidget()
+        self.skyboxSelect.setFixedSize(240, 100)
+        self.skyboxSelect.addItems(self.skyboxlist.keys())
+        self.skyboxSelect.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.getSkyBoxName()
+
+        vlayout.addWidget(self.skyboxSelect)
+        b = QPushButton("Select")
+        b.clicked.connect(self.changeSkyboxName)
+        vlayout.addWidget(b)
+
+        l.setLayout(vlayout)
+        l2layout.addWidget(l)
         layout.addLayout(l2layout)
+
+        l = QGroupBox("Phong specific")
+        l.setObjectName("subwindow")
+
+        vlayout = QVBoxLayout()
+        self.specFocus = SimpleSlider("Specular light, Focus: ", 1, 64, self.specFocChanged)
+        vlayout.addWidget(self.specFocus )
+
+        # shader type
+        #
+        self.phong = QRadioButton("Phong")
+        self.blinn = QRadioButton("Blinn")
+        self.phong.toggled.connect(self.setMethod)
+        self.blinn.toggled.connect(self.setMethod)
+        vlayout.addWidget(self.phong)
+        vlayout.addWidget(self.blinn)
+
+        l.setLayout(vlayout)
+        l2layout.addWidget(l)
+
 
         # -- lights
         #
@@ -137,11 +159,32 @@ class MHSceneWindow(QWidget):
         color = QColor.fromRgbF(vec4.x(), vec4.y(), vec4.z())
         return(color)
 
+    def changeSkybox(self, name, oldname):
+        if name != oldname:
+            self.light.skyboxname = name
+            self._lastselectedskybox = name
+            s = self.light.skybox 
+            self.light.skybox = False
+            self.view.skybox.delete()
+            self.view.skybox.create(name)
+            self.light.skybox = s
+            self.view.Tweak()
+
+    def changeSkyboxName(self):
+        sel = self.skyboxSelect.selectedItems()
+        if len(sel) > 0:
+            self.changeSkybox(sel[0].text(), self._lastselectedskybox)
+
     def getSkyBox(self):
         if self.light.skybox:
             self.skybox.setChecked(True)
         else:
             self.skybox.setChecked(False)
+
+    def getSkyBoxName(self):
+        items = self.skyboxSelect.findItems(self.light.skyboxname, Qt.MatchExactly)
+        if len(items) > 0:
+            self.skyboxSelect.setCurrentItem(items[0])
 
     def getValues(self):
         if self.light.blinn:
@@ -150,6 +193,7 @@ class MHSceneWindow(QWidget):
             self.phong.setChecked(True)
 
         self.getSkyBox()
+        self.getSkyBoxName()
 
         self.ambLuminance.setSliderValue(self.light.ambientLight.w() * 100)
         self.specFocus.setSliderValue(self.light.lightWeight.y())
@@ -235,16 +279,20 @@ class MHSceneWindow(QWidget):
 
     def reset_call(self):
         self.light.fromGlobal(False)
+        self.changeSkybox(self._lastusedskybox, self._lastselectedskybox)
         self.getValues()
         self.view.Tweak()
 
     def default_call(self):
+        oldname = self.light.skyboxname
         self.light.fromGlobal(True)
+        self.changeSkybox(self.light.skyboxname, oldname)
         self.getValues()
         self.view.Tweak()
 
     def use_call(self):
         self.light.toGlobal()
+        self._lastusedskybox = self.light.skyboxname
         self.close()
 
     def cancel_call(self):

@@ -570,13 +570,13 @@ class programInfo():
             for dirname in files:
                 if os.path.isdir(dirname):
                     if search is not None:
-                         filename = os.path.join(dirname, search)
-                         if os.path.isfile(filename):
+                        filename = os.path.join(dirname, search)
+                        if os.path.isfile(filename):
                             directory, fname = os.path.split(dirname)
                             filebase[fname] = filename
                     else:
                         directory, fname = os.path.split(dirname)
-                        filebase[fname] = filename
+                        filebase[fname] = directory
         return(filebase)
 
     def existDataFile(self, *names):

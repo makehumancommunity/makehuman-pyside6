@@ -288,6 +288,7 @@ class Light():
         self.lightWeight = QVector3D()
         self.blinn = False
         self.skybox = True
+        self.skyboxname = None
 
         self.lights = [ 
                 { "pos": QVector3D(), "vol": QVector3D(), "int": 0.0, "type": 0 }, 
@@ -316,9 +317,9 @@ class Light():
     def fromGlobal(self, load_json):
         if load_json:
             self.shaderInit = self.glob.readShaderInitJSON()
-        self.shaders.bindShader(self.phong)
         self.blinn = self.shaderInit["blinn"]
         self.skybox = self.shaderInit["skybox"]
+        self.skyboxname = self.shaderInit["skyboxname"]
         self.listTo4D(self.glclearcolor, self.shaderInit["glclearcolor"])
         self.listTo4D(self.ambientLight, self.shaderInit["ambientcolor"])
         self.lightWeight.setY(self.shaderInit["specularfocus"])
@@ -335,10 +336,14 @@ class Light():
         self.shaderInit["glclearcolor"] = self.q4ToList(self.glclearcolor)
         self.shaderInit["ambientcolor"] = self.q4ToList(self.ambientLight)
         self.shaderInit["specularfocus"] =  self.lightWeight.y()
+        self.shaderInit["skyboxname"] = self.skyboxname
         for i, s in enumerate(self.lights):
             d = self.shaderInit["lamps"][i]
             d["position"] = self.q3ToList(s["pos"])
-            d["color"]    = [self.q3ToList(s["vol"]),  s["int"]]    # recombine array
+
+            d["color"]    = list(self.q3ToList(s["vol"]))  # recombine array
+            d["color"].append(s["int"])
+
             d["type"] = s["type"]
 
     def setShader(self):
