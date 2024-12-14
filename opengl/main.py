@@ -41,6 +41,8 @@ class OpenGLView(QOpenGLWidget):
         self.timer2.timeout.connect(self.yRotator)
         self.yangle = 0.0
         self.yrot = 2.0
+        self.resetbuttons = None
+        self.rotSkyBox = False
         self.blocked = False
         self.glfunc = None
         self.visLights = None
@@ -53,13 +55,20 @@ class OpenGLView(QOpenGLWidget):
             if self.diamondskel is not None:
                 self.diamondskel.delete()
 
-    def setFPS(self, value):
+    def setFPS(self, value, callback=None):
         self.fps = value
+        if callback is not None:
+            self.resetbuttons = callback
         self.timer1.stop()
         self.timer1.start(1000 / self.fps)
 
-    def setYRotAngle(self, value):
+    def setYRotAngle(self, value, callback=None):
         self.yrot = value
+        if callback is not None:
+            self.resetbuttons = callback
+
+    def setRotSkyBox(self, param):
+        self.rotSkyBox = param
 
     def startTimer(self, framefeedback):
         self.framefeedback = framefeedback
@@ -108,6 +117,13 @@ class OpenGLView(QOpenGLWidget):
         self.Tweak()
         self.blocked = False
 
+    def stopAnimation(self):
+        if self.resetbuttons is not None:
+            self.resetbuttons()
+            self.resetbuttons = None
+        self.stopTimer()
+        self.blocked = True
+        self.stopRotate()
 
     def addSkeleton(self, pose=False):
         """
@@ -228,6 +244,8 @@ class OpenGLView(QOpenGLWidget):
             obj.setYRotation(angle)
         if "skeleton" in self.prims:
             self.prims["skeleton"].setYRotation(angle)
+        if self.skybox is not None and self.rotSkyBox is True:
+            self.skybox.setYRotation(angle)
 
     def newSkin(self, obj):
         self.objects[0].setMaterial(obj.material)

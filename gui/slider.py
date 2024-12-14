@@ -277,11 +277,12 @@ class ScaleComboArray(QWidget):
             current.comboUpdate(True)
 
 class SimpleSlider(QWidget):
-    def __init__(self, labeltext, minimum, maximum, callback, parent=None, vertical=False, minwidth=159, ident=None):
+    def __init__(self, labeltext, minimum, maximum, callback, parent=None, vertical=False, minwidth=159, ident=None, factor=1.0):
         super().__init__()
         self.labeltext = labeltext
         self.callback = callback
         self.info = QLabel(self)
+        self.factor = factor
         self.ident = ident
         if vertical:
             layout = QHBoxLayout()
@@ -311,15 +312,18 @@ class SimpleSlider(QWidget):
         self.slider.setEnabled(value)
 
     def setInfoText(self, value):
-        self.info.setText(self.labeltext + str(round(value)))
+        if self.factor == 1.0:
+            self.info.setText(self.labeltext + str(round(value)))
+        else:
+            self.info.setText(self.labeltext + str(round(value) * self.factor))
 
     def sliderChanged(self):
         value = self.slider.value()
         self.setInfoText(value)
         if self.ident is None:
-            self.callback(value)
+            self.callback(value * self.factor)
         else:
-            self.callback(self.ident, value)
+            self.callback(self.ident, value * self.factor)
 
     def setSliderValue(self, value):
         self.setInfoText(value)

@@ -31,6 +31,8 @@ class NavigationEvent(QObject):
                 self.win.left_button()
             elif key == 54:
                 self.win.right_button()
+            elif key == 16777216:
+                self.win.stop_anim()
             elif key == 16777235:
                 self.win.zoom(-1)
             elif key == 16777237:
@@ -254,6 +256,9 @@ class MHGraphicWindow(QWidget):
         self.view.customView(QVector3D(0, -1, 0))
         if self.debug:
             self.camChanged()
+
+    def stop_anim(self):
+        self.view.stopAnimation()
 
     def toggle_grid(self):
         pat = ["xygrid", "yzgrid", "xzgrid"]

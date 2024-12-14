@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QGridLayout, QGroupBox
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QGridLayout, QGroupBox, QCheckBox
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from gui.common import IconButton, WorkerThread, ErrorBox, MHFileRequest
@@ -37,7 +37,7 @@ class AnimMode():
 
 class AnimPlayer(QVBoxLayout):
     """
-    create a form with anim-player buttons (dummy)
+    create a form with anim-player buttons
     """
     def __init__(self, glob, view):
         self.glob = glob
@@ -70,7 +70,7 @@ class AnimPlayer(QVBoxLayout):
         ilayout.addWidget(IconButton(2,  os.path.join(env.path_sysicon, "playerprevimage.png"), "previous frame", self.prevframe))
         ilayout.addWidget(IconButton(3,  os.path.join(env.path_sysicon, "playernextimage.png"), "next frame", self.nextframe))
         ilayout.addWidget(IconButton(4,  os.path.join(env.path_sysicon, "playerlastimage.png"), "last frame", self.lastframe))
-        self.loopbutton = IconButton(5,  os.path.join(env.path_sysicon, "reset.png"), "toggle animation", self.loop)
+        self.loopbutton = IconButton(5,  os.path.join(env.path_sysicon, "reset.png"), "toggle animation (ESC = stop animation)(", self.loop)
         self.loopbutton.setCheckable(True)
         ilayout.addWidget(self.loopbutton)
 
@@ -97,16 +97,24 @@ class AnimPlayer(QVBoxLayout):
         ilayout.addWidget(self.rotatorbutton)
         vlayout.addLayout(ilayout)
 
-        self.rotangSlider = SimpleSlider("Rotation in degrees per frame: ", -20, 20, self.rotangChanged, minwidth=250)
+        self.rotangSlider = SimpleSlider("Rotation in degrees per frame: ", -20, 20, self.rotangChanged, minwidth=250, factor=0.25)
         self.rotangSlider.setSliderValue(self.rotAngle)
         vlayout.addWidget(self.rotangSlider )
+
+        self.rotSkyBox = QCheckBox("also rotate skybox")
+        self.rotSkyBox.setLayoutDirection(Qt.LeftToRight)
+        self.rotSkyBox.toggled.connect(self.changeRotSkyBox)
+        vlayout.addWidget(self.rotSkyBox)
+
         gb.setLayout(vlayout)
         layout.addWidget(gb)
         self.addLayout(layout)
 
     def enter(self):
         self.loopbutton.setChecked(False)
+        self.rotSkyBox.setChecked(False)
         self.view.addSkeleton(True)
+        self.view.setRotSkyBox(False)
         self.bc.pose_skeleton.newGeometry()
         self.bc.precalculateAssetsInRestPose()
         self.mesh.createWCopy()
@@ -121,6 +129,9 @@ class AnimPlayer(QVBoxLayout):
         self.view.addSkeleton(False)    # reset to unposed
         self.bc.updateAttachedAssets()
         self.view.Tweak()
+
+    def changeRotSkyBox(self, param):
+        self.view.setRotSkyBox(param)
 
     def setFrame(self, value):
         if self.anim is None:
@@ -172,7 +183,7 @@ class AnimPlayer(QVBoxLayout):
         b = self.sender()
         v = b.isChecked()
         if v:
-            self.view.setFPS(self.speedValue)
+            self.view.setFPS(self.speedValue, self.resetAnimbutton)
             self.view.startTimer(self.frameFeedback)
         else:
             self.view.stopTimer()
@@ -182,7 +193,7 @@ class AnimPlayer(QVBoxLayout):
         b = self.sender()
         v = b.isChecked()
         if v:
-            self.view.setYRotAngle(self.rotAngle)
+            self.view.setYRotAngle(self.rotAngle, self.resetAnimbutton)
             self.view.startRotate()
         else:
             self.view.stopRotate()
@@ -191,6 +202,10 @@ class AnimPlayer(QVBoxLayout):
     def resetrot(self):
         self.view.setYRotation()    # reset rotation
         self.view.Tweak()
+
+    def resetAnimbutton(self):
+        self.rotatorbutton.setChecked(False)
+        self.loopbutton.setChecked(False)
 
 class ExpressionItem(ScaleComboItem):
     def __init__(self, glob, name, icon, callback, expression):

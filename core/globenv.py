@@ -483,11 +483,12 @@ class programInfo():
             if self.mkdir(folder) is False:
                 return (False)
 
-        # and private litsphere folder
+        # and private litsphere/skybox folders
         #
-        folder = os.path.join(userdata, "shaders", "litspheres")
-        if self.mkdir(folder) is False:
-            return (False)
+        for name in ["litspheres", "skybox"]:
+            folder = os.path.join(userdata, "shaders", name)
+            if self.mkdir(folder) is False:
+                return (False)
 
         return (True)
 

@@ -1,5 +1,5 @@
 from PySide6.QtOpenGL import QOpenGLTexture, QOpenGLBuffer
-from PySide6.QtGui import QImage, QVector4D
+from PySide6.QtGui import QImage, QVector4D, QMatrix4x4
 import numpy as np
 from OpenGL import GL as gl
 import os
@@ -12,6 +12,8 @@ class OpenGLSkyBox:
         self.func = glfunc
         self.texture = None
         self.vbuffer = None
+        self.model_matrix = QMatrix4x4()
+        self.y_rotation = 0.0
 
     def create(self, skyboxname):
         shaderpath = self.env.existDataDir("shaders", "skybox", skyboxname)
@@ -69,11 +71,20 @@ class OpenGLSkyBox:
             self.texture.destroy()
 
 
+    def setYRotation(self, rot):
+        self.y_rotation = rot
+
     def draw(self, projection):
         self.prog.bind()
         self.func.glDepthFunc(gl.GL_LEQUAL);
         key = self.prog.uniformLocation("uModelMatrix")
-        self.prog.setUniformValue(key, projection)
+        self.model_matrix.setToIdentity()
+        if self.y_rotation != 0.0:
+            self.model_matrix.rotate(self.y_rotation, 0.0, 1.0, 0.0)
+        self.model_matrix = projection * self.model_matrix
+
+        #self.prog.setUniformValue(key, projection)
+        self.prog.setUniformValue(key, self.model_matrix)
 
         self.vbuffer.bind()
         self.prog.enableAttributeArray(0)
