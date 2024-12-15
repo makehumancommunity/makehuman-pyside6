@@ -1,5 +1,5 @@
 from PySide6.QtCore import QSize, Qt, QObject, QEvent
-from PySide6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QSlider, QCheckBox
+from PySide6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QSlider, QCheckBox, QMessageBox
 from PySide6.QtGui import QVector3D, QColor, QIcon
 from core.baseobj import baseClass
 from gui.common import IconButton
@@ -135,10 +135,15 @@ class MHGraphicWindow(QWidget):
 
         # perspective button is a toggle
         #
-        pers_button = IconButton(1, os.path.join(self.env.path_sysicon, "persp.png"), "Perspective", self.toggle_perspective, checkable=True)
-        pers_button.setChecked(True)
+        hlayout = QHBoxLayout()
+        button = IconButton(1, os.path.join(self.env.path_sysicon, "persp.png"), "Perspective", self.toggle_perspective, checkable=True)
+        button.setChecked(True)
+        hlayout.addWidget(button)
 
-        vlayout.addWidget(pers_button)
+        button = IconButton(1, os.path.join(self.env.path_sysicon, "camera.png"), "Grab screen", self.screenShot)
+        hlayout.addWidget(button)
+
+        vlayout.addLayout(hlayout)
 
         self.focusSlider = SimpleSlider("Focal Length: ", 15, 200, self.focusChanged)
         vlayout.addWidget(self.focusSlider )
@@ -150,6 +155,13 @@ class MHGraphicWindow(QWidget):
         else:
             self.hiddenbutton.setEnabled(True)
             self.hiddenbutton.setToolTip('do not delete vertices under clothes')
+
+    def screenShot(self, param):
+        icon = self.view.grabFramebuffer()
+        name = self.env.dateFileName("grab-", ".png")
+        name = os.path.join(self.env.path_userdata, "grab", name)
+        icon.save(name, "PNG", -1)
+        QMessageBox.information(self.view, "Done!", "Screenshot saved as " + name)
 
     def changeHidden(self, param):
         if self.glob.baseClass is None:

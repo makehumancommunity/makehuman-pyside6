@@ -204,6 +204,9 @@ class MHMainWindow(QMainWindow):
         entry = help_menu.addAction("Local OpenGL Information")
         entry.triggered.connect(self.glinfo_call)
 
+        entry = help_menu.addAction("Used library versions")
+        entry.triggered.connect(self.vers_call)
+
         entry = help_menu.addAction("License")
         entry.triggered.connect(self.lic_call)
         lics = help_menu.addMenu("3rd Party licenses")
@@ -601,6 +604,12 @@ class MHMainWindow(QMainWindow):
             self.drawLeftPanel()
             vis = self.drawRightPanel()
             self.visRightColumn.setVisible(vis)
+        else:
+            # refresh status
+            self.markSelectedButtons(self.tool_buttons, self.tool_buttons[tool])
+            buttons = self.category_buttons[tool]
+            if len(buttons) > 0:
+                self.markSelectedButtons(buttons, buttons[category])
 
 
     def deb_cam(self):
@@ -951,7 +960,7 @@ class MHMainWindow(QMainWindow):
             licname = "makehuman_license.txt"
             boxname = "MakeHuman License"
             image = os.path.join(self.env.path_sysicon, "makehuman.png")
-        if name == "Credits":
+        elif name == "Credits":
             licname = "credits.txt"
             boxname = "Credits"
             image = os.path.join(self.env.path_sysicon, "makehuman.png")
@@ -962,6 +971,13 @@ class MHMainWindow(QMainWindow):
 
         text = self.env.convertToRichFile(os.path.join(self.env.path_sysdata, "licenses", licname))
         TextBox(self, boxname, image, text)
+
+    def vers_call(self):
+        text = "Numpy: " + ".".join([str(x) for x in self.env.numpy_version]) + "<br>" + \
+                "PyOpenGL: " + self.env.GL_Info + "<br>" + \
+                "PySide6: " + ".".join([str(x) for x in self.env.QT_Info["version"]])
+        image = os.path.join(self.env.path_sysicon, "makehuman.png")
+        TextBox(self, "Used library versions", image, text)
 
     def glinfo_call(self):
         deb = GLDebug()

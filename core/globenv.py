@@ -478,7 +478,7 @@ class programInfo():
 
         # subfolder inside userdata, so usually base folder + special ones
         #
-        for name in self.basefolders + ["themes", "exports","skins", "models", "target", "dbcache", "shaders" ]:
+        for name in self.basefolders + ["themes", "exports","skins", "models", "target", "dbcache", "shaders", "grab"]:
             folder = os.path.join(userdata, name)
             if self.mkdir(folder) is False:
                 return (False)
@@ -856,6 +856,9 @@ class programInfo():
         if self.verbose & 8:
             outtime = time.strftime("%Y/%m/%d %H:%M:%S ", time.localtime(ctime))
             print ("[8] " + outtime + line)
+
+    def dateFileName(self, prefix, postfix):
+        return prefix + time.strftime("%Y%m%d-%H%M%S", time.localtime()) + postfix
 
     def loadSession(self):
         """
