@@ -29,8 +29,8 @@ class MHApplication(QApplication):
             sformat.setSamples(4)
             QSurfaceFormat.setDefaultFormat(sformat)
 
-        sformat.setMajorVersion(3)
-        sformat.setMinorVersion(3)
+        #sformat.setMajorVersion(3)
+        #sformat.setMinorVersion(3)
         QSurfaceFormat.setDefaultFormat(sformat)
 
     def setStyles(self, theme):

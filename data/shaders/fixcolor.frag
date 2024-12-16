@@ -5,10 +5,12 @@ in VS_OUT {
     vec3 Color;
 } fs_in;
 
+out vec4 FragColor;
+
 const float transp = 0.4;
 
 void main()
 {
-	gl_FragColor =  vec4(fs_in.Color, transp);
+	FragColor =  vec4(fs_in.Color, transp);
 }
 
