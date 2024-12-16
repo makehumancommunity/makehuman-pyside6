@@ -199,6 +199,8 @@ class programInfo():
         print ("Copyright: " + self.release_info["copyright"])
         if hasattr(self, "path_userconf"):
             print ("\nUser configuration file is: " + self.path_userconf)
+            if self.osindex == 0:
+                print("\nWindows python:\n" + os.path.realpath(self.path_userconf))
         else:
             print ("\nNo user configuration available.")
 
