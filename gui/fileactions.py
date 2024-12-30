@@ -286,6 +286,7 @@ class ExportLeftPanel(QVBoxLayout):
         self.onground = True
         self.helper = False
         self.normals = False
+        self.animation = False
         self.savehiddenverts = False
         self.export_type = ".glb"
         super().__init__()
@@ -328,13 +329,20 @@ class ExportLeftPanel(QVBoxLayout):
         self.hverts.setChecked(False)
         self.hverts.setToolTip('Export of hidden vertices is only useful, when destination is able to edit mesh')
         self.addWidget(self.hverts)
+
+        self.anim= QCheckBox("save animation")
+        self.anim.setLayoutDirection(Qt.LeftToRight)
+        self.anim.toggled.connect(self.changeAnim)
+        self.anim.setChecked(False)
+        self.anim.setToolTip('If an animation is loaded it can be appended to the export')
+        self.addWidget(self.anim)
         
-        self.helper= QCheckBox("save helper")
-        self.helper.setLayoutDirection(Qt.LeftToRight)
-        self.helper.toggled.connect(self.changeHelper)
-        self.helper.setChecked(False)
-        self.helper.setToolTip('For special purposes the invisible helper can be exported, vertices of the body are NOT hidden in this case')
-        self.addWidget(self.helper)
+        self.helperw= QCheckBox("save helper")
+        self.helperw.setLayoutDirection(Qt.LeftToRight)
+        self.helperw.toggled.connect(self.changeHelper)
+        self.helperw.setChecked(False)
+        self.helperw.setToolTip('For special purposes the invisible helper can be exported, vertices of the body are NOT hidden in this case')
+        self.addWidget(self.helperw)
 
         self.norm= QCheckBox("normals")
         self.norm.setLayoutDirection(Qt.LeftToRight)
@@ -361,18 +369,23 @@ class ExportLeftPanel(QVBoxLayout):
         common = "MakeHuman works with unit decimeter. "
         expAttrib = { ".stl":  {"tip": common + "STL files are unit less. When working with printers 1 unit equals 1 millimeter (preset scale 1:10)",
                 "num": 3, "binset": True, "binmode": "both", "hiddenset": True, "hiddenmode": False,
+                "animset": False, "animmode": False,
                 "helpset": False, "helpmode": False, "normset": False, "normmode": False},
             ".glb": { "tip": common + "GLB/GLTF units are usually meters",
                 "num": 0, "binset": False, "binmode": True, "hiddenset": True, "hiddenmode": False,
+                "animset": False, "animmode": False,
                 "helpset": False, "helpmode": False, "normset": False, "normmode": True},
             ".mh2b": { "tip": common + "Blender units are usually meters",
                 "num": 0, "binset": False, "binmode": True, "hiddenset": True, "hiddenmode": False,
+                "animset": True, "animmode": False,
                 "helpset": False, "helpmode": False, "normset": False, "normmode": False},
             ".obj": { "tip": common + "Wavefront units are usually meters",
                 "num": 0, "binset": False, "binmode": False, "hiddenset": True, "hiddenmode": False,
+                "animset": False, "animmode": False,
                 "helpset": True, "helpmode": False, "normset": True, "normmode": False},
             ".bvh": { "tip": common + "BVH units are usually the same as the internal scale",
                 "num": 0, "binset": False, "binmode": False,  "hiddenset": False, "hiddenmode": False,
+                "animset": False, "animmode": True,
                 "helpset": False, "helpmode": False, "normset": False, "normmode": False}
             }
 
@@ -387,11 +400,14 @@ class ExportLeftPanel(QVBoxLayout):
         self.hverts.setChecked(expAttrib[self.export_type]["hiddenmode"])
         self.hverts.setEnabled(expAttrib[self.export_type]["hiddenset"])
 
-        self.helper.setChecked(expAttrib[self.export_type]["helpmode"])
-        self.helper.setEnabled(expAttrib[self.export_type]["helpset"])
+        self.helperw.setChecked(expAttrib[self.export_type]["helpmode"])
+        self.helperw.setEnabled(expAttrib[self.export_type]["helpset"])
 
         self.norm.setChecked(expAttrib[self.export_type]["normmode"])
         self.norm.setEnabled(expAttrib[self.export_type]["normset"])
+
+        self.anim.setChecked(expAttrib[self.export_type]["animmode"])
+        self.anim.setEnabled(expAttrib[self.export_type]["animset"])
 
         self.scalebox.setCurrentIndex(expAttrib[self.export_type]["num"])
         self.scalebox.setToolTip(expAttrib[self.export_type]["tip"])
@@ -410,6 +426,9 @@ class ExportLeftPanel(QVBoxLayout):
 
     def changeNormals(self, param):
         self.normals = param
+
+    def changeAnim(self, param):
+        self.animation = param
 
     def newfilename(self):
         """
@@ -441,7 +460,7 @@ class ExportLeftPanel(QVBoxLayout):
                 success = stl.ascSave(self.bc, path)
 
         elif self.export_type == ".mh2b":
-            blcom = blendCom(self.glob, folder, self.savehiddenverts, self.onground, scale)
+            blcom = blendCom(self.glob, folder, self.savehiddenverts, self.onground, self.animation, scale)
             success = blcom.binSave(self.bc, path)
 
         elif self.export_type == ".obj":

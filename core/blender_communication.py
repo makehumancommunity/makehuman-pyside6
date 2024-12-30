@@ -18,7 +18,7 @@ import numpy as np
 from obj3d.skeleton import skeleton as newSkeleton
 
 class blendCom:
-    def __init__(self, glob, exportfolder, hiddenverts=False, onground=True, scale =0.1):
+    def __init__(self, glob, exportfolder, hiddenverts=False, onground=True, animation=False, scale =0.1):
 
         # subfolder for textures
         #
@@ -28,6 +28,7 @@ class blendCom:
         self.env = glob.env
         self.hiddenverts = hiddenverts
         self.onground = onground
+        self.animation = animation
         self.scale = scale
         self.lowestPos = 0.0
         self.rootname = "generic"
@@ -354,6 +355,19 @@ class blendCom:
         buf = self.addBufferView( self.RMAT_BUFFER, data)
         self.json["skeleton"] = {"name": self.rootname, "bones": bones, "RESTMAT": buf}
 
+    def addAnimation(self, skeleton, bvh):
+        """
+        add 3x3 matrix for location, scale, euler-rotation
+        """
+        cnt = len(skeleton.bones)
+        #
+        # TODO, reorder to skeleton bones?
+        #
+        for frame in range(bvh.frameCount):
+            for joint in bvh.bvhJointOrder:
+                if joint.nChannels > 0:
+                    print (joint.name)
+                    print (joint.animdata[frame])
 
     def addNodes(self, baseclass, fname):
         #
@@ -434,6 +448,9 @@ class blendCom:
             self.json["nodes"].append({"name": self.nodeName(elem.filename, True), "mesh": mesh })
             children.append(childnum)
             childnum += 1
+
+        if self.animation and baseclass.bvh:
+            self.addAnimation(baseclass.skeleton, baseclass.bvh)
 
         # now insert correct lenght of available buffers
         #

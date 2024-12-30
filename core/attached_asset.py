@@ -322,7 +322,11 @@ class attachedAsset:
             return True, "import"
 
         if self.glob.baseClass.default_skeleton == None:
-            return False, "no skeleton added"
+            return True, None
+
+        # TODO: No skeleton = no weights, or all weights == 1 to a virtual
+        # root bone 
+
         self.bWeights = boneWeights(self.glob, self.glob.baseClass.default_skeleton, self.obj)
 
         if self.vertexboneweights_file is not None:

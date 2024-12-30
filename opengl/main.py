@@ -351,7 +351,7 @@ class OpenGLView(QOpenGLWidget):
         c = self.light.glclearcolor
         self.glfunc.glClearColor(c.x(), c.y(), c.z(), c.w())
         self.glfunc.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-        proj_view_matrix = self.camera.getProjViewMatrix()
+        proj_view_matrix = QMatrix4x4(self.camera.getProjViewMatrix().copyDataTo())
         baseClass = self.glob.baseClass
 
         if baseClass is not None and self.objects_invisible is False:
