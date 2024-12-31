@@ -4,6 +4,7 @@ import os
 import struct
 from bpy_extras.io_utils import (ImportHelper, ExportHelper)
 from mathutils import Vector, Matrix
+from math import radians
 from bpy.props import StringProperty
 from .materials import MH2B_OT_Material
 
@@ -276,7 +277,55 @@ class MH2B_OT_Loader:
             if pb.parent:
                 pb.lock_location = [True,True,True]
 
-        return(rig)
+        return rig
+
+    def getAnimation (self, jdata, fp):
+        """
+        read posmatrix and create keyframes
+        """
+        skel =  jdata["skeleton"]
+        bufnum  = skel["ANIMMAT"]
+        nframes  = skel["nFrames"]
+        length = jdata["bufferViews"][bufnum]["byteLength"] 
+        print ("animation need to read " + str(length) + " bytes")
+        buf = fp.read(length)
+        self.bufferoffset += length
+
+        animdata = list(struct.iter_unpack('<fffffffff',  buf))
+        print (nframes, len(animdata), len(animdata)/nframes)
+
+        # in pose mode select all bones
+        #
+        bpy.ops.object.mode_set(mode='POSE')
+        rig = self.skeleton
+        self.activateObject(rig)
+        for bone in rig.pose.bones:
+            dbone = rig.data.bones.get(bone.name)
+            dbone.select = True
+
+        scn = self.context.scene
+        scn.frame_start = 1
+        scn.frame_end = nframes
+        cnt = 0
+
+        for frame in range(nframes):
+            print (frame)
+            scn.frame_set(frame+1)
+            for bone in skel["bones"]:
+                name = bone["name"]
+                pbone = rig.pose.bones.get(name)
+                m = animdata[cnt]
+                if pbone:
+                    pbone.location = (m[0], m[1], m[2])
+                    pbone.scale    = (m[3], m[4], m[5])
+                    pbone.rotation_mode = 'XYZ'
+                    #
+                    # TODO: wrong space still
+                    #
+                    pbone.rotation_euler = (radians(m[6]), radians(m[7]), radians(m[8]))
+                cnt += 1
+            bpy.ops.anim.keyframe_insert(type='LocRotScale')
+
 
     def createObjects(self, jdata, fp, dirname):
         #
@@ -287,6 +336,8 @@ class MH2B_OT_Loader:
 
         if "skeleton" in jdata:
             self.skeleton = self.getSkeleton(jdata, fp)
+            if "ANIMMAT" in jdata["skeleton"]:
+                self.getAnimation(jdata, fp)
 
         nodes = []
         n = jdata["nodes"][self.firstnode]

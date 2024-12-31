@@ -36,6 +36,7 @@ class blendCom:
         # all constants used
         #
         self.RMAT_BUFFER   = 1  # rest matrix (skeleton)
+        self.ANIM_BUFFER   = 2  # animation (skeleton)
         self.POS_BUFFER    = 10 # target: position
         self.VPF_BUFFER    = 11 # vertex per face
         self.FACE_BUFFER   = 12
@@ -358,16 +359,29 @@ class blendCom:
     def addAnimation(self, skeleton, bvh):
         """
         add 3x3 matrix for location, scale, euler-rotation
+        only called, when skeleton is available
         """
         cnt = len(skeleton.bones)
-        #
-        # TODO, reorder to skeleton bones?
-        #
+
+        animat = np.zeros((bvh.frameCount, cnt, 3,3), dtype=np.float32)
         for frame in range(bvh.frameCount):
             for joint in bvh.bvhJointOrder:
                 if joint.nChannels > 0:
-                    print (joint.name)
-                    print (joint.animdata[frame])
+                    num = self.bonenames[joint.name]
+                    f = joint.animdata[frame]
+                    animat[frame, num, 0, 0] = f[0]     # location
+                    animat[frame, num, 0, 1] = f[1]
+                    animat[frame, num, 0, 2] = f[2]
+                    animat[frame, num, 1, 0] = 1.0      # scale
+                    animat[frame, num, 1, 1] = 1.0
+                    animat[frame, num, 1, 2] = 1.0
+                    animat[frame, num, 2, 0] = f[3]     # rotation
+                    animat[frame, num, 2, 1] = f[4]
+                    animat[frame, num, 2, 2] = f[5]
+
+        animbuf = self.addBufferView(self.ANIM_BUFFER, animat.tobytes())
+        self.json["skeleton"]["ANIMMAT"] = animbuf      
+        self.json["skeleton"]["nFrames"] = bvh.frameCount
 
     def addNodes(self, baseclass, fname):
         #
@@ -389,7 +403,7 @@ class blendCom:
 
         baseweights = None
 
-        # add skeleton, if available
+        # add skeleton, if available, then animation (order is significant)
         #
         if baseclass.skeleton is not None:
 
@@ -407,7 +421,8 @@ class blendCom:
                 skeleton = baseclass.skeleton
 
             self.addSkeleton(skeleton)
-
+            if self.animation and baseclass.bvh:
+                self.addAnimation(baseclass.skeleton, baseclass.bvh)
 
         skin = baseclass.baseMesh.material
 
@@ -449,9 +464,6 @@ class blendCom:
             children.append(childnum)
             childnum += 1
 
-        if self.animation and baseclass.bvh:
-            self.addAnimation(baseclass.skeleton, baseclass.bvh)
-
         # now insert correct lenght of available buffers
         #
         self.json["asset"]["buffersize"] =  self.bufferoffset
@@ -474,6 +486,7 @@ class blendCom:
         version = struct.pack('<I', self.MH2B_VERSION)
         length = 12         # header length (always fix 12 bytes)
 
+        print (self.json)
         jsondata = json.dumps(self.json, indent=None, allow_nan=False, skipkeys=True, separators=(',', ':')).encode("utf-8")
 
         # now pad json data to align with 4
