@@ -369,9 +369,9 @@ class blendCom:
                 if joint.nChannels > 0:
                     num = self.bonenames[joint.name]
                     f = joint.animdata[frame]
-                    animat[frame, num, 0, 0] = f[0]     # location
-                    animat[frame, num, 0, 1] = f[1]
-                    animat[frame, num, 0, 2] = f[2]
+                    animat[frame, num, 0, 0] = f[0] * self.scale    # location
+                    animat[frame, num, 0, 1] = f[1] * self.scale
+                    animat[frame, num, 0, 2] = f[2] * self.scale
                     animat[frame, num, 1, 0] = 1.0      # scale
                     animat[frame, num, 1, 1] = 1.0
                     animat[frame, num, 1, 2] = 1.0
@@ -486,7 +486,6 @@ class blendCom:
         version = struct.pack('<I', self.MH2B_VERSION)
         length = 12         # header length (always fix 12 bytes)
 
-        print (self.json)
         jsondata = json.dumps(self.json, indent=None, allow_nan=False, skipkeys=True, separators=(',', ':')).encode("utf-8")
 
         # now pad json data to align with 4

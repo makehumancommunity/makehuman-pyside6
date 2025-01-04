@@ -3,7 +3,7 @@ import json
 import os
 import struct
 from bpy_extras.io_utils import (ImportHelper, ExportHelper)
-from mathutils import Vector, Matrix
+from mathutils import Vector, Matrix, Euler
 from math import radians
 from bpy.props import StringProperty
 from .materials import MH2B_OT_Material
@@ -17,6 +17,7 @@ class MH2B_OT_Loader:
         self.bufferoffset = 0
         self.skeleton = None
         self.bonelist = {}
+        self.bonecorr = {}
         self.subsurf = subsurf
 
     def activateObject(self, ob):
@@ -277,6 +278,11 @@ class MH2B_OT_Loader:
             if pb.parent:
                 pb.lock_location = [True,True,True]
 
+        for bone in rig.data.bones:
+            loc, rot, scale = bone.matrix_local.decompose()
+            rmat = rot.to_matrix()
+            self.bonecorr[bone.name] = rmat
+
         return rig
 
     def getAnimation (self, jdata, fp):
@@ -316,13 +322,15 @@ class MH2B_OT_Loader:
                 pbone = rig.pose.bones.get(name)
                 m = animdata[cnt]
                 if pbone:
-                    pbone.location = (m[0], m[1], m[2])
+                    pbone.location = (m[2], m[1], m[0])
                     pbone.scale    = (m[3], m[4], m[5])
-                    pbone.rotation_mode = 'XYZ'
-                    #
-                    # TODO: wrong space still
-                    #
-                    pbone.rotation_euler = (radians(m[6]), radians(m[7]), radians(m[8]))
+                    euler = Euler((radians(m[6]), radians(m[7]), radians(m[8])), 'ZYX')
+                    if name in self.bonecorr:
+                        cmat = self.bonecorr[name]
+                        mat = cmat.inverted() @  euler.to_matrix() @ cmat
+                        rot = mat.to_euler()
+                        pbone.rotation_mode = 'XYZ'
+                        pbone.rotation_euler = (rot.x, rot.y, rot.z)
                 cnt += 1
             bpy.ops.anim.keyframe_insert(type='LocRotScale')
 
