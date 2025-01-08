@@ -373,7 +373,7 @@ class ExportLeftPanel(QVBoxLayout):
                 "helpset": False, "helpmode": False, "normset": False, "normmode": False},
             ".glb": { "tip": common + "GLB/GLTF units are usually meters",
                 "num": 0, "binset": False, "binmode": True, "hiddenset": True, "hiddenmode": False,
-                "animset": False, "animmode": False,
+                "animset": True, "animmode": False,
                 "helpset": False, "helpmode": False, "normset": False, "normmode": True},
             ".mh2b": { "tip": common + "Blender units are usually meters",
                 "num": 0, "binset": False, "binmode": True, "hiddenset": True, "hiddenmode": False,
@@ -449,7 +449,7 @@ class ExportLeftPanel(QVBoxLayout):
         scale = self.scale_items[current][0]
 
         if self.export_type == ".glb":
-            gltf = gltfExport(self.glob, folder, self.savehiddenverts, self.onground, scale)
+            gltf = gltfExport(self.glob, folder, self.savehiddenverts, self.onground,  self.animation, scale)
             success = gltf.binSave(self.bc, path)
 
         elif self.export_type == ".stl":

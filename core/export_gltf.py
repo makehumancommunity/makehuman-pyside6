@@ -13,7 +13,7 @@ from obj3d.skeleton import skeleton as newSkeleton
 """
 
 class gltfExport:
-    def __init__(self, glob, exportfolder, hiddenverts=False, onground=True, scale =0.1):
+    def __init__(self, glob, exportfolder, hiddenverts=False, onground=True, animation=False, scale =0.1):
 
         # subfolder for textures
         #
@@ -23,6 +23,7 @@ class gltfExport:
         self.env = glob.env
         self.hiddenverts = hiddenverts
         self.onground = onground
+        self.animation = animation
         self.scale = scale
         self.lowestPos = 0.0
 
@@ -73,7 +74,6 @@ class gltfExport:
         # skeleton 
         #
         self.json["skins"] = []
-        #self.json["animations"] = []       # buffer?
 
         # texture and material
         #
@@ -254,6 +254,32 @@ class gltfExport:
         self.json["accessors"].append({"bufferView": buf, "componentType": self.FLOAT, "count": numverts, "type": "VEC4"})
         return(self.accessor_cnt)
 
+    def addAnimInputAccessor(self, frames, framelen):
+        self.accessor_cnt += 1
+        timestamps = np.zeros(frames, dtype=np.float32)
+        timepos = 0.0
+        for i in range(frames):
+            timestamps[i] = timepos
+            timepos += framelen
+        maximum = float(timestamps[-1])
+        data = timestamps.tobytes()
+        buf = self.addBufferView(None, data)
+        self.json["accessors"].append({"bufferView": buf, "componentType": self.FLOAT, "count": frames, "min": [ 0.0 ], "max": [maximum],  "type": "SCALAR"})
+        return(self.accessor_cnt)
+
+    def addAnimOutputAccessor(self, frames, tlen):
+        self.accessor_cnt += 1
+        values = np.zeros((frames, tlen), dtype=np.float32)
+        if tlen == 4:
+            jtype = "VEC4"
+            for i in range(frames):
+                values[i][3] = 1.0 # Quaternions data fake
+        else:
+            jtype = "VEC3"
+        data = values.tobytes()
+        buf = self.addBufferView(None, data)
+        self.json["accessors"].append({"bufferView": buf, "componentType": self.FLOAT, "count": frames, "type": jtype})
+        return(self.accessor_cnt)
 
     def copyImage(self, source, dest):
         self.env.logLine (8, "Need to copy " + source + " to " + dest)
@@ -429,6 +455,30 @@ class gltfExport:
             num = nextnode
         return (num)
 
+    def addAnimations(self, bvh):
+
+        print ("Animations!!!!")
+        # create channels and samplers
+        #
+        common_input = self.addAnimInputAccessor(bvh.frameCount, bvh.frameTime)
+        print (common_input)
+
+        channels = []
+        samplers = []
+        sampler = 0
+        for elem in self.bonelist:
+            channels.append({"sampler": sampler, "target": { "node": elem, "path": "translation" }})
+            output = self.addAnimOutputAccessor(bvh.frameCount, 3)
+            samplers.append({"input": common_input, "interpolation":"LINEAR", "output": output})
+            sampler += 1
+            channels.append({"sampler": sampler, "target": {"node": elem, "path": "rotation" }})
+            output = self.addAnimOutputAccessor(bvh.frameCount, 4)
+            samplers.append({"input": common_input, "interpolation":"LINEAR", "output": output})
+            sampler += 1
+
+        self.json["animations"] = []
+        self.json["animations"].append({"name": bvh.name, "channels": channels, "samplers": samplers})
+
     def addNodes(self, baseclass):
         #
         # add the basemesh itself
@@ -516,6 +566,14 @@ class gltfExport:
                 elem.calculateBoneWeights()
                 self.addWeights(childnum, elem, elem.obj)
             childnum += 1
+
+        # add animation, if any, allow only baseclass atm
+        #
+        if self.animation and baseweights is not None and baseclass.bvh:
+            if baseclass.skeleton == baseclass.default_skeleton:
+                self.addAnimations(baseclass.bvh)
+            else:
+                print ("No animation for different skeleton allowed atm")
 
         self.json["buffers"].append({"byteLength": self.bufferoffset})
         self.env.logLine(32, self)
