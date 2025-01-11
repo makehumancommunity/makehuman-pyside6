@@ -267,13 +267,11 @@ class gltfExport:
         self.json["accessors"].append({"bufferView": buf, "componentType": self.FLOAT, "count": frames, "min": [ 0.0 ], "max": [maximum],  "type": "SCALAR"})
         return(self.accessor_cnt)
 
-    def addAnimOutputAccessor(self, frames, tlen):
+    def addAnimOutputAccessor(self, values, tlen):
+        frames = len(values)
         self.accessor_cnt += 1
-        values = np.zeros((frames, tlen), dtype=np.float32)
         if tlen == 4:
             jtype = "VEC4"
-            for i in range(frames):
-                values[i][3] = 1.0 # Quaternions data fake
         else:
             jtype = "VEC3"
         data = values.tobytes()
@@ -414,7 +412,7 @@ class gltfExport:
             ind = self.addIndAccessor(obj.gl_icoord)
             self.meshindices.append((len(obj.gl_coord) // 3, bweights, obj.overflow))
 
-        self.json["meshes"].append({"primitives": [ {"attributes": { "POSITION": pos, "NORMAL": norm, "TEXCOORD_0": texcoord  }, "indices": ind, "material": nodenumber, "mode": self.TRIANGLES }]})
+        self.json["meshes"].append({"name": obj.name, "primitives": [ {"attributes": { "POSITION": pos, "NORMAL": norm, "TEXCOORD_0": texcoord  }, "indices": ind, "material": nodenumber, "mode": self.TRIANGLES }]})
         return (self.mesh_cnt)
 
     def addWeights(self, num, elem, obj):
@@ -437,16 +435,16 @@ class gltfExport:
         # bone-translations and rotations are fetched from local rest matrix, have to be relative in GLTF
         # Order of quaternions in GLTF: X Y Z W
         #
-        trans = bone.getLocalTransitionVector().tolist()
+        trans = bone.getRestLocalTransVector().tolist()
 
-        rot   = bone.getLocalRotationQVector()
+        rot   = bone.getRestLocalRotQVector()
         rot[[0, 1, 2, 3]] = rot[[1, 2, 3, 0]]       # change quaternion order (W is last element)
         rot = rot.tolist()
 
         node = {"name": bone.name, "translation": trans, "rotation": rot, "children": []  }
         self.json["nodes"].append(node)
         self.bonelist.append(num)
-        self.bonenames[bone.name] = [ len(self.bonelist) -1, bone]   # because mesh was loaded before, just a hack :(
+        self.bonenames[bone.name] = [ len(self.bonelist) -1, bone, None, None]   # because mesh was loaded before, just a hack :(
         num += 1
         nextnode = num
         for child in bone.children:
@@ -455,24 +453,47 @@ class gltfExport:
             num = nextnode
         return (num)
 
-    def addAnimations(self, bvh):
+    def addAnimations(self, skeleton, bvh):
 
         print ("Animations!!!!")
         # create channels and samplers
         #
-        common_input = self.addAnimInputAccessor(bvh.frameCount, bvh.frameTime)
+        nFrames = bvh.frameCount
+        common_input = self.addAnimInputAccessor(nFrames, bvh.frameTime)
         print (common_input)
 
+        # generate arrays for translation, rotation
+        #
+        for key in self.bonenames:
+            self.bonenames[key][2] = np.zeros((nFrames, 3), dtype=np.float32)
+            self.bonenames[key][3] = np.zeros((nFrames, 4), dtype=np.float32)
+
+        for frame in range(nFrames):
+            skeleton.pose(bvh.joints, frame, True)
+            for bonename in self.bonenames:
+                bone = skeleton.bones[bonename]
+                #
+                # TODO: seems to be not the local pose :(
+                #
+                trans = bone.getPoseLocalTransVector()
+                self.bonenames[bonename][2][frame][:] = trans[:]
+                rot   = bone.getPoseLocalRotQVector()
+                rot[[0, 1, 2, 3]] = rot[[1, 2, 3, 0]]
+                self.bonenames[bonename][3][frame][:] = rot[:]
+
+        print(self.bonenames["root"][2])
+        print(self.bonenames["root"][3])
         channels = []
         samplers = []
         sampler = 0
-        for elem in self.bonelist:
-            channels.append({"sampler": sampler, "target": { "node": elem, "path": "translation" }})
-            output = self.addAnimOutputAccessor(bvh.frameCount, 3)
+        for bonename in self.bonenames:
+            node = self.bonenames[bonename][0]+1        # TODO: bad hack
+            channels.append({"sampler": sampler, "target": { "node": node, "path": "translation" }})
+            output = self.addAnimOutputAccessor(self.bonenames[bonename][2], 3)
             samplers.append({"input": common_input, "interpolation":"LINEAR", "output": output})
             sampler += 1
-            channels.append({"sampler": sampler, "target": {"node": elem, "path": "rotation" }})
-            output = self.addAnimOutputAccessor(bvh.frameCount, 4)
+            channels.append({"sampler": sampler, "target": {"node": node, "path": "rotation" }})
+            output = self.addAnimOutputAccessor(self.bonenames[bonename][3], 4)
             samplers.append({"input": common_input, "interpolation":"LINEAR", "output": output})
             sampler += 1
 
@@ -571,7 +592,7 @@ class gltfExport:
         #
         if self.animation and baseweights is not None and baseclass.bvh:
             if baseclass.skeleton == baseclass.default_skeleton:
-                self.addAnimations(baseclass.bvh)
+                self.addAnimations(baseclass.skeleton, baseclass.bvh)
             else:
                 print ("No animation for different skeleton allowed atm")
 

@@ -69,11 +69,17 @@ class cBone():
         print ("Rest-Local:")
         print (self.matRestLocal)
 
-    def getLocalRotationQVector(self):
+    def getRestLocalRotQVector(self):
         return mquat.quaternionFromMatrix(self.matRestLocal)    # yields the rotation for bones
 
-    def getLocalTransitionVector(self):         # return first 3 elements of last column 
+    def getPoseLocalRotQVector(self):
+        return mquat.quaternionFromMatrix(self.matPoseLocal)    # yields the rotation for bones in Pose mode
+
+    def getRestLocalTransVector(self):         # return first 3 elements of last column 
         return self.matRestLocal[:3,3]
+
+    def getPoseLocalTransVector(self):         # return first 3 elements of last column in Pose mode
+        return self.matPoseLocal[:3,3]
 
     def getBindMatrix(self, orientation=0, rotAxis='y', offset=[0,0,0]):
         """
