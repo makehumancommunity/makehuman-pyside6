@@ -473,16 +473,27 @@ class gltfExport:
             for bonename in self.bonenames:
                 bone = skeleton.bones[bonename]
                 #
-                # TODO: seems to be not the local pose :(
+                # for root bone the global vectors are used
+                # for other bones translation is calculated by local rest vector (cannot change)
+                # TODO: rotations
                 #
-                trans = bone.getPoseLocalTransVector()
-                self.bonenames[bonename][2][frame][:] = trans[:]
-                rot   = bone.getPoseLocalRotQVector()
+                if bone.parent is None:
+                    trans = bone.getPoseGlobalTransVector()
+                    rot   = bone.getPoseGlobalRotQVector()
+                else:
+                    trans = bone.getRestLocalTransVector()
+                    rot   = bone.getPoseLocalRotQVector()
+
+                # quaternions, W ist last element
+                #
                 rot[[0, 1, 2, 3]] = rot[[1, 2, 3, 0]]
+                self.bonenames[bonename][2][frame][:] = trans[:]
                 self.bonenames[bonename][3][frame][:] = rot[:]
 
         print(self.bonenames["root"][2])
         print(self.bonenames["root"][3])
+        print(self.bonenames["pelvis.L"][2])
+        print(self.bonenames["pelvis.L"][3])
         channels = []
         samplers = []
         sampler = 0
