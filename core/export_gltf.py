@@ -91,6 +91,7 @@ class gltfExport:
 
         self.bonelist = []      # helps to keep the order of the bones
         self.bonenames = {}
+        self.bonestart = 0      # used to keep track of first bone in glTF
 
         self.meshindices = []   # holds meshindices for joints and weights
 
@@ -444,7 +445,7 @@ class gltfExport:
         node = {"name": bone.name, "translation": trans, "rotation": rot, "children": []  }
         self.json["nodes"].append(node)
         self.bonelist.append(num)
-        self.bonenames[bone.name] = [ len(self.bonelist) -1, bone, None, None]   # because mesh was loaded before, just a hack :(
+        self.bonenames[bone.name] = [ len(self.bonelist) - self.bonestart, bone, None, None] # count from first bone in bonestart
         num += 1
         nextnode = num
         for child in bone.children:
@@ -475,14 +476,14 @@ class gltfExport:
                 #
                 # for root bone the global vectors are used
                 # for other bones translation is calculated by local rest vector (cannot change)
-                # TODO: rotations
+                # rotations are calculated by using inverse parent glpbal Vector multiplied by current global vector
                 #
                 if bone.parent is None:
                     trans = bone.getPoseGlobalTransVector()
                     rot   = bone.getPoseGlobalRotQVector()
                 else:
                     trans = bone.getRestLocalTransVector()
-                    rot   = bone.getPoseLocalRotQVector()
+                    rot   = bone.getPoseRelParentRotQVector()
 
                 # quaternions, W ist last element
                 #
@@ -490,15 +491,11 @@ class gltfExport:
                 self.bonenames[bonename][2][frame][:] = trans[:]
                 self.bonenames[bonename][3][frame][:] = rot[:]
 
-        print(self.bonenames["root"][2])
-        print(self.bonenames["root"][3])
-        print(self.bonenames["pelvis.L"][2])
-        print(self.bonenames["pelvis.L"][3])
         channels = []
         samplers = []
         sampler = 0
         for bonename in self.bonenames:
-            node = self.bonenames[bonename][0]+1        # TODO: bad hack
+            node = self.bonenames[bonename][0] + self.bonestart
             channels.append({"sampler": sampler, "target": { "node": node, "path": "translation" }})
             output = self.addAnimOutputAccessor(self.bonenames[bonename][2], 3)
             samplers.append({"input": common_input, "interpolation":"LINEAR", "output": output})
@@ -575,6 +572,7 @@ class gltfExport:
             bonename = list(skeleton.bones)[0]
             bone = skeleton.bones[bonename]
 
+            self.bonestart = childnum
             children.append(childnum)
             childnum = self.addBones(bone, childnum)
             self.addSkins(charactername)

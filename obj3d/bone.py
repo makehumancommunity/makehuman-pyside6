@@ -90,6 +90,11 @@ class cBone():
     def getPoseGlobalTransVector(self):         # return first 3 elements of last column in Pose mode
         return self.matPoseGlobal[:3,3]
 
+    def getPoseRelParentRotQVector(self):
+         parent_inv = np.linalg.inv(self.parent.matPoseGlobal)
+         mat   = np.matmul(parent_inv, self.matPoseGlobal)
+         return mquat.quaternionFromMatrix(mat)
+
     def getBindMatrix(self, orientation=0, rotAxis='y', offset=[0,0,0]):
         """
         this is used for export mainly
