@@ -26,6 +26,7 @@ class gltfExport:
         self.animation = animation
         self.scale = scale
         self.lowestPos = 0.0
+        self.animYoffset = 0.0
 
         # all constants used
         #
@@ -110,7 +111,6 @@ class gltfExport:
         # buffer + we create one big binary buffer 
 
         length = len(data)
-        # print (data)
 
         self.bufferview_cnt += 1
         if target is not None:
@@ -215,7 +215,6 @@ class gltfExport:
         #print ("Verts:" + str(numverts))
         maxv = 0
         for elem in bweights:
-            print (self.bonenames[elem][0])
             # get bone number from list
             #
             bonenumber = self.bonenames[elem][0]
@@ -456,12 +455,22 @@ class gltfExport:
 
     def addAnimations(self, skeleton, bvh):
 
-        print ("Animations!!!!")
         # create channels and samplers
         #
         nFrames = bvh.frameCount
+        offset = 0.0
+        if self.onground:
+            #
+            # TODO: offset for animation is not yet correct when scale is not 1
+            #
+            #print (self.lowestPos)
+            #print (self.animYoffset)
+            if self.scale == 1.0:
+                offset = self.animYoffset
+                # smaller 1 
+                # offset = (self.animYoffset + self.lowestPos) * self.scale
+
         common_input = self.addAnimInputAccessor(nFrames, bvh.frameTime)
-        print (common_input)
 
         # generate arrays for translation, rotation
         #
@@ -476,10 +485,10 @@ class gltfExport:
                 #
                 # for root bone the global vectors are used
                 # for other bones translation is calculated by local rest vector (cannot change)
-                # rotations are calculated by using inverse parent glpbal Vector multiplied by current global vector
+                # rotations are calculated by using inverse parent global Vector multiplied by current global vector
                 #
                 if bone.parent is None:
-                    trans = bone.getPoseGlobalTransVector()
+                    trans = bone.getPoseGlobalTransVector() * self.scale - [0.0, offset, 0.0]
                     rot   = bone.getPoseGlobalRotQVector()
                 else:
                     trans = bone.getRestLocalTransVector()
@@ -600,8 +609,15 @@ class gltfExport:
         # add animation, if any, allow only baseclass atm
         #
         if self.animation and baseweights is not None and baseclass.bvh:
+            #
+            # TODO: allow different skeletons
+            #
             if baseclass.skeleton == baseclass.default_skeleton:
-                self.addAnimations(baseclass.skeleton, baseclass.bvh)
+
+                # TODO offset might be used different, when anim editor is completed
+                #
+                self.animYoffset = baseclass.skeleton.rootLowestDistance(baseclass.bvh.joints, 0, baseclass.bvh.frameCount) + self.lowestPos
+                self.addAnimations(skeleton, baseclass.bvh)
             else:
                 print ("No animation for different skeleton allowed atm")
 

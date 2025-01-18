@@ -227,18 +227,47 @@ class skeleton:
             self.skinBasemesh()
             self.glob.baseClass.updateAttachedAssets()
 
-    def pose(self, joints, num=0, bones_only=False):
-        for elem in self.bones:
+    def pose(self, joints, frame=0, bones_only=False):
+        for elem, bone in self.bones.items():
             if elem in joints:
-                self.bones[elem].calcLocalPoseMat(joints[elem].matrixPoses[num])
+                bone.calcLocalPoseMat(joints[elem].matrixPoses[frame])
 
-            if self.bones[elem].calcGlobalPoseMat() is False:
+            if bone.calcGlobalPoseMat() is False:
                 return False
-            self.bones[elem].poseBone()
+            bone.poseBone()
 
         if not bones_only:
             self.skinBasemesh()
             self.glob.baseClass.poseAttachedAssets()
+
+    def rootLowestDistance(self, joints, fromframe=0, toframe=-1):
+        """
+        get difference between root-bone and floor to calculate distance from ground
+        this is an estimation
+        """
+        if toframe == -1:
+            toframe = fromframe+1
+        mdiff = 0.0
+
+        for frame in range(fromframe, toframe):
+            yroot = 0.0
+            ylow  = 1000.0
+            for elem, bone in self.bones.items():
+                if elem in joints:
+                    bone.calcLocalPoseMat(joints[elem].matrixPoses[frame])
+
+                if bone.calcGlobalPoseMat() is False:
+                    return False
+                bone.poseBone()
+                if bone.parent is None:
+                    yroot = bone.poseheadPos[1]
+                else:
+                    if bone.poseheadPos[1] < ylow:
+                        ylow = bone.poseheadPos[1]
+            diff = yroot - ylow
+            if diff > mdiff:
+                mdiff = diff
+        return (mdiff)
 
     def posebyBlends(self, blends, mask, bones_only=False):
         """
