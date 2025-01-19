@@ -18,6 +18,7 @@ from gui.renderer import Renderer
 from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, MHGroupBox, IconButton, TextBox, MHFileRequest
 from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
+from core.apisocket import apiSocket
 from core.attached_asset import attachedAsset
 from opengl.info import GLDebug
 
@@ -157,10 +158,6 @@ class MHMainWindow(QMainWindow):
         log_act = set_menu.addAction("Messages")
         log_act.triggered.connect(self.log_call)
 
-        self.deb_act = QAction('Debug Camera', set_menu, checkable=True)
-        set_menu.addAction(self.deb_act)
-        self.deb_act.triggered.connect(self.deb_cam)
-
         binaries = set_menu.addMenu("Create Binaries")
         cuserobj_act = binaries.addAction("User 3d Objects")
         cuserobj_act.triggered.connect(self.compress_user3dobjs)
@@ -199,6 +196,16 @@ class MHMainWindow(QMainWindow):
 
         self.equip = tools_menu.addMenu("Equipment")
         self.animenu = tools_menu.addMenu("Animation")
+
+        act_menu = menu_bar.addMenu("&Activate")
+
+        self.sock_act = QAction('Socket active', act_menu, checkable=True)
+        act_menu.addAction(self.sock_act)
+        self.sock_act.triggered.connect(self.socket_call)
+
+        self.deb_act = QAction('Debug Camera', act_menu, checkable=True)
+        act_menu.addAction(self.deb_act)
+        self.deb_act.triggered.connect(self.deb_cam)
 
         help_menu = menu_bar.addMenu("&Help")
         entry = help_menu.addAction("Local OpenGL Information")
@@ -645,6 +652,7 @@ class MHMainWindow(QMainWindow):
         if self.pref_window is None:
             self.pref_window = MHPrefWindow(self)
         self.pref_window.show()
+        self.pref_window.raise_()
 
     def log_call(self):
         """
@@ -653,6 +661,7 @@ class MHMainWindow(QMainWindow):
         if self.log_window is None:
             self.log_window = MHLogWindow(self)
         self.log_window.show()
+        self.log_window.raise_()
 
     def memory_call(self):
         """
@@ -661,6 +670,7 @@ class MHMainWindow(QMainWindow):
         if self.mem_window is None:
             self.mem_window = MHMemWindow(self)
         self.mem_window.show()
+        self.mem_window.raise_()
 
     def scene_call(self):
         """
@@ -669,6 +679,7 @@ class MHMainWindow(QMainWindow):
         if self.scene_window is None:
             self.scene_window = MHSceneWindow(self, self.graph.view)
         self.scene_window.show()
+        self.scene_window.raise_()
 
     def changesLost(self, text):
         confirmed = 1
@@ -972,6 +983,16 @@ class MHMainWindow(QMainWindow):
         text = self.env.convertToRichFile(os.path.join(self.env.path_sysdata, "licenses", licname))
         TextBox(self, boxname, image, text)
 
+    def socket_call(self):
+        if self.sock_act.isChecked() and self.glob.apiSocket is None:
+            self.glob.apiSocket = apiSocket(self.glob)
+            self.glob.apiSocket.start()
+        else:
+            if self.glob.apiSocket is not None:
+                self.glob.apiSocket.stopListening()
+                self.glob.apiSocket.wait()
+                self.glob.apiSocket = None
+
     def vers_call(self):
         text = "Numpy: " + ".".join([str(x) for x in self.env.numpy_version]) + "<br>" + \
                 "PyOpenGL: " + self.env.GL_Info + "<br>" + \
@@ -1009,6 +1030,9 @@ class MHMainWindow(QMainWindow):
             s["w"] = self.width()
             s["h"] = self.height()
             self.env.saveSession()
+            if self.glob.apiSocket is not None:
+                self.glob.apiSocket.stopListening()
+                self.glob.apiSocket.wait()
             self.env.cleanup()
             self.glob.app.closeAllWindows()
             self.glob.app.quit()

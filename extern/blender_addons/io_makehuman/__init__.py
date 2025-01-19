@@ -14,22 +14,30 @@ bl_info = {
 
 import bpy
 from bpy.utils import register_class, unregister_class
-from bpy.props import BoolProperty
+from bpy.props import BoolProperty, StringProperty, IntProperty
 
 
 from .panel import MH2B_PT_Panel
 from .load import MH2B_OT_Load
-
+from .api import MH2B_OT_Hello
+from .infobox import MH2B_OT_InfoBox,MH2B_OT_WarningBox
 
 MH2B_CLASSES = [
     MH2B_OT_Load,
-    MH2B_PT_Panel
+    MH2B_PT_Panel,
+    MH2B_OT_InfoBox,
+    MH2B_OT_WarningBox,
+    MH2B_OT_Hello
 ]
 
 
 def register():
-    bpy.types.Scene.MH2B_subdiv = BoolProperty(name="Subdivision",
+    scn = bpy.types.Scene
+    scn.MH2B_subdiv = BoolProperty(name="Subdivision",
             description="After loading a subdivision surface modifier will be added.", default=False)
+    scn.MH2B_apihost = StringProperty(name="API hostname", description="Makehuman server hostname", default="127.0.0.1")
+    scn.MH2B_apiport = IntProperty(name="API Port", description="Socket port number", default=12345, min=1024, max=49151)
+
     for cls in MH2B_CLASSES:
         register_class(cls)
 

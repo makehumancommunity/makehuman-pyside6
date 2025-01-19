@@ -1,5 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QListWidget, QPushButton, QAbstractItemView, QRadioButton, QGroupBox, QCheckBox, QLineEdit, QGridLayout
+from PySide6.QtGui import QIntValidator
+from gui.common import ErrorBox
 
 class MHPrefWindow(QWidget):
     """
@@ -13,6 +15,9 @@ class MHPrefWindow(QWidget):
         self.setWindowTitle("Preferences")
         self.resize (500, 600)
         layout = QVBoxLayout()
+
+        self.apihost = env.config["apihost"] if "apihost" in env.config else "127.0.0.1"
+        self.apiport = str(env.config["apiport"] if "apiport" in env.config else 12345)
 
         self.redirect_bool = env.config["redirect_messages"]
         self.redirect_path = env.path_error
@@ -88,6 +93,22 @@ class MHPrefWindow(QWidget):
         units.setLayout(me_layout)
         layout.addWidget(units)
 
+        # API
+        #
+        apigr = QGroupBox("API (socket communication)")
+        apigr.setObjectName("subwindow")
+        ap_layout = QGridLayout()
+        ap_layout.addWidget(QLabel("Host"), 0, 0)
+        ap_layout.addWidget(QLabel("Port"), 1, 0)
+        self.ql_host = QLineEdit(self.apihost)
+        self.ql_port = QLineEdit(self.apiport)
+        self.ql_port.setToolTip('socket port number, range is 1024 to 49151')
+        self.ql_port.setValidator(QIntValidator())
+        ap_layout.addWidget(self.ql_host, 0, 1)
+        ap_layout.addWidget(self.ql_port, 1, 1)
+        apigr.setLayout(ap_layout)
+        layout.addWidget(apigr)
+
         # session
         #
         sess = QGroupBox("Session")
@@ -124,6 +145,14 @@ class MHPrefWindow(QWidget):
         does all the work to save configuration
         """
         env =  self.parent.env
+
+        apiport = int(self.ql_port.text())
+        if apiport < 1024 or apiport > 49152:
+            ErrorBox(self.parent.central_widget, "Port must be in range 1024 to 49151.")
+            return
+
+        env.config["apiport"] = apiport
+        env.config["apihost"] = self.ql_host.text()
 
         sel = self.listwidget.selectedItems()
         if len(sel) > 0:

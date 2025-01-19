@@ -18,4 +18,16 @@ class MH2B_PT_Panel(bpy.types.Panel):
         fileBox.operator("mh2b.load", text="MakeHuman2 Import")
         fileBox.prop(scn, 'MH2B_subdiv', text="subdivision surface modifier")
 
+        combox = layout.box()
+        combox.label(text="Communicator", icon="USER")
+        col = combox.column()
+        row = col.row()
+        row.label(text="Host:")
+        row.prop(scn, 'MH2B_apihost', text="")
+
+        row = col.row()
+        row.label(text="Port:")
+        row.prop(scn, 'MH2B_apiport', text="")
+
+        combox.operator("mh2b.hello", text="Test connection")
 

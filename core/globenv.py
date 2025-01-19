@@ -26,6 +26,7 @@ class globalObjects():
         self.centralWidget= None
         self.baseClass = None
         self.textureRepo = TextureRepo()
+        self.apiSocket = None              # will contain socket for applications
         self.reset()
 
     def reset(self):
@@ -323,7 +324,9 @@ class programInfo():
             "redirect_messages": True,
             "remember_session": False,
             "theme": "makehuman.qss",
-            "units": "metric"
+            "units": "metric",
+            "apihost": "127.0.0.1",
+            "apiport": 12345
         }
 
         # system paths
