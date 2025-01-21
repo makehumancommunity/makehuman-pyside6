@@ -19,7 +19,7 @@ from bpy.props import BoolProperty, StringProperty, IntProperty
 
 from .panel import MH2B_PT_Panel
 from .load import MH2B_OT_Load
-from .api import MH2B_OT_Hello
+from .api import MH2B_OT_Hello, MH2B_OT_GetChar
 from .infobox import MH2B_OT_InfoBox,MH2B_OT_WarningBox
 
 MH2B_CLASSES = [
@@ -27,7 +27,8 @@ MH2B_CLASSES = [
     MH2B_PT_Panel,
     MH2B_OT_InfoBox,
     MH2B_OT_WarningBox,
-    MH2B_OT_Hello
+    MH2B_OT_Hello,
+    MH2B_OT_GetChar
 ]
 
 

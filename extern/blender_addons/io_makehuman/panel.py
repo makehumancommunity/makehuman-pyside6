@@ -30,4 +30,5 @@ class MH2B_PT_Panel(bpy.types.Panel):
         row.prop(scn, 'MH2B_apiport', text="")
 
         combox.operator("mh2b.hello", text="Test connection")
+        combox.operator("mh2b.getchar", text="Get character")
 

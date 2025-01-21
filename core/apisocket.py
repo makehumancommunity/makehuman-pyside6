@@ -1,6 +1,7 @@
 import socket
 import json
 from PySide6.QtCore import QThread, Signal
+from core.blender_communication import blendCom
 
 class apiSocket(QThread):
     #update_progress = Signal(int)
@@ -12,42 +13,61 @@ class apiSocket(QThread):
         self.glob = glob
         self.error = "No error"
         self.errcode = 0
-        self.jsonparam = ""
+        self.jsonparam = None
+        self.binary_answer = None
         self.host = self.env.config["apihost"] if "apihost" in self.env.config else '127.0.0.1'
         self.port = self.env.config["apiport"] if "apiport" in self.env.config else 12345
 
     def replyError(self, conn):
+        self.env.logLine(1, "API reply:" + self.error)
         js = { "errcode": self.errcode, "errtext": self.error }
         txt = json.dumps(js)
         conn.send (bytes(txt, 'utf-8'))
         conn.close()
 
-    def replyJSONAnswer(self, conn):
-        self.jsonparam["errcode"]= 0 
-        txt = json.dumps(self.jsonparam)
-        print ("send: " + txt)
-        conn.send (bytes(txt, 'utf-8'))
+    def replyAnswer(self, conn):
+        if self.jsonparam is not None:
+            self.jsonparam["errcode"]= 0 
+            txt = json.dumps(self.jsonparam)
+            print ("send: " + txt)
+            conn.send (bytes(txt, 'utf-8'))
+        else:
+            print ("send binary data")
+            conn.send (self.binary_answer)
         conn.close()
 
     def decodeRequest(self, data):
+        self.jsonparam = None
+        self.binary_answer = None
+
         try:
             js = json.loads(data)
         except json.JSONDecodeError as e:
             self.error = "JSON format error in string  > " + str(e)
             self.errcode = 1
-            self.env.logLine(1, self.error)
             return False
         if not js:
             self.error =  "Empty JSON string"
             self.errcode = 2
-            self.env.logLine(1, self.error)
             return False
 
         if "function" in js:
             f = js["function"]
             if f == "hello":
                 self.jsonparam = {"application": self.env.release_info["name"], "name": self.glob.baseClass.name }
-        return True
+                return True
+            elif f == "getchar":
+                # hiddenverts=False, onground=True, animation=False, scale =0.1
+                blcom = blendCom(self.glob, None, False, True, False, 0.1)
+                self.jsonparam = blcom.apiGetChar()
+                return True
+            elif f == "bin_getchar":
+                self.binary_answer = b'000000'
+                return True
+
+        self.error =  "Unknown command"
+        self.errcode = 3
+        return False
 
     def run(self):
         self.env.logLine(1, "Opening server socket... ")
@@ -74,7 +94,7 @@ class apiSocket(QThread):
                     data = str(conn.recv(8192), encoding='utf-8')
                     self.env.logLine(2, "Got: '" + data + "'")
                     if self.decodeRequest(data):
-                        self.replyJSONAnswer(conn)
+                        self.replyAnswer(conn)
                     else:
                         self.replyError(conn)
 

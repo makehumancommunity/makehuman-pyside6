@@ -148,11 +148,16 @@ class blendCom:
         return (self.env.copyfile(source, dest))
 
     def addImage(self, image):
+        """
+        can copy the image to exportfolder, in case it is not None (API)
+        """
         self.image_cnt += 1
-        destination = os.path.join(self.exportfolder, self.imagefolder)
-        okay = self.copyImage(image, destination)
-        if not okay:
-            return (False, -1)
+
+        if self.exportfolder is not None:
+            destination = os.path.join(self.exportfolder, self.imagefolder)
+            okay = self.copyImage(image, destination)
+            if not okay:
+                return (False, -1)
 
         uri = os.path.join(self.imagefolder, os.path.basename(image))
         self.json["images"].append({"uri": uri})
@@ -470,6 +475,12 @@ class blendCom:
         self.env.logLine(32, self)
         return (True)
 
+
+    def apiGetChar(self):
+        self.env.last_error ="okay"
+        if self.addNodes(self.glob.baseClass, "generate") is False:
+            return None
+        return self.json
 
     def binSave(self, baseclass, filename):
         #
