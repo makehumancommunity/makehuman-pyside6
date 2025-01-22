@@ -6,6 +6,7 @@ class API:
     def __init__(self, host, port):
         self.host = host
         self.port = port
+        self.json = None
 
     def connect(self, parent, info):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -17,6 +18,17 @@ class API:
             parent.report({'ERROR'}, error)
             return False
         return True
+
+    def getJSON(self):
+        return self.json
+
+    def getBinSize(self, parent):
+        if "asset" in self.json and "buffersize"  in self.json["asset"]:
+            return self.json["asset"]["buffersize"]
+        error = "Binary buffer size is not defined"
+        parent.report({'ERROR'}, error)
+        bpy.ops.mh2b.infobox('INVOKE_DEFAULT', title="Connection", error=error)
+        return 0
 
     def receive(self):
         data = ""
@@ -49,38 +61,37 @@ class API:
 
     def decodeAnswer(self, parent, function, data):
         try:
-            js = json.loads(data)
+            self.json = json.loads(data)
         except json.JSONDecodeError as e:
             error = "JSON format error in string  > " + str(e)
             parent.report({'ERROR'}, error)
             bpy.ops.mh2b.infobox('INVOKE_DEFAULT', title="Connection", error=error)
             return False, None
 
-        if not js:
+        if not self.json:
             error = "Empty JSON string"
             parent.report({'ERROR'}, error)
             bpy.ops.mh2b.infobox('INVOKE_DEFAULT', title="Connection", error=error)
             return False, None
 
-        if not "errcode" in js:
+        if not "errcode" in self.json:
             error = "Missing error code in answer"
             parent.report({'ERROR'}, error)
             bpy.ops.mh2b.infobox('INVOKE_DEFAULT', title="Connection", error=error)
             return False, None
 
-        if js["errcode"] != 0:
-            error = js["errtext"] if "errtext" in js else "Errorcode " + str(js["errcode"])
+        if self.json["errcode"] != 0:
+            error = self.json["errtext"] if "errtext" in self.json else "Errorcode " + str(self.json["errcode"])
             parent.report({'ERROR'}, error)
             bpy.ops.mh2b.infobox('INVOKE_DEFAULT', title="Connection", error=error)
             return False, None
 
         if function == "hello":
-            info = "Application: " + js["application"] + "\n" + "Current model: " + js["name"]
+            info = "Application: " + self.json["application"] + "\n" + "Current model: " + self.json["name"]
             return True, info
 
         elif function == "getchar":
             info = "Get character"
-            print (js)
             return True, info
 
         error = "Unknown command"
@@ -143,15 +154,27 @@ class MH2B_OT_GetChar(bpy.types.Operator):
         if res is False:
             return {'FINISHED'}
 
+        json = api.getJSON()
+        print (json)
+
+        buffersize = api.getBinSize(self)
+        if buffersize == 0:
+            return {'FINISHED'}
+
         api = API(scn.MH2B_apihost, scn.MH2B_apiport)
         if not api.connect(self, info):
             return {'FINISHED'}
 
         api.send("bin_getchar")
-        data = api.receive_bin()
-        print ("received: ", len(data))
+        bindata = api.receive_bin()
+        l = len(bindata)
+        if l != buffersize:
+            error = "Expected amount of binary data " +str(buffersize) + " unequal to received amount " + str(l)
+            self.report({'ERROR'}, error)
+            bpy.ops.mh2b.infobox('INVOKE_DEFAULT', title="Connection", error=error)
+            return {'FINISHED'}
 
-        if res is True:
-            self.report({'INFO'}, text)
+        text = "Got JSON description and " + str(l) + " bytes of binary data"
+        self.report({'INFO'}, text)
         return {'FINISHED'}
 

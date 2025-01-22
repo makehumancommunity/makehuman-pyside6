@@ -29,6 +29,19 @@ class API:
                 break
         print ("recv: ", data)
 
+    def receive_bin(self):
+        data = bytearray()
+        while True:
+            buf = self.client.recv(1024)
+            if len(buf) > 0:
+                data.extend(buf)
+            else:
+                break
+        for chunk in [data[i:i+32] for i in range(0, len(data), 32)]:
+            print (chunk.hex(" ", 2))
+        print ("received " + str(len(data)) + " bytes")
+
+
     def send(self, function, params=None):
         js = { "function": function }
         if params:
@@ -39,6 +52,7 @@ class API:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Test program for API using socket port communication")
+    parser.add_argument("function", type=str, nargs='?', help="API test function, default is 'hello'", default="hello")
     parser.add_argument("-s", type=int, help="Socket port number", default=12345)
     parser.add_argument("-n", type=str, help="Hostname", default="127.0.0.1")
     args = parser.parse_args()
@@ -57,9 +71,12 @@ if __name__ == '__main__':
     api = API(host, port)
     if not api.connect():
         exit(20)
+
+    # send a request and get an answer
     #
-    # this is the ping command of the application
-    #
-    api.send("hello")
-    api.receive()
+    api.send(args.function)
+    if args.function.startswith("bin"):
+        api.receive_bin()
+    else:
+        api.receive()
 

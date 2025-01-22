@@ -14,7 +14,8 @@ class apiSocket(QThread):
         self.error = "No error"
         self.errcode = 0
         self.jsonparam = None
-        self.binary_answer = None
+        self.binarybuffers = None
+        self.blcom = None
         self.host = self.env.config["apihost"] if "apihost" in self.env.config else '127.0.0.1'
         self.port = self.env.config["apiport"] if "apiport" in self.env.config else 12345
 
@@ -32,13 +33,21 @@ class apiSocket(QThread):
             print ("send: " + txt)
             conn.send (bytes(txt, 'utf-8'))
         else:
-            print ("send binary data")
-            conn.send (self.binary_answer)
+            for sbuffer in self.binarybuffers:
+                print ("send binary data")
+                l = len(sbuffer)
+                total = 0
+                while total < l:
+                    s = conn.send (sbuffer)
+                    if s == 0:
+                        return False
+                    total += s
         conn.close()
+        return True
 
     def decodeRequest(self, data):
         self.jsonparam = None
-        self.binary_answer = None
+        self.binarybuffers = None
 
         try:
             js = json.loads(data)
@@ -58,11 +67,16 @@ class apiSocket(QThread):
                 return True
             elif f == "getchar":
                 # hiddenverts=False, onground=True, animation=False, scale =0.1
-                blcom = blendCom(self.glob, None, False, True, False, 0.1)
-                self.jsonparam = blcom.apiGetChar()
+                self.blcom = blendCom(self.glob, None, False, True, False, 0.1)
+                self.jsonparam = self.blcom.apiGetChar()
                 return True
             elif f == "bin_getchar":
-                self.binary_answer = b'000000'
+                if self.blcom is None:
+                    self.error =  "Bad json/binary order"
+                    self.errcode = 4
+                    return False
+                self.binarybuffers = self.blcom.apiGetBuffers()
+                self.blcom = None
                 return True
 
         self.error =  "Unknown command"

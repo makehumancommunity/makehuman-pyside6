@@ -482,6 +482,9 @@ class blendCom:
             return None
         return self.json
 
+    def apiGetBuffers(self):
+        return self.buffers
+
     def binSave(self, baseclass, filename):
         #
         # binary mh2b is:
