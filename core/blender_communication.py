@@ -4,7 +4,7 @@
 #
 # definition of structure is in JSON
 #
-# it is planned to use this module for files but should also be used as an API 
+# this module is used for files and socket API 
 #
 # so order of buffers is significant to be able to read the file chunk by chunk
 #
@@ -158,8 +158,9 @@ class blendCom:
             okay = self.copyImage(image, destination)
             if not okay:
                 return (False, -1)
-
-        uri = os.path.join(self.imagefolder, os.path.basename(image))
+            uri = os.path.join(self.imagefolder, os.path.basename(image))
+        else:
+            uri = image
         self.json["images"].append({"uri": uri})
         return(True, self.image_cnt)
 

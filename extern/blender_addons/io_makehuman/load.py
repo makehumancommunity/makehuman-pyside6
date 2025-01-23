@@ -39,6 +39,17 @@ class MH2B_OT_Loader:
         self.context.scene.collection.children.link(self.collection )
         return (self.collection )
 
+    def getData(self, inputp, length):
+        """
+        read data from file or from bytearray
+        """
+        if isinstance(inputp, bytearray):
+            buf = inputp[self.bufferoffset:self.bufferoffset+length]
+        else:
+            buf = inputp.read(length)
+        self.bufferoffset += length
+        return buf
+
     def getBuffers(self, jdata, attrib, fp):
         """
         get all data from buffers
@@ -77,8 +88,7 @@ class MH2B_OT_Loader:
 
         for name, start, length in binfo:
             print ("read " + str(length) + " bytes for " + name)
-            buf = fp.read(length)
-            self.bufferoffset += length
+            buf = self.getData(fp, length)
             if name == 'FACE':
                 m = struct.iter_unpack('<i',  buf)
                 for l in m:
@@ -223,8 +233,7 @@ class MH2B_OT_Loader:
         restmatnum = skel["RESTMAT"]
         length = jdata["bufferViews"][restmatnum]["byteLength"] 
         print ("restmat need to read " + str(length) + " bytes")
-        buf = fp.read(length)
-        self.bufferoffset += length
+        buf = self.getData(fp, length)
         restmat = list(struct.iter_unpack('<ffffffffffffffff',  buf))
 
         # prepare skeleton
@@ -294,8 +303,7 @@ class MH2B_OT_Loader:
         nframes  = skel["nFrames"]
         length = jdata["bufferViews"][bufnum]["byteLength"] 
         print ("animation need to read " + str(length) + " bytes")
-        buf = fp.read(length)
-        self.bufferoffset += length
+        buf = self.getData(fp, length)
 
         animdata = list(struct.iter_unpack('<fffffffff',  buf))
         print (nframes, len(animdata), len(animdata)/nframes)

@@ -38,6 +38,8 @@ def register():
             description="After loading a subdivision surface modifier will be added.", default=False)
     scn.MH2B_apihost = StringProperty(name="API hostname", description="Makehuman server hostname", default="127.0.0.1")
     scn.MH2B_apiport = IntProperty(name="API Port", description="Socket port number", default=12345, min=1024, max=49151)
+    scn.MH2B_copylocal = BoolProperty(name="TextureCopy", description="Copy to local material folder", default=False)
+    scn.MH2B_localtexfolder = StringProperty(name="API texturefolder", description="Local material folder", default="textures")
 
     for cls in MH2B_CLASSES:
         register_class(cls)

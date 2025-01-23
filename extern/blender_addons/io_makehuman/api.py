@@ -2,6 +2,8 @@ import socket
 import json
 import bpy
 
+from .load import MH2B_OT_Loader
+
 class API:
     def __init__(self, host, port):
         self.host = host
@@ -170,6 +172,15 @@ class MH2B_OT_GetChar(bpy.types.Operator):
         l = len(bindata)
         if l != buffersize:
             error = "Expected amount of binary data " +str(buffersize) + " unequal to received amount " + str(l)
+            self.report({'ERROR'}, error)
+            bpy.ops.mh2b.infobox('INVOKE_DEFAULT', title="Connection", error=error)
+            return {'FINISHED'}
+
+        mh2b = MH2B_OT_Loader(context, scn.MH2B_subdiv)
+        mh2b.createCollection(json)
+        folder = scn.MH2B_localtexfolder if scn.MH2B_copylocal else None
+        if not mh2b.createObjects(json, bindata, folder):
+            error = "Bad structure"
             self.report({'ERROR'}, error)
             bpy.ops.mh2b.infobox('INVOKE_DEFAULT', title="Connection", error=error)
             return {'FINISHED'}

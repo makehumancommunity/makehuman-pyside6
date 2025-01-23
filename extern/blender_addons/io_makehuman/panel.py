@@ -32,3 +32,6 @@ class MH2B_PT_Panel(bpy.types.Panel):
         combox.operator("mh2b.hello", text="Test connection")
         combox.operator("mh2b.getchar", text="Get character")
 
+        combox.prop(scn, 'MH2B_copylocal', text="Copy textures to local folder")
+        combox.label(text="Local texture folder:")
+        combox.prop(scn, 'MH2B_localtexfolder', text="")

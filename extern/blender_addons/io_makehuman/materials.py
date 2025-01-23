@@ -28,7 +28,10 @@ class MH2B_OT_Material:
 
     def addTextureNode(self, path, x, y, noncolor, name):
         node = self.nodes.new('ShaderNodeTexImage')
-        img = os.path.join(self.dirname, path)
+        if self.dirname is not None:
+            img = os.path.join(self.dirname, path)
+        else:
+            img = path
         node.image = bpy.data.images.load(img)
         node.name = name
         node.label = name
