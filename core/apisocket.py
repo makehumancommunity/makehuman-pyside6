@@ -67,7 +67,17 @@ class apiSocket(QThread):
                 return True
             elif f == "getchar":
                 # hiddenverts=False, onground=True, animation=False, scale =0.1
-                self.blcom = blendCom(self.glob, None, False, True, False, 0.1)
+                scale = 0.1
+                onground = True
+                hidden = False
+                anim = False
+                if "params" in js:
+                    p = js["params"]
+                    scale    = p["scale"] if "scale" in p else scale
+                    onground = p["onground"] if "onground" in p else onground
+                    hidden = p["hidden"] if "hidden" in p else hidden
+                    anim = p["anim"] if "anim" in p else anim
+                self.blcom = blendCom(self.glob, None, hidden, onground, anim, scale)
                 self.jsonparam = self.blcom.apiGetChar()
                 return True
             elif f == "bin_getchar":

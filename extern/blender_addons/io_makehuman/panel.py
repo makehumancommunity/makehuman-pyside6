@@ -32,6 +32,17 @@ class MH2B_PT_Panel(bpy.types.Panel):
         combox.operator("mh2b.hello", text="Test connection")
         combox.operator("mh2b.getchar", text="Get character")
 
+
+        combox.prop(scn, 'MH2B_feetonground', text="Place feet on ground")
+        combox.prop(scn, 'MH2B_gethiddenverts', text="Get invisible vertices")
+        combox.prop(scn, 'MH2B_getanimation', text="Get attached animation")
+        combox.label(text="Scale:")
+        combox.prop(scn, 'MH2B_getscale')
+
+        combox.separator()
         combox.prop(scn, 'MH2B_copylocal', text="Copy textures to local folder")
+        combox.operator("mh2b.assignfolder", text="Assign texture folder")
         combox.label(text="Local texture folder:")
-        combox.prop(scn, 'MH2B_localtexfolder', text="")
+        combox.label(text = scn.MH2B_localtexfolder)
+
+

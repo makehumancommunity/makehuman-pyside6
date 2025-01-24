@@ -1,8 +1,10 @@
 import socket
 import json
 import bpy
+from bpy_extras.io_utils import ImportHelper
 
 from .load import MH2B_OT_Loader
+
 
 class API:
     def __init__(self, host, port):
@@ -143,6 +145,10 @@ class MH2B_OT_GetChar(bpy.types.Operator):
 
     def execute(self, context):
         scn = context.scene
+
+        params = { "onground": scn.MH2B_feetonground, "hidden": scn.MH2B_gethiddenverts, \
+                "anim": scn.MH2B_getanimation, "scale": float(scn.MH2B_getscale) }
+
         info = "Get character " + scn.MH2B_apihost + " Port " + str(scn.MH2B_apiport)
         res = True
 
@@ -150,7 +156,7 @@ class MH2B_OT_GetChar(bpy.types.Operator):
         if not api.connect(self, info):
             return {'FINISHED'}
 
-        api.send("getchar")
+        api.send("getchar", params)
         data = api.receive()
         res, text = api.decodeAnswer(self, "getchar", data)
         if res is False:
@@ -178,7 +184,8 @@ class MH2B_OT_GetChar(bpy.types.Operator):
 
         mh2b = MH2B_OT_Loader(context, scn.MH2B_subdiv)
         mh2b.createCollection(json)
-        folder = scn.MH2B_localtexfolder if scn.MH2B_copylocal else None
+        #folder = scn.MH2B_localtexfolder if scn.MH2B_copylocal and scn.MH2B_copylocal != "NONE" else None
+        folder = None
         if not mh2b.createObjects(json, bindata, folder):
             error = "Bad structure"
             self.report({'ERROR'}, error)
@@ -188,4 +195,35 @@ class MH2B_OT_GetChar(bpy.types.Operator):
         text = "Got JSON description and " + str(l) + " bytes of binary data"
         self.report({'INFO'}, text)
         return {'FINISHED'}
+
+class MH2B_OT_AssignFolder(bpy.types.Operator, ImportHelper):
+    '''Assign a folder to copy textures'''
+    bl_idname = "mh2b.assignfolder"
+    bl_label = 'Assign Folder for textures'
+    bl_options = {'REGISTER'}
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def draw(self, context):
+        scn = context.scene
+        layout = self.layout
+        try:
+            folder = scn.MH2B_localtexfolder
+        except:
+            folder = "none"
+        layout.label(text="Current Folder:")
+        layout.label(text=folder)
+
+
+    def invoke(self, context, event):
+        return super().invoke(context, event)
+
+    def execute(self, context):
+        # try directly
+        scn = context.scene
+        scn.MH2B_localtexfolder = self.properties.filepath
+        return {'FINISHED'}
+
 
