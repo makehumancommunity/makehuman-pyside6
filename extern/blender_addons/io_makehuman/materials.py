@@ -1,9 +1,15 @@
 import bpy
 import os
+import shutil
 
 class MH2B_OT_Material:
-    def __init__(self, dirname):
+    def __init__(self, context, dirname):
+        self.context = context
         self.dirname = dirname
+        self.projdir        = context.scene.MH2B_projdir
+        self.copylocal      = context.scene.MH2B_copylocal
+        self.localtexfolder = context.scene.MH2B_localtexfolder
+
         self.blendmat = None
         self.nodes = None
         self.glTFOutputName = "glTF Material Output"
@@ -26,10 +32,40 @@ class MH2B_OT_Material:
         node_gltf_matoutput.location = x, y
         return (node_gltf_matoutput)
 
+    def copyTexture(self, path):
+        """
+        for api dirname and path are absolute,
+        return absolute path in case of error
+        """
+        filename = bpy.path.basename(path)
+        destdir  = os.path.join(bpy.path.abspath("//"), self.localtexfolder)
+        destpath = os.path.join(destdir, filename)
+
+        if not os.path.isdir(destdir):
+            try:
+                os.mkdir(destdir)
+            except Exception as e:
+                bpy.ops.mh2b.infobox('INVOKE_DEFAULT', title="Material", error=str(e))
+                return path
+
+        if path != destpath and os.path.isfile(path):
+            print ("Copy from: " + path + " to " + destpath)
+            try:
+                shutil.copyfile(path, destpath)
+            except Exception as e:
+                bpy.ops.mh2b.infobox('INVOKE_DEFAULT', title="Material", error=str(e))
+                return path
+            path = os.path.join("//", self.localtexfolder, filename)
+
+        return path
+
     def addTextureNode(self, path, x, y, noncolor, name):
         node = self.nodes.new('ShaderNodeTexImage')
+        print ("Path: ", path)
         if self.dirname is not None:
-            img = os.path.join(self.dirname, path)
+            path = os.path.join(self.dirname, path)
+        if self.copylocal and self.projdir != "NONE":
+            img = self.copyTexture(path)
         else:
             img = path
         node.image = bpy.data.images.load(img)

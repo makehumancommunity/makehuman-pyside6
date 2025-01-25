@@ -1,7 +1,9 @@
 import socket
 import json
 import bpy
-from bpy_extras.io_utils import ImportHelper
+import os
+from bpy_extras.io_utils import ExportHelper
+from bpy.props import StringProperty
 
 from .load import MH2B_OT_Loader
 
@@ -182,11 +184,9 @@ class MH2B_OT_GetChar(bpy.types.Operator):
             bpy.ops.mh2b.infobox('INVOKE_DEFAULT', title="Connection", error=error)
             return {'FINISHED'}
 
-        mh2b = MH2B_OT_Loader(context, scn.MH2B_subdiv)
+        mh2b = MH2B_OT_Loader(context)
         mh2b.createCollection(json)
-        #folder = scn.MH2B_localtexfolder if scn.MH2B_copylocal and scn.MH2B_copylocal != "NONE" else None
-        folder = None
-        if not mh2b.createObjects(json, bindata, folder):
+        if not mh2b.createObjects(json, bindata, None):
             error = "Bad structure"
             self.report({'ERROR'}, error)
             bpy.ops.mh2b.infobox('INVOKE_DEFAULT', title="Connection", error=error)
@@ -196,11 +196,14 @@ class MH2B_OT_GetChar(bpy.types.Operator):
         self.report({'INFO'}, text)
         return {'FINISHED'}
 
-class MH2B_OT_AssignFolder(bpy.types.Operator, ImportHelper):
-    '''Assign a folder to copy textures'''
-    bl_idname = "mh2b.assignfolder"
-    bl_label = 'Assign Folder for textures'
+class MH2B_OT_AssignProject(bpy.types.Operator, ExportHelper):
+    '''Assign a folder for project'''
+    bl_idname = "mh2b.assignprojdir"
+    bl_label = 'Assign folder for project'
     bl_options = {'REGISTER'}
+    filter_glob : StringProperty(default='*.blend', options={'HIDDEN'})
+    filename_ext = ".blend"
+
 
     @classmethod
     def poll(cls, context):
@@ -210,10 +213,10 @@ class MH2B_OT_AssignFolder(bpy.types.Operator, ImportHelper):
         scn = context.scene
         layout = self.layout
         try:
-            folder = scn.MH2B_localtexfolder
+            folder = scn.MH2B_projdir
         except:
             folder = "none"
-        layout.label(text="Current Folder:")
+        layout.label(text="Current project:")
         layout.label(text=folder)
 
 
@@ -221,9 +224,19 @@ class MH2B_OT_AssignFolder(bpy.types.Operator, ImportHelper):
         return super().invoke(context, event)
 
     def execute(self, context):
-        # try directly
+        # try directly but allow only directories
+        #
         scn = context.scene
-        scn.MH2B_localtexfolder = self.properties.filepath
+        f = self.properties.filepath
+
+        if os.path.isfile(f):
+            scn.MH2B_projdir = os.path.dirname(f)
+            fname = f
+        else:
+            scn.MH2B_projdir = f
+            fname = os.path.join(f, "untitled.blend")
+        bpy.ops.wm.save_as_mainfile(filepath=str(fname))
+        scn.MH2B_projdir = f
         return {'FINISHED'}
 
 

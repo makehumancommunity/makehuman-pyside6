@@ -9,7 +9,7 @@ from bpy.props import StringProperty
 from .materials import MH2B_OT_Material
 
 class MH2B_OT_Loader:
-    def __init__(self, context, subsurf):
+    def __init__(self, context):
         self.context = context
         self.firstnode = 0
         self.firstname = "unknown"
@@ -18,7 +18,7 @@ class MH2B_OT_Loader:
         self.skeleton = None
         self.bonelist = {}
         self.bonecorr = {}
-        self.subsurf = subsurf
+        self.subsurf = context.scene.MH2B_subdiv
 
     def activateObject(self, ob):
         scn = self.context.scene
@@ -188,7 +188,7 @@ class MH2B_OT_Loader:
         result = self.getBuffers(jdata, attributes, fp)
         if result is None:
             return None
-            
+        print ("dirname: ", dirname)   
         (coords, faces, uvdata, uvfaces, wpv, joints, weights)  = result
 
         mesh = bpy.data.meshes.new(name)
@@ -216,7 +216,7 @@ class MH2B_OT_Loader:
 
         if "material" in m:
             material =  m["material"]
-            mclass = MH2B_OT_Material(dirname)
+            mclass = MH2B_OT_Material(self.context, dirname)
             blendmat = mclass.addMaterial(jdata, material)
             nobject.data.materials.append(blendmat)
 
@@ -445,8 +445,7 @@ class MH2B_OT_Load(bpy.types.Operator, ImportHelper):
         return True
 
     def execute(self, context):
-        scn = context.scene
-        mh2b = MH2B_OT_Loader(context, scn.MH2B_subdiv)
+        mh2b = MH2B_OT_Loader(context)
         res, err = mh2b.loadMH2B(self.properties)
         if res is False:
             self.report({'ERROR'}, "File is not a valid mh2b file. " + err)

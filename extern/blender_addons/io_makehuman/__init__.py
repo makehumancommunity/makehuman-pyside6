@@ -19,7 +19,7 @@ from bpy.props import BoolProperty, StringProperty, IntProperty, EnumProperty
 
 from .panel import MH2B_PT_Panel
 from .load import MH2B_OT_Load
-from .api import MH2B_OT_Hello, MH2B_OT_GetChar, MH2B_OT_AssignFolder
+from .api import MH2B_OT_Hello, MH2B_OT_GetChar, MH2B_OT_AssignProject
 from .infobox import MH2B_OT_InfoBox,MH2B_OT_WarningBox
 
 MH2B_CLASSES = [
@@ -29,7 +29,7 @@ MH2B_CLASSES = [
     MH2B_OT_WarningBox,
     MH2B_OT_Hello,
     MH2B_OT_GetChar,
-    MH2B_OT_AssignFolder
+    MH2B_OT_AssignProject
 ]
 
 
@@ -44,7 +44,8 @@ def register():
     scn.MH2B_apihost = StringProperty(name="API hostname", description="Makehuman server hostname", default="127.0.0.1")
     scn.MH2B_apiport = IntProperty(name="API Port", description="Socket port number", default=12345, min=1024, max=49151)
     scn.MH2B_copylocal = BoolProperty(name="TextureCopy", description="Copy to local material folder", default=False)
-    scn.MH2B_localtexfolder = StringProperty(name="API texturefolder", description="Local material folder", default="NONE")
+    scn.MH2B_localtexfolder = StringProperty(name="API texturefolder", description="Local material folder", default="textures")
+    scn.MH2B_projdir = StringProperty(name="API projectdir", description="Project folder", default="NONE")
     scn.MH2B_feetonground =  BoolProperty(name="API FeetOnGround", description="Place character on ground", default=True)
     scn.MH2B_gethiddenverts = BoolProperty(name="API GetHiddenVerts", description="Get invisible vertices", default=False)
     scn.MH2B_getanimation = BoolProperty(name="API GetAnimation", description="Get attached animation", default=False)

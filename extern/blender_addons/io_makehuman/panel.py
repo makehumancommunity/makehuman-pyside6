@@ -18,6 +18,14 @@ class MH2B_PT_Panel(bpy.types.Panel):
         fileBox.operator("mh2b.load", text="MakeHuman2 Import")
         fileBox.prop(scn, 'MH2B_subdiv', text="subdivision surface modifier")
 
+        texbox = layout.box()
+        texbox.label(text="Textures", icon="TEXTURE")
+        texbox.operator("mh2b.assignprojdir", text="Assign project")
+        texbox.label(text = scn.MH2B_projdir)
+        texbox.prop(scn, 'MH2B_copylocal', text="Copy textures to local folder")
+        texbox.label(text="Local texture folder:")
+        texbox.prop(scn, 'MH2B_localtexfolder', text="")
+
         combox = layout.box()
         combox.label(text="Communicator", icon="USER")
         col = combox.column()
@@ -38,11 +46,4 @@ class MH2B_PT_Panel(bpy.types.Panel):
         combox.prop(scn, 'MH2B_getanimation', text="Get attached animation")
         combox.label(text="Scale:")
         combox.prop(scn, 'MH2B_getscale')
-
-        combox.separator()
-        combox.prop(scn, 'MH2B_copylocal', text="Copy textures to local folder")
-        combox.operator("mh2b.assignfolder", text="Assign texture folder")
-        combox.label(text="Local texture folder:")
-        combox.label(text = scn.MH2B_localtexfolder)
-
 
