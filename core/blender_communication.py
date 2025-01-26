@@ -375,9 +375,17 @@ class blendCom:
                 if joint.nChannels > 0:
                     num = self.bonenames[joint.name]
                     f = joint.animdata[frame]
-                    animat[frame, num, 0, 0] = f[0] * self.scale    # location
-                    animat[frame, num, 0, 1] = f[1] * self.scale
-                    animat[frame, num, 0, 2] = f[2] * self.scale
+
+                    # allow dislocation only on root bone
+                    #
+                    if joint.parent is None:
+                        animat[frame, num, 0, 0] = f[0] * self.scale    # location
+                        animat[frame, num, 0, 1] = f[1] * self.scale
+                        animat[frame, num, 0, 2] = f[2] * self.scale
+                    else:
+                        animat[frame, num, 0, 0] = 0.0
+                        animat[frame, num, 0, 1] = 0.0
+                        animat[frame, num, 0, 2] = 0.0
                     animat[frame, num, 1, 0] = 1.0      # scale
                     animat[frame, num, 1, 1] = 1.0
                     animat[frame, num, 1, 2] = 1.0
@@ -479,7 +487,7 @@ class blendCom:
 
     def apiGetChar(self):
         self.env.last_error ="okay"
-        if self.addNodes(self.glob.baseClass, "generate") is False:
+        if self.addNodes(self.glob.baseClass, self.glob.baseClass.name) is False:
             return None
         return self.json
 

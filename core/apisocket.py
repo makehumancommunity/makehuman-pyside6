@@ -30,7 +30,7 @@ class apiSocket(QThread):
         if self.jsonparam is not None:
             self.jsonparam["errcode"]= 0 
             txt = json.dumps(self.jsonparam)
-            print ("send: " + txt)
+            # print ("send: " + txt)
             conn.send (bytes(txt, 'utf-8'))
         else:
             for sbuffer in self.binarybuffers:
@@ -48,6 +48,7 @@ class apiSocket(QThread):
     def decodeRequest(self, data):
         self.jsonparam = None
         self.binarybuffers = None
+        baseclass = self.glob.baseClass
 
         try:
             js = json.loads(data)
@@ -63,7 +64,7 @@ class apiSocket(QThread):
         if "function" in js:
             f = js["function"]
             if f == "hello":
-                self.jsonparam = {"application": self.env.release_info["name"], "name": self.glob.baseClass.name }
+                self.jsonparam = {"application": self.env.release_info["name"], "name": baseclass.name }
                 return True
             elif f == "getchar":
                 # hiddenverts=False, onground=True, animation=False, scale =0.1
@@ -77,7 +78,12 @@ class apiSocket(QThread):
                     onground = p["onground"] if "onground" in p else onground
                     hidden = p["hidden"] if "hidden" in p else hidden
                     anim = p["anim"] if "anim" in p else anim
+
                 self.blcom = blendCom(self.glob, None, hidden, onground, anim, scale)
+                if baseclass.in_posemode:
+                    print ("I am in pose mode")
+                    baseclass.baseMesh.resetFromCopy()
+                    baseclass.updateAttachedAssets()
                 self.jsonparam = self.blcom.apiGetChar()
                 return True
             elif f == "bin_getchar":

@@ -18,20 +18,22 @@ class AnimMode():
         self.mesh = glob.baseClass.baseMesh
         self.mesh.createWCopy()
         self.baseClass.pose_skeleton.newGeometry()
-        self.baseClass.pose_skeleton.restPose()
+        self.baseClass.restPose()
         self.baseClass.precalculateAssetsInRestPose()
         self.view.addSkeleton(True)
         print ("init pose")
+        self.baseClass.in_posemode = True
         if self.baseClass.bvh:
             self.baseClass.showPose()
         if self.baseClass.expression:
-            self.baseClass.pose_skeleton.posebyBlends(self.baseClass.expression.blends, self.baseClass.faceunits.bonemask)
+            self.baseClass.showExpression()
             self.view.Tweak()
 
     def leave(self):
         self.mesh.resetFromCopy()
         self.baseClass.updateAttachedAssets()
         self.view.addSkeleton(False)
+        self.baseClass.in_posemode = False
         self.view.Tweak()
 
 
@@ -118,6 +120,7 @@ class AnimPlayer(QVBoxLayout):
         self.bc.pose_skeleton.newGeometry()
         self.bc.precalculateAssetsInRestPose()
         self.mesh.createWCopy()
+        self.bc.in_posemode = True
         self.firstframe()
 
     def leave(self):
@@ -128,6 +131,7 @@ class AnimPlayer(QVBoxLayout):
         self.mesh.resetFromCopy()
         self.view.addSkeleton(False)    # reset to unposed
         self.bc.updateAttachedAssets()
+        self.bc.in_posemode = False
         self.view.Tweak()
 
     def changeRotSkyBox(self, param):
@@ -230,9 +234,10 @@ class AnimExpressionEdit():
         self.baseClass = glob.baseClass
         self.mesh = glob.baseClass.baseMesh
         self.mesh.createWCopy()
+        self.baseClass.in_posemode = True
         self.view.addSkeleton(True)
         self.baseClass.pose_skeleton.newGeometry()
-        self.baseClass.pose_skeleton.restPose()
+        self.baseClass.restPose()
         self.expressions = []
         self.thumbimage = None
         self.view.Tweak()
@@ -305,7 +310,7 @@ class AnimExpressionEdit():
             if res is False:
                 ErrorBox(self.parent.central_widget, text)
                 return
-            self.baseClass.pose_skeleton.restPose()
+            self.baseClass.restPose()
             self.editname.setText(pose.name)
             self.description.setText(pose.description)
             self.tagsline.setText(";".join(pose.tags))
@@ -352,7 +357,7 @@ class AnimExpressionEdit():
     def resetButton(self):
         self.resetExpressionSliders()
         self.parent.redrawNewExpression(None)
-        self.baseClass.pose_skeleton.restPose()
+        self.baseClass.restPose()
         self.view.Tweak()
 
     def fillExpressions(self):
@@ -386,6 +391,7 @@ class AnimExpressionEdit():
     def leave(self):
         self.mesh.resetFromCopy()
         self.baseClass.updateAttachedAssets()
+        self.baseClass.in_posemode = False
         self.view.addSkeleton(False)
         self.view.Tweak()
 

@@ -65,6 +65,7 @@ class baseClass():
         self.photo = None
         self.uuid = None
         self.skeleton = None
+        self.in_posemode = False
         self.pose_skelpath = None
         self.bvh = None             # indicates that object is posed
         self.expression = None      # indicates that expressions are used
@@ -442,23 +443,29 @@ class baseClass():
         self.glob.openGLWindow.delSkeleton()
         self.glob.openGLWindow.Tweak()
 
+    def restPose(self):
+        self.pose_skeleton.restPose()
+
     def showPose(self):
         self.pose_skeleton.pose(self.bvh.joints, self.bvh.currentFrame)
         #self.bvh.debugChanged()
         self.glob.openGLWindow.Tweak()
 
+    def showExpression(self):
+        self.pose_skeleton.posebyBlends(self.expression.blends, self.faceunits.bonemask )
+
     def showPoseAndExpression(self):
         if self.bvh:
             self.pose_skeleton.pose(self.bvh.joints, self.bvh.currentFrame)
         if self.expression:
-            self.pose_skeleton.posebyBlends(self.expression.blends, self.faceunits.bonemask )
+            self.showExpression()
 
     def addPose(self, name, path):
         if self.pose_skeleton is None:
             return True
 
         if self.bvh is not None:
-            self.pose_skeleton.restPose()
+            self.restPose()
             self.glob.markAssetByFileName(self.bvh.filename, False)
         self.bvh = BVH(self.glob, name)
         loaded  = self.bvh.load(path)
@@ -472,7 +479,7 @@ class baseClass():
     def delPose(self, path):
         self.bvh = None
         self.glob.markAssetByFileName(path, False)
-        self.pose_skeleton.restPose()
+        self.restPose()
         self.showPoseAndExpression()
         self.glob.openGLWindow.Tweak()
 
@@ -495,7 +502,7 @@ class baseClass():
 
         if self.expression is not None:
             self.glob.markAssetByFileName(self.expression.filename, False)
-            self.pose_skeleton.restPose()
+            self.restPose()
 
         self.expression = MHPose(self.glob, self.faceunits, name)
         loaded, msg  = self.expression.load(path)
@@ -508,7 +515,7 @@ class baseClass():
     def delExpression(self, path):
         self.expression = None
         self.glob.markAssetByFileName(path, False)
-        self.pose_skeleton.restPose()
+        self.restPose()
         self.showPoseAndExpression()
         self.glob.openGLWindow.Tweak()
 

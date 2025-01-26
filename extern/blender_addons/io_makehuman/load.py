@@ -279,9 +279,10 @@ class MH2B_OT_Loader:
                 eb.parent = amt.edit_bones[bone["parent"]]
 
 
-        # lock the bones in pose mode
+        # lock the bones in object mode
         #
-        bpy.ops.object.mode_set(mode='OBJECT')
+        #bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.mode_set(mode='POSE')
         for bone in skel["bones"]:
             pb = rig.pose.bones[bone["name"]]
             if pb.parent:
@@ -292,6 +293,8 @@ class MH2B_OT_Loader:
             rmat = rot.to_matrix()
             self.bonecorr[bone.name] = rmat
 
+        bpy.ops.pose.armature_apply()
+        bpy.ops.object.mode_set(mode='OBJECT')
         return rig
 
     def getAnimation (self, jdata, fp):
@@ -330,7 +333,7 @@ class MH2B_OT_Loader:
                 pbone = rig.pose.bones.get(name)
                 m = animdata[cnt]
                 if pbone:
-                    pbone.location = (m[2], m[1], m[0])
+                    pbone.location = (m[2], m[1], m[0])         # dislocation usually on root bone (because of bvh files)
                     pbone.scale    = (m[3], m[4], m[5])
                     euler = Euler((radians(m[6]), radians(m[7]), radians(m[8])), 'ZYX')
                     if name in self.bonecorr:
@@ -341,6 +344,7 @@ class MH2B_OT_Loader:
                         pbone.rotation_euler = (rot.x, rot.y, rot.z)
                 cnt += 1
             bpy.ops.anim.keyframe_insert(type='LocRotScale')
+        bpy.ops.object.mode_set(mode='OBJECT')
 
 
     def createObjects(self, jdata, fp, dirname):
