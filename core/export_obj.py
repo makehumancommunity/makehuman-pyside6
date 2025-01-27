@@ -147,12 +147,12 @@ class objExport:
             # in case of helper NO verts on body are hidden
             #
             hiddenverts = True if self.helper else self.hiddenverts
-            (coords, norms, uvcoords, vpface, faces, overflow) = obj.getVisGeometry(hiddenverts, self.helper)
+            (coords, norms, uvcoords, vpface, faces, overflow, mapping) = obj.getVisGeometry(hiddenverts, self.helper)
             self.obj.append ({"name": "base", "mat": mat, "c": coords, "no": norms, "uv": uvcoords, "vpf": vpface, "f": faces, "o": overflow })
 
         for elem in baseclass.attachedAssets:
             mat = elem.obj.material
-            (coords, norms, uvcoords, vpface, faces, overflow) = elem.obj.getVisGeometry(self.hiddenverts)
+            (coords, norms, uvcoords, vpface, faces, overflow, mapping) = elem.obj.getVisGeometry(self.hiddenverts)
             self.obj.append ({"name": elem.obj.name, "mat": mat, "c": coords, "no": norms, "uv": uvcoords, "vpf": vpface, "f": faces, "o": overflow })
 
         # vertices

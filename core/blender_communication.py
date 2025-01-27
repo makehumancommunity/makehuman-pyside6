@@ -257,24 +257,37 @@ class blendCom:
         self.json["materials"].append(mat)
         return (self.material_cnt)
 
-    def addWeightBuffers(self, coords, bweights):
+    def addWeightBuffers(self, coords, bweights, mapping):
         wpvlen = len(coords) // 3   # length of vertex per face derived from flattened coords
 
         lsize = 0
 
         vertex = {}
-
         # TODO: how to deal with empty weights
 
-        for bone, t in bweights.items():
-            bonenumber = self.bonenames[bone]
-            ind, w = bweights[bone]
-            for n, i in enumerate (ind):
-                if i < wpvlen:
-                    if i not in vertex:
-                        vertex[i] = []
-                    vertex[i].append((bonenumber, w[n]))
-                    lsize += 1
+        if mapping is None:
+            for bone, t in bweights.items():
+                bonenumber = self.bonenames[bone]
+                ind, w = bweights[bone]
+                for n, i in enumerate (ind):
+                    if i < wpvlen:
+                        if i not in vertex:
+                            vertex[i] = []
+                        vertex[i].append((bonenumber, w[n]))
+                        lsize += 1
+        else:
+            lenmap = len(mapping)
+            for bone, t in bweights.items():
+                bonenumber = self.bonenames[bone]
+                ind, w = bweights[bone]
+                for n, i in enumerate (ind):
+                    if i < lenmap:
+                        i = mapping[i]
+                        if i < wpvlen and i != -1:
+                            if i not in vertex:
+                                vertex[i] = []
+                            vertex[i].append((bonenumber, w[n]))
+                            lsize += 1
 
         #print ("Verts:" + str(wpvlen))
         #print ("Weight array:" + str(lsize))
@@ -301,7 +314,7 @@ class blendCom:
 
     def addMesh(self, obj, nodenumber, bweights):
         self.mesh_cnt += 1
-        (coords, norm, uvcoords, vpface, faces, overflows) = obj.getVisGeometry(self.hiddenverts)
+        (coords, norm, uvcoords, vpface, faces, overflows, mapping) = obj.getVisGeometry(self.hiddenverts)
         # norm is not used
         pos = self.addPosBuffer(coords)
         face = self.addFaceBuffer(faces)
@@ -319,7 +332,7 @@ class blendCom:
         # add weights in case of skeleton
         #
         if bweights is not None:
-            attrib["WPV"], attrib["JOINTS"], attrib["WEIGHTS"] = self.addWeightBuffers(coords, bweights)
+            attrib["WPV"], attrib["JOINTS"], attrib["WEIGHTS"] = self.addWeightBuffers(coords, bweights, mapping)
 
         jmesh = {"primitives": [ {"attributes": attrib, "material": nodenumber }]}
 

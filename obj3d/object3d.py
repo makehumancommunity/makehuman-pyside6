@@ -344,6 +344,7 @@ class object3d:
         values are deduplicated, used for exports
         """
         mask = self.hiddenMask() if displayhidden is False else None
+        mapping = None
 
         # TODO: still problems with proxy hiding in blender
 
@@ -397,7 +398,7 @@ class object3d:
             gl_uvcoord = self.gl_uvcoord
             overflow   =   self.overflow
 
-        return (coord, norm, gl_uvcoord, vertsperface, faceverts, overflow)
+        return (coord, norm, gl_uvcoord, vertsperface, faceverts, overflow, mapping)
 
     def createGLFaces(self, nfaces, ufaces, prim, groups):
         self.loadedgroups = groups
