@@ -66,6 +66,7 @@ class ScaleCombo(QWidget):
         self.dSpinBox = None
         self.resetButton = None
         self.slider = None
+        self.measure = elem.measure
 
         self.comboLayout=QVBoxLayout(self)
 
@@ -81,8 +82,9 @@ class ScaleCombo(QWidget):
         self.image.pressed.connect(self.selectButtonPressed)
         self.ilayout.addWidget(self.image)
 
+        self.label = QLabel(elem.displayname)
         self.rightCol = QVBoxLayout()
-        self.rightCol.addWidget(QLabel(elem.displayname))
+        self.rightCol.addWidget(self.label)
         if self.expanded:
             self.rightCol.addLayout(self.spinLayout)
         else:
@@ -92,6 +94,10 @@ class ScaleCombo(QWidget):
         self.comboLayout.addLayout(self.ilayout)
         if self.expanded:
             self.comboLayout.addWidget(self.slider)
+
+    def setMeasurement(self, text):
+        if self.elem.measure is not None:
+            self.label.setText(self.elem.displayname + "\n" + text)
 
     def addNonExpandedFeatures(self):
         """
@@ -239,7 +245,7 @@ class ScaleComboArray(QWidget):
                     values = [d['value'] for d in elem.barycentric]
 
                     mapCombo = MapBaryCentricCombo(values, texts, elem.callback)
-                    elem.mapSlider = mapCombo.mapBary
+                    elem.slider = mapCombo.mapBary
                     self.layout.addWidget(mapCombo)
                     cnt +=1 
                     continue
@@ -248,6 +254,8 @@ class ScaleComboArray(QWidget):
                     scalecombo = ScaleCombo(elem,  0, 100, 10, parent=self, update=self.comboArrayUpdate)
                 else:
                     scalecombo = ScaleCombo(elem,  -100, 100, 25, parent=self, update=self.comboArrayUpdate)
+
+                elem.slider = scalecombo
                 self.scaleComboArray.append(scalecombo)
                 self.layout.addWidget(scalecombo)
                 cnt +=1 

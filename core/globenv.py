@@ -836,12 +836,14 @@ class programInfo():
                     changed = self.dictFillGaps(standard[element], testdict[element])
         return (changed)
 
-    def toUnit(self, value):
+    def toUnit(self, value, inchonly=False):
         """
         for metrical, centimeter is used, otherwise feet & inches
         """
         if "units" in self.config and self.config["units"] == "imperial":
             inch = value * (10 / 2.54)
+            if inchonly:
+                return (str(round(inch, 2)) + " in")
             ft = inch // 12
             inch = round(inch - ft*12, 2)
             return(str(round(ft)) + " ft  "+ str(inch) + " in")

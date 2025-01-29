@@ -37,9 +37,10 @@ class Modelling(ScaleComboItem):
         self.m_influence = []   # all influences
         self.barycentric = None # map slider
         self.opposite = True # change to True
-        self.mapSlider = None # filled from mapslider function
+        self.slider = None    # filled by function creating slider or mapslider
         self.sym = None       # symmetric side (left, right)
         self.isRSide = False    # bool for side
+        self.measure = None     # is measurement needed?
         self.pattern = "None"
 
     def __str__(self):
@@ -89,6 +90,8 @@ class Modelling(ScaleComboItem):
             self.displayname = t["name"]
         if "group" in t:
             self.group = t["group"]
+        if "measure" in t:
+            self.measure = t["measure"]
         if "display" in t:
             self.textSlot(t["display"])
         if "default" in t:
@@ -126,7 +129,7 @@ class Modelling(ScaleComboItem):
             self.barycentric[2]["value"] = 0.34
 
     def set_barycentricFromMapSlider(self):
-        val = self.mapSlider.getValues()
+        val = self.slider.getValues()
         self.barycentric[0]["value"] = val[0]
         self.barycentric[1]["value"] = val[1]
         self.barycentric[2]["value"] = val[2]
@@ -381,6 +384,10 @@ class Modelling(ScaleComboItem):
             self.glob.project_changed = True
             self.glob.midColumn.setSizeInfo()
             self.glob.openGLWindow.Tweak()
+            if self.measure is not None:
+                val = self.obj.baseMesh.getMeasure(self.measure)
+                text = self.glob.env.toUnit(val, True)
+                self.slider.setMeasurement(text)
 
     #def __del__(self):
     #    print (" -- __del__ Modelling: " + self.name)
@@ -545,9 +552,7 @@ class Targets:
 
         # load targets mentioned in modelling.json
         #
-        for name in targetjson:
-            t = targetjson[name]
-
+        for name, t in targetjson.items():
             mode = 1 if "user" in t else 0
             targetpath = target_env[mode]["targetpath"]
             bintargets = target_env[mode]["targets"]

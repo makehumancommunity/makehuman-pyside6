@@ -2,6 +2,7 @@ import numpy as np
 from obj3d.fops_binary import exportObj3dBinary, importObjFromFile
 from opengl.material import Material
 import os
+import math
 
 class object3d:
     def __init__(self, glob, baseinfo, eqtype ):
@@ -850,6 +851,19 @@ class object3d:
 
     def getHeightInUnits(self):
         return (self.gl_coord[self.max_index[1]*3+1]-self.gl_coord[self.min_index[1]*3+1])
+
+    def getMeasure(self, vindex):
+        measure = 0
+        vindex1 = vindex[0]
+        for vindex2 in vindex:
+            v31 = vindex1 * 3
+            v32 = vindex2 * 3
+            dx = self.gl_coord[v31] - self.gl_coord[v32]
+            dy = self.gl_coord[v31+1] - self.gl_coord[v32+1]
+            dz = self.gl_coord[v31+2] - self.gl_coord[v32+2]
+            measure += math.sqrt(dx * dx + dy * dy + dz * dz)
+            vindex1 = vindex2
+        return measure
 
     def calculateAttachedGeom(self, faces):
         """

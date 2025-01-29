@@ -2021,121 +2021,141 @@
 		"name": "Neck Circum",
 		"group": "measure|neck",
 		"decr": "measure/measure-neck-circ-decr",
-		"incr": "measure/measure-neck-circ-incr"
+		"incr": "measure/measure-neck-circ-incr",
+		"measure": [7514,10358,7631,7496,7488,7489,7474,7475,7531,7537,7543,7549,7555,7561,7743,7722,856,1030,1051,850,844,838,832,826,820,756,755,770,769,777,929,3690,804,800,808,801,799,803,7513,7515,7521,7514]
 	},
 	"ME-Neck Height": {
 		"name": "Neck Height",
 		"group": "measure|neck",
 		"decr": "measure/measure-neck-height-decr",
-		"incr": "measure/measure-neck-height-incr"
+		"incr": "measure/measure-neck-height-incr",
+		"measure": [853,854,855,856,857,858,1496,1491]
 	},
 	"ME-UArm Circ": {
 		"name": "Upper Arm Circum",
 		"group": "measure|upper arm",
 		"decr": "measure/measure-upperarm-circ-decr",
-		"incr": "measure/measure-upperarm-circ-incr"
+		"incr": "measure/measure-upperarm-circ-incr",
+		"measure": [8383,8393,8392,8391,8390,8394,8395,8399,10455,10516,8396,8397,8398,8388,8387,8386,10431,8385,8384,8389]
 	},
 	"ME-UArm Length": {
 		"name": "Upper Arm Length",
 		"group": "measure|upper arm",
 		"decr": "measure/measure-upperarm-length-decr",
-		"incr": "measure/measure-upperarm-length-incr"
+		"incr": "measure/measure-upperarm-length-incr",
+		"measure": [8274,10037]
 	},
 	"ME-LArm Circ": {
 		"name": "Wrist Circum",
 		"group": "measure|forearm",
 		"decr": "measure/measure-wrist-circ-decr",
-		"incr": "measure/measure-wrist-circ-incr"
+		"incr": "measure/measure-wrist-circ-incr",
+		"measure": [10208,10211,10212,10216,10471,10533,10213,10214,10215,10205,10204,10203,10437,10202,10201,10206,10200,10210,10209,10208]
 	},
 	"ME-LArm Length": {
 		"name": "Forearm Length",
 		"group": "measure|forearm",
 		"decr": "measure/measure-lowerarm-length-decr",
-		"incr": "measure/measure-lowerarm-length-incr"
+		"incr": "measure/measure-lowerarm-length-incr",
+		"measure": [10040,10548]
 	},
 	"ME-Torso ShoulderDist": {
 		"name": "Shoulder Distance",
 		"group": "measure|torso",
 		"decr": "measure/measure-shoulder-dist-decr",
-		"incr": "measure/measure-shoulder-dist-incr"
+		"incr": "measure/measure-shoulder-dist-incr",
+		"measure": [7478,8274]
 	},
 	"ME-Torso ChestDist": {
 		"name": "Front Chest Distance",
 		"group": "measure|torso",
 		"decr": "measure/measure-frontchest-dist-decr",
-		"incr": "measure/measure-frontchest-dist-incr"
+		"incr": "measure/measure-frontchest-dist-incr",
+		"measure": [1437,8125]
 	},
 	"ME-Torso BustCirc": {
 		"name": "Bust Circum",
 		"group": "measure|torso",
 		"decr": "measure/measure-bust-circ-decr",
-		"incr": "measure/measure-bust-circ-incr"
+		"incr": "measure/measure-bust-circ-incr",
+		"measure": [8439,8455,8462,8446,8478,8494,8557,8510,8526,8542,10720,10601,10603,10602,10612,10611,10610,10613,10604,10605,10606,3942,3941,3940,3950,3947,3948,3949,3938,3939,3937,4065,1870,1854,1838,1885,1822,1806,1774,1790,1783,1767,1799,8471]
 	},
 	"ME-Torso UBustCirc": {
 		"name": "Band Size",
 		"group": "measure|torso",
 		"decr": "measure/measure-underbust-circ-decr",
-		"incr": "measure/measure-underbust-circ-incr"
+		"incr": "measure/measure-underbust-circ-incr",
+		"measure": [10750,10744,10724,10725,10748,10722,10640,10642,10641,10651,10650,10649,10652,10643,10644,10645,10646,10647,10648,3988,3987,3986,3985,3984,3983,3982,3992,3989,3990,3991,3980,3981,3979,4067,4098,4073,4072,4094,4100,4082,4088, 4088]
 	},
 	"ME-Torso WaistCirc": {
 		"name": "Waist Circum",
 		"group": "measure|torso",
 		"decr": "measure/measure-waist-circ-decr",
-		"incr": "measure/measure-waist-circ-incr"
+		"incr": "measure/measure-waist-circ-incr",
+		"measure": [4121,10760,10757,10777,10776,10779,10780,10778,10781,10771,10773,10772,10775,10774,10814,10834,10816,10817,10818,10819,10820,10821,4181,4180,4179,4178,4177,4176,4175,4196,4173,4131,4132,4129,4130,4128,4138,4135,4137,4136,4133,4134,4108,4113,4118,4121]
 	},
 	"ME-Torso NapeWaist": {
 		"name": "Nape to Waist",
 		"group": "measure|torso",
 		"decr": "measure/measure-napetowaist-dist-decr",
-		"incr": "measure/measure-napetowaist-dist-incr"
+		"incr": "measure/measure-napetowaist-dist-incr",
+		"measure": [1491,4181]
 	},
 	"ME-Torso WaistHip": {
 		"name": "Waist to Hip",
 		"group": "measure|torso",
 		"decr": "measure/measure-waisttohip-dist-decr",
-		"incr": "measure/measure-waisttohip-dist-incr"
+		"incr": "measure/measure-waisttohip-dist-incr",
+		"measure": [4121,4341]
 	},
 	"ME-Hips Circ": {
 		"name": "Hips Circum",
 		"group": "measure|hips",
 		"decr": "measure/measure-hips-circ-decr",
-		"incr": "measure/measure-hips-circ-incr"
+		"incr": "measure/measure-hips-circ-incr",
+		"measure": [4341,10968,10969,10971,10970,10967,10928,10927,10925,10926,10923,10924,10868,10875,10861,10862,4228,4227,4226,4242,4234,4294,4293,4296,4295,4297,4298,4342,4345,4346,4344,4343,4361,4341]
 	},
 	"ME-ULeg Circ": {
 		"name": "Thigh Circum",
 		"group": "measure|thigh",
 		"decr": "measure/measure-thigh-circ-decr",
-		"incr": "measure/measure-thigh-circ-incr"
+		"incr": "measure/measure-thigh-circ-incr",
+		"measure": [11071,11080,11081,11086,11076,11077,11074,11075,11072,11073,11069,11070,11087,11085,11084,12994,11083,11082,11079,11071]
 	},
 	"ME-ULeg Height": {
 		"name": "Thigh Height",
 		"group": "measure|thigh",
 		"decr": "measure/measure-upperleg-height-decr",
-		"incr": "measure/measure-upperleg-height-incr"
+		"incr": "measure/measure-upperleg-height-incr",
+		"measure": [10970,11230]
 	},
 	"ME-Knee Circ": {
 		"name": "Knee Circum",
 		"group": "measure|knee",
 		"decr": "measure/measure-knee-circ-decr",
-		"incr": "measure/measure-knee-circ-incr"
+		"incr": "measure/measure-knee-circ-incr",
+		"measure": [11223,11230,11232,11233,11238,11228,11229,11226,11227,11224,11225,11221,11222,11239,11237,11236,13002,11235,11234,11223]
 	},
 	"ME-LLeg Circ": {
 		"name": "Lower Leg Circum",
 		"group": "measure|lower leg",
 		"decr": "measure/measure-calf-circ-decr",
-		"incr": "measure/measure-calf-circ-incr"
+		"incr": "measure/measure-calf-circ-incr",
+		"measure": [11339,11336,11353,11351,11350,13008,11349,11348,11345,11337,11344,11346,11347,11352,11342,11343,11340,11341,11338,11339]
 	},
 	"ME-LLeg Height": {
 		"name": "Lower Leg Height",
 		"group": "measure|lower leg",
 		"decr": "measure/measure-lowerleg-height-decr",
-		"incr": "measure/measure-lowerleg-height-incr"
+		"incr": "measure/measure-lowerleg-height-incr",
+		"measure": [11225,12820]
 	},
 	"ME-Ankle Circ": {
 		"name": "Ankle Circum",
 		"group": "measure|ankle",
 		"decr": "measure/measure-ankle-circ-decr",
-		"incr": "measure/measure-ankle-circ-incr"
+		"incr": "measure/measure-ankle-circ-incr",
+		"measure": [11460,11464,11458,11459,11419,11418,12958,12965,12960,12963,12961,12962,12964,12927,13028,12957,11463,11461,11457,11460]
 	}
 }
 
