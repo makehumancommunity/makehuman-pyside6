@@ -2,7 +2,6 @@ import numpy as np
 from obj3d.fops_binary import exportObj3dBinary, importObjFromFile
 from opengl.material import Material
 import os
-import math
 
 class object3d:
     def __init__(self, glob, baseinfo, eqtype ):
@@ -853,17 +852,25 @@ class object3d:
         return (self.gl_coord[self.max_index[1]*3+1]-self.gl_coord[self.min_index[1]*3+1])
 
     def getMeasure(self, vindex):
+        """
+        create a measurement, results in an array of vertices for presentation and the result (length)
+        """
+        lx = len(vindex)
+        mcoords = np.zeros((lx, 3), dtype=np.float32)
+        c = 0
+        for i in vindex:
+            x = i *3
+            mcoords[c] = [self.gl_coord[x], self.gl_coord[x+1], self.gl_coord[x+2] ]
+            c += 1
+
         measure = 0
-        vindex1 = vindex[0]
-        for vindex2 in vindex:
-            v31 = vindex1 * 3
-            v32 = vindex2 * 3
-            dx = self.gl_coord[v31] - self.gl_coord[v32]
-            dy = self.gl_coord[v31+1] - self.gl_coord[v32+1]
-            dz = self.gl_coord[v31+2] - self.gl_coord[v32+2]
-            measure += math.sqrt(dx * dx + dy * dy + dz * dz)
-            vindex1 = vindex2
-        return measure
+        ox = 0
+        for n in range(1, lx):
+            d = mcoords[ox] - mcoords[n]
+            measure += np.sqrt(d.dot(d))
+            ox = n
+
+        return measure, mcoords
 
     def calculateAttachedGeom(self, faces):
         """

@@ -36,9 +36,9 @@ class LineElements:
     def setVisible(self, status):
         self.visible = status
 
-    def create(self, width=1.0):
+    def create(self, width=1.0, infront=False):
         self.width = width
-        self.lines = RenderedLines(self.glfunc, self.shader, self.icoord, self.name, self.glbuffer, pos=QVector3D(0, 0, 0))
+        self.lines = RenderedLines(self.glfunc, self.shader, self.icoord, self.name, self.glbuffer, pos=QVector3D(0, 0, 0), infront=infront)
 
     def newGeometry(self, pos):
         self.gl_coord[:] = np.asarray(pos, dtype=np.float32).flatten()
@@ -128,6 +128,12 @@ class BoneList(LineElements):
             for bone in skeleton.bones.values():
                 lines.extend ([bone.headPos, bone.tailPos])
         super().newGeometry(lines)
+
+class VisMarker(LineElements):
+    def __init__(self, context, shader, name, coords, width=2.0):
+        super().__init__(context, shader, name, coords, [1.0, 1.0, 1.0])
+        self.create(width, True)
+
 
 class SimpleObject():
     """

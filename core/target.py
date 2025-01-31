@@ -192,13 +192,25 @@ class Modelling(ScaleComboItem):
             self.pattern = "custom/" + self.pattern
         return (self.pattern)
 
+    def displayMeasurement(self, new=False):
+        val, coords = self.obj.baseMesh.getMeasure(self.measure)
+        if new:
+            self.glob.openGLWindow.setMarker(coords)
+        else:
+            self.glob.openGLWindow.modMarker(coords)
+        text = self.glob.env.toUnit(val, True)
+        self.slider.setMeasurement(text)
+
     def initialize(self):
         factor = self.value / 100
         print("init  " + self.name)
+        self.glob.openGLWindow.delMarker()
         if self.macro is not None:
             self.obj.baseMesh.addAllNonMacroTargets()
         elif self.incr is not None or self.decr is not None:
             self.obj.getInitialCopyForSlider(factor, self.decr, self.incr)
+            if self.measure is not None:
+                self.displayMeasurement(True)
             if self.glob.Targets.getSym() is True and self.sym is not None:
                 if self.sym in self.glob.targetRepo:
                     key = self.glob.targetRepo[self.sym]
@@ -383,11 +395,9 @@ class Modelling(ScaleComboItem):
                     print ("Target missing")
             self.glob.project_changed = True
             self.glob.midColumn.setSizeInfo()
-            self.glob.openGLWindow.Tweak()
             if self.measure is not None:
-                val = self.obj.baseMesh.getMeasure(self.measure)
-                text = self.glob.env.toUnit(val, True)
-                self.slider.setMeasurement(text)
+                self.displayMeasurement()
+            self.glob.openGLWindow.Tweak()
 
     #def __del__(self):
     #    print (" -- __del__ Modelling: " + self.name)

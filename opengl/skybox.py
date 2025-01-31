@@ -76,6 +76,7 @@ class OpenGLSkyBox:
 
     def draw(self, projection):
         self.prog.bind()
+        self.func.glEnable(gl.GL_DEPTH_TEST)
         self.func.glDepthFunc(gl.GL_LEQUAL);
         key = self.prog.uniformLocation("uModelMatrix")
         self.model_matrix.setToIdentity()
@@ -96,4 +97,5 @@ class OpenGLSkyBox:
         self.func.glDrawArrays(gl.GL_TRIANGLES, 0, 36)
         self.func.glDepthFunc(gl.GL_LESS)
         self.texture.release()
+        self.func.glDisable(gl.GL_DEPTH_TEST)
 

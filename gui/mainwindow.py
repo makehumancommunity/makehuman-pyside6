@@ -541,6 +541,9 @@ class MHMainWindow(QMainWindow):
         """
         if self.glob.baseClass is None:
             return False
+
+        self.glob.openGLWindow.delMarker()
+
         if self.tool_mode == 0:
             if self.category_mode == 0:
                 if self.rightColumn is None:

@@ -212,6 +212,7 @@ class RenderedObject:
         functions = self.context.functions()
 
 
+        functions.glEnable(gl.GL_DEPTH_TEST)
         if self.material.pbrMetallicRoughness is not None:
             lightWeight = QVector3D(1.0 - self.material.pbrMetallicRoughness, light.lightWeight.y(), 0)
         else:
@@ -279,6 +280,7 @@ class RenderedObject:
         functions.glDisable(gl.GL_BLEND)
         functions.glDisable(gl.GL_MULTISAMPLE)
         functions.glDisable(gl.GL_TEXTURE1)
+        functions.glDisable(gl.GL_DEPTH_TEST)
         functions.glActiveTexture(gl.GL_TEXTURE0)
 
     def drawWireframe(self, proj_view_matrix, black, white):
@@ -300,6 +302,7 @@ class RenderedObject:
 
         openGLReset() # call sth stupid, becaue PolygonMode is not in the context
         
+        functions.glEnable(gl.GL_DEPTH_TEST)
         gl.glPolygonMode(gl.GL_FRONT_AND_BACK, gl.GL_LINE)
         functions.glDrawElements(gl.GL_TRIANGLES, len(indices), gl.GL_UNSIGNED_INT, indices)
 
@@ -318,14 +321,16 @@ class RenderedObject:
         functions.glDisable(gl.GL_CULL_FACE)
 
         self.setTexture(oldtexture)
+        functions.glDisable(gl.GL_DEPTH_TEST)
         functions.glActiveTexture(gl.GL_TEXTURE0)
 
 
 class RenderedLines:
-    def __init__(self, functions, shader, indices, name, glbuffers, pos):
+    def __init__(self, functions, shader, indices, name, glbuffers, pos, infront=False):
         self.functions = functions
         self.shader = shader
         self.name = name
+        self.infront = infront
         self.position = QVector3D(0, 0, 0)
         self.scale = QVector3D(1, 1, 1)
         self.y_rotation = 0.0
@@ -367,12 +372,17 @@ class RenderedLines:
         # now set uMvpMatrix, uModelMatrix
 
         self.functions.glEnable(gl.GL_BLEND)
+        if self.infront:
+            self.functions.glDisable(gl.GL_DEPTH_TEST)
+        else:
+            self.functions.glEnable(gl.GL_DEPTH_TEST)
         self.shader.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)
         self.shader.setUniformValue(self.model_matrix_location, self.model_matrix)
 
         indices = self.indices
         self.functions.glDrawElements(gl.GL_LINES, len(indices), gl.GL_UNSIGNED_INT, indices)
         self.functions.glDisable(gl.GL_BLEND)
+        self.functions.glDisable(gl.GL_DEPTH_TEST)
 
 class RenderedSimple:
     def __init__(self, functions, shaders, indices, name, glbuffers):
@@ -427,10 +437,12 @@ class RenderedSimple:
         self.functions.glActiveTexture(gl.GL_TEXTURE0)
         self.functions.glUniform1i(t1, 0)
         self.texture.bind()
+        self.functions.glEnable(gl.GL_DEPTH_TEST)
         self.functions.glEnable(gl.GL_BLEND)
         self.functions.glBlendFunc(gl.GL_ONE, gl.GL_ZERO)
         self.functions.glDrawElements(gl.GL_TRIANGLES, len(self.indices), gl.GL_UNSIGNED_INT, self.indices)
         self.functions.glDisable(gl.GL_BLEND)
+        self.functions.glDisable(gl.GL_DEPTH_TEST)
 
 
 

@@ -14,7 +14,7 @@ from opengl.material import Material
 from opengl.buffers import OpenGlBuffers, RenderedObject
 from opengl.camera import Camera, Light
 from opengl.skybox import OpenGLSkyBox
-from opengl.prims import CoordinateSystem, Grid, BoneList, VisLights, DiamondSkeleton
+from opengl.prims import CoordinateSystem, Grid, BoneList, VisLights, DiamondSkeleton, VisMarker
 
 class OpenGLView(QOpenGLWidget):
     def __init__(self, glob):
@@ -47,6 +47,7 @@ class OpenGLView(QOpenGLWidget):
         self.glfunc = None
         self.visLights = None
         self.diamondskel = None
+        self.marker = None
 
     def delSkeleton(self):
         if "skeleton" in self.prims:
@@ -185,6 +186,22 @@ class OpenGLView(QOpenGLWidget):
                     self.prims[name].newGeometry(posed)
             self.Tweak()
 
+    def delMarker(self):
+        if self.marker is not None:
+            self.marker.delete()
+            self.marker = None
+            self.Tweak()
+
+    def setMarker(self, coords):
+        self.delMarker()
+        shader = self.mh_shaders.getShader("fixcolor")
+        self.marker = VisMarker(self.context(), shader, "marker", coords)
+        self.marker.setVisible(True)
+        self.Tweak()
+
+    def modMarker(self, coords):
+        if self.marker is not None:
+            self.marker.newGeometry(coords)
 
     def createPrims(self):
         shader = self.mh_shaders.getShader("fixcolor")
@@ -276,8 +293,6 @@ class OpenGLView(QOpenGLWidget):
 
         baseClass = self.glob.baseClass
         o_size = baseClass.baseMesh.getHeightInUnits() if baseClass is not None else 20
-
-        self.glfunc.glEnable(gl.GL_DEPTH_TEST)
 
         # initialize shaders
         #
@@ -390,6 +405,9 @@ class OpenGLView(QOpenGLWidget):
 
         for name in self.prims:
             self.prims[name].draw(proj_view_matrix)
+
+        if self.marker is not None:
+            self.marker.draw(proj_view_matrix)
 
     def Tweak(self):
         for glbuffer in self.buffers:
