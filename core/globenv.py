@@ -20,6 +20,7 @@ class globalObjects():
         self.env = env
         self.app = None
         self.shaderInit = None
+        self.subwindows = {}
         self.openGLWindow = None
         self.openGLBlock  = False
         self.midColumn    = None
@@ -42,6 +43,14 @@ class globalObjects():
         self.parallel = None                # for parallel processing. Should avoid more than one process at the time
         self.lastdownload = None            # will contain the filename of last downloaded file
         self.textSlot = [None, None, None, None, None] # text slots for graphical window
+
+    def showSubwindow(self, name, parent, mclass, *params):
+        if name not in self.subwindows:
+            self.subwindows[name] = mclass(parent, *params)
+        s = self.subwindows[name]
+        s.show()
+        s.raise_()
+        return s
 
     def getCacheData(self):
         """

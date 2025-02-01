@@ -135,17 +135,13 @@ class MHMaterialWindow(QWidget):
         self.close()
 
     def edit_call(self):
-        mw = self.parent.material_editor
         if isinstance(self.asset, object3d):
             obj = self.asset
         else:
             obj = self.asset.obj
 
-        if mw is None:
-            mw = self.parent.material_editor = MHMaterialEditor(self.parent, obj)
-        else:
-            mw.updateWidgets(obj)
-        mw.show()
+        mw = self.glob.showSubwindow("materialedit", self.parent, MHMaterialEditor, obj)
+        mw.updateWidgets(obj)
         mw.activateWindow()
         self.close()
 

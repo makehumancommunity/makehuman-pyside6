@@ -12,6 +12,14 @@
 	},
 	"pose-skeleton": "default.mhskel",
 	"mhm": "base.mhm",
+	"measure": {
+		"gender":"macrodetails/Gender",
+		"size":  "none",
+		"chest": "measure/measure-bust-circ-decr|incr",
+		"waist": "measure/measure-waist-circ-decr|incr",
+		"hips":  "measure/measure-hips-circ-decr|incr",
+		"underbust": "measure/measure-underbust-circ-decr|incr"
+	},
 	"modifier-presets": {
 		"macrodetails/Gender": 0.5,
 		"macrodetails/Age": 0.5,

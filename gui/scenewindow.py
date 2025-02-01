@@ -13,13 +13,13 @@ class MHSceneWindow(QWidget):
     """
     Message window to display scene setup
     """
-    def __init__(self, parent, view):
+    def __init__(self, parent):
         super().__init__()
         self.parent = parent
         self.env = parent.env
         self.glob = parent.glob
-        self.view = view
-        self.light = view.light
+        self.view = self.glob.openGLWindow 
+        self.light = self.view.light
         y1 = self.light.min_coords[1]
         y2 = self.light.max_coords[1]
         self.setWindowTitle("Scene and Lighting")
@@ -145,10 +145,6 @@ class MHSceneWindow(QWidget):
         layout.addLayout(hlayout)
         self.setLayout(layout)
         self.getValues()
-
-    def newView(self, view):
-        self.view = view
-        #self.light = view.light
 
     def xzdisplay(self, x,y ):
         x = (x - 0.5 ) * 100 / self._volume[0]

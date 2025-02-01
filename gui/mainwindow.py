@@ -8,6 +8,7 @@ from gui.prefwindow import  MHPrefWindow
 from gui.logwindow import  MHLogWindow
 from gui.infowindow import  MHInfoWindow
 from gui.memwindow import  MHMemWindow
+from gui.measurewindow import MHCharMeasWindow
 from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport, ExportLeftPanel, ExportRightPanel
@@ -33,14 +34,8 @@ class MHMainWindow(QMainWindow):
         env = glob.env
         self.glob = glob
 
-        self.pref_window = None
-        self.mem_window = None
-        self.scene_window = None
         self.material_window = None
-        self.material_editor = None
         self.asset_window = None
-        self.info_window = None
-        self.log_window = None
         self.prog_window = None     # will hold the progress bar
 
         self.leftColumn = None
@@ -63,7 +58,7 @@ class MHMainWindow(QMainWindow):
         self.expressionfilter = None
         self.bckproc = None         # background process is running
 
-        self.tool_mode = 0          # 0 = files, 1 = modelling, 2 = equipment, 3 = pose, 4 = render, 10 = help
+        self.tool_mode = 0          # 0 = files, 1 = modelling, 2 = equipment, 3 = pose, 4 = render, 10 = information
         self.category_mode = 0      # the categories according to tool_mode
 
         self.equipment = [
@@ -136,14 +131,17 @@ class MHMainWindow(QMainWindow):
         about_act.triggered.connect(self.info_call)
 
         file_menu = menu_bar.addMenu("&File")
-        mem_act = file_menu.addAction("MemInfo")
-        mem_act.triggered.connect(self.memory_call)
-
         load_act = file_menu.addAction("Load Model")
         load_act.triggered.connect(self.loadmhm_call)
 
         save_act = file_menu.addAction("Save Model")
         save_act.triggered.connect(self.savemhm_call)
+
+        exp_act = file_menu.addAction("Export Model")
+        exp_act.triggered.connect(self.exportmhm_call)
+
+        down_act = file_menu.addAction("Download Assets")
+        down_act.triggered.connect(self.download_call)
 
         quit_act = file_menu.addAction("Quit")
         quit_act.triggered.connect(self.quit_call)
@@ -207,29 +205,36 @@ class MHMainWindow(QMainWindow):
         act_menu.addAction(self.deb_act)
         self.deb_act.triggered.connect(self.deb_cam)
 
-        help_menu = menu_bar.addMenu("&Help")
-        entry = help_menu.addAction("Local OpenGL Information")
+        info_menu = menu_bar.addMenu("&Information")
+
+        meas_act = info_menu.addAction("Character Info")
+        meas_act.triggered.connect(self.measure_call)
+
+        mem_act = info_menu.addAction("MemInfo")
+        mem_act.triggered.connect(self.memory_call)
+
+        entry = info_menu.addAction("Local OpenGL Information")
         entry.triggered.connect(self.glinfo_call)
 
-        entry = help_menu.addAction("Used library versions")
+        entry = info_menu.addAction("Used library versions")
         entry.triggered.connect(self.vers_call)
 
-        entry = help_menu.addAction("License")
+        entry = info_menu.addAction("License")
         entry.triggered.connect(self.lic_call)
-        lics = help_menu.addMenu("3rd Party licenses")
+        lics = info_menu.addMenu("3rd Party licenses")
         for elem in ["PySide6", "PyOpenGL", "NumPy"]:
             entry = lics.addAction(elem)
             entry.triggered.connect(self.lic_call)
 
-        entry = help_menu.addAction("Credits")
+        entry = info_menu.addAction("Credits")
         entry.triggered.connect(self.lic_call)
 
         if "support_urls" in self.env.release_info:
             for elem in self.env.release_info["support_urls"]:
                 urlname = self.env.release_info["support_urls"][elem]
                 if urlname in self.env.release_info:
-                    entry = help_menu.addAction(elem)
-                    entry.triggered.connect(self.help_call)
+                    entry = info_menu.addAction(elem)
+                    entry.triggered.connect(self.url_info_call)
 
         if self.glob.baseClass is not None:
             self.createImageSelection()
@@ -648,42 +653,27 @@ class MHMainWindow(QMainWindow):
                 self.setToolModeAndPanel(3, n)
                 break
 
+    # open sub-windows
+    #
     def pref_call(self):
-        """
-        show preferences window
-        """
-        if self.pref_window is None:
-            self.pref_window = MHPrefWindow(self)
-        self.pref_window.show()
-        self.pref_window.raise_()
+        self.glob.showSubwindow("pref", self, MHPrefWindow)
 
     def log_call(self):
-        """
-        show logfiles window
-        """
-        if self.log_window is None:
-            self.log_window = MHLogWindow(self)
-        self.log_window.show()
-        self.log_window.raise_()
+        self.glob.showSubwindow("log", self, MHLogWindow)
 
     def memory_call(self):
-        """
-        show memory window
-        """
-        if self.mem_window is None:
-            self.mem_window = MHMemWindow(self)
-        self.mem_window.show()
-        self.mem_window.raise_()
+        self.glob.showSubwindow("memory", self, MHMemWindow)
+
+    def measure_call(self):
+        self.glob.showSubwindow("measure", self, MHCharMeasWindow)
+
+    def info_call(self):
+        self.glob.showSubwindow("about", self.glob, MHInfoWindow)
 
     def scene_call(self):
-        """
-        show scene window
-        """
-        if self.scene_window is None:
-            self.scene_window = MHSceneWindow(self, self.graph.view)
-        self.scene_window.show()
-        self.scene_window.raise_()
+        self.glob.showSubwindow("scene", self, MHSceneWindow)
 
+    # 
     def changesLost(self, text):
         confirmed = 1
         if self.glob.project_changed:
@@ -744,16 +734,16 @@ class MHMainWindow(QMainWindow):
         if self.glob.baseClass is not None:
             self.setToolModeAndPanel(0, 2)
 
+    def exportmhm_call(self):
+        if self.glob.baseClass is not None:
+            self.setToolModeAndPanel(0, 3)
+
+    def download_call(self):
+        if self.glob.baseClass is not None:
+            self.setToolModeAndPanel(0, 4)
+
     def initParams(self):
         self.graph.getFocusText()
-
-    def info_call(self):
-        """
-        show about/information window
-        """
-        if self.info_window is None:
-            self.info_window = MHInfoWindow(self.glob)
-        self.info_window.show()
 
     def reset_call(self):
         if self.glob.Targets is not None:
@@ -956,7 +946,7 @@ class MHMainWindow(QMainWindow):
             else:
                 ErrorBox(self.central_widget, self.env.last_error)
 
-    def help_call(self):
+    def url_info_call(self):
         """
         open an URL
         """
