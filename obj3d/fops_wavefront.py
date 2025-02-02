@@ -118,7 +118,7 @@ def importWaveFront(path, obj):
 
     n_origverts = n_verts = len(verts) # number of vertices, start with the number we have, will increased in case we need new ones
     n_uvs = len(uvs)
-    vertex_uv = np.full(n_verts, -1, dtype=np.uint32)
+    vertex_uv = np.full(n_verts, 0xffffffff, dtype=np.uint32)
 
     uvsize = n_verts*3      # try to find a buffer sufficient for the uv-values
     max_uv = n_uvs * 3 
