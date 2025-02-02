@@ -21,6 +21,7 @@ from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
 from core.apisocket import apiSocket
 from core.attached_asset import attachedAsset
+from core.randomizer import TargetRandomizer
 from opengl.info import GLDebug
 
 import os
@@ -191,6 +192,9 @@ class MHMainWindow(QMainWindow):
         base_act.triggered.connect(self.base_call)
         morph_act = tools_menu.addAction("Change Character")
         morph_act.triggered.connect(self.morph_call)
+
+        morph_act = tools_menu.addAction("Randomize Character (no effect)")
+        morph_act.triggered.connect(self.random_call)
 
         self.equip = tools_menu.addMenu("Equipment")
         self.animenu = tools_menu.addMenu("Animation")
@@ -638,6 +642,10 @@ class MHMainWindow(QMainWindow):
 
     def morph_call(self):
         self.setToolModeAndPanel(1, 0)
+
+    def random_call(self):
+        tr = TargetRandomizer(self.glob)
+        tr.test()
 
     def equip_call(self):
         s = self.sender()

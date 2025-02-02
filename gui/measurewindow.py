@@ -39,18 +39,24 @@ class MHCharMeasWindow(QWidget):
         layout.addLayout(hlayout)
         self.setLayout(layout)
 
-    def addOrReplace(self, val, name, text):
+    def addOrReplace(self, val, name, text, tip=None):
         self.values[name] = val
         if name in self.measures:
             self.measures[name].setText(text)
         else:
             self.measures[name] = QLabel(text)
+            if tip:
+                self.measures[name].setToolTip(tip)
             self.glayout.addWidget(QLabel(name), self.maxm, 0)
             self.glayout.addWidget(self.measures[name], self.maxm, 1)
             self.maxm += 1
 
     def femaleSpecial(self):
-        if "gender" in self.values and self.values["gender"] < 50.0:
+        bratip = "Cup size will be displayed for female character with a minimum age of 8 years only.<br>The cup size is a letter, which is calculated by comparison of bust and underbust values.<br>"
+        calcCM = "The number indicates the the best fitting band size (similar to underbust) in cm."
+        calcIN = "The number indicates the the best fitting band size (similar to underbust) in inch."
+
+        if "gender" in self.values and self.values["gender"] < 50.0 and "age" in self.values and self.values["age"] > 7:
             if "chest" in  self.values and "underbust" in self.values:
                 bust = self.values["chest"] * 10
                 underbust = self.values["underbust"] * 10
@@ -74,9 +80,9 @@ class MHCharMeasWindow(QWidget):
             text1 = "none"
             text2 = "none"
             text3 = "none"
-        self.addOrReplace(0.0, "EU cup-size", text1)
-        self.addOrReplace(0.0, "US cup-size", text2)
-        self.addOrReplace(0.0, "UK cup-size", text3)
+        self.addOrReplace(0.0, "EU cup size", text1, bratip + calcCM)
+        self.addOrReplace(0.0, "US cup size", text2, bratip + calcIN)
+        self.addOrReplace(0.0, "UK cup size", text3, bratip + calcIN)
 
     def calculateTargets(self):
         bc = self.glob.baseClass
@@ -92,8 +98,15 @@ class MHCharMeasWindow(QWidget):
                         text = self.env.toUnit(val)
                         self.addOrReplace(val, name, text)
                     elif name == "gender":
-                        text = "female" if t.value < 50.0 else "male"
+                        text = "female" if t.value < 50.0 else "male"  # simple formula
                         self.addOrReplace(t.value, name, text)
+                    elif name == "age":
+                        if t.virtual_value is not None:
+                            val =  t.virtual_value
+                        else:
+                            val = t.value
+                        text = str(val)
+                        self.addOrReplace(val, name, text)
                 elif name == "size":
                     val=bc.baseMesh.getHeightInUnits()
                     text = self.env.toUnit(val)

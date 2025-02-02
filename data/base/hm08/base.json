@@ -14,6 +14,7 @@
 	"mhm": "base.mhm",
 	"measure": {
 		"gender":"macrodetails/Gender",
+		"age": "macrodetails/Age",
 		"size":  "none",
 		"chest": "measure/measure-bust-circ-decr|incr",
 		"waist": "measure/measure-waist-circ-decr|incr",

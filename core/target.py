@@ -41,6 +41,7 @@ class Modelling(ScaleComboItem):
         self.sym = None       # symmetric side (left, right)
         self.isRSide = False    # bool for side
         self.measure = None     # is measurement needed?
+        self.virtual_val = None # changed value by formula
         self.pattern = "None"
 
     def __str__(self):
@@ -141,6 +142,7 @@ class Modelling(ScaleComboItem):
     def printSlot(self):
         val =self.value / 100
         x =eval(self.formula)
+        self.virtual_value = x
         l = self.formatText.format(x)
         return(l)
 
