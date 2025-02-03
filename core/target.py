@@ -34,6 +34,7 @@ class Modelling(ScaleComboItem):
         self.incr = None    # target "incr"
         self.decr = None    # target "decr"
         self.macro = None   # macro target
+        self.default = 0.0  # default value
         self.m_influence = []   # all influences
         self.barycentric = None # map slider
         self.opposite = True # change to True

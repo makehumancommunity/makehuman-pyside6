@@ -1,6 +1,8 @@
 #
 # this is still a testclass
 #
+from numpy import random
+
 class TargetRandomizer():
     def __init__(self, glob):
         self.glob = glob
@@ -8,6 +10,7 @@ class TargetRandomizer():
         self.nonsymgroups = {}
         self.targetlist = []
         self.symmetric = False
+        self.weirdofactor = 0.2
 
     def setGroups(self, groups):
         self.groups = {}
@@ -21,6 +24,9 @@ class TargetRandomizer():
             else:
                 self.groups[elem] = None
 
+    def setWeirdoFactor(self, factor):
+        self.weirdofactor = factor
+
     def setSym(self, ibool):
         self.symmetric = ibool
 
@@ -32,6 +38,25 @@ class TargetRandomizer():
     def setRules(self, target, rule):
         # would be for things like pregnant / or create two passes (first age and gender, then rest)
         pass
+
+    def randomBaryCentric(self):
+        x = random.rand()
+        y = random.rand() * (1-x)
+        z = 1 - x -y
+        return [x, y, z]
+
+    def randomValue(self, target):
+        if target.decr is None or target.incr is None:
+            if target.default != 0.0:
+                modrange = 100-target.default if target.default > 50.0 else target.default
+                x = random.rand() * modrange * self.weirdofactor + target.default
+            else:
+                x = random.rand() * 100 * self.weirdofactor
+            print ("single sided")
+            return x
+
+        x = (100 - random.rand() * 200) * self.weirdofactor
+        return x
 
     def addTarget(self, key, target):
         #
@@ -49,10 +74,24 @@ class TargetRandomizer():
         #
         if target.sym:
             if target.isRSide:
-                self.targetlist.append([key, target])
-                self.targetlist.append(["opposite", target.sym])
+                oppositetarget = self.glob.targetRepo[target.sym]
+                rnd = self.randomValue(target)
+                self.targetlist.append([key, target, rnd])
+                self.targetlist.append(["opposite", oppositetarget, rnd])
         else:
-            self.targetlist.append([key, target])
+            if target.barycentric is not None:
+                bari = self.randomBaryCentric()
+                # TODO does not yet work
+                """
+                i = 0
+                for elem in target.barycentric:
+                    elem["value"] = bari[i]
+                    i += 1
+                    #self.targetlist.append([elem["text"], elem["name"], bari[i]])
+                """
+            else:
+                rnd = self.randomValue(target)
+                self.targetlist.append([key, target, rnd])
 
     def do(self):
         if self.glob.baseClass is None:
@@ -79,11 +118,22 @@ class TargetRandomizer():
                                 self.addTarget(key, target)
 
         for elem in self.targetlist:
-            print (elem[0], elem[1])
+            print (elem[0], elem[1], elem[2])
 
     def test(self):
-        self.setGroups(["shapes|female shapes", "shapes|female hormonal", "gender|breast", "face|right ear", "face|left ear", "torso"])
+        # groups: 
+        #self.setGroups(["shapes|female shapes", "shapes|female hormonal", "gender|breast", "face|right ear", "face|left ear", "torso"])
+        self.setGroups(["main", "arms", "torso", "face", "legs"])
         self.setSym(True)
+        self.setWeirdoFactor(0.5)
         self.setNonSymGroups(["trans-in", "trans-out"])
         self.do()
+
+        self.glob.Targets.reset()
+        for elem in self.targetlist:
+            elem[1].value = elem[2]
+
+        self.glob.baseClass.parApplyTargets()
+
+
 

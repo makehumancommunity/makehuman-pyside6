@@ -193,8 +193,8 @@ class MHMainWindow(QMainWindow):
         morph_act = tools_menu.addAction("Change Character")
         morph_act.triggered.connect(self.morph_call)
 
-        morph_act = tools_menu.addAction("Randomize Character (no effect)")
-        morph_act.triggered.connect(self.random_call)
+        random_act = tools_menu.addAction("Randomize Character (test, destructive)")
+        random_act.triggered.connect(self.random_call)
 
         self.equip = tools_menu.addMenu("Equipment")
         self.animenu = tools_menu.addMenu("Animation")
