@@ -636,6 +636,7 @@ class baseClass():
 
     def finishApply(self):
         self.glob.openGLWindow.Tweak()
+        self.glob.midColumn.setSizeInfo()
         self.glob.parallel = None
 
     def parApplyTargets(self):

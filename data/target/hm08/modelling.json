@@ -170,7 +170,8 @@
 		"group": "gender|breast",
 		"icon": "breastfirmness.png",
 		"macro": "breast/BreastFirmness",
-		"macro_influence": [4]
+		"macro_influence": [4],
+		"default": 0.5
 	},
 	"Breast PosVer": {
 		"name": "Vertical Position",
@@ -183,7 +184,8 @@
 		"group": "gender|breast",
 		"icon": "breastsize.png",
 		"macro": "breast/BreastSize",
-		"macro_influence": [4]
+		"macro_influence": [4],
+		"default": 0.5
 	},
 	"Breast Pointiness": {
 		"group": "gender|breast",

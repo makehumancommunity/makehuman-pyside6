@@ -9,8 +9,12 @@ class TargetRandomizer():
         self.groups = {}
         self.nonsymgroups = {}
         self.targetlist = []
+        self.dedup = {}
         self.symmetric = False
+        self.idealistic = False
         self.weirdofactor = 0.2
+        self.gender = 0
+        self.fromDefault = True
 
     def setGroups(self, groups):
         self.groups = {}
@@ -30,6 +34,20 @@ class TargetRandomizer():
     def setSym(self, ibool):
         self.symmetric = ibool
 
+    def setIdeal(self, ibool):
+        self.idealistic = ibool
+
+    def setFromDefault(self, ibool):
+        self.fromDefault = ibool
+
+    def setGender(self, text):
+        if text.startswith("f"):
+            self.gender = 1
+        elif text.startswith("m"):
+            self.gender = 2
+        else:
+            self.gender = 0
+
     def setNonSymGroups(self, groups):
         self.nonsymgroups = {}
         for elem in groups:
@@ -37,6 +55,7 @@ class TargetRandomizer():
 
     def setRules(self, target, rule):
         # would be for things like pregnant / or create two passes (first age and gender, then rest)
+        # also sth like when male, no gender breast
         pass
 
     def randomBaryCentric(self):
@@ -52,7 +71,6 @@ class TargetRandomizer():
                 x = random.rand() * modrange * self.weirdofactor + target.default
             else:
                 x = random.rand() * 100 * self.weirdofactor
-            print ("single sided")
             return x
 
         x = (100 - random.rand() * 200) * self.weirdofactor
@@ -60,8 +78,21 @@ class TargetRandomizer():
 
     def addTarget(self, key, target):
         #
+        # special case, only males or females, or only ideal characters
+        #
+        if self.gender != 0 and target.name == "Gender":
+            val = 0 if  self.gender == 1 else 100
+            self.targetlist.append([key, target, val])
+            return
+
+        if self.idealistic and target.name == "Proportions":
+            self.targetlist.append([key, target, 100])
+            return
+
+        #
         # if symmetric, avoid non-symmetric targets
         #
+
         if self.symmetric:
             for s in self.nonsymgroups:
                 if (target.decr is not None and target.decr.name.endswith(s)) or \
@@ -79,16 +110,19 @@ class TargetRandomizer():
                 self.targetlist.append([key, target, rnd])
                 self.targetlist.append(["opposite", oppositetarget, rnd])
         else:
+            print (target.name)
             if target.barycentric is not None:
                 bari = self.randomBaryCentric()
                 # TODO does not yet work
-                """
                 i = 0
                 for elem in target.barycentric:
-                    elem["value"] = bari[i]
-                    i += 1
-                    #self.targetlist.append([elem["text"], elem["name"], bari[i]])
-                """
+                    sname = elem["name"]
+                    if sname not in self.dedup:
+                        self.dedup[sname] =1
+                        print (elem)
+                        bartarget = self.glob.targetRepo[elem["name"]]
+                        self.targetlist.append([elem["name"], bartarget, bari[i] * 100])
+                        i += 1
             else:
                 rnd = self.randomValue(target)
                 self.targetlist.append([key, target, rnd])
@@ -101,7 +135,11 @@ class TargetRandomizer():
             print ("No Targets")
             return
 
+        if self.fromDefault:
+            self.glob.Targets.reset()
+
         self.targetlist = []
+        self.dedup = {}
 
         for key, target in self.glob.targetRepo.items():
             tg = target.group
@@ -117,20 +155,21 @@ class TargetRandomizer():
                             if subgroup == sub:
                                 self.addTarget(key, target)
 
-        for elem in self.targetlist:
-            print (elem[0], elem[1], elem[2])
-
     def test(self):
         # groups: 
         #self.setGroups(["shapes|female shapes", "shapes|female hormonal", "gender|breast", "face|right ear", "face|left ear", "torso"])
+        #self.setGroups(["main", "arms", "torso", "face", "legs", "gender|breast"])
         self.setGroups(["main", "arms", "torso", "face", "legs"])
         self.setSym(True)
-        self.setWeirdoFactor(0.5)
+        self.setIdeal(True)
+        self.setFromDefault(False) # no reset, reuse what is set manually
+        self.setGender("female")
+        self.setWeirdoFactor(0.2)
         self.setNonSymGroups(["trans-in", "trans-out"])
         self.do()
 
-        self.glob.Targets.reset()
         for elem in self.targetlist:
+            print (elem[0], elem[1], elem[2])
             elem[1].value = elem[2]
 
         self.glob.baseClass.parApplyTargets()
