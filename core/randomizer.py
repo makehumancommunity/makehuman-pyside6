@@ -1,20 +1,21 @@
 #
-# this is still a testclass
+# class for randomizing a character
 #
 from numpy import random
 
 class TargetRandomizer():
     def __init__(self, glob):
         self.glob = glob
-        self.groups = {}
-        self.nonsymgroups = {}
-        self.targetlist = []
-        self.dedup = {}
-        self.symmetric = False
-        self.idealistic = False
-        self.weirdofactor = 0.2
-        self.gender = 0
-        self.fromDefault = True
+        self.groups = {}            # all used groups
+        self.nonsymgroups = {}      # precalculated non-symmetric groups
+        self.symmetric = False      # symmetric: full symmetry
+        self.idealistic = False     # true: proportions set to 100 %
+        self.gender = 0             # 0 is both, 1 female, 2 male
+        self.fromDefault = True     # use no standard values for all non-mentioned targets
+        self.weirdofactor = 0.2     # value between 0 and 1 how much randomization should be used
+
+        self.targetlist = []        # list of evaluated targets
+        self.barycentrics = {}      # used of barycentric targets
 
     def setGroups(self, groups):
         self.groups = {}
@@ -68,12 +69,12 @@ class TargetRandomizer():
         if target.decr is None or target.incr is None:
             if target.default != 0.0:
                 modrange = 100-target.default if target.default > 50.0 else target.default
-                x = random.rand() * modrange * self.weirdofactor + target.default
+                x = (random.rand() * modrange * self.weirdofactor + target.default) / 100.0
             else:
-                x = random.rand() * 100 * self.weirdofactor
+                x = random.rand() * self.weirdofactor
             return x
 
-        x = (100 - random.rand() * 200) * self.weirdofactor
+        x = (1 - random.rand() * 2) * self.weirdofactor
         return x
 
     def addTarget(self, key, target):
@@ -81,12 +82,12 @@ class TargetRandomizer():
         # special case, only males or females, or only ideal characters
         #
         if self.gender != 0 and target.name == "Gender":
-            val = 0 if  self.gender == 1 else 100
+            val = 0.0 if  self.gender == 1 else 1.0
             self.targetlist.append([key, target, val])
             return
 
         if self.idealistic and target.name == "Proportions":
-            self.targetlist.append([key, target, 100])
+            self.targetlist.append([key, target, 1.0])
             return
 
         #
@@ -110,18 +111,16 @@ class TargetRandomizer():
                 self.targetlist.append([key, target, rnd])
                 self.targetlist.append(["opposite", oppositetarget, rnd])
         else:
-            print (target.name)
             if target.barycentric is not None:
-                bari = self.randomBaryCentric()
-                # TODO does not yet work
-                i = 0
-                for elem in target.barycentric:
-                    sname = elem["name"]
-                    if sname not in self.dedup:
-                        self.dedup[sname] =1
-                        print (elem)
+                if target.name not in self.barycentrics:
+                    bari = self.randomBaryCentric()
+                    self.barycentrics[target.name] = target
+                    print ("Targetname:", target.name)
+                    i = 0
+                    for elem in target.barycentric:
+                        sname = elem["name"]
                         bartarget = self.glob.targetRepo[elem["name"]]
-                        self.targetlist.append([elem["name"], bartarget, bari[i] * 100])
+                        self.targetlist.append([elem["name"], bartarget, bari[i]])
                         i += 1
             else:
                 rnd = self.randomValue(target)
@@ -130,16 +129,16 @@ class TargetRandomizer():
     def do(self):
         if self.glob.baseClass is None:
             print ("No base")
-            return
+            return False
         if self.glob.targetRepo is None:
             print ("No Targets")
-            return
+            return False
 
         if self.fromDefault:
             self.glob.Targets.reset()
 
         self.targetlist = []
-        self.dedup = {}
+        self.barycentrics = {}
 
         for key, target in self.glob.targetRepo.items():
             tg = target.group
@@ -154,6 +153,14 @@ class TargetRandomizer():
                         for subgroup in self.groups[group]:
                             if subgroup == sub:
                                 self.addTarget(key, target)
+        return True
+
+    def apply(self):
+        for elem in self.targetlist:
+            self.glob.Targets.setTargetByName(elem[0], elem[2])
+        for elem, target in self.barycentrics.items():
+            target.setBaryCentricDiffuse()
+        self.glob.baseClass.parApplyTargets()
 
     def test(self):
         # groups: 
@@ -166,13 +173,7 @@ class TargetRandomizer():
         self.setGender("female")
         self.setWeirdoFactor(0.2)
         self.setNonSymGroups(["trans-in", "trans-out"])
-        self.do()
-
-        for elem in self.targetlist:
-            print (elem[0], elem[1], elem[2])
-            elem[1].value = elem[2]
-
-        self.glob.baseClass.parApplyTargets()
-
+        if self.do():
+            self.apply()
 
 

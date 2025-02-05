@@ -646,6 +646,8 @@ class MHMainWindow(QMainWindow):
     def random_call(self):
         tr = TargetRandomizer(self.glob)
         tr.test()
+        if self.tool_mode == 1:
+            self.redrawNewCategory(self.targetfilter)
 
     def equip_call(self):
         s = self.sender()
