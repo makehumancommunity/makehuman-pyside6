@@ -9,8 +9,8 @@ class TargetRandomizer():
         self.groups = {}            # all used groups
         self.nonsymgroups = {}      # precalculated non-symmetric groups
         self.symmetric = False      # symmetric: full symmetry
-        self.idealistic = False     # true: proportions set to 100 %
-        self.gender = 0             # 0 is both, 1 female, 2 male
+        self.ideaMin = 0.5          # minmum ideal value
+        self.gender = 0             # 0 is both, 1 female, 2 male, 3 male or female
         self.fromDefault = True     # use no standard values for all non-mentioned targets
         self.weirdofactor = 0.2     # value between 0 and 1 how much randomization should be used
 
@@ -35,19 +35,14 @@ class TargetRandomizer():
     def setSym(self, ibool):
         self.symmetric = ibool
 
-    def setIdeal(self, ibool):
-        self.idealistic = ibool
+    def setIdealMinimum(self, value):
+        self.idealMin = value
 
     def setFromDefault(self, ibool):
         self.fromDefault = ibool
 
-    def setGender(self, text):
-        if text.startswith("f"):
-            self.gender = 1
-        elif text.startswith("m"):
-            self.gender = 2
-        else:
-            self.gender = 0
+    def setGender(self, gtype):
+        self.gender = gtype
 
     def setNonSymGroups(self, groups):
         self.nonsymgroups = {}
@@ -77,17 +72,36 @@ class TargetRandomizer():
         x = (1 - random.rand() * 2) * self.weirdofactor
         return x
 
+    def randomGender(self, key, target):
+        #
+        # handle gender
+        #
+        if self.gender == 0:
+            val  = random.rand() # weirdo factor to aviod in betweens?
+        elif self.gender == 1:
+            val = 0.0
+        elif self.gender == 2:
+            val = 1.0
+        else:
+            val = round(random.rand())
+        print ("Gender:", val)
+        self.targetlist.append([key, target, val])
+
+    def randomProportions(self, key, target):
+        factor = 1.0 - self.idealMin
+        val = random.rand() * factor + self.idealMin
+        self.targetlist.append([key, target, val])
+
     def addTarget(self, key, target):
         #
-        # special case, only males or females, or only ideal characters
+        # special cases first
         #
-        if self.gender != 0 and target.name == "Gender":
-            val = 0.0 if  self.gender == 1 else 1.0
-            self.targetlist.append([key, target, val])
+        if target.name == "Gender":
+            self.randomGender(key, target)
             return
 
-        if self.idealistic and target.name == "Proportions":
-            self.targetlist.append([key, target, 1.0])
+        if target.name == "Proportions":
+            self.randomProportions(key, target)
             return
 
         #
@@ -158,22 +172,10 @@ class TargetRandomizer():
     def apply(self):
         for elem in self.targetlist:
             self.glob.Targets.setTargetByName(elem[0], elem[2])
-        for elem, target in self.barycentrics.items():
-            target.setBaryCentricDiffuse()
+        #
+        # extra for skin-color
+        for target in self.glob.targetRepo.values():
+            if target.barycentric is not None:
+                target.setBaryCentricDiffuse()
         self.glob.baseClass.parApplyTargets()
-
-    def test(self):
-        # groups: 
-        #self.setGroups(["shapes|female shapes", "shapes|female hormonal", "gender|breast", "face|right ear", "face|left ear", "torso"])
-        #self.setGroups(["main", "arms", "torso", "face", "legs", "gender|breast"])
-        self.setGroups(["main", "arms", "torso", "face", "legs"])
-        self.setSym(True)
-        self.setIdeal(True)
-        self.setFromDefault(False) # no reset, reuse what is set manually
-        self.setGender("female")
-        self.setWeirdoFactor(0.2)
-        self.setNonSymGroups(["trans-in", "trans-out"])
-        if self.do():
-            self.apply()
-
 

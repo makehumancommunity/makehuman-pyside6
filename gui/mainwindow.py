@@ -11,6 +11,7 @@ from gui.memwindow import  MHMemWindow
 from gui.measurewindow import MHCharMeasWindow
 from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
+from gui.randomwindow import RandomForm
 from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport, ExportLeftPanel, ExportRightPanel
 from gui.poseactions import AnimPlayer, AnimMode, AnimExpressionEdit
 from gui.slider import ScaleComboArray
@@ -21,7 +22,6 @@ from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
 from core.apisocket import apiSocket
 from core.attached_asset import attachedAsset
-from core.randomizer import TargetRandomizer
 from opengl.info import GLDebug
 
 import os
@@ -102,6 +102,8 @@ class MHMainWindow(QMainWindow):
                 { "button": None, "icon": "f_export.png", "tip": "export character", "func": self.callCategory},
                 { "button": None, "icon": "f_download.png", "tip": "download assets", "func": self.callCategory}
             ], [ 
+                { "button": None, "icon": "measurement.png", "tip": "modelling by category", "func": self.callCategory},
+                { "button": None, "icon": "randomhuman.png", "tip": "randomize", "func": self.callCategory}
             ], [
                 { "button": None, "icon": "eq_clothes.png", "tip": "Clothes", "func": self.callCategory },
                 { "button": None, "icon": "eq_hair.png", "tip": "Hair", "func": self.callCategory },
@@ -193,7 +195,7 @@ class MHMainWindow(QMainWindow):
         morph_act = tools_menu.addAction("Change Character")
         morph_act.triggered.connect(self.morph_call)
 
-        random_act = tools_menu.addAction("Randomize Character (test, destructive)")
+        random_act = tools_menu.addAction("Randomize Character")
         random_act.triggered.connect(self.random_call)
 
         self.equip = tools_menu.addMenu("Equipment")
@@ -448,15 +450,22 @@ class MHMainWindow(QMainWindow):
 
         
         if self.tool_mode == 1:
-            if self.glob.targetCategories is not None:
+            if self.glob.targetCategories is None:
+                self.env.logLine(1, self.env.last_error )
+                return
+            if self.category_mode == 0:
                 self.leftColumn.setTitle("Modify character :: categories")
                 self.qTree = MHTreeView(self.glob.targetCategories, "Modelling", self.redrawNewCategory, None)
                 self.targetfilter = self.qTree.getStartPattern()
                 self.LeftBox.addWidget(self.qTree)
                 row = self.buttonRow(self.model_buttons)
                 self.LeftBox.addLayout(row)
+                return
             else:
-                self.env.logLine(1, self.env.last_error )
+                self.leftColumn.setTitle("Random character :: parameters")
+                self.randForm = RandomForm(self, self.graph.view) 
+                self.LeftBox.addLayout(self.randForm)
+                return
 
         elif self.tool_mode == 2:
             self.leftColumn.setTitle("Character equipment :: filter")
@@ -569,7 +578,10 @@ class MHMainWindow(QMainWindow):
             else:
                 return False
         elif self.tool_mode == 1:
-            self.drawMorphPanel(text)
+            if self.category_mode == 0:
+                self.drawMorphPanel(text)
+            else:
+                return False
         elif self.tool_mode == 2:
             equip = self.equipment[self.category_mode]
             text = "Equipment, category: " + equip["name"]
@@ -644,10 +656,7 @@ class MHMainWindow(QMainWindow):
         self.setToolModeAndPanel(1, 0)
 
     def random_call(self):
-        tr = TargetRandomizer(self.glob)
-        tr.test()
-        if self.tool_mode == 1:
-            self.redrawNewCategory(self.targetfilter)
+        self.setToolModeAndPanel(1, 1)
 
     def equip_call(self):
         s = self.sender()
