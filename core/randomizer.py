@@ -11,11 +11,50 @@ class TargetRandomizer():
         self.symmetric = False      # symmetric: full symmetry
         self.ideaMin = 0.5          # minmum ideal value
         self.gender = 0             # 0 is both, 1 female, 2 male, 3 male or female
+        self.gendName = None        # name for "gender" Macro/Slider
+        self.idealName = None       # name for "ideal" Macro/Slider
+        self.possibleGroups = {}    # possible groups from JSON file
         self.fromDefault = True     # use no standard values for all non-mentioned targets
         self.weirdofactor = 0.2     # value between 0 and 1 how much randomization should be used
 
         self.targetlist = []        # list of evaluated targets
         self.barycentrics = {}      # used of barycentric targets
+        self.rules = {}
+
+        bc = self.glob.baseClass
+        bi = bc.baseInfo
+        grps = []
+        #
+        # get infos from base.json 
+        if "random" in bi:
+            m= bi["random"]
+            for name, key in m.items():
+                if name == "nonsym":
+                    self.setNonSymGroups(key)
+                elif name == "gender":
+                    self.gendName = key
+                elif name == "ideal":
+                    self.idealName = key
+                elif name == "groups":
+                    for sname, preselect in key.items():
+                        self.possibleGroups[sname] = preselect
+                        if preselect:
+                            grps.append(sname)
+                elif name == "rules":
+                    for rname, rule in key.items():
+                        self.rules[rname] = rule
+
+        self.setGroups(grps)
+        print (self.rules)
+
+    def hasGender(self):
+        return (self.gendName is not None)
+
+    def hasIdeal(self):
+        return (self.idealName is not None)
+
+    def getGroups(self):
+        return self.possibleGroups
 
     def setGroups(self, groups):
         self.groups = {}
@@ -49,10 +88,39 @@ class TargetRandomizer():
         for elem in groups:
             self.nonsymgroups[elem] = 1
 
-    def setRules(self, target, rule):
-        # would be for things like pregnant / or create two passes (first age and gender, then rest)
-        # also sth like when male, no gender breast
-        pass
+    def getTargetValue(self, name):
+
+        # first check in new values
+        #
+        for t in self.targetlist:
+            if t[1].name == name:
+                return t[2]
+
+        # then check standard values
+        #
+        for t in self.glob.targetRepo.values():
+            if t.name == name:
+                return t.value / 100
+
+        return None
+
+    def calculateRules(self, rule):
+        for name, condition in rule.items():
+            x = self.getTargetValue(name)
+            if x is None:
+                return False
+
+            if eval(condition) is False:
+                return False
+        return True
+
+    def applyRules(self):
+        for elem, rule in self.rules.items():
+            for t in self.targetlist:
+                if t[1].name == elem:
+                    if self.calculateRules(rule) is False:
+                        print ("Reset:", t[1].name)
+                        t[2] = 0.0
 
     def randomBaryCentric(self):
         x = random.rand()
@@ -77,7 +145,7 @@ class TargetRandomizer():
         # handle gender
         #
         if self.gender == 0:
-            val  = random.rand() # weirdo factor to aviod in betweens?
+            val  = random.rand() # weirdo factor to avoid in betweens?
         elif self.gender == 1:
             val = 0.0
         elif self.gender == 2:
@@ -96,11 +164,11 @@ class TargetRandomizer():
         #
         # special cases first
         #
-        if target.name == "Gender":
+        if target.name == self.gendName:
             self.randomGender(key, target)
             return
 
-        if target.name == "Proportions":
+        if target.name == self.idealName:
             self.randomProportions(key, target)
             return
 
@@ -123,13 +191,12 @@ class TargetRandomizer():
                 oppositetarget = self.glob.targetRepo[target.sym]
                 rnd = self.randomValue(target)
                 self.targetlist.append([key, target, rnd])
-                self.targetlist.append(["opposite", oppositetarget, rnd])
+                self.targetlist.append([target.sym, oppositetarget, rnd])
         else:
             if target.barycentric is not None:
                 if target.name not in self.barycentrics:
                     bari = self.randomBaryCentric()
                     self.barycentrics[target.name] = target
-                    print ("Targetname:", target.name)
                     i = 0
                     for elem in target.barycentric:
                         sname = elem["name"]
@@ -167,6 +234,7 @@ class TargetRandomizer():
                         for subgroup in self.groups[group]:
                             if subgroup == sub:
                                 self.addTarget(key, target)
+        self.applyRules()
         return True
 
     def apply(self):

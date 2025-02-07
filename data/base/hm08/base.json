@@ -21,6 +21,26 @@
 		"hips":  "measure/measure-hips-circ-decr|incr",
 		"underbust": "measure/measure-underbust-circ-decr|incr"
 	},
+	"random": {
+		"nonsym": ["trans-in", "trans-out"],
+		"gender": "Gender",
+		"ideal": "Proportions",
+		"groups": {
+			"main": true,
+			"face": true,
+			"torso": true,
+			"arms": true,
+			"legs": true, 
+			"gender|breast": false,
+			"shapes|female shapes": false,
+			"shapes|female hormonal": false,
+                	"shapes|male shapes": false,
+			"shapes|fale hormonal": false
+		},
+		"rules": {
+			"Stomach Pregnant": {"Gender": "x < 0.5", "Age": "0.2 < x < 0.75" }
+		}
+	},
 	"modifier-presets": {
 		"macrodetails/Gender": 0.5,
 		"macrodetails/Age": 0.5,

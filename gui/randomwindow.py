@@ -19,31 +19,34 @@ class RandomForm(QVBoxLayout):
         self.weirdofactor = 20
         self.idealfactor = 50
 
-        self.addWidget(QLabel("Gender:"))
-        self.gendelem = QComboBox()
-        self.gendelem.addItems(['any', 'female only', 'male only', 'male of female'])
-        self.gendelem.currentIndexChanged.connect(self.genderChanged)
-        self.addWidget(self.gendelem)
+        if self.tr.hasGender():
+            self.addWidget(QLabel("Gender:"))
+            self.gendelem = QComboBox()
+            self.gendelem.addItems(['any', 'female only', 'male only', 'male of female'])
+            self.gendelem.currentIndexChanged.connect(self.genderChanged)
+            self.addWidget(self.gendelem)
 
-        # TODO: flexible selection etc.
-        self.listWidget = QListWidget()
-        self.listWidget.setSelectionMode(QAbstractItemView.MultiSelection)
-        self.listWidget.setGeometry(QRect(10, 10, 211, 291))
-
-        for elem in ("main", "face", "torso", "arms", "legs", "gender|breast", "shapes|female shapes", "shapes|female hormonal", 
-                "shapes|male shapes", "shapes|fale hormonal"):
-            item = QListWidgetItem(elem)
-            self.listWidget.addItem(item)
-        self.listWidget.itemClicked.connect(self.groupChanged)
-        self.addWidget(self.listWidget)
+        groups = self.tr.getGroups()
+        if len(groups) > 0:
+            self.listWidget = QListWidget()
+            self.listWidget.setSelectionMode(QAbstractItemView.MultiSelection)
+            i = 0
+            for gname, preselect in groups.items():
+                item = QListWidgetItem(gname)
+                self.listWidget.addItem(item)
+                self.listWidget.item(i).setSelected(preselect)  # does not work on item?
+                i += 1
+            self.listWidget.itemClicked.connect(self.groupChanged)
+            self.addWidget(self.listWidget)
 
         self.weirdoelem = SimpleSlider("Weirdo factor: ", 0, 100, self.weirdoChanged)
         self.weirdoelem.setSliderValue(self.weirdofactor)
         self.addWidget(self.weirdoelem)
 
-        self.idealelem = SimpleSlider("Minimum ideal factor: ", 0, 100, self.idealChanged)
-        self.idealelem.setSliderValue(self.idealfactor)
-        self.addWidget(self.idealelem)
+        if self.tr.hasIdeal():
+            self.idealelem = SimpleSlider("Minimum ideal factor: ", 0, 100, self.idealChanged)
+            self.idealelem.setSliderValue(self.idealfactor)
+            self.addWidget(self.idealelem)
 
         self.symelem = QCheckBox("Symmetric character")
         self.symelem.setLayoutDirection(Qt.LeftToRight)
@@ -65,12 +68,8 @@ class RandomForm(QVBoxLayout):
         self.prepare()
 
     def prepare(self):
-        self.tr.setNonSymGroups(["trans-in", "trans-out"])
         self.tr.setFromDefault(self.reset)
         self.tr.setSym(self.symmetric)
-        for i in range(5):
-            self.listWidget.item(i).setSelected(True)
-        self.tr.setGroups(["main", "face", "torso", "arms", "legs"])
 
     def groupChanged(self):
         items = self.listWidget.selectedItems()
