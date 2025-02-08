@@ -635,6 +635,8 @@ class baseClass():
 
 
     def finishApply(self):
+        if self.pose_skeleton is not None:
+            self.pose_skeleton.newGeometry()
         self.glob.openGLWindow.Tweak()
         self.glob.midColumn.setSizeInfo()
         self.glob.parallel = None

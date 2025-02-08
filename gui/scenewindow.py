@@ -88,6 +88,7 @@ class MHSceneWindow(QWidget):
 
         # shader type
         #
+        vlayout.addStretch()
         self.phong = QRadioButton("Phong")
         self.blinn = QRadioButton("Blinn")
         self.phong.toggled.connect(self.setMethod)

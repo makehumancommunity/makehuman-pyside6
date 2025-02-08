@@ -11,7 +11,7 @@ from gui.memwindow import  MHMemWindow
 from gui.measurewindow import MHCharMeasWindow
 from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
-from gui.randomwindow import RandomForm
+from gui.randomwindow import RandomForm, RandomValues
 from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport, ExportLeftPanel, ExportRightPanel
 from gui.poseactions import AnimPlayer, AnimMode, AnimExpressionEdit
 from gui.slider import ScaleComboArray
@@ -260,6 +260,8 @@ class MHMainWindow(QMainWindow):
                 b["button"] = IconButton(offset+n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"], checkable=True)
         self.markSelectedButtons(self.category_buttons[0], self.category_buttons[0][0])
 
+        self.RandomValues = RandomValues(self.glob)
+
         self.createCentralWidget()
         self.setWindowTitle("default character")
 
@@ -463,7 +465,7 @@ class MHMainWindow(QMainWindow):
                 return
             else:
                 self.leftColumn.setTitle("Random character :: parameters")
-                self.randForm = RandomForm(self, self.graph.view) 
+                self.randForm = RandomForm(self, self.graph.view, self.RandomValues) 
                 self.LeftBox.addLayout(self.randForm)
                 return
 

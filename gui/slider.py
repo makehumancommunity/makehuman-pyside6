@@ -313,7 +313,6 @@ class SimpleSlider(QWidget):
         self.slider.setMaximum(maximum)
         self.slider.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
         self.slider.valueChanged.connect(self.sliderChanged)
-        layout.addStretch()
         self.setLayout(layout)
 
     def setEnable(self, value):
