@@ -115,7 +115,7 @@ class MHMaterialWindow(QWidget):
                 # TODO: atm only changing material
 
                 obj.openGL.setMaterial(obj.material)
-                self.parent.graph.view.Tweak()
+                self.glob.openGLWindow.Tweak()
                 self.oldmaterial = matelem.filename
 
         self.picwidget.layout.deselectAllWidgets()
@@ -149,7 +149,7 @@ class MHAssetWindow(QWidget):
     """
     AssetWindow
     """
-    def __init__(self, parent, changefunc, asset, selected, empty, proposals=[]):
+    def __init__(self, parent, changefunc, asset, empty, proposals=[]):
         super().__init__()
         self.parent = parent
         self.changefunc = changefunc
@@ -159,14 +159,13 @@ class MHAssetWindow(QWidget):
         self.view = self.parent.graph.view
         self.emptyIcon = empty
         self.matPath = None
-        print(selected)
         self.icon = None
-        self.thumb = selected.icon
+        self.thumb = asset.thumbfile
         self.origtags = ""
         self.origlist = []
         self.owntags = []
 
-        self.currentMatPath(selected.filename)
+        self.currentMatPath(asset.path)
 
         layout = QVBoxLayout()
         self.nameLabel = QLabel()
@@ -266,10 +265,10 @@ class MHAssetWindow(QWidget):
         else:
             self.matPath = None
 
-    def updateWidgets(self, asset, selected, empty, proposals=[]):
+    def updateWidgets(self, asset, empty, proposals=[]):
         self.asset = asset
         self.emptyIcon = empty
-        self.currentMatPath(selected.filename)
+        self.currentMatPath(asset.path)
         self.icon = None
         if asset is None:
             self.origtags = ""
@@ -278,13 +277,13 @@ class MHAssetWindow(QWidget):
         else:
             self.tagsFromDB()
             self.tagedit.newTags(self.owntags, self.origlist)
-            self.thumb = selected.icon
+            self.thumb = asset.thumbfile
         self.tagedit.newPredefinedTags(proposals)
         self.setName()
         self.tagbox.setPlainText(self.origtags)
         self.displayPixmap()
 
-        self.currentMatPath(selected.filename)
+        self.currentMatPath(asset.path)
 
     def use_call(self):
         """

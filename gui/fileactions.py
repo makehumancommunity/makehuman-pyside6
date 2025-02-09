@@ -21,6 +21,7 @@ class BaseSelect(QVBoxLayout):
     def __init__(self, parent, callback):
         super().__init__()
         self.parent = parent
+        self.glob = parent.glob
         self.env = parent.glob.env
         self.emptyIcon = os.path.join(self.env.path_sysdata, "icons", "empty_material.png")
         self.baseResultList = self.env.getDataDirList("base.obj", "base")
@@ -68,19 +69,18 @@ class BaseSelect(QVBoxLayout):
         # create a cacheRepoEntry for skins (there are no skins in repo currently)
         #
         asset = cacheRepoEntry("base", "internal", material, "skins", None, thumb, "makehuman", "")
-        p = MHPictSelectable(name[:-6], thumb, material, None, [])
         proposals = []
-        if self.parent.asset_window is None:
+
+        mw = self.glob.getSubwindow("asset")
+        if mw is None:
             #
             # called with "skins" there is no change function
             #
-            self.parent.asset_window = MHAssetWindow(self.parent, None, asset, p, self.emptyIcon, proposals)
+            mw = self.glob.showSubwindow("asset", self.parent,  MHAssetWindow, None, asset, self.emptyIcon, proposals)
         else:
-            self.parent.asset_window.updateWidgets(asset, p, self.emptyIcon, proposals)
-        mw = self.parent.asset_window
-        mw.show()
+            mw.updateWidgets(asset, self.emptyIcon, proposals)
+            mw.show()
         mw.activateWindow()
-
 
     def materialCallback(self):
         p1 = self.env.stdUserPath("skins")
@@ -108,13 +108,13 @@ class BaseSelect(QVBoxLayout):
             if elem == oldmaterial:
                 p.status = 1
             matimg.append(p)
-        if self.parent.material_window is None:
-            self.parent.material_window = MHMaterialWindow(self.parent, PicSelectWidget, matimg, basemesh)
-        else:
-            self.parent.material_window.updateWidgets(matimg, basemesh)
 
-        mw = self.parent.material_window
-        mw.show()
+        mw = self.glob.getSubwindow("material")
+        if mw is None:
+            mw = self.glob.showSubwindow("material", self.parent, MHMaterialWindow, PicSelectWidget, matimg, basemesh)
+        else:
+            mw.updateWidgets(matimg, basemesh)
+            mw.show()
         mw.activateWindow()
 
 

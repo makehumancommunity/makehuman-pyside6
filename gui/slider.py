@@ -308,6 +308,7 @@ class SimpleSlider(QWidget):
             self.slider.setTickPosition(QSlider.TicksBelow)
             self.slider.setTickInterval(10)
             self.slider.setMinimumWidth(minwidth)
+            self.slider.setMaximumHeight(20)
             
         self.slider.setMinimum(minimum)
         self.slider.setMaximum(maximum)

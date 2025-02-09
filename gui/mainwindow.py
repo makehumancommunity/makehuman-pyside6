@@ -35,8 +35,6 @@ class MHMainWindow(QMainWindow):
         env = glob.env
         self.glob = glob
 
-        self.material_window = None
-        self.asset_window = None
         self.prog_window = None     # will hold the progress bar
 
         self.leftColumn = None
@@ -603,7 +601,7 @@ class MHMainWindow(QMainWindow):
 
 
     def emptyLayout(self, layout):
-        if layout is not None:
+        if layout is not None and hasattr(layout,"count"):
             #print("-- -- input layout: "+str(layout))
             for i in reversed(range(layout.count())):
                 layoutItem = layout.itemAt(i)

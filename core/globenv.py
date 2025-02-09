@@ -52,6 +52,11 @@ class globalObjects():
         s.raise_()
         return s
 
+    def getSubwindow(self, name):
+        if name in self.subwindows:
+            return self.subwindows[name]
+        return None
+
     def getCacheData(self):
         """
         gets data from cache, user-settings in match will overwrite standard tags

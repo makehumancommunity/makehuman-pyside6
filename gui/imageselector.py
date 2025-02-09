@@ -583,6 +583,7 @@ class ImageSelection():
     def __init__(self, parent, assetrepo, eqtype, selmode, callback, scale=2):
         self.parent = parent
         self.env = parent.glob.env
+        self.glob = parent.glob
         self.assetrepo = assetrepo
         self.type = eqtype
         self.selmode = selmode
@@ -640,30 +641,28 @@ class ImageSelection():
         for elem in self.asset_category:
             elem.status = 2 if elem.filename in checked else 0
 
-    def picButtonChanged(self, asset):
+    def picButtonChanged(self, selectable):
         multi = (self.selmode == 1)
-        print ("********** changed:" + asset.name + " ************")
-
         # yellow 
-        if asset.status == 1:
+        if selectable.status == 1:
             self.materialCallback(update=True)
-            self.assetCallback(update=True)
+            self.assetCallback(selectable=selectable, update=True)
 
             # set all yellow ones back to green or nothing
             #
             self.changeStatus()
-            asset.status = 1
+            selectable.status = 1
             self.picwidget.refreshAllWidgets()
 
         # deselect
         #
-        elif asset.status == 0:
-            found = self.parent.glob.baseClass.getAttachedByFilename(asset.filename)
+        elif selectable.status == 0:
+            found = self.parent.glob.baseClass.getAttachedByFilename(selectable.filename)
             if multi is True:
-                asset.status = 2 if found is not None else 0
+                selectable.status = 2 if found is not None else 0
             else:
                 if found:
-                    self.callback(asset, self.type, multi)
+                    self.callback(selectable, self.type, multi)
 
         self.refreshButtons()
 
@@ -671,7 +670,7 @@ class ImageSelection():
             print ("in models")
             if self.button_add is None:
                 print ("add is none")
-                self.callback(asset, self.type, False)
+                self.callback(selectable, self.type, False)
 
     def scaleImages(self):
         # toggle through 4 scales
@@ -763,13 +762,14 @@ class ImageSelection():
 
         # without window visible no update
         #
-        if update and (self.parent.material_window is None or self.parent.material_window.isVisible() is False):
+        mw = self.glob.getSubwindow("material")
+        if update and (mw is None or mw.isVisible() is False):
             return
 
         found, dummy = self.getSelectFromAttachedAssets()
         if found is None:
-            if self.parent.material_window is not None and self.parent.material_window.isVisible():
-                self.parent.material_window.updateWidgets([], None)
+            if mw is not None and mw.isVisible():
+                mw.updateWidgets([], None)
             return
 
         matimg = []
@@ -784,13 +784,11 @@ class ImageSelection():
             if elem == oldmaterial:
                 p.status = 1
             matimg.append(p)
-        if self.parent.material_window is None:
-            self.parent.material_window = MHMaterialWindow(self.parent, PicSelectWidget, matimg, found)
-        else:
-            self.parent.material_window.updateWidgets(matimg, found)
 
-        mw = self.parent.material_window
-        mw.show()
+        if mw is None:
+            mw = self.glob.showSubwindow("material", self.parent, MHMaterialWindow, PicSelectWidget, matimg, found)
+        else:
+            mw.updateWidgets(matimg, found)
         mw.activateWindow()
 
     def changeTags(self, asset, iconpath):
@@ -803,27 +801,39 @@ class ImageSelection():
                     elem.newIcon(iconpath)
                     self.picwidget.setImageScale(self.imagescale)
 
-    def assetCallback(self, status=False, update=False):
+    def assetCallback(self, status=False, update=False, selectable=None):
+        """
+        function creates a subwindow with asset information, it is called by:
+        * info button (with a status), no update and no selectable, in this case the selectable is evaluated
+        * by changing icons with an update function and 'selectable' which is able to search directlly
 
-        # without window visible no update
-        #
-        if update and (self.parent.asset_window is None or self.parent.asset_window.isVisible() is False):
+        changing icons does not open a window, in case it was not open
+        when asset is not found, asset editor is blank
+        """
+
+        mw = self.glob.getSubwindow("asset")
+        if update and (mw is None or mw.isVisible() is False):                  # update without window
             return
 
-        found, selected  = self.getSelectedFromRepo()
-        if found is None:
-            if self.parent.asset_window is not None and self.parent.asset_window.isVisible():
-                self.parent.asset_window.updateWidgets(None, None, self.emptyIcon)
-            return
-
-        if self.parent.asset_window is None:
-            self.parent.asset_window = MHAssetWindow(self.parent, self.changeTags, found, selected, self.emptyIcon, self.taglogic.proposals())
+        if selectable is None:
+            asset, dummy  = self.getSelectedFromRepo()                          # called by button
         else:
-            self.parent.asset_window.updateWidgets(found, selected, self.emptyIcon, self.taglogic.proposals())
+            asset = self.parent.glob.getAssetByFilename(selectable.filename)    # called by icon
 
-        mw = self.parent.asset_window
-        mw.show()
-        mw.activateWindow()
+        if asset is None:
+            if mw is not None and mw.isVisible():
+                mw.updateWidgets(None, self.emptyIcon)  # blank window
+                mw.show()
+            return
+
+        # get a new window or update current one
+        #
+        if mw is None:
+            mw = self.glob.showSubwindow("asset", self.parent, MHAssetWindow, self.changeTags, asset, self.emptyIcon, self.taglogic.proposals())
+            mw.activateWindow()
+        else:
+            mw.updateWidgets(asset, self.emptyIcon, self.taglogic.proposals())
+            mw.show()
 
 
     def leftPanel(self):
@@ -852,10 +862,12 @@ class ImageSelection():
 
     def rightPanelButtons(self, bitmask):
         hlayout = QHBoxLayout()
+        yellow1 = " (click on asset, yellow frame must be visible)"
+        yellow2 = " (click on asset, yellow frame must be visible and asset must be added)"
 
         if bitmask & 4:
             path = os.path.join(self.env.path_sysicon, "use.png" )
-            self.button_add = IconButton(0, path, "Load/Use asset", self.loadCallback)
+            self.button_add = IconButton(0, path, "Load/Use asset" + yellow1, self.loadCallback)
             hlayout.addWidget(self.button_add )
         else:
             self.button_add = None
@@ -867,7 +879,7 @@ class ImageSelection():
                 hlayout.addWidget(self.button_none)
 
             path = os.path.join(self.env.path_sysicon, "delete.png" )
-            self.button_delete = IconButton(0, path, "Drop this asset", self.deleteCallback)
+            self.button_delete = IconButton(0, path, "Drop this asset" + yellow2, self.deleteCallback)
             hlayout.addWidget(self.button_delete)
         else:
             self.button_none = None
@@ -875,14 +887,14 @@ class ImageSelection():
 
         if bitmask & 1:
             path = os.path.join(self.env.path_sysicon, "information.png" )
-            self.button_info = IconButton(0, path, "Change asset information", self.assetCallback)
+            self.button_info = IconButton(0, path, "Change asset information" + yellow1, self.assetCallback)
             hlayout.addWidget(self.button_info )
         else:
             self.button_info = None
 
         if bitmask & 2:
             path = os.path.join(self.env.path_sysicon, "materials.png" )
-            self.button_mat = IconButton(0, path, "Change material", self.materialCallback)
+            self.button_mat = IconButton(0, path, "Change material" + yellow2, self.materialCallback)
             hlayout.addWidget(self.button_mat)
         else:
             self.button_mat = None
