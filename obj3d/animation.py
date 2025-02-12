@@ -1,3 +1,7 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
 import numpy as np
 import core.math as mquat
 import math
@@ -47,18 +51,29 @@ class BVHJoint():
         return (output + " " + str(self.channelorder) + " " + str(self.animdata))
 
 class BVH():
+    """
+    BVH class
+    * it will not accept a changing rotation order
+    """
     def __init__(self, glob, name):
         self.glob = glob
         self.env = glob.env
         self.name = name
         self.filename = None
-        self.channelname = {"Xposition":0, "Yposition":1, "Zposition":2, "Xrotation":3, "Yrotation":4, "Zrotation":5}
+
         self.bvhJointOrder = []
         self.joints = {}
         self.frameCount = 1       # one frame at least (could be rest pose), will contain number of frames
         self.frameTime = 0.041667 # preset that to 1/24 sec
         self.currentFrame = 0  # is used for animplayer
         self.pi_mult = math.pi / 180.0
+
+        #
+        # channels and rotations
+        #
+        self.channelname = {"Xposition":0, "Yposition":1, "Zposition":2, "Xrotation":3, "Yrotation":4, "Zrotation":5}
+        self.orderlist = [ "", "", "", "", "", "yzx", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" ]
+        self.rotationorder = None    # the values for x y z (would be yzx)
 
         self.dislocation = False        # allow dislocation of bones (usually only root can be moved), also face has no dislocation
         self.z_up = True                # read in different direction
@@ -87,7 +102,11 @@ class BVH():
 
         nChannels = int(param[0])
         if nChannels != len(param)-1:
-            self.env.last_error = "BVH-File: Channels indicated and number of channels differ"
+            self.env.last_error = "BVH-File: channels indicated and number of channels differ"
+            return False
+
+        if nChannels == 0:
+            self.env.last_error = "BVH-File: joints with 0 channels not yet supported"
             return False
 
         for cnt, channel in enumerate(param[1:]):
@@ -97,8 +116,20 @@ class BVH():
 
         # TODO atm only lxyz-rxyz  and rxyz are allowed, the channel order determines the order of rotation 
         #
-        if joint.channelorder != [0, 1, 2, 3, 4, 5] and joint.channelorder != [-1, -1, -1, 0, 1, 2] :
-            self.env.last_error = "BVH-File: channel order not yet supported"
+        # calculate rotation order, put it to one format and calculate an index to base 3
+        # highest value is 18 + 3 + 0 = 21, then take ASCII element out of that list
+        #
+        order = joint.channelorder[3:] if joint.channelorder[3] < 3 else [*map(lambda x: x - 3, joint.channelorder)][3:]
+        iorder = order[0] * 9 + order[1] * 3 + order[2]
+        rotorder = self.orderlist[iorder]
+
+        if self.rotationorder is None:
+            self.rotationorder = rotorder
+            if iorder != 5:
+                self.env.last_error = "BVH-File: rotation channel order not yet supported"
+                return False
+        elif rotorder != self.rotationorder:
+            self.env.last_error = "BVH-File: not accepted because of changing rotation order"
             return False
         return True
 
@@ -164,7 +195,6 @@ class BVH():
         #
         # works only for YZX joint order (rotation)
         i = 0
-        order = "yzx"       # original yzx 
         for joint in self.bvhJointOrder:
             if joint.nChannels > 0:
                 for j, m in enumerate(joint.channelorder):
@@ -182,10 +212,10 @@ class BVH():
                     y = self.pi_mult * joint.animdata[frame, 4]
                 z = self.pi_mult * joint.animdata[frame, 5]
 
-                joint.matrixPoses[frame,:3,:3] = mquat.eulerMatrix(z, y, x, order)[:3,:3]
+                joint.matrixPoses[frame,:3,:3] = mquat.eulerMatrix(z, y, x, self.rotationorder)[:3,:3]
                 #
                 if joint.parent is None or self.dislocation:
-                    joint.matrixPoses[frame,:3,3] = [joint.animdata[frame, 0], joint.animdata[frame, 1], joint.animdata[frame, 2]]
+                    joint.matrixPoses[frame,:3,3] = [joint.animdata[frame, 0], joint.animdata[frame, 2], joint.animdata[frame, 1]]
 
 
     def debugChanged(self):
