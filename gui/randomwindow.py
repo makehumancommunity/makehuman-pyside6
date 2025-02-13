@@ -25,11 +25,11 @@ class RandomValues():
             self.lgroup[gname] = preselect
 
 class RandomForm(QVBoxLayout):
-    def __init__(self, parent, view, values):
+    def __init__(self, parent, view):
         self.view = view
         self.parent = parent
-        self.values = values
         self.glob = parent.glob
+        values = self.values = self.glob.randomValues
         super().__init__()
 
         values.tr.storeAllValues()

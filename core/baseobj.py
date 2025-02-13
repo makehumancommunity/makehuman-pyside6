@@ -650,5 +650,14 @@ class baseClass():
             self.glob.parallel.start()
             self.glob.parallel.finished.connect(self.finishApply)
 
+    def nonParApplyTargets(self):
+        """
+        non graphical process for API
+        """
+        self.applyAllTargets()
+        if self.pose_skeleton is not None:
+            self.pose_skeleton.newGeometry()
+        self.glob.midColumn.setSizeInfo()
+
     def __del__(self):
         self.env.logLine (4, " -- __del__ baseClass " + self.name)

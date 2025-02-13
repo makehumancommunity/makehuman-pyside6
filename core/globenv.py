@@ -25,6 +25,7 @@ class globalObjects():
         self.openGLBlock  = False
         self.midColumn    = None
         self.centralWidget= None
+        self.randomValues = None
         self.baseClass = None
         self.textureRepo = TextureRepo()
         self.apiSocket = None              # will contain socket for applications

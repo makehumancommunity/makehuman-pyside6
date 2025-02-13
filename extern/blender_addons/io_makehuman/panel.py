@@ -47,3 +47,7 @@ class MH2B_PT_Panel(bpy.types.Panel):
         combox.label(text="Scale:")
         combox.prop(scn, 'MH2B_getscale')
 
+        addbox = layout.box()
+        addbox.label(text="Additional functions")
+        addbox.operator("mh2b.randomize", text="Randomize")
+

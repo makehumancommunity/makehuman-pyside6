@@ -1,3 +1,7 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
 import socket
 import json
 from PySide6.QtCore import QThread, Signal
@@ -30,7 +34,7 @@ class apiSocket(QThread):
         if self.jsonparam is not None:
             self.jsonparam["errcode"]= 0 
             txt = json.dumps(self.jsonparam)
-            # print ("send: " + txt)
+            # print ("send answer: " + txt)
             conn.send (bytes(txt, 'utf-8'))
         else:
             for sbuffer in self.binarybuffers:
@@ -93,6 +97,13 @@ class apiSocket(QThread):
                     return False
                 self.binarybuffers = self.blcom.apiGetBuffers()
                 self.blcom = None
+                return True
+            elif f == "randomize":
+                tr = self.glob.randomValues.tr
+                tr.storeAllValues()
+                if tr.do():
+                    tr.apply(True)
+                self.jsonparam = {}
                 return True
 
         self.error =  "Unknown command"

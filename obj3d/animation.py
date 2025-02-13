@@ -72,11 +72,10 @@ class BVH():
         # channels and rotations
         #
         self.channelname = {"Xposition":0, "Yposition":1, "Zposition":2, "Xrotation":3, "Yrotation":4, "Zrotation":5}
-        self.orderlist = [ "", "", "", "", "", "yzx", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" ]
-        self.rotationorder = None    # the values for x y z (would be yzx)
 
         self.dislocation = False        # allow dislocation of bones (usually only root can be moved), also face has no dislocation
         self.z_up = True                # read in different direction
+        self.rotationorder = "yzx"      # usually it would be zyx, but z-up it is zyx (first rotation is used last)
 
     def keyParam(self, key, fp):
         param = fp.readline().split()
@@ -113,24 +112,6 @@ class BVH():
             if channel in self.channelname:
                 joint.channelorder[self.channelname[channel]] = cnt
         joint.nChannels = nChannels
-
-        # TODO atm only lxyz-rxyz  and rxyz are allowed, the channel order determines the order of rotation 
-        #
-        # calculate rotation order, put it to one format and calculate an index to base 3
-        # highest value is 18 + 3 + 0 = 21, then take ASCII element out of that list
-        #
-        order = joint.channelorder[3:] if joint.channelorder[3] < 3 else [*map(lambda x: x - 3, joint.channelorder)][3:]
-        iorder = order[0] * 9 + order[1] * 3 + order[2]
-        rotorder = self.orderlist[iorder]
-
-        if self.rotationorder is None:
-            self.rotationorder = rotorder
-            if iorder != 5:
-                self.env.last_error = "BVH-File: rotation channel order not yet supported"
-                return False
-        elif rotorder != self.rotationorder:
-            self.env.last_error = "BVH-File: not accepted because of changing rotation order"
-            return False
         return True
 
     def getOffset(self, param):
@@ -193,7 +174,7 @@ class BVH():
 
     def calcLocRotMat(self, frame, data):
         #
-        # works only for YZX joint order (rotation)
+        # it is always order yzx since it only works for z_up
         i = 0
         for joint in self.bvhJointOrder:
             if joint.nChannels > 0:

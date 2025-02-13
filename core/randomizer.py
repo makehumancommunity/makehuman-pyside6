@@ -29,7 +29,7 @@ class TargetRandomizer():
         self.glob = glob
         self.groups = {}            # all used groups
         self.nonsymgroups = {}      # precalculated non-symmetric groups
-        self.ideaMin = 0.5          # minmum ideal value
+        self.idealMin = 0.5         # minmum ideal value
         self.gender = 0             # 0 is both, 1 female, 2 male, 3 male or female
         self.gendset = False        # gender already found
         self.idealset = False       # ideal value already found
@@ -339,18 +339,21 @@ class TargetRandomizer():
         self.applyRules()
         return True
 
-    def _applyList(self, tlist ):
+    def _applyList(self, tlist, api=False):
         for elem in tlist:
             self.glob.Targets.setTargetByName(elem[0], elem[2])
         #
         # extra for skin-color
         for target in self.glob.targetRepo.values():
-            if target.barycentric is not None:
+            if target.barycentric is not None and api is False:
                 target.setBaryCentricDiffuse()
-        self.glob.baseClass.parApplyTargets()
+        if api:
+            self.glob.baseClass.nonParApplyTargets()
+        else:
+            self.glob.baseClass.parApplyTargets()
 
-    def apply(self):
-        self._applyList(self.targetlist)
+    def apply(self, api=False):
+        self._applyList(self.targetlist, api)
 
     def restore(self):
         self._applyList(self.before)

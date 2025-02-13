@@ -100,6 +100,10 @@ class API:
             info = "Get character"
             return True, info
 
+        elif function == "randomize":
+            info = "Randomize"
+            return True, info
+
         error = "Unknown command"
         parent.report({'ERROR'}, error)
         bpy.ops.mh2b.infobox('INVOKE_DEFAULT', title="Connection", error=error)
@@ -133,6 +137,32 @@ class MH2B_OT_Hello(bpy.types.Operator):
             self.report({'INFO'}, text)
             bpy.ops.mh2b.infobox('INVOKE_DEFAULT', title="Connection", info=text)
 
+        return {'FINISHED'}
+
+class MH2B_OT_Randomize(bpy.types.Operator):
+    """Triggger Random character."""
+    bl_idname = "mh2b.randomize"
+    bl_label = "Randomize character"
+    bl_options = {'REGISTER'}
+
+    @classmethod
+    def poll(self, context):
+        return True
+
+    def execute(self, context):
+        scn = context.scene
+
+        info = "Randomize started " + scn.MH2B_apihost + " Port " + str(scn.MH2B_apiport)
+        api = API(scn.MH2B_apihost, scn.MH2B_apiport)
+        if not api.connect(self, info):
+            return {'FINISHED'}
+
+        api.send("randomize")
+        data = api.receive()
+
+        res, text = api.decodeAnswer(self, "randomize", data)
+        if res is True:
+            self.report({'INFO'}, text)
         return {'FINISHED'}
 
 class MH2B_OT_GetChar(bpy.types.Operator):

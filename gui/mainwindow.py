@@ -258,7 +258,8 @@ class MHMainWindow(QMainWindow):
                 b["button"] = IconButton(offset+n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"], checkable=True)
         self.markSelectedButtons(self.category_buttons[0], self.category_buttons[0][0])
 
-        self.RandomValues = RandomValues(self.glob)
+        # generate random values
+        self.glob.randomValues = RandomValues(self.glob)
 
         self.createCentralWidget()
         self.setWindowTitle("default character")
@@ -463,7 +464,7 @@ class MHMainWindow(QMainWindow):
                 return
             else:
                 self.leftColumn.setTitle("Random character :: parameters")
-                self.randForm = RandomForm(self, self.graph.view, self.RandomValues) 
+                self.randForm = RandomForm(self, self.graph.view) 
                 self.LeftBox.addLayout(self.randForm)
                 return
 
