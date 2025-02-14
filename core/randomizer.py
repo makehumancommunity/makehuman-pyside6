@@ -24,6 +24,8 @@ class TargetRandomizer():
     * symfactor     is a value between full symmetry (1.0) and no symmetry (0.0)
     * weirdofactor  is a value between no change at all (0.0) and fully random change (1.0)
     * fromDefault   means the character is reset to default before. Without that, non-selected groups are not changed at all
+
+    this class is API callable
     """
     def __init__(self, glob):
         self.glob = glob
@@ -342,15 +344,13 @@ class TargetRandomizer():
     def _applyList(self, tlist, api=False):
         for elem in tlist:
             self.glob.Targets.setTargetByName(elem[0], elem[2])
-        #
-        # extra for skin-color
-        for target in self.glob.targetRepo.values():
-            if target.barycentric is not None and api is False:
-                target.setBaryCentricDiffuse()
+
+        # API is not allowed to run in thread or set diffuse colors
         if api:
             self.glob.baseClass.nonParApplyTargets()
         else:
             self.glob.baseClass.parApplyTargets()
+            self.glob.Targets.setSkinDiffuseColor()
 
     def apply(self, api=False):
         self._applyList(self.targetlist, api)

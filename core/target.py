@@ -1,3 +1,7 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
 from gui.common import WorkerThread
 from gui.slider import ScaleComboItem
 from core.targetcat import TargetCategories
@@ -239,7 +243,7 @@ class Modelling(ScaleComboItem):
         components = macros["components"]
         targetlist = []
         for l in m_influence:
-            print ("   " + macrodef[l]["name"])
+            #print ("   " + macrodef[l]["name"])
             comps = macrodef[l]["comp"]
             weightarray = []
             for elem in comps:
@@ -301,10 +305,10 @@ class Modelling(ScaleComboItem):
                 if name in l and l[name] is not None:
                     if l[name] in sortedtargets:
                         sortedtargets[l[name]] += elem["factor"]
-                        print(" Add: " + name)
+                        #print(" Add: " + name)
                     else:
                         sortedtargets[l[name]] = elem["factor"]
-                        print(" New: " + name)
+                        #print(" New: " + name)
                 else:
                     pass
 
@@ -606,13 +610,16 @@ class Targets:
             destfile = self.env.stdUserPath("target", "compressedtargets.npz")
             ta.compressAllTargets(sourcefolder, destfile)
 
+    def setSkinDiffuseColor(self):
+        for target in self.modelling_targets:
+            if target.barycentric:
+                target.setBaryCentricDiffuse()
+
     def reset(self, colors=False):
         for target in self.modelling_targets:
             target.resetValue()
         if colors is True:
-            for target in self.modelling_targets:
-                if target.barycentric:
-                    target.setBaryCentricDiffuse()
+            self.setSkinDiffuseColor()
 
     def setTargetByName(self, key, value):
         """

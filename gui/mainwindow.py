@@ -1,3 +1,7 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
 from PySide6.QtWidgets import ( 
         QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFrame, QGroupBox, QListWidget, QLabel,
         QAbstractItemView, QSizePolicy, QScrollArea, QDialogButtonBox, QMessageBox
@@ -383,7 +387,7 @@ class MHMainWindow(QMainWindow):
 
         hLayout.addLayout(v2Layout)
 
-        # create window for internal or external use
+        # create window for graphical output
         #
         self.glob.midColumn = self.graph = MHGraphicWindow(self.glob)
         gLayout = self.graph.createLayout()
@@ -999,12 +1003,17 @@ class MHMainWindow(QMainWindow):
     def socket_call(self):
         if self.sock_act.isChecked() and self.glob.apiSocket is None:
             self.glob.apiSocket = apiSocket(self.glob)
+            self.glob.apiSocket.viewRedisplay.connect(self.socket_finish)
             self.glob.apiSocket.start()
         else:
             if self.glob.apiSocket is not None:
                 self.glob.apiSocket.stopListening()
                 self.glob.apiSocket.wait()
                 self.glob.apiSocket = None
+
+    def socket_finish(self):
+        self.glob.Targets.setSkinDiffuseColor()
+        self.graph.view.Tweak()
 
     def vers_call(self):
         text = "Numpy: " + ".".join([str(x) for x in self.env.numpy_version]) + "<br>" + \

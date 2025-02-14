@@ -8,7 +8,10 @@ from PySide6.QtCore import QThread, Signal
 from core.blender_communication import blendCom
 
 class apiSocket(QThread):
-    #update_progress = Signal(int)
+    """
+    class for communication socket
+    """
+    viewRedisplay = Signal(int)         # signal when redisplay should be done
 
     def __init__(self, glob, *args):
         super().__init__()
@@ -104,6 +107,7 @@ class apiSocket(QThread):
                 if tr.do():
                     tr.apply(True)
                 self.jsonparam = {}
+                self.viewRedisplay.emit(1)
                 return True
 
         self.error =  "Unknown command"
