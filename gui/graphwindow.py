@@ -1,6 +1,13 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
+from PySide6.QtWidgets import (
+        QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel,
+        QSlider, QCheckBox, QMessageBox
+)
 from PySide6.QtCore import QSize, Qt, QObject, QEvent
-from PySide6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QSlider, QCheckBox, QMessageBox
-from PySide6.QtGui import QVector3D, QColor, QIcon
+from PySide6.QtGui import QVector3D, QColor, QIcon, QKeySequence
 from core.baseobj import baseClass
 from gui.common import IconButton
 from gui.slider import SimpleSlider
@@ -19,30 +26,8 @@ class NavigationEvent(QObject):
 
         if event.type() == QEvent.ShortcutOverride:
             key = event.key()
-            if key == 55:
-                self.win.bottom_button()
-            elif key == 56:
-                self.win.back_button()
-            elif key == 57:
-                self.win.top_button()
-            elif key == 50:
-                self.win.front_button()
-            elif key == 52:
-                self.win.left_button()
-            elif key == 54:
-                self.win.right_button()
-            elif key == 16777216:
-                self.win.stop_anim()
-            elif key == 16777235:
-                self.win.zoom(-1)
-            elif key == 16777237:
-                self.win.zoom(1)
-
-            #print (key)
-            #text = event.text()
-            #print (text)
-            #if event.modifiers():
-            #    text = event.keyCombination().key().name.decode(encoding="utf-8")
+            key = QKeySequence(event.modifiers()|event.key()).toString()
+            self.win.keyToFunction(key)
 
         elif event.type() == QEvent.MouseMove:
             if event.buttons() == Qt.MouseButton.LeftButton:
@@ -69,13 +54,35 @@ class MHGraphicWindow(QWidget):
         self.env = glob.env
         self.debug = False
         super().__init__()
+
+        # bind keys to action and set up event filter
         #
-        # keyboard actions
-        #
+        self.funcDict = {
+                "Top": self.top_button, "Left": self.left_button,
+                "Right": self.right_button, "Front": self.front_button,
+                "Back": self.back_button, "Bottom": self.bottom_button,
+                "Zoom-In": self.zoom_in, "Zoom-Out": self.zoom_out, "Stop Animation": self.stop_anim,
+                "Toggle Perspective": self.toggle_perspective_key
+        }
+        self.key2Func = {}
+        self.generateKeyDict()
         self.eventFilter = NavigationEvent(self)
         self.installEventFilter(self.eventFilter)
         self.hiddenbutton = None
 
+    def generateKeyDict(self):
+        """
+        create dictionary from configurable keys
+        """
+        for key, item in self.glob.keyDict.items():
+            self.key2Func[item] = self.funcDict[key]
+
+    def keyToFunction(self, code):
+        """
+        this is called, when key-event took place
+        """
+        if code in self.key2Func:
+            self.key2Func[code]()
 
     def navButtons(self, vlayout):
         elems = [ 
@@ -136,9 +143,9 @@ class MHGraphicWindow(QWidget):
         # perspective button is a toggle
         #
         hlayout = QHBoxLayout()
-        button = IconButton(1, os.path.join(self.env.path_sysicon, "persp.png"), "Perspective", self.toggle_perspective, checkable=True)
-        button.setChecked(True)
-        hlayout.addWidget(button)
+        self.persbutton = IconButton(1, os.path.join(self.env.path_sysicon, "persp.png"), "Perspective", self.toggle_perspective, checkable=True)
+        self.persbutton.setChecked(True)
+        hlayout.addWidget(self.persbutton)
 
         button = IconButton(1, os.path.join(self.env.path_sysicon, "camera.png"), "Grab screen", self.screenShot)
         hlayout.addWidget(button)
@@ -314,6 +321,12 @@ class MHGraphicWindow(QWidget):
         if self.debug:
             self.camChanged()
 
+    def zoom_in(self):
+        self.zoom(-1)
+
+    def zoom_out(self):
+        self.zoom(1)
+
     def mouseInView(self, pos):
         window= self.view.mapToGlobal(self.view.pos())
         mx = int(pos.x())
@@ -355,11 +368,16 @@ class MHGraphicWindow(QWidget):
 
 
     def toggle_perspective(self):
-        b = self.sender()
+        b = self.persbutton
         v = b.isChecked()
         self.focusSlider.setEnabled(v)
         b.setChecked(v)
         self.view.togglePerspective(v)
+
+    def toggle_perspective_key(self):
+        b = self.persbutton
+        b.setChecked(not b.isChecked())
+        self.toggle_perspective()
 
     def cleanUp(self):
         self.glob.textureRepo.cleanup("system")

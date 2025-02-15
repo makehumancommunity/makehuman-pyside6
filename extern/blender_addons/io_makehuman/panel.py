@@ -26,9 +26,9 @@ class MH2B_PT_Panel(bpy.types.Panel):
         texbox.label(text="Local texture folder:")
         texbox.prop(scn, 'MH2B_localtexfolder', text="")
 
-        combox = layout.box()
-        combox.label(text="Communicator", icon="USER")
-        col = combox.column()
+        conbox = layout.box()
+        conbox.label(text="Connection", icon="PROP_CON")
+        col = conbox.column()
         row = col.row()
         row.label(text="Host:")
         row.prop(scn, 'MH2B_apihost', text="")
@@ -36,10 +36,13 @@ class MH2B_PT_Panel(bpy.types.Panel):
         row = col.row()
         row.label(text="Port:")
         row.prop(scn, 'MH2B_apiport', text="")
+        conbox.operator("mh2b.hello", text="Test connection")
 
-        combox.operator("mh2b.hello", text="Test connection")
+        combox = layout.box()
+        combox.label(text="Communicator", icon="USER")
+        combox.prop(scn, 'MH2B_replacechar', text="Replace last character")
+
         combox.operator("mh2b.getchar", text="Get character")
-
 
         combox.prop(scn, 'MH2B_feetonground', text="Place feet on ground")
         combox.prop(scn, 'MH2B_gethiddenverts', text="Get invisible vertices")

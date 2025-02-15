@@ -1,7 +1,21 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QListWidget, QPushButton, QAbstractItemView, QRadioButton, QGroupBox, QCheckBox, QLineEdit, QGridLayout
-from PySide6.QtGui import QIntValidator
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
+from PySide6.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QListWidget, QPushButton, QAbstractItemView, QRadioButton,
+    QGroupBox, QCheckBox, QLineEdit, QGridLayout, QTabWidget, QTableWidget, QTableWidgetItem
+)
+from PySide6.QtCore import Qt, QEvent, QObject
+from PySide6.QtGui import QIntValidator, QKeySequence
 from gui.common import ErrorBox
+
+class KeyPrefFilter(QObject):
+    def eventFilter(self, widget, event):
+        if event.type() == QEvent.ShortcutOverride:
+            key = QKeySequence(event.modifiers()|event.key()).toString()
+            widget.keylabel.setText(key)
+        return False
 
 class MHPrefWindow(QWidget):
     """
@@ -14,7 +28,6 @@ class MHPrefWindow(QWidget):
 
         self.setWindowTitle("Preferences")
         self.resize (500, 600)
-        layout = QVBoxLayout()
 
         self.apihost = env.config["apihost"] if "apihost" in env.config else "127.0.0.1"
         self.apiport = str(env.config["apiport"] if "apiport" in env.config else 12345)
@@ -22,8 +35,36 @@ class MHPrefWindow(QWidget):
         self.redirect_bool = env.config["redirect_messages"]
         self.redirect_path = env.path_error
 
-        # folder boxes
+        layout = QVBoxLayout()
+        self.tab_widget = QTabWidget()
+        self.maintab = QWidget()
+        self.keytab  = QWidget()
+        self.tab_widget.addTab(self.maintab, "Main")
+        self.tab_widget.addTab(self.keytab, "Input")
+        layout.addWidget(self.tab_widget)
+        self.initMainTab(self.maintab)
+        self.initKeyTab(self.keytab)
+
+        # buttons for cancel and save
         #
+        hLayout = QHBoxLayout()
+        button1 = QPushButton("Cancel")
+        button1.clicked.connect(self.cancel_call)
+        hLayout.addWidget(button1)
+
+        button2 = QPushButton("Save")
+        button2.clicked.connect(self.save_call)
+        hLayout.addWidget(button2)
+        layout.addLayout(hLayout)
+
+        self.setLayout(layout)
+
+    def initMainTab(self, maintab):
+        """
+        main preferences: folder, themes, preselected mesh, units, API, session
+        """
+        env = self.parent.env
+        layout = QVBoxLayout(maintab)
         folders = QGroupBox("Folders")
         folders.setObjectName("subwindow")
         fo_layout = QGridLayout()
@@ -122,20 +163,23 @@ class MHPrefWindow(QWidget):
         sess.setLayout(se_layout)
         layout.addWidget(sess)
 
-        # buttons for cancel and save
-        #
-        hLayout = QHBoxLayout()
-        button1 = QPushButton("Cancel")
-        button1.clicked.connect(self.cancel_call)
-        hLayout.addWidget(button1)
+    def initKeyTab(self, keytab):
+        glob = self.parent.glob
+        layout = QVBoxLayout(keytab)
 
-        button2 = QPushButton("Save")
-        button2.clicked.connect(self.save_call)
-        hLayout.addWidget(button2)
-        layout.addLayout(hLayout)
+        rows = len(glob.keyDict)
+        keylist = QTableWidget(rows, 2)
+        i = 0
+        for key, item in glob.keyDict.items():
+            keylist.setItem(i, 0, QTableWidgetItem(key))
+            keylist.setItem(i, 1, QTableWidgetItem(item))
+            i += 1
+        layout.addWidget(keylist)
 
-        self.setLayout(layout)
-
+        self.keylabel = QLabel("", self)
+        self.eventFilter = KeyPrefFilter(parent=self)
+        self.installEventFilter(self.eventFilter)
+        layout.addWidget(self.keylabel)
 
     def cancel_call(self):
         self.close()

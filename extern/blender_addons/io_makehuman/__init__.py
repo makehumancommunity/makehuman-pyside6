@@ -51,6 +51,8 @@ def register():
     scn.MH2B_gethiddenverts = BoolProperty(name="API GetHiddenVerts", description="Get invisible vertices", default=False)
     scn.MH2B_getanimation = BoolProperty(name="API GetAnimation", description="Get attached animation", default=False)
     scn.MH2B_getscale = EnumProperty(items=_scales, name="", description="Scale of character")
+    scn.MH2B_replacechar = BoolProperty(name="API ReplaceCharacter", description="Replace last character imported by API", default=False)
+    scn.MH2B_lastchar = StringProperty(name="API LastCharacterName", description="Name of last character imported by API", default="")
 
     for cls in MH2B_CLASSES:
         register_class(cls)

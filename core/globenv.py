@@ -27,6 +27,11 @@ class globalObjects():
         self.centralWidget= None
         self.randomValues = None
         self.baseClass = None
+        self.keyDict = {
+                "Top": "Num+9", "Left": "Num+4", "Right": "Num+6", "Front": "Num+2",
+                "Back": "Num+8", "Bottom": "Num+7", "Zoom-In": "Up", "Zoom-Out": "Down",
+                "Stop Animation": "Esc", "Toggle Perspective": "Num+0"
+            }
         self.textureRepo = TextureRepo()
         self.apiSocket = None              # will contain socket for applications
         self.reset()

@@ -178,6 +178,13 @@ class MH2B_OT_GetChar(bpy.types.Operator):
     def execute(self, context):
         scn = context.scene
 
+        mh2b = MH2B_OT_Loader(context)
+
+        if scn.MH2B_replacechar:
+            print ("Replace lastchar:", scn.MH2B_lastchar)
+            mh2b.deleteCollection(scn.MH2B_lastchar)
+            scn.MH2B_lastchar = ""
+
         params = { "onground": scn.MH2B_feetonground, "hidden": scn.MH2B_gethiddenverts, \
                 "anim": scn.MH2B_getanimation, "scale": float(scn.MH2B_getscale) }
 
@@ -195,7 +202,7 @@ class MH2B_OT_GetChar(bpy.types.Operator):
             return {'FINISHED'}
 
         json = api.getJSON()
-        print (json)
+        #print (json)
 
         buffersize = api.getBinSize(self)
         if buffersize == 0:
@@ -213,9 +220,8 @@ class MH2B_OT_GetChar(bpy.types.Operator):
             self.report({'ERROR'}, error)
             bpy.ops.mh2b.infobox('INVOKE_DEFAULT', title="Connection", error=error)
             return {'FINISHED'}
-
-        mh2b = MH2B_OT_Loader(context)
-        mh2b.createCollection(json)
+        col = mh2b.createCollection(json)
+        scn.MH2B_lastchar = col.name
         if not mh2b.createObjects(json, bindata, None):
             error = "Bad structure"
             self.report({'ERROR'}, error)

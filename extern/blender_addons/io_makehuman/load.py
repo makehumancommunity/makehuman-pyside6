@@ -27,6 +27,19 @@ class MH2B_OT_Loader:
         ob.select_set(True)
         self.context.view_layer.objects.active = ob
 
+    def deleteCollection(self, name):
+        if name == "":
+            return False
+
+        collection = bpy.data.collections.get(name)
+        if collection is None:
+            return False
+
+        for obj in collection.objects:
+            bpy.data.objects.remove(obj, do_unlink=True)
+        bpy.data.collections.remove(collection)
+        return True
+
     def createCollection(self, jdata):
         #
         # get collection name from the referenced asset in nodes
