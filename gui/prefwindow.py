@@ -26,6 +26,8 @@ class MHPrefWindow(QWidget):
         self.parent = parent
         env = parent.env
 
+        self.localKeys = self.parent.glob.keyDict.copy()
+
         self.setWindowTitle("Preferences")
         self.resize (500, 600)
 
@@ -34,6 +36,7 @@ class MHPrefWindow(QWidget):
 
         self.redirect_bool = env.config["redirect_messages"]
         self.redirect_path = env.path_error
+
 
         layout = QVBoxLayout()
         self.tab_widget = QTabWidget()
@@ -58,6 +61,16 @@ class MHPrefWindow(QWidget):
         layout.addLayout(hLayout)
 
         self.setLayout(layout)
+
+    def show(self):
+        #
+        # work on a local copy
+        #
+        i = 0
+        for row in range(self.keyTable.rowCount()):
+            key = self.keyTable.item(row,0).text()
+            self.keyTable.item(row,1).setText(self.localKeys[key])
+        super().show()
 
     def initMainTab(self, maintab):
         """
@@ -164,24 +177,71 @@ class MHPrefWindow(QWidget):
         layout.addWidget(sess)
 
     def initKeyTab(self, keytab):
-        glob = self.parent.glob
         layout = QVBoxLayout(keytab)
-
-        rows = len(glob.keyDict)
-        keylist = QTableWidget(rows, 2)
+        rows = len(self.localKeys)
+        self.keyTable = QTableWidget(rows, 2)
+        self.keyTable.setHorizontalHeaderLabels(["Feature", "Key"])
+        self.keyTable.verticalHeader().setVisible(False)
+        self.keyTable.horizontalHeader().setMinimumSectionSize((keytab.width() - 200) // 2)
+        self.keyTable.setMinimumHeight(int(keytab.height() * 0.7))
+        self.keyTable.itemClicked.connect(self.key_selected)
         i = 0
-        for key, item in glob.keyDict.items():
-            keylist.setItem(i, 0, QTableWidgetItem(key))
-            keylist.setItem(i, 1, QTableWidgetItem(item))
+        for key, item in self.localKeys.items():
+            q =  QTableWidgetItem(key)
+            q.setFlags(q.flags() ^ Qt.ItemFlag.ItemIsEditable)
+            self.keyTable.setItem(i, 0, q)
+            q =  QTableWidgetItem(item)
+            q.setFlags(q.flags() ^ Qt.ItemFlag.ItemIsEditable)
+            self.keyTable.setItem(i, 1, q)
             i += 1
-        layout.addWidget(keylist)
+        layout.addWidget(self.keyTable)
 
-        self.keylabel = QLabel("", self)
+        chgkey = QGroupBox("Change key")
+        chgkey.setObjectName("subwindow")
+        explain = QLabel("Select a feature or key in table above, then press a key,<br>To use new key, push change button")
+
+        # set style to make the input fields visible
+        #
+        self.textlabel = QLabel("", self)
+        self.textlabel.setObjectName("groupbox")
+        self.keylabel  = QLabel("", self)
+        self.keylabel.setObjectName("groupbox")
+
         self.eventFilter = KeyPrefFilter(parent=self)
         self.installEventFilter(self.eventFilter)
-        layout.addWidget(self.keylabel)
+        vlayout = QVBoxLayout()
+        vlayout.addWidget(explain)
+        hlayout = QHBoxLayout()
+        hlayout.addWidget(self.textlabel)
+        hlayout.addWidget(self.keylabel)
+        self.changeButton = QPushButton("Change")
+        self.changeButton.clicked.connect(self.changekey_call)
+        hlayout.addWidget(self.changeButton)
+        vlayout.addLayout(hlayout)
+        chgkey.setLayout(vlayout)
+        layout.addWidget(chgkey)
+
+        layout.addStretch()
+
+    def key_selected(self):
+        row = self.keyTable.currentRow()
+        if row < 0:
+            return
+        self.textlabel.setText(self.keyTable.item(row,0).text())
+
+    def changekey_call(self):
+        row = self.keyTable.currentRow()
+        if row < 0:
+            return
+        name = self.textlabel.text()
+        key  = self.keylabel.text()
+        self.localKeys[name] = key
+        print ("change", row, name, key)
+        self.keyTable.item(row,1).setText(key)
 
     def cancel_call(self):
+        # reset keys
+        self.localKeys = self.parent.glob.keyDict.copy()
         self.close()
 
     def save_call(self):
@@ -189,12 +249,19 @@ class MHPrefWindow(QWidget):
         does all the work to save configuration
         """
         env =  self.parent.env
+        glob=  self.parent.glob
+
+        # first save new keys and apply it to graphical window
+        #
+        glob.keyDict = self.localKeys.copy()
+        glob.midColumn.generateKeyDict()
 
         apiport = int(self.ql_port.text())
         if apiport < 1024 or apiport > 49152:
             ErrorBox(self.parent.central_widget, "Port must be in range 1024 to 49151.")
             return
 
+        env.config["keys"] = glob.keyDict
         env.config["apiport"] = apiport
         env.config["apihost"] = self.ql_host.text()
 

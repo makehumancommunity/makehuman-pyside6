@@ -1,4 +1,7 @@
-
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
 import sys
 import os
 import re
@@ -27,11 +30,18 @@ class globalObjects():
         self.centralWidget= None
         self.randomValues = None
         self.baseClass = None
-        self.keyDict = {
+
+        # if keys in config, set keys
+        #
+        if "keys" in self.env.config:
+            self.keyDict = self.env.config["keys"]
+        else:
+            self.keyDict = {
                 "Top": "Num+9", "Left": "Num+4", "Right": "Num+6", "Front": "Num+2",
                 "Back": "Num+8", "Bottom": "Num+7", "Zoom-In": "Up", "Zoom-Out": "Down",
                 "Stop Animation": "Esc", "Toggle Perspective": "Num+0"
-            }
+                }
+
         self.textureRepo = TextureRepo()
         self.apiSocket = None              # will contain socket for applications
         self.reset()
