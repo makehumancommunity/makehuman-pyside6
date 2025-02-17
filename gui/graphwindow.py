@@ -4,7 +4,7 @@
 """
 from PySide6.QtWidgets import (
         QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel,
-        QSlider, QCheckBox, QMessageBox
+        QSlider, QCheckBox, QMessageBox, QGridLayout
 )
 from PySide6.QtCore import QSize, Qt, QObject, QEvent
 from PySide6.QtGui import QVector3D, QColor, QIcon, QKeySequence
@@ -68,7 +68,6 @@ class MHGraphicWindow(QWidget):
         self.generateKeyDict()
         self.eventFilter = NavigationEvent(self)
         self.installEventFilter(self.eventFilter)
-        self.hiddenbutton = None
 
     def generateKeyDict(self):
         """
@@ -85,83 +84,61 @@ class MHGraphicWindow(QWidget):
             self.key2Func[code]()
 
     def navButtons(self, vlayout):
-        elems = [ 
-            ["Top",   "top.png",   self.top_button ],
-            ["Left",  "left.png",  self.left_button ],
-            ["Front", "front.png", self.front_button ],
-            ["Right", "right.png", self.right_button ],
-            ["Back",  "back.png",  self.back_button ],
-            ["Bottom","bottom.png",self.bottom_button ],
-            ["Axes","3dcoord.png", self.toggle_axes ],
-            ["XY-Grid","xygrid.png",  self.toggle_grid ],
-            ["YZ-Grid","yzgrid.png",  self.toggle_grid ],
-            ["Floor-Grid","xzgrid.png",  self.toggle_grid ],
-            ["Skybox","skybox.png",self.toggle_skybox ],
-            ["Visualize skeleton", "an_skeleton.png", self.toggle_objects ],
-            ["Visualize mesh", "eq_proxy.png", self.toggle_wireframe ],
-            ["Visualize hidden vertices", "ghost.png", self.toggle_transpassets ]
+        self.buttons = [ 
+            [None, "Top",   "top.png",   self.top_button,   0, 1, False],
+            [None, "Left",  "left.png",  self.left_button,  1, 0, False],
+            [None, "Front", "front.png", self.front_button, 1, 1, False],
+            [None, "Right", "right.png", self.right_button, 1, 2, False],
+            [None, "Back",  "back.png",  self.back_button,  1, 3, False],
+            [None, "Bottom","bottom.png",self.bottom_button,2, 1, False],
+            [None, "Axes","3dcoord.png", self.toggle_axes,  3, 0, True ],
+            [None, "XY-Grid","xygrid.png", self.toggle_grid,3, 1, True ],
+            [None, "YZ-Grid","yzgrid.png", self.toggle_grid,3, 2, True ],
+            [None, "Floor-Grid","xzgrid.png", self.toggle_grid, 3, 3, True ],
+            [None, "Show hidden vertices", "unhide.png", self.changeHidden, 4, 0, True ],
+            [None, "Visualize skeleton", "an_skeleton.png", self.toggle_objects, 4, 1, True ],
+            [None, "Visualize mesh", "eq_proxy.png", self.toggle_wireframe, 4, 2, True ],
+            [None, "Visualize hidden geometry", "ghost.png", self.toggle_transpassets, 4, 3, True ],
+            [None, "Perspective", "persp.png", self.toggle_perspective, 5, 0, True ],
+            [None, "Skybox","skybox.png",self.toggle_skybox, 5, 1, True ],
+            [None, "Grab screen", "camera.png",  self.screenShot, 5, 3, False]
         ]
 
-        # hidden geometry
+        # create a grid layout for the buttons and generate them from array
         #
-        self.hiddenbutton= QCheckBox("show hidden geometry")
-        self.hiddenbutton.setLayoutDirection(Qt.LeftToRight)
-        self.hiddenbutton.toggled.connect(self.changeHidden)
-        if self.glob.baseClass is not None and self.glob.baseClass.hide_verts is False:
-            self.hiddenbutton.setChecked(True)
+        glayout = QGridLayout()
+        glayout.setSpacing(1)
+
+        for i in range(len(self.buttons)):
+            r = self.buttons[i]
+            r[0] = IconButton(i, os.path.join(self.env.path_sysicon, r[2]), r[1], r[3], checkable=r[6])
+            glayout.addWidget(r[0], r[4], r[5])
+
+
+        # now prepare hidden vertices
+        #
         self.renderView(False)
-        vlayout.addWidget(self.hiddenbutton )
+        if self.glob.baseClass is not None and self.glob.baseClass.hide_verts is False:
+            self.buttons[10][0].setChecked(True)
 
-        button = IconButton(1, os.path.join(self.env.path_sysicon, elems[0][1]), elems[0][0], elems[0][2])
-        vlayout.addWidget(button)
-        hlayout = QHBoxLayout()
-        hlayout.setSpacing(1)
-        for i in range(1,5):
-            button = IconButton(1, os.path.join(self.env.path_sysicon, elems[i][1]), elems[i][0], elems[i][2])
-            hlayout.addWidget(button)
-        vlayout.addLayout(hlayout)
-
-        button = IconButton(1, os.path.join(self.env.path_sysicon, elems[5][1]), elems[5][0], elems[5][2])
-        vlayout.addWidget(button)
-
-        # grid, axes
-        hlayout = QHBoxLayout()
-        hlayout.setSpacing(1)
-        for i in range(6,10):
-            button = IconButton(i, os.path.join(self.env.path_sysicon, elems[i][1]), elems[i][0], elems[i][2], checkable=True)
-            hlayout.addWidget(button)
-        vlayout.addLayout(hlayout)
-
-        # ghost, skybox
-        hlayout = QHBoxLayout()
-        for i in range(10,14):
-            button = IconButton(1, os.path.join(self.env.path_sysicon, elems[i][1]), elems[i][0], elems[i][2], checkable=True)
-            button.setChecked(False if i != 10 else True) # skybox is true
-            hlayout.addWidget(button)
-        vlayout.addLayout(hlayout)
-
-        # perspective button is a toggle
+        # skybox and perspective are checked
         #
-        hlayout = QHBoxLayout()
-        self.persbutton = IconButton(1, os.path.join(self.env.path_sysicon, "persp.png"), "Perspective", self.toggle_perspective, checkable=True)
-        self.persbutton.setChecked(True)
-        hlayout.addWidget(self.persbutton)
+        self.buttons[14][0].setChecked(True)
+        self.buttons[15][0].setChecked(True)
 
-        button = IconButton(1, os.path.join(self.env.path_sysicon, "camera.png"), "Grab screen", self.screenShot)
-        hlayout.addWidget(button)
-
-        vlayout.addLayout(hlayout)
+        vlayout.addLayout(glayout)
 
         self.focusSlider = SimpleSlider("Focal Length: ", 15, 200, self.focusChanged)
         vlayout.addWidget(self.focusSlider )
 
     def renderView(self, param):
+        hbutton = self.buttons[10][0]
         if param:
-            self.hiddenbutton.setEnabled(False)
-            self.hiddenbutton.setToolTip('hidden geometry cannot be changed in render view')
+            hbutton.setEnabled(False)
+            hbutton.setToolTip('hidden geometry cannot be changed in render view')
         else:
-            self.hiddenbutton.setEnabled(True)
-            self.hiddenbutton.setToolTip('do not delete vertices under clothes')
+            hbutton.setEnabled(True)
+            hbutton.setToolTip('do not delete vertices under clothes')
 
     def screenShot(self, param):
         icon = self.view.grabFramebuffer()
@@ -368,14 +345,14 @@ class MHGraphicWindow(QWidget):
 
 
     def toggle_perspective(self):
-        b = self.persbutton
+        b = self.buttons[14][0]
         v = b.isChecked()
         self.focusSlider.setEnabled(v)
         b.setChecked(v)
         self.view.togglePerspective(v)
 
     def toggle_perspective_key(self):
-        b = self.persbutton
+        b = self.buttons[14][0]
         b.setChecked(not b.isChecked())
         self.toggle_perspective()
 
