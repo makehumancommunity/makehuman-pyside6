@@ -101,6 +101,7 @@ class MHGraphicWindow(QWidget):
             [None, "Visualize hidden geometry", "ghost.png", self.toggle_transpassets, 4, 3, True ],
             [None, "Perspective", "persp.png", self.toggle_perspective, 5, 0, True ],
             [None, "Skybox","skybox.png",self.toggle_skybox, 5, 1, True ],
+            [None, "Recalculate normals","normals.png",self.recalc_normals, 5, 2, False ],
             [None, "Grab screen", "camera.png",  self.screenShot, 5, 3, False]
         ]
 
@@ -252,6 +253,10 @@ class MHGraphicWindow(QWidget):
         self.view.customView(QVector3D(0, -1, 0))
         if self.debug:
             self.camChanged()
+
+    def recalc_normals(self):
+        if self.glob.baseClass is not None:
+            self.glob.baseClass.updateNormals()
 
     def stop_anim(self):
         self.view.stopAnimation()

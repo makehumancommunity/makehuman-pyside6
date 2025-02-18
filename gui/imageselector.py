@@ -1,3 +1,7 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
 import sys
 import typing
 import os
@@ -789,6 +793,7 @@ class ImageSelection():
             mw = self.glob.showSubwindow("material", self.parent, MHMaterialWindow, PicSelectWidget, matimg, found)
         else:
             mw.updateWidgets(matimg, found)
+            mw.show()
         mw.activateWindow()
 
     def changeTags(self, asset, iconpath):

@@ -595,6 +595,11 @@ class baseClass():
         """
         self.baseMesh.getInitialCopyForSlider(factor, decr, incr)
 
+    def updateNormals(self):
+        self.baseMesh.calcNormals()
+        for asset in self.attachedAssets:
+            asset.obj.calcNormals()
+
     def updateAttachedAssets(self):
         for asset in self.attachedAssets:
             asset.obj.approxToBasemesh(asset, self.baseMesh)
