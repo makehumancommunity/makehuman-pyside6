@@ -444,7 +444,7 @@ class MHMainWindow(QMainWindow):
                 self.LeftBox.addLayout(self.saveForm)
             elif self.category_mode == 3:
                 self.leftColumn.setTitle("Export file :: parameters")
-                self.exportForm = ExportLeftPanel(self)
+                self.lastClass = self.exportForm = ExportLeftPanel(self)
                 self.LeftBox.addLayout(self.exportForm)
             elif self.category_mode == 4:
                 self.leftColumn.setTitle("Import file :: parameters")
@@ -487,23 +487,23 @@ class MHMainWindow(QMainWindow):
                 self.LeftBox.addLayout(layout)
             elif self.category_mode == 1:
                 self.leftColumn.setTitle("Poses :: filter")
-                self.lastClass = AnimMode(self.glob, self.graph.view)
+                self.lastClass = AnimMode(self.glob)
                 layout = self.animation[self.category_mode]["func"].leftPanel()
                 self.LeftBox.addLayout(layout)
             elif self.category_mode == 2:
                 self.leftColumn.setTitle("Animation Player")
-                self.lastClass = AnimPlayer(self.glob, self.graph.view)
+                self.lastClass = AnimPlayer(self.glob)
                 self.lastClass.enter()
                 self.LeftBox.addLayout(self.lastClass)
                 self.LeftBox.addStretch()
             elif self.category_mode == 3:
                 self.leftColumn.setTitle("Expressions :: filter")
-                self.lastClass = AnimMode(self.glob, self.graph.view)
+                self.lastClass = AnimMode(self.glob)
                 layout = self.animation[self.category_mode]["func"].leftPanel()
                 self.LeftBox.addLayout(layout)
             else:
                 self.leftColumn.setTitle("Expressions :: editor")
-                self.lastClass = AnimExpressionEdit(self, self.glob, self.graph.view)
+                self.lastClass = AnimExpressionEdit(self, self.glob)
                 filterparam = self.glob.baseClass.getFaceUnits().createFilterDict()
                 self.qTree = MHTreeView(filterparam, "Expressions", self.redrawNewExpression, None)
                 self.expressionfilter = self.qTree.getStartPattern()
@@ -513,7 +513,7 @@ class MHMainWindow(QMainWindow):
 
         elif self.tool_mode == 4:
             self.leftColumn.setTitle("Rendering :: parameters")
-            self.lastClass = Renderer(self, self.glob, self.graph.view)
+            self.lastClass = Renderer(self, self.glob)
             self.lastClass.enter()
             self.LeftBox.addLayout(self.lastClass)
             self.LeftBox.addStretch()

@@ -1,3 +1,7 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLineEdit, QGridLayout, QLabel, QMessageBox,  QCheckBox
 
@@ -13,12 +17,12 @@ class Renderer(QVBoxLayout):
     """
     should do with a few methods in background
     """
-    def __init__(self, parent, glob, view):
+    def __init__(self, parent, glob):
         super().__init__()
         self.parent = parent
         self.glob = glob
         self.env = glob.env
-        self.view = view
+        self.view = glob.openGLWindow
         self.bc  = glob.baseClass
         self.mesh = self.bc.baseMesh
         self.anim = self.bc.bvh

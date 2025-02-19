@@ -1,3 +1,7 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QGridLayout, QGroupBox, QCheckBox
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
@@ -11,9 +15,9 @@ class AnimMode():
     """
     used for Poses, Expressions
     """
-    def __init__(self, glob, view):
+    def __init__(self, glob):
         self.glob = glob
-        self.view = view
+        self.view = glob.openGLWindow
         self.baseClass = glob.baseClass
         self.mesh = glob.baseClass.baseMesh
         self.mesh.createWCopy()
@@ -41,9 +45,9 @@ class AnimPlayer(QVBoxLayout):
     """
     create a form with anim-player buttons
     """
-    def __init__(self, glob, view):
+    def __init__(self, glob):
         self.glob = glob
-        self.view = view
+        self.view = glob.openGLWindow
         env = glob.env
         self.bc  = glob.baseClass
         self.mesh = self.bc.baseMesh
@@ -226,9 +230,9 @@ class ExpressionItem(ScaleComboItem):
 
 
 class AnimExpressionEdit():
-    def __init__(self, parent, glob, view):
+    def __init__(self, parent, glob):
         self.glob = glob
-        self.view = view
+        self.view = glob.openGLWindow
         self.env = glob.env
         self.parent = parent
         self.baseClass = glob.baseClass

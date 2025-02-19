@@ -1,3 +1,7 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
 #
 # ASCII STL just contains zillions of triangles without any order + normals on these triangles
 #
@@ -28,6 +32,9 @@
 import struct
 
 class stlExport:
+    """
+    posed can be achieved by setting the option to pose
+    """
     def __init__(self, glob, exportfolder, hidden=False, scale=1.0):
         self.exportfolder = exportfolder
         self.env = glob.env
@@ -76,9 +83,6 @@ class stlExport:
         return(cnt)
 
     def ascSave(self, baseclass, filename):
-        #
-        # TODO: atm: non-posed
-        #
         self.env.last_error ="okay"
         solid =  baseclass.name.replace(' ','_')
         has_proxy = baseclass.proxy
@@ -99,9 +103,6 @@ class stlExport:
         return True
 
     def binSave(self, baseclass, filename):
-        #
-        # TODO: atm: non-posed
-        #
         self.env.last_error ="okay"
         has_proxy = baseclass.proxy
 

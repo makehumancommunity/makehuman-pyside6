@@ -1,3 +1,7 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
 from PySide6.QtWidgets import (
     QWidget, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QAbstractItemView, QLineEdit, QLabel,
     QMessageBox, QRadioButton, QDialogButtonBox, QCheckBox, QComboBox
@@ -5,6 +9,7 @@ from PySide6.QtWidgets import (
 
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPixmap
+from gui.poseactions import AnimMode
 from gui.imageselector import MHPictSelectable, PicSelectWidget
 from gui.materialwindow import  MHMaterialWindow, MHAssetWindow
 from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, IconButton, MHTagEdit
@@ -282,11 +287,13 @@ class ExportLeftPanel(QVBoxLayout):
         self.parent = parent
         self.glob = parent.glob
         self.bc  = parent.glob.baseClass
+        self.animmode = None        # will keep animation mode
         self.binmode = True
         self.onground = True
         self.helper = False
         self.normals = False
         self.animation = False
+        self.inpose = False
         self.savehiddenverts = False
         self.export_type = ".glb"
         super().__init__()
@@ -322,6 +329,13 @@ class ExportLeftPanel(QVBoxLayout):
         self.ground.setChecked(True)
         self.ground.setToolTip('When characters origin is not at the ground, this option corrects the position')
         self.addWidget(self.ground)
+
+        self.posed= QCheckBox("character posed")
+        self.posed.setLayoutDirection(Qt.LeftToRight)
+        self.posed.toggled.connect(self.changePosed)
+        self.posed.setChecked(True)
+        self.posed.setToolTip('Export character posed instead of default pose (set pose in animation)')
+        self.addWidget(self.posed)
 
         self.hverts= QCheckBox("save hidden vertices")
         self.hverts.setLayoutDirection(Qt.LeftToRight)
@@ -365,27 +379,31 @@ class ExportLeftPanel(QVBoxLayout):
         #
         self.setExportType(self.export_type)
 
+    def leave(self):
+        if self.animmode is not None:
+            self.animmode.leave()
+
     def setExportType(self, etype):
         common = "MakeHuman works with unit decimeter. "
         expAttrib = { ".stl":  {"tip": common + "STL files are unit less. When working with printers 1 unit equals 1 millimeter (preset scale 1:10)",
                 "num": 3, "binset": True, "binmode": "both", "hiddenset": True, "hiddenmode": False,
-                "animset": False, "animmode": False,
+                "animset": False, "animmode": False, "poseset": True, "posemode": False,
                 "helpset": False, "helpmode": False, "normset": False, "normmode": False},
             ".glb": { "tip": common + "GLB/GLTF units are usually meters",
                 "num": 0, "binset": False, "binmode": True, "hiddenset": True, "hiddenmode": False,
-                "animset": True, "animmode": False,
+                "animset": True, "animmode": False, "poseset": False, "posemode": False,
                 "helpset": False, "helpmode": False, "normset": False, "normmode": True},
             ".mh2b": { "tip": common + "Blender units are usually meters",
                 "num": 0, "binset": False, "binmode": True, "hiddenset": True, "hiddenmode": False,
-                "animset": True, "animmode": False,
+                "animset": True, "animmode": False, "poseset": False, "posemode": False,
                 "helpset": False, "helpmode": False, "normset": False, "normmode": False},
             ".obj": { "tip": common + "Wavefront units are usually meters",
                 "num": 0, "binset": False, "binmode": False, "hiddenset": True, "hiddenmode": False,
-                "animset": False, "animmode": False,
+                "animset": False, "animmode": False, "poseset": False, "posemode": False,
                 "helpset": True, "helpmode": False, "normset": True, "normmode": False},
             ".bvh": { "tip": common + "BVH units are usually the same as the internal scale",
                 "num": 0, "binset": False, "binmode": False,  "hiddenset": False, "hiddenmode": False,
-                "animset": False, "animmode": True,
+                "animset": False, "animmode": True, "poseset": False, "posemode": False,
                 "helpset": False, "helpmode": False, "normset": False, "normmode": False}
             }
 
@@ -409,6 +427,9 @@ class ExportLeftPanel(QVBoxLayout):
         self.anim.setChecked(expAttrib[self.export_type]["animmode"])
         self.anim.setEnabled(expAttrib[self.export_type]["animset"])
 
+        self.posed.setChecked(expAttrib[self.export_type]["posemode"])
+        self.posed.setEnabled(expAttrib[self.export_type]["poseset"])
+
         self.scalebox.setCurrentIndex(expAttrib[self.export_type]["num"])
         self.scalebox.setToolTip(expAttrib[self.export_type]["tip"])
 
@@ -420,6 +441,14 @@ class ExportLeftPanel(QVBoxLayout):
 
     def changeGround(self, param):
         self.onground = param
+
+    def changePosed(self, param):
+        if self.animmode is None:
+            self.animmode = AnimMode(self.glob)
+        else:
+            self.animmode.leave()
+            self.animmode = None
+        self.inpose = param
 
     def changeHelper(self, param):
         self.helper = param
