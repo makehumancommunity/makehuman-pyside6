@@ -1,3 +1,7 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
 from PySide6.QtGui import QMatrix4x4, QVector3D, QVector4D, QOpenGLContext
 import OpenGL
 from OpenGL import GL as gl
@@ -87,7 +91,6 @@ class Camera():
         self.view_matrix.setToIdentity()
         self.view_matrix.lookAt( self.cameraPos, self.lookAt, self.cameraDir)
         self.proj_view_matrix = self.proj_matrix * self.view_matrix
-        #self.shaders.setShaderUniform(self.phong, "viewPos", self.view_matrix) # TODO is that needed here?
 
     def calculateOrthoMatrix(self):
         self.proj_matrix.setToIdentity()

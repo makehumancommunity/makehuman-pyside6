@@ -1,5 +1,8 @@
 #!/usr/bin/python3
-
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
 import argparse, textwrap
 import os
 import sys
@@ -26,7 +29,7 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
 
     # optional arguments
-    parser.add_argument("model", type=str, nargs='?', help="name of an mhm model file (use with base mesh")
+    parser.add_argument("model", type=str, nargs='?', help="name of an mhm model file (use with base mesh)")
     parser.add_argument('-V', '--version', action='store_true',  help="Show version and License")
     parser.add_argument("--nomultisampling", action="store_true", help=textwrap.dedent('''\
         disable multisampling (used to display multi transparent layers)

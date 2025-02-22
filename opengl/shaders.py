@@ -1,12 +1,18 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
 import os
 from PySide6.QtOpenGL import QOpenGLBuffer, QOpenGLShader, QOpenGLShaderProgram
 
 """
-    try to put all Texture and Shader Stuff here
-    TODO: will control multi-shaders later
+    load and store shaders
 """
 
-class ShaderPair(QOpenGLShaderProgram):
+class ShaderFiles(QOpenGLShaderProgram):
+    """
+    class to store 3 connected shaders
+    """
     def __init__(self, env, path):
         self.uniforms = { "uMvpMatrix": -1, "uModelMatrix": -1, "uNormalMatrix": -1,
                 "ambientLight": -1, "lightWeight": -1, "viewPos": -1, "blinn": -1,
@@ -15,6 +21,7 @@ class ShaderPair(QOpenGLShaderProgram):
         self.env = env
         self.frag_id = None
         self.vert_id = None
+        self.geom_id = None
         self.path = path
         super().__init__()
 
@@ -33,10 +40,19 @@ class ShaderPair(QOpenGLShaderProgram):
         if self.addShaderFromSourceFile(QOpenGLShader.Vertex,path):
             self.vert_id = self.shaders()[-1].shaderId()
 
+    def loadGeomShader(self):
+        path = self.path + ".geom"
+        self.env.logLine(8, "Load: " + path)
+        if self.addShaderFromSourceFile(QOpenGLShader.Geometry,path):
+            self.geom_id = self.shaders()[-1].shaderId()
 
+    def loadAllShaderTypes(self):
+        self.loadFragShader()
+        self.loadVertShader()
+        if os.path.isfile(self.path + ".geom"):
+            self.loadGeomShader()
 
 class ShaderRepository():
-
     def __init__(self, glob):
         self.glob = glob
         self.env = glob.env
@@ -56,10 +72,9 @@ class ShaderRepository():
         if path in self._shadernames:
             return self._shadernames[path]
 
-        pair = ShaderPair(self.env, path)
-        pair.loadFragShader()
-        pair.loadVertShader()
-        self._shaders.append(pair)
+        files = ShaderFiles(self.env, path)
+        files.loadAllShaderTypes()
+        self._shaders.append(files)
         shadernum = len(self._shaders)-1
         self._shadernames[filename] = shadernum
         return shadernum
@@ -88,8 +103,7 @@ class ShaderRepository():
         shader = self._shaders[num]
         for key in shader.uniforms.keys():
             shader.uniforms[key] = shader.uniformLocation(key)
-        print ("shader: " + str(num))
-        print (shader.uniforms)
+        self.env.logLine(2, "Shader: " + str(num) + " " + str(shader.uniforms))
 
     def setShaderUniform(self, shader, name, var):
         if name in shader.uniforms:
