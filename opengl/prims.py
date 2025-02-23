@@ -259,10 +259,10 @@ class VisLights():
             self.obj.append(l)
         return True
 
-    def draw(self, proj_view_matrix):
+    def draw(self, proj_view_matrix, campos):
         for i, light in enumerate(self.light.lights):
             self.obj[i].setPosition(light["pos"])
             self.obj[i].setTexture(self.parent.white)
-            self.obj[i].draw(proj_view_matrix, self.light, False)
+            self.obj[i].draw(proj_view_matrix, campos, self.light, False)
 
 

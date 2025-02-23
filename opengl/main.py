@@ -297,7 +297,7 @@ class OpenGLView(QOpenGLWidget):
         # initialize shaders
         #
         self.mh_shaders = ShaderRepository(self.glob)
-        self.mh_shaders.loadShaders(["phong3l", "fixcolor", "xray", "litsphere", "pbr", "toon","skybox"])
+        self.mh_shaders.loadShaders(["phong3l", "fixcolor", "xray", "litsphere", "pbr", "normal", "toon","skybox"])
 
         self.light = Light(self.mh_shaders, self.glob)
         self.light.setShader()
@@ -367,6 +367,7 @@ class OpenGLView(QOpenGLWidget):
         self.glfunc.glClearColor(c.x(), c.y(), c.z(), c.w())
         self.glfunc.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
         proj_view_matrix = QMatrix4x4(self.camera.getProjViewMatrix().copyDataTo())
+        campos = self.camera.getCameraPos()
         baseClass = self.glob.baseClass
 
         if baseClass is not None and self.objects_invisible is False:
@@ -377,20 +378,20 @@ class OpenGLView(QOpenGLWidget):
                 body = self.objects[0]
                 asset_start = 1
             if self.wireframe:
-                body.drawWireframe(proj_view_matrix, self.black, self.white)
+                body.drawWireframe(proj_view_matrix, campos, self.black, self.white)
             else:
-                body.draw(proj_view_matrix, self.light)
+                body.draw(proj_view_matrix, campos, self.light)
 
             # either with xray or normal shader draw assets
             #
             for obj in self.objects[asset_start:]:
                 if self.wireframe:
-                    obj.drawWireframe(proj_view_matrix, self.black, self.white)
+                    obj.drawWireframe(proj_view_matrix, campos, self.black, self.white)
                 else:
-                    obj.draw(proj_view_matrix, self.light, self.xrayed)
+                    obj.draw(proj_view_matrix, campos, self.light, self.xrayed)
 
         if self.visLights is not None and self.prims["axes"].isVisible():
-            self.visLights.draw(proj_view_matrix)
+            self.visLights.draw(proj_view_matrix, campos)
 
         if self.light.skybox and self.skybox and self.camera.cameraPers:
             self.skybox.draw(proj_view_matrix)

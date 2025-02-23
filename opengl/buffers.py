@@ -174,13 +174,14 @@ class RenderedObject:
     def setYRotation(self, rot):
         self.y_rotation = rot
 
-    def geomToShader(self, shader, proj_view_matrix):
+    def geomToShader(self, shader, proj_view_matrix, campos):
         """
         create geometry
         """
         self.mvp_matrix_location = shader.uniforms["uMvpMatrix" ]
         self.model_matrix_location = shader.uniforms["uModelMatrix"]
         self.normal_matrix_location = shader.uniforms["uNormalMatrix"]
+        self.viewpos_location = shader.uniforms["viewPos"]
 
         shader.bind()
 
@@ -201,14 +202,16 @@ class RenderedObject:
         shader.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)
         shader.setUniformValue(self.model_matrix_location, self.model_matrix)
         shader.setUniformValue(self.normal_matrix_location, self.normal_matrix)
+        if self.viewpos_location != -1:
+            shader.setUniformValue(self.viewpos_location, campos)
 
 
-    def draw(self, proj_view_matrix, light, xrayed = False):
+    def draw(self, proj_view_matrix, campos, light, xrayed = False):
         """
         :param proj_view_matrix: matrix
         """
         shader = self.shaders.getShader("xray") if xrayed else self.shader
-        self.geomToShader(shader, proj_view_matrix)
+        self.geomToShader(shader, proj_view_matrix, campos)
         functions = self.context.functions()
 
 
@@ -283,12 +286,12 @@ class RenderedObject:
         functions.glDisable(gl.GL_DEPTH_TEST)
         functions.glActiveTexture(gl.GL_TEXTURE0)
 
-    def drawWireframe(self, proj_view_matrix, black, white):
+    def drawWireframe(self, proj_view_matrix, campos, black, white):
         """
         creates a wireframe model
         """
         shader = self.shaders.getShader("phong3l")
-        self.geomToShader(shader, proj_view_matrix)
+        self.geomToShader(shader, proj_view_matrix, campos)
         functions = self.context.functions()
 
         oldtexture = self.texture

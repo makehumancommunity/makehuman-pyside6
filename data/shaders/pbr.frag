@@ -107,7 +107,7 @@ void main()
 	float ao = texture(AOTexture, fs_in.TexCoords).r;
 	vec2  mr = texture(MRTexture, fs_in.TexCoords).rg;
 
-	float metallic  = clamp(mr.g * MeMult, 0.0, 1.0);
+	float metallic  = clamp(1.0 - (mr.g * MeMult), 0.0, 1.0);
 	float roughness = clamp(mr.r * RoMult, min_roughness, 1.0);
 
 	vec3 F0 = mix(vec3(min_roughness), color, metallic);

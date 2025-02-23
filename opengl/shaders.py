@@ -13,12 +13,14 @@ class ShaderFiles(QOpenGLShaderProgram):
     """
     class to store 3 connected shaders
     """
-    def __init__(self, env, path):
+    def __init__(self, env, name, path):
         self.uniforms = { "uMvpMatrix": -1, "uModelMatrix": -1, "uNormalMatrix": -1,
-                "ambientLight": -1, "lightWeight": -1, "viewPos": -1, "blinn": -1,
+                "uProjectionViewMatrix": -1, "ambientLight": -1, "lightWeight": -1, "viewPos": -1, "blinn": -1,
                 "Texture": -1, "litsphereTexture": -1, "AdditiveShading": -1,
-                "AOTexture": -1, "AOMult": -1, "MRTexture": -1, "MeMult": -1, "RoMult": -1, "skybox": -1}
+                "AOTexture": -1, "AOMult": -1, "MRTexture": -1, "MeMult": -1, "RoMult": -1,
+                "NOTexture": -1, "skybox": -1}
         self.env = env
+        self.name = name
         self.frag_id = None
         self.vert_id = None
         self.geom_id = None
@@ -72,7 +74,7 @@ class ShaderRepository():
         if path in self._shadernames:
             return self._shadernames[path]
 
-        files = ShaderFiles(self.env, path)
+        files = ShaderFiles(self.env, filename, path)
         files.loadAllShaderTypes()
         self._shaders.append(files)
         shadernum = len(self._shaders)-1
@@ -103,7 +105,7 @@ class ShaderRepository():
         shader = self._shaders[num]
         for key in shader.uniforms.keys():
             shader.uniforms[key] = shader.uniformLocation(key)
-        self.env.logLine(2, "Shader: " + str(num) + " " + str(shader.uniforms))
+        self.env.logLine(2, "Shader: " + self._shaders[num].name + " " + str(shader.uniforms))
 
     def setShaderUniform(self, shader, name, var):
         if name in shader.uniforms:
