@@ -279,6 +279,7 @@ class Light():
         self.shaders = shaders
         self.phong = shaders.getShader("phong3l")
         self.pbr = shaders.getShader("pbr")
+        self.normal = shaders.getShader("normal")
         self.toon = shaders.getShader("toon")
         #
         # volume of scene in units
@@ -364,6 +365,11 @@ class Light():
         self.shaders.bindShader(self.phong)
         self.shaders.setShaderUniform(self.phong, "blinn", self.blinn)
         self.shaders.setShaderUniform(self.phong, "lightWeight", self.lightWeight)
+
+        # last one only for normal
+        #
+        self.shaders.bindShader(self.normal)
+        self.shaders.setShaderUniform(shader, "ambientLight", self.ambientLight)
 
     def useBlinn(self, value):
         if value != self.blinn:

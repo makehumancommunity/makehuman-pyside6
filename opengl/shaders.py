@@ -28,7 +28,7 @@ class ShaderFiles(QOpenGLShaderProgram):
         super().__init__()
 
     def __str__(self):
-        return "Shader Pair: "+ self.path
+        return "Shader Files: "+ self.path
 
     def loadFragShader(self):
         path = self.path + ".frag"

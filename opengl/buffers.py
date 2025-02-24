@@ -1,3 +1,7 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
 import time
 import numpy as np
 from PySide6.QtGui import QVector3D, QMatrix4x4, QImage
@@ -93,6 +97,7 @@ class RenderedObject:
         self.texture = None
         self.litsphere = None
         self.aomap = None
+        self.nomap = None
         self.mrmap = None
         self.z_depth = obj.z_depth
         self.name = obj.filename
@@ -125,6 +130,8 @@ class RenderedObject:
             self.shader = self.shaders.getShader("litsphere")
         elif material.shader == "pbr":
             self.shader = self.shaders.getShader("pbr")
+        elif material.shader == "normal":
+            self.shader = self.shaders.getShader("normal")
         elif material.shader == "toon":
             self.shader = self.shaders.getShader("toon")
         else:
@@ -160,6 +167,16 @@ class RenderedObject:
             functions.glUniform1f(metallic, self.material.metallicFactor)
             functions.glUniform1f(roughness, self.material.pbrMetallicRoughness)
             functions.glActiveTexture(gl.GL_TEXTURE2)
+        elif material.shader == "normal":
+            self.nomap = self.material.loadNOMap(self.parent.white)
+            t2 = self.shader.uniforms['NOTexture']
+            functions.glUniform1i(t2, 1)
+            functions.glActiveTexture(gl.GL_TEXTURE1)
+
+            self.mrmap = self.material.loadMRMap(self.parent.white)
+            t3 = self.shader.uniforms['MRTexture']
+            functions.glUniform1i(t3, 2)
+            functions.glActiveTexture(gl.GL_TEXTURE2)
 
         functions.glActiveTexture(gl.GL_TEXTURE0)
 
@@ -181,6 +198,7 @@ class RenderedObject:
         self.mvp_matrix_location = shader.uniforms["uMvpMatrix" ]
         self.model_matrix_location = shader.uniforms["uModelMatrix"]
         self.normal_matrix_location = shader.uniforms["uNormalMatrix"]
+        self.proj_view_matrix_location = shader.uniforms["uProjectionViewMatrix"]
         self.viewpos_location = shader.uniforms["viewPos"]
 
         shader.bind()
@@ -204,6 +222,8 @@ class RenderedObject:
         shader.setUniformValue(self.normal_matrix_location, self.normal_matrix)
         if self.viewpos_location != -1:
             shader.setUniformValue(self.viewpos_location, campos)
+        if self.proj_view_matrix_location != -1:
+            shader.setUniformValue(self.proj_view_matrix_location, proj_view_matrix)
 
 
     def draw(self, proj_view_matrix, campos, light, xrayed = False):
@@ -270,6 +290,16 @@ class RenderedObject:
                 functions.glUniform1i(t3, 2)
                 functions.glUniform1f(metallic, self.material.metallicFactor)
                 functions.glUniform1f(roughness, self.material.pbrMetallicRoughness)
+                functions.glActiveTexture(gl.GL_TEXTURE2)
+                self.mrmap.bind()
+
+            elif self.material.shader == "normal":
+                t2 = shader.uniforms['NOTexture']
+                functions.glUniform1i(t2, 1)
+                functions.glActiveTexture(gl.GL_TEXTURE1)
+                self.nomap.bind()
+                t3 = self.shader.uniforms['MRTexture']
+                functions.glUniform1i(t3, 2)
                 functions.glActiveTexture(gl.GL_TEXTURE2)
                 self.mrmap.bind()
 

@@ -22,11 +22,17 @@ uniform sampler2D MRTexture;
 uniform sampler2D NOTexture;
 
 // Gets the color of the light from the main function (change this to point lights later)
-// uniform vec4 lightColor;
 uniform vec4 ambientLight;
 
-vec4 pointLight()
-{	
+const vec4 extraLight = vec4(1.0, 1.0, 1.0, 1.0);
+
+void main()
+{
+	vec4 basecolor = texture(Texture, texCoord);
+        float transp = basecolor.a;
+        if (transp < 0.01) discard;
+        vec3 color = basecolor.rgb;
+
 	// used in two variables so I calculate it here to not have to do it twice
 	vec3 lightVec = lightPos - crntPos;
 
@@ -34,10 +40,8 @@ vec4 pointLight()
 	float dist = length(lightVec);
 	float a = 1.00f;
 	float b = 0.70f;
-	float inten = 1.0f / (a * dist * dist + b * dist + 1.0f);
-
-	// ambient lighting
-	float ambient = 0.05f;
+	// float inten = 1.0f / (a * dist * dist + b * dist + 1.0f);
+	float inten = 0.5;
 
 	// diffuse lighting
 	// Normals are mapped from the range [0, 1] to the range [-1, 1]
@@ -56,11 +60,8 @@ vec4 pointLight()
 		specular = specAmount * specularLight;
 	};
 
-	return (texture(Texture, texCoord) * (diffuse * inten + ambient) + texture(MRTexture, texCoord).r * specular * inten) * ambientLight;
-}
-
-void main()
-{
-	// outputs final color
-	FragColor = pointLight();
+	vec3 ambient = ambientLight[3] * color * vec3(ambientLight);
+	vec3 outcolor = (color * (diffuse * inten) + texture(MRTexture, texCoord).r * specular * inten) * vec3(extraLight);
+        color = ambient + outcolor;
+        FragColor = vec4(clamp(color, 0.0, 1.0), transp);
 }

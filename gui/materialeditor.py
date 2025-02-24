@@ -25,6 +25,7 @@ class MHMaterialEditor(QWidget):
                 [None, "Phong", "phong3l", "combination of ambient, diffuse and specular reflection"],
                 [None, "Litpshere", "litsphere", "IBL (image based lighting), MatCap"],
                 [None, "PBR", "pbr", "physical based rendering (openGL)"],
+                [None, "Normal", "normal", "shader for use with normalmap (openGL)"],
                 [None, "Toon", "toon", "a silhouette based shader (openGL)"]
         ]
 

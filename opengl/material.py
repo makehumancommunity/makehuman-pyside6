@@ -1,3 +1,7 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
 import os
 import numpy
 from core.debug import dumper
@@ -27,6 +31,7 @@ class Material:
         self.tex_diffuse = None
         self.tex_litsphere = None
         self.tex_aomap = None
+        self.tex_nomap = None
         self.tex_mrmap = None
         self.ambientColor = [0.5, 0.5, 0.5 ]
         self.diffuseColor = [1.0, 1.0, 1.0 ]
@@ -359,6 +364,13 @@ shaderConfig diffuse {self.sc_diffuse}
 
         return white
 
+    def loadNOMap(self, nocolor):
+        if hasattr(self, 'normalmapTexture'):
+            self.tex_nomap = MH_Texture(self.glob.textureRepo)
+            return self.tex_nomap.load(self.normalmapTexture)
+
+        return nocolor
+
     def loadMRMap(self, white):
         if hasattr(self, 'metallicRoughnessTexture'):
             self.tex_mrmap = MH_Texture(self.glob.textureRepo)
@@ -387,7 +399,7 @@ shaderConfig diffuse {self.sc_diffuse}
             else:
                 self.tex_diffuse.destroy()
 
-        for elem in [self.tex_litsphere, self.tex_aomap, self.tex_mrmap]:
+        for elem in [self.tex_litsphere, self.tex_aomap, self.tex_mrmap, self.tex_nomap]:
             if elem:
                 elem.delete()
 
