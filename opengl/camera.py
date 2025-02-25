@@ -351,7 +351,7 @@ class Light():
             d["type"] = s["type"]
 
     def setShader(self):
-        for shader in [self.phong, self.pbr, self.toon]:
+        for shader in [self.phong, self.pbr, self.toon, self.normal]:
             self.shaders.bindShader(shader)
             for i, elem in enumerate(self.lights):
                 self.shaders.setShaderArrayStruct(shader, "pointLights", i, "position", elem["pos"])
@@ -365,11 +365,6 @@ class Light():
         self.shaders.bindShader(self.phong)
         self.shaders.setShaderUniform(self.phong, "blinn", self.blinn)
         self.shaders.setShaderUniform(self.phong, "lightWeight", self.lightWeight)
-
-        # last one only for normal
-        #
-        self.shaders.bindShader(self.normal)
-        self.shaders.setShaderUniform(shader, "ambientLight", self.ambientLight)
 
     def useBlinn(self, value):
         if value != self.blinn:

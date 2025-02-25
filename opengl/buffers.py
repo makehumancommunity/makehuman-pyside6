@@ -168,15 +168,22 @@ class RenderedObject:
             functions.glUniform1f(roughness, self.material.pbrMetallicRoughness)
             functions.glActiveTexture(gl.GL_TEXTURE2)
         elif material.shader == "normal":
-            self.nomap = self.material.loadNOMap(self.parent.white)
-            t2 = self.shader.uniforms['NOTexture']
+            self.aomap = self.material.loadAOMap(self.parent.white)
+            t2 = self.shader.uniforms['AOTexture']
+            intense =self.shader.uniforms['AOMult']
             functions.glUniform1i(t2, 1)
+            functions.glUniform1f(intense, self.material.aomapIntensity)
             functions.glActiveTexture(gl.GL_TEXTURE1)
 
-            self.mrmap = self.material.loadMRMap(self.parent.white)
-            t3 = self.shader.uniforms['MRTexture']
+            self.nomap = self.material.loadNOMap(self.parent.white)
+            t3 = self.shader.uniforms['NOTexture']
             functions.glUniform1i(t3, 2)
             functions.glActiveTexture(gl.GL_TEXTURE2)
+
+            self.mrmap = self.material.loadMRMap(self.parent.white)
+            t4 = self.shader.uniforms['MRTexture']
+            functions.glUniform1i(t4, 3)
+            functions.glActiveTexture(gl.GL_TEXTURE3)
 
         functions.glActiveTexture(gl.GL_TEXTURE0)
 
@@ -294,13 +301,21 @@ class RenderedObject:
                 self.mrmap.bind()
 
             elif self.material.shader == "normal":
-                t2 = shader.uniforms['NOTexture']
+                t2 = shader.uniforms['AOTexture']
+                intense =self.shader.uniforms['AOMult']
                 functions.glUniform1i(t2, 1)
+                functions.glUniform1f(intense, self.material.aomapIntensity)
                 functions.glActiveTexture(gl.GL_TEXTURE1)
-                self.nomap.bind()
-                t3 = self.shader.uniforms['MRTexture']
+                self.aomap.bind()
+
+                t3 = shader.uniforms['NOTexture']
                 functions.glUniform1i(t3, 2)
                 functions.glActiveTexture(gl.GL_TEXTURE2)
+                self.nomap.bind()
+
+                t4 = self.shader.uniforms['MRTexture']
+                functions.glUniform1i(t4, 3)
+                functions.glActiveTexture(gl.GL_TEXTURE3)
                 self.mrmap.bind()
 
         indices = self.getindex()

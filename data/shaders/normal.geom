@@ -9,16 +9,16 @@ layout (triangle_strip, max_vertices = 3) out;
 in DATA {
 	vec3 Normal;
 	vec2 texCoord;
-	mat4 projection;
+	// mat4 projection;
 	mat4 model;
-	vec3 lightPos;
+	vec3 lightPos[3];
 	vec3 camPos;
 } data_in[];
 
 out vec3 Normal;
 out vec2 texCoord;
 out vec3 crntPos;
-out vec3 lightPos;
+out vec3 lightPos[3];
 out vec3 camPos;
 
 // Default main function
@@ -54,7 +54,9 @@ void main()
 	Normal = data_in[0].Normal;
 	texCoord = data_in[0].texCoord;
 	crntPos = TBN * gl_in[0].gl_Position.xyz;
-	lightPos = TBN * data_in[0].lightPos;
+	for (int i = 0; i < 3; i++) {
+		lightPos[i] = TBN * data_in[0].lightPos[i];
+	}
 	camPos = TBN * data_in[0].camPos;
 	EmitVertex();
 
@@ -63,7 +65,9 @@ void main()
 	Normal = data_in[1].Normal;
 	texCoord = data_in[1].texCoord;
 	crntPos = TBN * gl_in[1].gl_Position.xyz;
-	lightPos = TBN * data_in[1].lightPos;
+	for (int i = 0; i < 3; i++) {
+		lightPos[i] = TBN * data_in[1].lightPos[i];
+	}
 	camPos = TBN * data_in[1].camPos;
 	EmitVertex();
 
@@ -72,7 +76,9 @@ void main()
 	Normal = data_in[2].Normal;
 	texCoord = data_in[2].texCoord;
 	crntPos = TBN * gl_in[2].gl_Position.xyz;
-	lightPos = TBN * data_in[2].lightPos;
+	for (int i = 0; i < 3; i++) {
+		lightPos[i] = TBN * data_in[2].lightPos[i];
+	}
 	camPos = TBN * data_in[2].camPos;
 	EmitVertex();
 
