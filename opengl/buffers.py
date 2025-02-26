@@ -123,70 +123,28 @@ class RenderedObject:
 
     def setMaterial(self, material):
         """
-        set Texture, litSphere and AdditiveLight, prb = ambientocclusion
+        set shader and creates textures from material according to shader
+        all shaders use a diffuse texture
         """
-        functions = self.context.functions()
+        self.material = material
+        self.texture = self.material.loadDiffuse()
+
         if material.shader == "litsphere":
             self.shader = self.shaders.getShader("litsphere")
+            self.litsphere = self.material.loadLitSphere()
         elif material.shader == "pbr":
             self.shader = self.shaders.getShader("pbr")
+            self.aomap = self.material.loadAOMap(self.parent.white)
+            self.mrmap = self.material.loadMRMap(self.parent.white)
         elif material.shader == "normal":
             self.shader = self.shaders.getShader("normal")
+            self.aomap = self.material.loadAOMap(self.parent.white)
+            self.nomap = self.material.loadNOMap(self.parent.white)
+            self.mrmap = self.material.loadMRMap(self.parent.white)
         elif material.shader == "toon":
             self.shader = self.shaders.getShader("toon")
         else:
             self.shader = self.shaders.getShader("phong3l")
-
-        self.material = material
-        self.texture = self.material.loadDiffuse()
-
-        t1 = self.shader.uniforms['Texture']
-        functions.glUniform1i(t1, 0)
-        functions.glActiveTexture(gl.GL_TEXTURE0)
-
-        if material.shader == "litsphere":
-            self.litsphere = self.material.loadLitSphere()
-            t2 = self.shader.uniforms['litsphereTexture']
-            add =self.shader.uniforms['AdditiveShading']
-            functions.glUniform1i(t2, 1)
-            functions.glUniform1f(add, self.material.sp_AdditiveShading)
-            functions.glActiveTexture(gl.GL_TEXTURE1)
-        elif material.shader == "pbr":
-            self.aomap = self.material.loadAOMap(self.parent.white)
-            t2 = self.shader.uniforms['AOTexture']
-            intense =self.shader.uniforms['AOMult']
-            functions.glUniform1i(t2, 1)
-            functions.glUniform1f(intense, self.material.aomapIntensity)
-            functions.glActiveTexture(gl.GL_TEXTURE1)
-
-            self.mrmap = self.material.loadMRMap(self.parent.white)
-            t3 = self.shader.uniforms['MRTexture']
-            metallic =self.shader.uniforms['MeMult']
-            roughness =self.shader.uniforms['RoMult']
-            functions.glUniform1i(t3, 2)
-            functions.glUniform1f(metallic, self.material.metallicFactor)
-            functions.glUniform1f(roughness, self.material.pbrMetallicRoughness)
-            functions.glActiveTexture(gl.GL_TEXTURE2)
-        elif material.shader == "normal":
-            self.aomap = self.material.loadAOMap(self.parent.white)
-            t2 = self.shader.uniforms['AOTexture']
-            intense =self.shader.uniforms['AOMult']
-            functions.glUniform1i(t2, 1)
-            functions.glUniform1f(intense, self.material.aomapIntensity)
-            functions.glActiveTexture(gl.GL_TEXTURE1)
-
-            self.nomap = self.material.loadNOMap(self.parent.white)
-            t3 = self.shader.uniforms['NOTexture']
-            functions.glUniform1i(t3, 2)
-            functions.glActiveTexture(gl.GL_TEXTURE2)
-
-            self.mrmap = self.material.loadMRMap(self.parent.white)
-            t4 = self.shader.uniforms['MRTexture']
-            functions.glUniform1i(t4, 3)
-            functions.glActiveTexture(gl.GL_TEXTURE3)
-
-        functions.glActiveTexture(gl.GL_TEXTURE0)
-
 
     def setTexture(self, texture):
         # only used for colors
@@ -205,7 +163,6 @@ class RenderedObject:
         self.mvp_matrix_location = shader.uniforms["uMvpMatrix" ]
         self.model_matrix_location = shader.uniforms["uModelMatrix"]
         self.normal_matrix_location = shader.uniforms["uNormalMatrix"]
-        self.proj_view_matrix_location = shader.uniforms["uProjectionViewMatrix"]
         self.viewpos_location = shader.uniforms["viewPos"]
 
         shader.bind()
@@ -225,12 +182,12 @@ class RenderedObject:
         # now set uMvpMatrix, uModelMatrix, uNormalMatrix
 
         shader.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)
-        shader.setUniformValue(self.model_matrix_location, self.model_matrix)
-        shader.setUniformValue(self.normal_matrix_location, self.normal_matrix)
+        if self.model_matrix_location != -1:
+            shader.setUniformValue(self.model_matrix_location, self.model_matrix)
+        if self.normal_matrix_location != -1:
+            shader.setUniformValue(self.normal_matrix_location, self.normal_matrix)
         if self.viewpos_location != -1:
             shader.setUniformValue(self.viewpos_location, campos)
-        if self.proj_view_matrix_location != -1:
-            shader.setUniformValue(self.proj_view_matrix_location, proj_view_matrix)
 
 
     def draw(self, proj_view_matrix, campos, light, xrayed = False):
@@ -272,49 +229,43 @@ class RenderedObject:
             functions.glDisable(gl.GL_CULL_FACE)
 
         if not xrayed:
-            t1 = shader.uniforms['Texture']
-            functions.glUniform1i(t1, 0)
+            functions.glUniform1i(shader.uniforms['Texture'], 0)
             functions.glActiveTexture(gl.GL_TEXTURE0)
             self.texture.bind()
+
             if self.material.shader == "litsphere":
-                t2 = shader.uniforms['litsphereTexture']
-                add = shader.uniforms['AdditiveShading']
-                functions.glUniform1i(t2, 1)
-                functions.glUniform1f(add, self.material.sp_AdditiveShading)
+                functions.glUniform1f(shader.uniforms['AdditiveShading'], self.material.sp_AdditiveShading)
+
+                functions.glUniform1i(shader.uniforms['litsphereTexture'], 1)
                 functions.glActiveTexture(gl.GL_TEXTURE1)
                 self.litsphere.bind()
+
             elif self.material.shader == "pbr":
-                t2 = shader.uniforms['AOTexture']
-                intense =self.shader.uniforms['AOMult']
-                functions.glUniform1i(t2, 1)
-                functions.glUniform1f(intense, self.material.aomapIntensity)
+                functions.glUniform1f(shader.uniforms['AOMult'], self.material.aomapIntensity)
+
+                functions.glUniform1i(shader.uniforms['AOTexture'], 1)
                 functions.glActiveTexture(gl.GL_TEXTURE1)
                 self.aomap.bind()
 
-                t3 = shader.uniforms['MRTexture']
-                metallic =self.shader.uniforms['MeMult']
-                roughness =self.shader.uniforms['RoMult']
-                functions.glUniform1i(t3, 2)
-                functions.glUniform1f(metallic, self.material.metallicFactor)
-                functions.glUniform1f(roughness, self.material.pbrMetallicRoughness)
+                functions.glUniform1f(shader.uniforms['MeMult'], self.material.metallicFactor)
+                functions.glUniform1f(shader.uniforms['RoMult'], self.material.pbrMetallicRoughness)
+
+                functions.glUniform1i(shader.uniforms['MRTexture'], 2)
                 functions.glActiveTexture(gl.GL_TEXTURE2)
                 self.mrmap.bind()
 
             elif self.material.shader == "normal":
-                t2 = shader.uniforms['AOTexture']
-                intense =self.shader.uniforms['AOMult']
-                functions.glUniform1i(t2, 1)
-                functions.glUniform1f(intense, self.material.aomapIntensity)
+                functions.glUniform1f(shader.uniforms['AOMult'], self.material.aomapIntensity)
+
+                functions.glUniform1i(shader.uniforms['AOTexture'], 1)
                 functions.glActiveTexture(gl.GL_TEXTURE1)
                 self.aomap.bind()
 
-                t3 = shader.uniforms['NOTexture']
-                functions.glUniform1i(t3, 2)
+                functions.glUniform1i(shader.uniforms['NOTexture'], 2)
                 functions.glActiveTexture(gl.GL_TEXTURE2)
                 self.nomap.bind()
 
-                t4 = self.shader.uniforms['MRTexture']
-                functions.glUniform1i(t4, 3)
+                functions.glUniform1i(shader.uniforms['MRTexture'], 3)
                 functions.glActiveTexture(gl.GL_TEXTURE3)
                 self.mrmap.bind()
 

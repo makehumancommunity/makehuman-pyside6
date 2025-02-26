@@ -29,9 +29,6 @@ uniform sampler2D MRTexture;
 uniform sampler2D NOTexture;
 uniform sampler2D AOTexture;
 
-// Gets the color of the light from the main function (change this to point lights later)
-
-
 uniform float AOMult;
 uniform vec4 ambientLight;
 

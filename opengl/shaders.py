@@ -15,7 +15,7 @@ class ShaderFiles(QOpenGLShaderProgram):
     """
     def __init__(self, env, name, path):
         self.uniforms = { "uMvpMatrix": -1, "uModelMatrix": -1, "uNormalMatrix": -1,
-                "uProjectionViewMatrix": -1, "ambientLight": -1, "lightWeight": -1, "viewPos": -1, "blinn": -1,
+                "ambientLight": -1, "lightWeight": -1, "viewPos": -1, "blinn": -1,
                 "Texture": -1, "litsphereTexture": -1, "AdditiveShading": -1,
                 "AOTexture": -1, "AOMult": -1, "MRTexture": -1, "MeMult": -1, "RoMult": -1,
                 "NOTexture": -1, "skybox": -1}

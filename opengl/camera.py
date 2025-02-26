@@ -16,7 +16,6 @@ class Camera():
         all parameters connected with camera
         """
         self.shaders = shaders
-        self.phong = shaders.getShader("phong3l")
         self.o_height =  o_size
         self.focalLength = 50.0                # start with a norm focal length
         self.verticalAngle = 0.0                # vertical angle

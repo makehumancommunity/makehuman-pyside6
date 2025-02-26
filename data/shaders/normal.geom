@@ -10,7 +10,7 @@ in DATA {
 	vec3 Normal;
 	vec2 texCoord;
 	// mat4 projection;
-	mat4 model;
+	mat3 model;
 	vec3 lightPos[3];
 	vec3 camPos;
 } data_in[];
@@ -38,9 +38,9 @@ void main()
 	vec3 tangent = vec3(invDet * (dUV1.y * e0 - dUV0.y * e1));
 	vec3 bitangent = vec3(invDet * (-dUV1.x * e0 + dUV0.x * e1));
 
-	vec3 T = normalize(vec3(data_in[0].model * vec4(tangent, 0.0f)));
-	vec3 B = normalize(vec3(data_in[0].model * vec4(bitangent, 0.0f)));
-	vec3 N = normalize(vec3(data_in[0].model * vec4(cross(e1, e0), 0.0f)));
+	vec3 T = normalize(data_in[0].model * tangent);
+	vec3 B = normalize(data_in[0].model * bitangent);
+	vec3 N = normalize(data_in[0].model * (cross(e1, e0)));
 	mat3 TBN = mat3(T, B, N);
 	// TBN is an orthogonal matrix and so its inverse is equal to its transpose
 	TBN = transpose(TBN);

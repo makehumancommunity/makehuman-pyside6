@@ -12,8 +12,6 @@ struct PointLight {
 };
 
 uniform mat4 uMvpMatrix;
-uniform mat4 uModelMatrix;
-uniform mat4 uProjectionViewMatrix;
 uniform vec3 viewPos;
 
 uniform PointLight pointLights[3];
@@ -21,7 +19,7 @@ uniform PointLight pointLights[3];
 out DATA {
 	vec3 Normal;
 	vec2 texCoord;
-	mat4 model;
+	mat3 model;
 	vec3 lightPos[3];
 	vec3 camPos;
 } vs_out;
@@ -33,8 +31,7 @@ void main()
 		vs_out.lightPos[i] = pointLights[i].position;
 	}
 	vs_out.texCoord = aTexCoords;
-	//vs_out.model = uModelMatrix;
-	vs_out.model = uMvpMatrix;
+	vs_out.model = mat3(uMvpMatrix);
 	vs_out.Normal = vec3(aNormal);
 	gl_Position = uMvpMatrix *  aPos;
 }
