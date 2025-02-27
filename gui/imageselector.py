@@ -721,10 +721,7 @@ class ImageSelection():
         multi = (self.selmode == 1)
         self.callback(asset, self.type, multi)
         self.changeStatus()
-        if multi:
-            asset.status = 2
-        else:
-            asset.status = 1
+        asset.status = 1
         self.refreshButtons()
         self.picwidget.refreshAllWidgets()
 

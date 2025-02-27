@@ -1,3 +1,7 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
 import numpy as np
 from obj3d.bone import cBone, boneWeights
 import core.math as mquat
@@ -33,11 +37,9 @@ class skeleton:
         # read joints into a list (avoid wrong types)
         #
         j = json["joints"]
-        for name in j:
-            val = j[name]
+        for name, val in j.items():
             if isinstance(val, list) and len(val) > 0:
                 self.jointVerts[name] = val
-
 
         # read planes into a list
         #
@@ -48,8 +50,7 @@ class skeleton:
         # head, tail are available
         #
         j = json["bones"]
-        for bone in j:
-            val = j[bone]
+        for bone, val in j.items():
             if "head" not in val:
                 self.env.logLine(1, "head is missing for " + bone + " in " + path)
                 return False

@@ -221,6 +221,7 @@ class ExpressionItem(ScaleComboItem):
         self.glob = glob
         self.callback = callback
         self.mat = expression["bones"]
+        self.measure = None
         if "group" in expression:
             self.group = expression["group"]
 
@@ -242,6 +243,7 @@ class AnimExpressionEdit():
         self.view.addSkeleton(True)
         self.baseClass.pose_skeleton.newGeometry()
         self.baseClass.restPose()
+        self.baseClass.precalculateAssetsInRestPose()
         self.expressions = []
         self.thumbimage = None
         self.view.Tweak()
@@ -387,7 +389,6 @@ class AnimExpressionEdit():
         blends = []
         for elem in self.expressions:
             if elem.value != 0.0:
-                print (elem.name + " is changed")
                 blends.append([elem.mat, elem.value])
         self.baseClass.pose_skeleton.posebyBlends(blends, None)
         self.view.Tweak()
