@@ -1,3 +1,7 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+"""
 import os
 import json
 import struct
@@ -57,7 +61,7 @@ class gltfExport:
         self.json["samplers"] = [ { "magFilter": self.MAGFILTER, "minFilter": self.MINFILTER, # fixed sampler (one for all)
             "wrapS": self.REPEAT, "wrapT" : self.REPEAT } ]
 
-        self.json["scene"] = 0 # fixed number (we only have on scene)
+        self.json["scene"] = 0 # fixed number (we only have one scene)
 
         self.json["nodes"] = [] # list of nodes
 
@@ -339,6 +343,14 @@ class gltfExport:
         self.json["textures"].append({"sampler": 0, "source": image})
         return ({ "index": self.texture_cnt, "scale": scale })
 
+    def addEmissiveTexture(self, texture):
+        self.texture_cnt += 1
+        (okay, image) = self.addImage(texture)
+        if not okay:
+            return (None)
+        self.json["textures"].append({"sampler": 0, "source": image})
+        return ({ "index": self.texture_cnt })
+
     def addOcclusionTexture(self, texture, strength):
         self.texture_cnt += 1
         (okay, image) = self.addImage(texture)
@@ -375,6 +387,10 @@ class gltfExport:
             print ("Ambient-Occlusion " + material.aomapTexture)
             occl = self.addOcclusionTexture(material.aomapTexture, material.aomapIntensity)
 
+        emis = None
+        if hasattr(material, "emissiveTexture"):
+            print ("Emissive " + material.emissiveTexture)
+            emis = self.addEmissiveTexture(material.emissiveTexture)
 
         if pbr is None:
             return(-1)
@@ -389,6 +405,11 @@ class gltfExport:
 
         if occl is not None:
             mat["occlusionTexture"] = occl
+
+        if emis is not None:
+            mat["emissiveTexture"] = emis
+            emf = material.emissiveFactor
+            mat["emissiveFactor"]  = [ emf, emf, emf ]
 
         self.json["materials"].append(mat)
         return (self.material_cnt)
@@ -542,7 +563,7 @@ class gltfExport:
             if baseweights is not None:
                 proxy.calculateBoneWeights()
                 baseweights = proxy.bWeights.transferWeights(baseclass.skeleton)
-                baseobject = proxy.obj
+            baseobject = proxy.obj
             start = 1
         else:
             baseobject = baseclass.baseMesh
@@ -622,7 +643,7 @@ class gltfExport:
                 print ("No animation for different skeleton allowed atm")
 
         self.json["buffers"].append({"byteLength": self.bufferoffset})
-        self.env.logLine(32, self)
+        self.env.logLine(32, str(self))
         return (True)
 
 

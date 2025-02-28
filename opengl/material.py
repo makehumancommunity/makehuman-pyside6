@@ -1,17 +1,15 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
+
+    Classes:
+    * Material
 """
+
 import os
 import numpy
 from core.debug import dumper
 from opengl.texture import MH_Texture
-
-
-"""
-    try to put all Material Stuff here
-"""
-
 
 class Material:
     def __init__(self, glob, objdir, eqtype):
@@ -33,6 +31,7 @@ class Material:
         self.tex_aomap = None
         self.tex_nomap = None
         self.tex_mrmap = None
+        self.tex_emmap = None
         self.ambientColor = [0.5, 0.5, 0.5 ]
         self.diffuseColor = [1.0, 1.0, 1.0 ]
         self.specularColor = [0.5, 0.5, 0.5 ]
@@ -41,6 +40,7 @@ class Material:
         self.translucency = 0.0
         self.metallicFactor = 0.0
         self.pbrMetallicRoughness = None
+        self.emissiveFactor = 0.0
         self.transparent = False
         self.shininess = 0.5
         #
@@ -127,10 +127,11 @@ class Material:
             if key in ["#", "//"]:
                 continue
 
-            # if commands make no sense, they will be skipped ... 
-            #
+            # * if commands make no sense, they will be skipped ... 
+            # * check textures and set an absolut path
+
             if key in ["diffuseTexture", "normalmapTexture", "displacementmapTexture", "specularmapTexture", "transparencymapTexture",
-                    "aomapTexture", "metallicRoughnessTexture" ]:
+                    "aomapTexture", "metallicRoughnessTexture", "emissiveTexture"]:
                 abspath = self.isExistent(words[1])
                 if abspath is not None:
                     setattr (self, key, abspath)
@@ -163,7 +164,7 @@ class Material:
             #
             elif key in ["shininess", "viewPortAlpha", "opacity", "translucency", "bumpmapIntensity",
                 "normalmapIntensity", "displacementmapIntensity", "specularmapIntensity",
-                "transparencymapIntensity", "aomapIntensity", "pbrMetallicRoughness", "metallicFactor" ]:
+                "transparencymapIntensity", "aomapIntensity", "pbrMetallicRoughness", "metallicFactor", "emissiveFactor" ]:
                 setattr (self, key, max(0.0, min(1.0, float(words[1]))))
 
             elif key in ["sssRScale", "sssGScale", "sssBScale"]:
@@ -256,6 +257,12 @@ class Material:
         else:
             metrough = ""
 
+        if hasattr(self, "emissiveTexture"):
+            emissive = "emissiveTexture " + self.textureRelName(self.emissiveTexture) + \
+                "\nemissiveFactor " + str(self.emissiveFactor) + "\n"
+        else:
+            emissive = ""
+
         # for litsphere save only name to avoid trouble
         #
         if hasattr(self, "sp_litsphereTexture"):
@@ -295,7 +302,7 @@ depthless {self.depthless}
 castShadows {self.castShadows}
 receiveShadows {self.receiveShadows}
 
-{diffuse}{normal}{occl}{metrough}
+{diffuse}{normal}{occl}{metrough}{emissive}
 
 {shader}{litsphere}
 
@@ -371,6 +378,17 @@ shaderConfig diffuse {self.sc_diffuse}
 
         return nocolor
 
+    def loadEMMap(self, nocolor):
+        self.tex_emmap = MH_Texture(self.glob.textureRepo)
+        if hasattr(self, 'emissiveTexture'):
+            return self.tex_emmap.load(self.emissiveTexture)
+
+        if hasattr(self, 'emissiveColor'):
+            if self.emissiveColor != [0.0, 0.0, 0.0]:
+                return self.tex_emmap.unicolor(self.emissiveColor)
+        
+        return nocolor
+
     def loadMRMap(self, white):
         if hasattr(self, 'metallicRoughnessTexture'):
             self.tex_mrmap = MH_Texture(self.glob.textureRepo)
@@ -399,7 +417,7 @@ shaderConfig diffuse {self.sc_diffuse}
             else:
                 self.tex_diffuse.destroy()
 
-        for elem in [self.tex_litsphere, self.tex_aomap, self.tex_mrmap, self.tex_nomap]:
+        for elem in [self.tex_litsphere, self.tex_aomap, self.tex_mrmap, self.tex_nomap, self.tex_emmap]:
             if elem:
                 elem.delete()
 

@@ -99,6 +99,7 @@ class RenderedObject:
         self.aomap = None
         self.nomap = None
         self.mrmap = None
+        self.emmap = None
         self.z_depth = obj.z_depth
         self.name = obj.filename
         self.boundingbox = boundingbox
@@ -136,6 +137,7 @@ class RenderedObject:
             self.shader = self.shaders.getShader("pbr")
             self.aomap = self.material.loadAOMap(self.parent.white)
             self.mrmap = self.material.loadMRMap(self.parent.white)
+            self.emmap = self.material.loadEMMap(self.parent.black)
         elif material.shader == "normal":
             self.shader = self.shaders.getShader("normal")
             self.aomap = self.material.loadAOMap(self.parent.white)
@@ -253,6 +255,12 @@ class RenderedObject:
                 functions.glUniform1i(shader.uniforms['MRTexture'], 2)
                 functions.glActiveTexture(gl.GL_TEXTURE2)
                 self.mrmap.bind()
+
+                functions.glUniform1f(shader.uniforms['EmMult'], self.material.emissiveFactor)
+
+                functions.glUniform1i(shader.uniforms['EMTexture'], 3)
+                functions.glActiveTexture(gl.GL_TEXTURE3)
+                self.emmap.bind()
 
             elif self.material.shader == "normal":
                 functions.glUniform1f(shader.uniforms['AOMult'], self.material.aomapIntensity)

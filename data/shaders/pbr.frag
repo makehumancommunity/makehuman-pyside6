@@ -23,10 +23,12 @@ in VS_OUT {
 uniform sampler2D Texture;
 uniform sampler2D AOTexture;
 uniform sampler2D MRTexture;
+uniform sampler2D EMTexture;
 
 uniform float AOMult;
 uniform float RoMult;
 uniform float MeMult;
+uniform float EmMult;
 
 uniform vec4 ambientLight;
 uniform vec3 viewPos;
@@ -106,6 +108,7 @@ void main()
 
 	float ao = texture(AOTexture, fs_in.TexCoords).r;
 	vec2  mr = texture(MRTexture, fs_in.TexCoords).rg;
+	vec3  em = texture(EMTexture, fs_in.TexCoords).rgb;
 
 	float metallic  = clamp(1.0 - (mr.g * MeMult), 0.0, 1.0);
 	float roughness = clamp(mr.r * RoMult, min_roughness, 1.0);
@@ -142,6 +145,10 @@ void main()
 	}
 	vec3 ambient = ambientLight[3] * color * vec3(ambientLight) * ao * AOMult;
 	color = ambient + outcolor;
+
+	// emissive map
+	color.xyz += EmMult * em;
+
 	FragColor = vec4(clamp(color, 0.0, 1.0), transp);
 }
 
