@@ -1,3 +1,10 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    blender-addon, material nodes
+"""
+
 import bpy
 import os
 import shutil
@@ -76,7 +83,8 @@ class MH2B_OT_Material:
             node.image.colorspace_settings.name = 'Non-Color'
         return (node)
 
-    def addNodes(self, jdata, texture, alpha, roughness, metallic, normtexture, normscale, aotexture, aoscale, mrtexture):
+    def addNodes(self, jdata, texture, alpha, roughness, metallic, normtexture, normscale, \
+            aotexture, aoscale, mrtexture, emtexture, emscale):
 
         # Add the Principled Shader node
         #
@@ -91,6 +99,7 @@ class MH2B_OT_Material:
         node_output.location = 600,0
 
 
+        locy = 300
         # add color, either texture or list
         #
         if isinstance(texture, dict) and "source" in texture:
@@ -98,7 +107,8 @@ class MH2B_OT_Material:
             path = jdata["images"][img]["uri"]
 
             # Add the Image Texture node
-            node_tex = self.addTextureNode(path, -600, 300, False, "BASE COLOR")
+            node_tex = self.addTextureNode(path, -600, locy, False, "BASE COLOR")
+            locy -= 300
 
             links.new(node_tex.outputs["Color"], node_principled.inputs["Base Color"])
             if alpha is not None:
@@ -117,42 +127,62 @@ class MH2B_OT_Material:
             #
             img = normtexture["source"]
             path = jdata["images"][img]["uri"]
-            node_normtex = self.addTextureNode(path, -600, 0, True, "NORMAL MAP")
+            node_normtex = self.addTextureNode(path, -600, locy, True, "NORMAL MAP")
 
             node_normalmap = self.nodes.new('ShaderNodeNormalMap')
-            node_normalmap.location = -300, 0
+            node_normalmap.location = -300, locy
             node_normalmap.inputs["Strength"].default_value = normscale
             links.new(node_normtex.outputs["Color"], node_normalmap.inputs["Color"])
             links.new(node_normalmap.outputs["Normal"], node_principled.inputs["Normal"])
+            locy -= 300
 
         if mrtexture is not None:
             # add metallic-roughness texture
             #
             img = mrtexture["source"]
             path = jdata["images"][img]["uri"]
-            node_mrtex = self.addTextureNode(path, -600, -300, True, "METALLIC ROUGHNESS")
+            node_mrtex = self.addTextureNode(path, -600, locy, True, "METALLIC ROUGHNESS")
             node_sepcolmr = self.nodes.new('ShaderNodeSeparateColor')
-            node_sepcolmr.location = -300,-300
+            node_sepcolmr.location = -300, locy
 
             links.new(node_mrtex.outputs["Color"], node_sepcolmr.inputs["Color"])
             links.new(node_sepcolmr.outputs[2], node_principled.inputs["Metallic"])
             links.new(node_sepcolmr.outputs[1], node_principled.inputs["Roughness"])
+            locy -= 300
 
+        if emtexture is not None:
+            if isinstance(emtexture, list):
+                node_principled.inputs["Emission Color"].default_value = tuple(emtexture)
+            else:
+                # add emission texture
+                #
+                img = emtexture["source"]
+                path = jdata["images"][img]["uri"]
+                node_emtex = self.addTextureNode(path, -600, locy, True, "EMISSION")
+                links.new(node_emtex.outputs["Color"], node_principled.inputs["Emission Color"])
+                locy -= 300
+
+        if emscale is not None:
+            # trick: create logarithmic scale between 0 and 255
+            # to make that visible use blooming effect
+            #
+            em = pow (2, emscale *8)-1
+            node_principled.inputs["Emission Strength"].default_value = em
 
         if aotexture is not None:
             # add ambient occlusion texture
             #
             img = aotexture["source"]
             path = jdata["images"][img]["uri"]
-            node_aotex = self.addTextureNode(path, -600, -600, True, "OCCLUSION")
+            node_aotex = self.addTextureNode(path, -600, locy, True, "OCCLUSION")
             node_sepcol = self.nodes.new('ShaderNodeSeparateColor')
-            node_sepcol.location = -300,-600
+            node_sepcol.location = -300, locy
             node_mixcol = self.nodes.new('ShaderNodeMixRGB')
-            node_mixcol.location = -100,-600
+            node_mixcol.location = -100, locy
             node_mixcol.inputs[0].default_value = aoscale
 
             node_amboc = self.nodes.new("ShaderNodeAmbientOcclusion")
-            node_amboc.location = 100,-600
+            node_amboc.location = 100, locy
 
             node_mixcshader = self.nodes.new("ShaderNodeMixShader")
             node_mixcshader.location = 400, 0
@@ -179,7 +209,7 @@ class MH2B_OT_Material:
         self.blendmat = bpy.data.materials.new(name=name)
         self.blendmat.use_nodes = True
         if alpha:
-            self.blendmat.blend_method = 'BLEND'
+            self.blendmat.blend_method = alpha
         self.nodes = self.blendmat.node_tree.nodes
         self.nodes.clear()
 
@@ -197,6 +227,18 @@ class MH2B_OT_Material:
             aoscale = matj['occlusionTexture']["strength"]
             aotexture = jdata["textures"][textind]
 
+        emtexture = None
+        if "emissiveTexture" in matj:
+            textind = matj['emissiveTexture']["index"]
+            emtexture = jdata["textures"][textind]
+        elif "emissiveColor" in matj:
+            emtexture = matj['emissiveColor']
+            emtexture.append(1.0)
+
+        emscale = None
+        if "emissiveFactor" in matj:
+            emscale = matj["emissiveFactor"]
+
         if "pbrMetallicRoughness" in matj:
             pbr = matj["pbrMetallicRoughness"]
             roughness = pbr['roughnessFactor'] if "roughnessFactor" in pbr else None
@@ -210,8 +252,10 @@ class MH2B_OT_Material:
             if 'baseColorTexture' in pbr:
                 textind = pbr['baseColorTexture']["index"]
                 texture = jdata["textures"][textind]
-                self.addNodes(jdata, texture, alpha, roughness, metallic, normtexture, normscale, aotexture, aoscale, mrtexture)
+                self.addNodes(jdata, texture, alpha, roughness, metallic, normtexture, normscale, \
+                        aotexture, aoscale, mrtexture, emtexture, emscale)
             elif 'baseColorFactor' in pbr:
-                self.addNodes(jdata,  pbr['baseColorFactor'], alpha, roughness, metallic, normtexture, normscale, aotexture, aoscale, mrtexture)
+                self.addNodes(jdata,  pbr['baseColorFactor'], alpha, roughness, metallic, normtexture, normscale, \
+                        aotexture, aoscale, mrtexture, emtexture, emscale)
         return(self.blendmat)
 

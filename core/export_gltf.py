@@ -76,9 +76,7 @@ class gltfExport:
 
         self.json["buffers"] = []       # at the moment we try one view = one buffer
 
-        # skeleton 
-        #
-        self.json["skins"] = []
+        # self.json["skins"]            # is defined later only when skeleton is available
 
         # texture and material
         #
@@ -548,12 +546,12 @@ class gltfExport:
 
         baseweights = None
 
-
         if baseclass.skeleton is not None:
 
             # recalculate weights for different skeleton
             #
             baseweights =  baseclass.default_skeleton.bWeights.transferWeights(baseclass.skeleton)
+            self.json["skins"] = []
 
 
         # in case of a proxy use the proxy as first mesh, get weights for proxy

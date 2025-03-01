@@ -1,15 +1,20 @@
-#
-# new Blender exchange format similar to glTF, so binary buffers for
-# verts, vertex per faces, faces, uvs => to read with from_pydata() in Blender
-#
-# definition of structure is in JSON
-#
-# this module is used for files and socket API 
-#
-# so order of buffers is significant to be able to read the file chunk by chunk
-#
-# start must be skeleton (if available) to get the restmatrix buffer first,
-# then all othter future components not directly associated with a mesh
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+
+    new Blender exchange format similar to glTF, so binary buffers for
+    verts, vertex per faces, faces, uvs => to read with from_pydata() in Blender
+
+    definition of structure is in JSON
+
+    this module is used for files and socket API
+
+    so order of buffers is significant to be able to read the file chunk by chunk
+
+    start must be skeleton (if available) to get the restmatrix buffer first,
+    then all othter future components not directly associated with a mesh
+"""
 
 import os
 import json
@@ -204,6 +209,14 @@ class blendCom:
         self.json["textures"].append({"sampler": 0, "source": image})
         return ({ "index": self.texture_cnt, "scale": scale })
 
+    def addEmissiveTexture(self, texture):
+        self.texture_cnt += 1
+        (okay, image) = self.addImage(texture)
+        if not okay:
+            return (None)
+        self.json["textures"].append({"sampler": 0, "source": image})
+        return ({ "index": self.texture_cnt })
+
     def addOcclusionTexture(self, texture, strength):
         self.texture_cnt += 1
         (okay, image) = self.addImage(texture)
@@ -240,12 +253,17 @@ class blendCom:
             print ("Ambient-Occlusion " + material.aomapTexture)
             occl = self.addOcclusionTexture(material.aomapTexture, material.aomapIntensity)
 
+        emis = None
+        if hasattr(material, "emissiveTexture"):
+            print ("Emissive " + material.emissiveTexture)
+            emis = self.addEmissiveTexture(material.emissiveTexture)
+
         if pbr is None:
             return(-1)
 
         mat = {"name": self.nodeName(name), "pbrMetallicRoughness": pbr}
         if material.sc_diffuse and material.transparent:
-            mat["alphaMode"] = "BLEND"
+            mat["alphaMode"] = "HASHED" # is not a gltfMode !
             mat["doubleSided"] =  material.backfaceCull
 
         if norm is not None:
@@ -253,6 +271,14 @@ class blendCom:
 
         if occl is not None:
             mat["occlusionTexture"] = occl
+
+        if emis is not None:
+            mat["emissiveTexture"] = emis
+            mat["emissiveFactor"]  = material.emissiveFactor  # float instead of vector (glTF)
+        else:
+            if material.emissiveFactor > 0.0 and material.emissiveColor != [0.0, 0.0, 0.0]:
+                mat["emissiveColor"] = material.emissiveColor
+                mat["emissiveFactor"]= material.emissiveFactor
 
         self.json["materials"].append(mat)
         return (self.material_cnt)
@@ -460,7 +486,7 @@ class blendCom:
             if baseweights is not None:
                 proxy.calculateBoneWeights()
                 baseweights = proxy.bWeights.transferWeights(baseclass.skeleton)
-                baseobject = proxy.obj
+            baseobject = proxy.obj
             start = 1
         else:
             baseobject = baseclass.baseMesh
