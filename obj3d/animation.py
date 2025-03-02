@@ -1,6 +1,12 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
+
+    Classes:
+    * BVHJoint
+    * BVH
+    * MHPose
+    * FaceUnits
 """
 import numpy as np
 import core.math as mquat
@@ -26,7 +32,7 @@ class BVHJoint():
         self.matRestLocal = None
         self.matRestGlobal = None
 
-        self.matrixPoses = None         # location/rotation matrices for complete animation
+        self.matrixPoses = None         # array of location/rotation matrices for complete animation
 
     def calculateRestMat(self):
 
@@ -47,7 +53,6 @@ class BVHJoint():
 
     def __repr__(self):
         output = self.name if self.name is not None else "end-site"
-
         return (output + " " + str(self.channelorder) + " " + str(self.animdata))
 
 class BVH():
@@ -173,8 +178,13 @@ class BVH():
 
 
     def calcLocRotMat(self, frame, data):
-        #
-        # it is always order yzx since it only works for z_up
+        """
+        calculation is done once after loading the file
+        it is always order yzx since it only works for z_up (and order is already sorted)
+
+        :param frame: frame number
+        :param data:  array of bvh data
+        """
         i = 0
         for joint in self.bvhJointOrder:
             if joint.nChannels > 0:
@@ -231,7 +241,7 @@ class BVH():
 
     def load(self, filename):
         self.filename = filename
-        self.env.logLine(8, "Load pose " + filename)
+        self.env.logLine(8, "Load bvh " + filename)
 
         with open(filename, "r", encoding='utf-8') as fp:
             # starts with HIERARCHIE 
@@ -275,6 +285,9 @@ class BVH():
         return True
 
 class MHPose():
+    """
+    class for expressions
+    """
     def __init__(self, glob, faceunits, name):
         self.glob = glob
         self.env = glob.env

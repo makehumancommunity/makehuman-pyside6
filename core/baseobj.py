@@ -1,3 +1,13 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * MakeHumanModel
+    * loadEquipment
+    * baseClass
+"""
+
 import os
 from core.target import Targets
 from core.attached_asset import attachedAsset
@@ -194,8 +204,10 @@ class baseClass():
                     if verbose is not None:
                         verbose.setLabelText("Load: " + skelpath)
                     self.skeleton = skeleton(self.glob, loaded.skeleton)
-                    self.skeleton.loadJSON(skelpath)
-                    self.glob.markAssetByFileName(skelpath, True)
+                    if self.skeleton.loadJSON(skelpath):
+                        self.glob.markAssetByFileName(skelpath, True)
+                    else:
+                        self.skeleton = None
 
         # recalculate pose-skeleton
         #
@@ -433,9 +445,11 @@ class baseClass():
             self.skeleton = self.pose_skeleton
         else:
             self.skeleton = skeleton(self.glob, name)
-            self.skeleton.loadJSON(path)
-        self.glob.markAssetByFileName(path, True)
-        self.glob.openGLWindow.addSkeleton()
+            if self.skeleton.loadJSON(path):
+                self.glob.markAssetByFileName(path, True)
+                self.glob.openGLWindow.addSkeleton()
+            else:
+                self.skeleton = None
 
     def delSkeleton(self, path):
         self.skeleton = None
@@ -568,8 +582,10 @@ class baseClass():
             self.pose_skelpath = self.env.existDataFile("rigs", self.env.basename, skelname)
             if self.pose_skelpath is not None:
                 self.pose_skeleton = skeleton(self.glob, skelname)
-                self.pose_skeleton.loadJSON(self.pose_skelpath)
-                self.default_skeleton = self.pose_skeleton
+                if self.pose_skeleton.loadJSON(self.pose_skelpath):
+                    self.default_skeleton = self.pose_skeleton
+                else:
+                    self.pose_skeleton = None
 
         # set here or/and in mhm
         #

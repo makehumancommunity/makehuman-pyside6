@@ -158,7 +158,7 @@ class MH2B_OT_Material:
                 #
                 img = emtexture["source"]
                 path = jdata["images"][img]["uri"]
-                node_emtex = self.addTextureNode(path, -600, locy, True, "EMISSION")
+                node_emtex = self.addTextureNode(path, -600, locy, False, "EMISSION")
                 links.new(node_emtex.outputs["Color"], node_principled.inputs["Emission Color"])
                 locy -= 300
 

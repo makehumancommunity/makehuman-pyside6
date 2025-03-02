@@ -1,3 +1,11 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * object3d
+"""
+
 import numpy as np 
 from obj3d.fops_binary import exportObj3dBinary, importObjFromFile
 from opengl.material import Material
@@ -24,7 +32,6 @@ class object3d:
 
         self.coord = []     # will contain positions of vertices, array of float32 for openGL
         self.uvs   = []     # will contain coordinates for uvs
-        self.fuvs  = None   # will contain UV buffer or will stay none (TODO: is that needed?)
         self.fverts  = []   # will contain vertices per face, [verts, 3] array of uint32 for openGL > 2
         self.n_fverts = 0    # number of vertices for open gl
         self.loadedgroups = None # will contain the group after loading from file (also for hidden geometry)

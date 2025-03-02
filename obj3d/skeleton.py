@@ -1,7 +1,11 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
+
+    Classes:
+    * skeleton
 """
+
 import numpy as np
 from obj3d.bone import cBone, boneWeights
 import core.math as mquat
@@ -123,8 +127,12 @@ class skeleton:
         for bone in  self.bones:
             print (self.bones[bone])
         """
-        self.calcRestMat()
+        # in case it cannot calculate inverse binding, just say it here and avoid skeleton
+        #
+        if self.calcRestMat() is False:
+            return False
         self.filename = path
+        return True
 
     def copyScaled(self, source, scale, offset):
         """
@@ -170,7 +178,9 @@ class skeleton:
 
     def calcRestMat(self):
         for bone in self.bones:
-            self.bones[bone].calcRestMatFromSkeleton()
+            if self.bones[bone].calcRestMatFromSkeleton() is False:
+                return False
+        return True
 
     def newGeometry(self):
         """
@@ -186,9 +196,7 @@ class skeleton:
 
     def calcGlobalPoseMat(self):
         for bone in  self.bones:
-            if self.bones[bone].calcGlobalPoseMat() is False:
-                return False
-        return True
+            self.bones[bone].calcGlobalPoseMat()
 
     def skinBasemesh(self):
         self.skinMesh(self.mesh, self.bWeights)
@@ -218,8 +226,7 @@ class skeleton:
     def restPose(self, bones_only=False):
         for bone in self.bones:
             self.bones[bone].restPose()
-            if self.bones[bone].calcGlobalPoseMat() is False:
-                return False
+            self.bones[bone].calcGlobalPoseMat()
             self.bones[bone].poseBone()
 
         # in case of restpose, pose with update function and not with pose function
@@ -228,13 +235,22 @@ class skeleton:
             self.skinBasemesh()
             self.glob.baseClass.updateAttachedAssets()
 
-    def pose(self, joints, frame=0, bones_only=False):
+    def pose(self, joints: dict, frame=0, bones_only=False):
+        """
+        pose the skeleton
+
+        :param joints: BVHJoint dictionary
+        :param frame: frame number
+        :param bones_only: if True, no skinning
+        """
         for elem, bone in self.bones.items():
+
+            # pose each cBone which is mentioned in joints
+            #
             if elem in joints:
                 bone.calcLocalPoseMat(joints[elem].matrixPoses[frame])
 
-            if bone.calcGlobalPoseMat() is False:
-                return False
+            bone.calcGlobalPoseMat()
             bone.poseBone()
 
         if not bones_only:
@@ -257,8 +273,7 @@ class skeleton:
                 if elem in joints:
                     bone.calcLocalPoseMat(joints[elem].matrixPoses[frame])
 
-                if bone.calcGlobalPoseMat() is False:
-                    return False
+                bone.calcGlobalPoseMat()
                 bone.poseBone()
                 if bone.parent is None:
                     yroot = bone.poseheadPos[1]
@@ -300,16 +315,14 @@ class skeleton:
                 mat = mquat.quaternionToRotMatrix(q1)
                 self.bones[bone].calcLocalPoseMat(mat)
 
-            if self.bones[bone].calcGlobalPoseMat() is False:
-                return False
+            self.bones[bone].calcGlobalPoseMat()
             self.bones[bone].poseBone()
 
         if mask is not None:
             for bone in mask:
                 if bone not in found:
                     self.bones[bone].restPose()
-                    if self.bones[bone].calcGlobalPoseMat() is False:
-                        return False
+                    self.bones[bone].calcGlobalPoseMat()
                     self.bones[bone].poseBone()
 
         if not bones_only:

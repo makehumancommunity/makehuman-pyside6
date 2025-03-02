@@ -1,3 +1,11 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * cBone
+    * boneWeights
+"""
 
 import numpy as np
 import core.math as mquat
@@ -50,12 +58,14 @@ class cBone():
             self.weightref = weights
 
         self.matRestGlobal = None       # rest Pose, global position 4x4 Matrix of bone object
+        self.invRestGlobal = None       # inverse global Matrix (to do less calculation)
         self.matRestLocal = None        # rest Pose, relative (local)  position 4x4 Matrix of bone object
 
         self.matPoseGlobal = None                       # global pose matrix
         self.matPoseLocal = np.identity(4, np.float32)  # relative pose matrix
 
-        self.matPoseVerts = None                        # TODO not yet clear
+        self.matPoseVerts = None        # result of matRestLocal X matPoseLocal X inv(matRestGlobal)
+                                        # to calculate vertices for openGL
 
         self.length = 0                 # length of bone
 
@@ -110,10 +120,8 @@ class cBone():
 
     def getNormal(self):
         """
-        return normal from skeleton
+        return normal from skeleton planes
         """
-        # TODO: better inside skeleton?!
-
         normal = None
         if isinstance(self.localplane, list):
             print ("List:" + str(self.localplane))
@@ -168,10 +176,19 @@ class cBone():
     def calcRestMatFromSkeleton(self):
         normal = self.getNormal()
         self.matRestGlobal = self.calcLocalRestMat(normal)
+
+        try:
+            self.invRestGlobal = np.linalg.inv(self.matRestGlobal)
+        except:
+            self.glob.env.logLine(1, "Cannot calculate pose verts matrix for bone " + self.name)
+            self.glob.env.logLine(1, "Non-singular rest matrix " + str(self.matRestGlobal))
+            return False
+
         if self.parent:
             self.matRestLocal = np.dot(np.linalg.inv(self.parent.matRestGlobal), self.matRestGlobal)
         else:
             self.matRestLocal = self.matRestGlobal
+        return True
 
 
     def restPose(self):
@@ -182,15 +199,14 @@ class cBone():
 
         # Calculate rotations
         self.matPoseLocal[:3,:3] = poseMat[:3,:3]
-        invRest = np.linalg.inv(self.matRestGlobal)            # TODO precalculate this one time maybe
-        self.matPoseLocal = np.dot(np.dot(invRest, self.matPoseLocal), self.matRestGlobal)
+        self.matPoseLocal = np.dot(np.dot(self.invRestGlobal, self.matPoseLocal), self.matRestGlobal)
 
         # Add translations from original
         if poseMat.shape[1] == 4:
             # Note: we generally only have translations on the root bone
             trans = poseMat[:3,3]
             # print (self.name + " " + str(trans))
-            trans = np.dot(invRest[:3,:3], trans.T)  # Describe translation in bone-local axis directions
+            trans = np.dot(self.invRestGlobal[:3,:3], trans.T)  # Describe translation in bone-local axis directions
             self.matPoseLocal[:3,3] = trans.T
         else:
             # No translation
@@ -202,13 +218,7 @@ class cBone():
         else:
             self.matPoseGlobal = np.dot(self.matRestLocal, self.matPoseLocal)
 
-        try:
-            self.matPoseVerts = np.dot(self.matPoseGlobal, np.linalg.inv(self.matRestGlobal))
-        except:
-            self.glob.env.logLine(1, "Cannot calculate pose verts matrix for bone " + self.name)
-            self.glob.env.logLine(1, "Non-singular rest matrix " + str(self.matRestGlobal))
-            return False
-        return True
+        self.matPoseVerts = np.dot(self.matPoseGlobal, self.invRestGlobal)
 
     def poseBone(self):
         m = np.ones(4)
