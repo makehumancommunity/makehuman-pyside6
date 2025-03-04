@@ -77,11 +77,17 @@ class globalObjects():
         """
         gets data from cache, user-settings in match will overwrite standard tags
         """
+        objectnames=[]
         self.cachedInfo = []
         rows, match = self.env.fileCache.listCacheMatch()
         for row in rows:
-            tags = (match[row[1]] if row[1] in match else row[7]).split("|")
-            self.cachedInfo.append(cacheRepoEntry(row[0], row[1], row[2], row[3], row[4], row[5], row[6], tags))
+            key = row[0]+str(row[1])
+            if key in objectnames:
+                self.env.logLine(2, row[3] + " asset " + row[0] + " is duplicated. (ignored)")
+            else:
+                objectnames.append(key)
+                tags = (match[row[1]] if row[1] in match else row[7]).split("|")
+                self.cachedInfo.append(cacheRepoEntry(row[0], row[1], row[2], row[3], row[4], row[5], row[6], tags))
 
     def noAssetsUsed(self):
         for elem in self.cachedInfo:

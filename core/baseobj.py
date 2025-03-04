@@ -81,6 +81,7 @@ class baseClass():
         self.expression = None      # indicates that expressions are used
         self.faceunits  = None      # indicates that face-units are initalized
         self.hide_verts = True      # hide vertices
+        self.getFaceUnits()         # get face-units to use the bone mask
 
     def loadMHMFile(self, filename, verbose=None):
         """
@@ -502,7 +503,7 @@ class baseClass():
             m = FaceUnits(self.glob)
             loaded, msg = m.load()
             if not loaded:
-                self.env.logLine(1, "faceUnits: " + path + " " + msg)
+                self.env.logLine(1, "faceUnits: " + msg)
                 return (None)
             self.faceunits = m
         return (self.faceunits)

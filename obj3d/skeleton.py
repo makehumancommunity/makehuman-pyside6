@@ -248,7 +248,7 @@ class skeleton:
             # pose each cBone which is mentioned in joints
             #
             if elem in joints:
-                bone.calcLocalPoseMat(joints[elem].matrixPoses[frame])
+                bone.calcLocalPoseMat(joints[elem].finalPoses[frame])
 
             bone.calcGlobalPoseMat()
             bone.poseBone()
@@ -271,7 +271,7 @@ class skeleton:
             ylow  = 1000.0
             for elem, bone in self.bones.items():
                 if elem in joints:
-                    bone.calcLocalPoseMat(joints[elem].matrixPoses[frame])
+                    bone.calcLocalPoseMat(joints[elem].finalPoses[frame])
 
                 bone.calcGlobalPoseMat()
                 bone.poseBone()

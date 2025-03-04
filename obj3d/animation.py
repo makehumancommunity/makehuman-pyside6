@@ -19,7 +19,7 @@ class BVHJoint():
         self.parent = None
         self.nChannels = 0
         self.children = []
-        self.animdata = None
+        self.animdata = None            # used to store animation data from BVH
 
         # which channels are used, will contain index [-1, -1, -1, 0, 1, 2] = Xrotation, Yrotation, Zrotation
         #
@@ -33,9 +33,27 @@ class BVHJoint():
         self.matRestGlobal = None
 
         self.matrixPoses = None         # array of location/rotation matrices for complete animation
+        self.finalPoses  = None         # used for combination
+
+    def initFrames(self, count: int):
+        self.animdata = np.zeros(shape=(count, 6), dtype=np.float32)
+        self.matrixPoses = np.zeros((count,3,4), dtype=np.float32)
+        self.matrixPoses[:,:3,:3] = np.identity(3, dtype=np.float32)
+
+    def identFinal(self):
+        self.finalPoses  = self.matrixPoses     # just copy pointer
+
+    def cloneToFinal(self):
+        self.finalPoses = np.copy(self.matrixPoses)
+
+    def resetFinal(self, count: int):
+        self.finalPoses = np.zeros((count,3,4), dtype=np.float32)
+        self.finalPoses[:,:3,:3] = np.identity(3, dtype=np.float32)
 
     def calculateRestMat(self):
-
+        """
+        calculates the rest matrix
+        """
         # Calculate absolute joint position
         if self.parent:
             self.position = np.add(self.parent.position, self.offset)
@@ -172,10 +190,21 @@ class BVH():
 
     def initFrames(self):
         for joint in self.bvhJointOrder:
-            joint.animdata = np.zeros(shape=(self.frameCount, 6), dtype=np.float32)
-            joint.matrixPoses = np.zeros((self.frameCount,3,4), dtype=np.float32)
-            joint.matrixPoses[:,:3,:3] = np.identity(3, dtype=np.float32)
+            joint.initFrames(self.frameCount)
 
+    def identFinal(self):
+        """
+        copies pointers only
+        """
+        for joint in self.bvhJointOrder:
+            joint.identFinal()
+
+    def cloneToFinal(self):
+        """
+        clones animation
+        """
+        for joint in self.bvhJointOrder:
+            joint.cloneToFinal()
 
     def calcLocRotMat(self, frame, data):
         """
@@ -207,6 +236,16 @@ class BVH():
                 #
                 if joint.parent is None or self.dislocation:
                     joint.matrixPoses[frame,:3,3] = [joint.animdata[frame, 0], joint.animdata[frame, 2], joint.animdata[frame, 1]]
+
+
+    def noFaceAnimation(self):
+        bc = self.glob.baseClass
+        if bc.faceunits is not None:
+            for joint in self.bvhJointOrder:
+                if joint.name in bc.faceunits.bonemask:
+                    joint.resetFinal(self.frameCount)
+                else:
+                    joint.identFinal()
 
 
     def debugChanged(self):
@@ -282,6 +321,8 @@ class BVH():
                 self.calcLocRotMat(i, data)
 
         # self.debugJoints("lowerarm02.L")
+        # make a copy of the pointers
+        self.identFinal()
         return True
 
 class MHPose():
@@ -349,7 +390,7 @@ class FaceUnits():
     def load(self):
         filename =self.env.existDataFile("base", self.env.basename, "face-poses.json")
         if filename is None:
-            return (False)
+            return (False, "face-poses.json not existent")
 
         faceunits = self.env.readJSON(filename)
         if faceunits is None:

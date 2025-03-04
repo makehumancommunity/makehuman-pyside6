@@ -1,6 +1,12 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
+
+    Classes:
+    * AnimMode
+    * AnimPlayer
+    * ExpressionItem
+    * AnimExpressionEdit
 """
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QGridLayout, QGroupBox, QCheckBox
 from PySide6.QtCore import Qt
@@ -60,6 +66,7 @@ class AnimPlayer(QVBoxLayout):
         if self.anim:
             name = self.anim.name
             frames = self.anim.frameCount
+            self.anim.identFinal()
         else:
             name = "(no animation loaded)"
             frames = 0
@@ -76,7 +83,7 @@ class AnimPlayer(QVBoxLayout):
         ilayout.addWidget(IconButton(2,  os.path.join(env.path_sysicon, "playerprevimage.png"), "previous frame", self.prevframe))
         ilayout.addWidget(IconButton(3,  os.path.join(env.path_sysicon, "playernextimage.png"), "next frame", self.nextframe))
         ilayout.addWidget(IconButton(4,  os.path.join(env.path_sysicon, "playerlastimage.png"), "last frame", self.lastframe))
-        self.loopbutton = IconButton(5,  os.path.join(env.path_sysicon, "reset.png"), "toggle animation (ESC = stop animation)(", self.loop)
+        self.loopbutton = IconButton(5,  os.path.join(env.path_sysicon, "reset.png"), "toggle animation (ESC = stop animation)", self.loop)
         self.loopbutton.setCheckable(True)
         ilayout.addWidget(self.loopbutton)
 
@@ -90,6 +97,11 @@ class AnimPlayer(QVBoxLayout):
             self.speedSlider.setSliderValue(self.speedValue)
             vlayout.addWidget(self.speedSlider )
 
+        self.faceanim = QCheckBox("allow face animation")
+        self.faceanim.setLayoutDirection(Qt.LeftToRight)
+        self.faceanim.setChecked(True)
+        self.faceanim.toggled.connect(self.changeFaceAnim)
+        vlayout.addWidget(self.faceanim)
         gb.setLayout(vlayout)
         layout.addWidget(gb)
 
@@ -131,12 +143,21 @@ class AnimPlayer(QVBoxLayout):
         self.view.stopTimer()
         self.view.stopRotate()
         self.view.setYRotation()        # reset to 0.0
+        if self.anim:
+            self.anim.identFinal()
         self.firstframe()
         self.mesh.resetFromCopy()
         self.view.addSkeleton(False)    # reset to unposed
         self.bc.updateAttachedAssets()
         self.bc.in_posemode = False
         self.view.Tweak()
+
+    def changeFaceAnim(self, param):
+        if self.anim:
+            if param is False:
+                self.anim.noFaceAnimation()
+            else:
+                self.anim.identFinal()
 
     def changeRotSkyBox(self, param):
         self.view.setRotSkyBox(param)

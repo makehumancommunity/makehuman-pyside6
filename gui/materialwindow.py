@@ -1,3 +1,11 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * MHMaterialWindow
+    * MHAssetWindow
+"""
 import os
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
@@ -318,7 +326,7 @@ class MHAssetWindow(QWidget):
                     
                 iconpath, extension = os.path.splitext(path)
                 iconpath += ".thumb"
-                print ("Save icon as " + iconpath)
+                self.env.logLine(8, "Save icon as " + iconpath)
                 self.icon.save(iconpath, "PNG", -1)
 
                 # only update database when object icon was changed (not material)
@@ -331,7 +339,7 @@ class MHAssetWindow(QWidget):
             if self.icon is not None:
                 iconpath, extension = os.path.splitext(self.asset.path)
                 iconpath += ".thumb"
-                print ("Save icon as " + iconpath)
+                self.env.logLine(8, "Save icon as " + iconpath)
                 self.icon.save(iconpath, "PNG", -1)
 
         self.close()
