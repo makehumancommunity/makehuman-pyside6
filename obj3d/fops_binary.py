@@ -1,5 +1,14 @@
 """
-binary file operations on object3d
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    binary file operations on object3d
+
+    Functions:
+    * exportObj3dBinary
+    * importObjValues
+    * importObj3dBinary
+    * importObjFromFile
 """
 
 import numpy as np
@@ -7,8 +16,6 @@ import os
 from obj3d.fops_wavefront import importWaveFront
 
 def exportObj3dBinary(filename, obj, content = {}):
-
-    #content = {}
 
     # binary structure
     # first header

@@ -1,5 +1,11 @@
 """
-file operations, wavefront OBJ
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    file operations, wavefront OBJ
+
+    Functions:
+    * importWaveFront
 """
 
 import numpy as np
@@ -180,8 +186,6 @@ def importWaveFront(path, obj):
     del vertex_uv                                           # the helper is no longer necessary
 
     # sanity test for finding vertices costs too much time
-    #
-    # TODO for tri mesh generate 4 vertex in vInd ? (at this place?)
     #
     obj.setName(objname)
     obj.setGroupNames(groupnames)

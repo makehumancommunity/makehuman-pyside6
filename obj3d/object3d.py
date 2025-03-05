@@ -225,13 +225,13 @@ class object3d:
         # ignore zero weights ( fa_norm = fa_norm / fa_cnt), set these to 1.0
         #
         with np.errstate(divide='ignore', invalid='ignore'):
-            divisor = np.divide(fa_norm, np.expand_dims(fa_cnt, axis=1))
-        divisor = np.nan_to_num(divisor, nan=1.0)
+            normsum = np.divide(fa_norm, np.expand_dims(fa_cnt, axis=1))
+        normsum = np.nan_to_num(normsum, nan=1.0)
 
         # calculate norm
         #
-        ix = np.s_[:]
-        self.gi_norm[ix] = divisor / np.linalg.norm(divisor)
+        for i in range(0, len(normsum)):
+            self.gi_norm[i] = normsum[i] / np.linalg.norm(normsum[i])
 
         # simply copy for the doubles in the end using overflow
         #
