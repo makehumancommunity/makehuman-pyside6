@@ -1,6 +1,11 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
+
+    Classes:
+    * globalObjects
+    * cacheRepoEntry
+    * programInfo
 """
 import sys
 import os
@@ -73,6 +78,10 @@ class globalObjects():
             return self.subwindows[name]
         return None
 
+    def closeSubwindow(self, name):
+        if name in self.subwindows:
+            self.subwindows[name].close()
+
     def getCacheData(self):
         """
         gets data from cache, user-settings in match will overwrite standard tags
@@ -105,6 +114,7 @@ class globalObjects():
         if asset_type is None or  asset_type  == "models":
             self.env.fileScanFolderMHM()
         self.getCacheData()
+        return(self.cachedInfo)
 
     def markAssetByFileName(self, path, value):
         for elem in self.cachedInfo:
@@ -833,9 +843,11 @@ class programInfo():
                         if len(words) < 2:
                             continue
 
-                        if words[0] == "name":          # always last word, one word
-                            name = words[1]
-                        elif words[0] == "uuid":        # always last word, one word
+                        if words[0] == "name":          # last words joined
+                            name = " ".join(words[1:])
+                        if words[0] == "author":        # last words joined
+                            author = " ".join(words[1:])
+                        elif words[0] == "uuid":        # always second word
                             uuid = words[1]
                         elif "tags" in line:
                             tags =" ".join(words[1:]).split(";")

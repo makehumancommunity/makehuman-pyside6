@@ -1,6 +1,13 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
+
+    Classes:
+    * BaseSelect
+    * SaveMHMForm
+    * ExportLeftPanel
+    * ExportRightPanel
+    * DownLoadImport
 """
 from PySide6.QtWidgets import (
     QWidget, QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QAbstractItemView, QLineEdit, QLabel,
@@ -161,6 +168,13 @@ class SaveMHMForm(QVBoxLayout):
         self.editname.editingFinished.connect(self.newname)
         self.addWidget(self.editname)
 
+        # author
+        #
+        self.addWidget(QLabel("Author:"))
+        self.authname = QLineEdit(self.bc.author)
+        self.authname.editingFinished.connect(self.newauthor)
+        self.addWidget(self.authname)
+
         # uuid
         #
         ilayout = QHBoxLayout()
@@ -234,6 +248,12 @@ class SaveMHMForm(QVBoxLayout):
         self.displaytitle(text)
         if self.filename.text() == "":
             self.filename.setText(text + ".mhm")
+
+    def newauthor(self):
+        text = self.authname.text()
+        if len(text) == 0:
+            self.editname.setText("unknown")
+        self.bc.author = text
 
     def genuuid(self):
         self.bc.uuid = self.glob.gen_uuid()

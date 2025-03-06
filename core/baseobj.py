@@ -21,6 +21,7 @@ from gui.common import WorkerThread, ErrorBox
 class MakeHumanModel():
     def __init__(self):
         self.name = None
+        self.author = "unknown"
         self.uuid = None
         self.version = None
         self.skinMaterial = None
@@ -73,6 +74,7 @@ class baseClass():
         self.proxy = None
         self.tags = [] 
         self.photo = None
+        self.author = "unknown"
         self.uuid = None
         self.skeleton = None
         self.in_posemode = False
@@ -113,6 +115,8 @@ class baseClass():
                 setattr (loaded, key, words[1])
             elif key == "name":
                 loaded.name = " ".join(words[1:])
+            elif key == "author":
+                loaded.author = " ".join(words[1:])
             elif key == "tags":
                 loaded.tags = " ".join(words[1:]).split(";")
             elif key == "modifier":
@@ -160,6 +164,8 @@ class baseClass():
             self.name = loaded.name
         self.tags = loaded.tags
         self.uuid = loaded.uuid
+        if loaded.author is not None:
+            self.author = loaded.author
 
         if loaded.skinMaterial is not None:
             self.skinMaterialName = loaded.skinMaterial
@@ -237,7 +243,7 @@ class baseClass():
         vers = ".".join(map(str,self.env.release_info["version"]))
         name = self.name if  self.name != "" else os.path.split(filename[:-4])[-1]
 
-        fp.write("# MakeHuman2 Model File\nversion v" + vers + "\nname " + name + "\n")
+        fp.write("# MakeHuman2 Model File\nversion v" + vers + "\nname " + name + "\nauthor " + self.author + "\n")
 
         # tags and uuid if available
         #

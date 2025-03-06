@@ -1,6 +1,10 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
+
+    Classes:
+    * NavigationEvent
+    * MHGraphicWindow
 """
 from PySide6.QtWidgets import (
         QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel,

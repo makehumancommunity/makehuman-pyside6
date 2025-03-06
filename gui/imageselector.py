@@ -1,6 +1,16 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
+
+    Classes:
+    * MHPictSelectable
+    * PictureButton
+    * PicFlowLayout
+    * PicSelectWidget
+    * InformationBox
+    * FilterTree
+    * editBox
+    * ImageSelection
 """
 import sys
 import typing
@@ -31,7 +41,7 @@ class MHPictSelectable:
         self.status = 0
 
     def newTags(self, tags):
-        self.tags = tags
+        self.tags = tags if len(tags) > 0 and len(tags[0]) != 0 else []
         self.tags.append(self.name.lower())
         self.tags.append(self.basename)    # only name, not path
         if self.author is not None:
@@ -671,7 +681,6 @@ class ImageSelection():
         self.refreshButtons()
 
         if self.type == "models":
-            print ("in models")
             if self.button_add is None:
                 print ("add is none")
                 self.callback(selectable, self.type, False)
@@ -690,7 +699,6 @@ class ImageSelection():
         - prepare new Repo (tags), send new repo and populate widget
         """
         self.assetrepo = self.parent.glob.rescanAssets(self.type)
-
         self.picwidget.layout.removeAllWidgets()
         for elem in self.parent.glob.baseClass.attachedAssets:
             self.parent.glob.markAssetByFileName(elem.filename, True)

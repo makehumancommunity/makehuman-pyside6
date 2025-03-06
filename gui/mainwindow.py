@@ -1,6 +1,9 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
+
+    Classes:
+    * MHMainWindow
 """
 from PySide6.QtWidgets import ( 
         QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFrame, QGroupBox, QListWidget, QLabel,
@@ -117,8 +120,8 @@ class MHMainWindow(QMainWindow):
                 { "button": None, "icon": "eq_proxy.png", "tip": "Topology, Proxies", "func": self.callCategory }
             ], [
                 { "button": None, "icon": "an_skeleton.png", "tip": "Skeleton", "func": self.callCategory},
-                { "button": None, "icon": "an_pose.png", "tip": "Single pose", "func": self.callCategory},
-                { "button": None, "icon": "an_movie.png", "tip": "Animation", "func": self.callCategory},
+                { "button": None, "icon": "an_pose.png", "tip": "Load pose or animation", "func": self.callCategory},
+                { "button": None, "icon": "an_movie.png", "tip": "Play animation", "func": self.callCategory},
                 { "button": None, "icon": "an_expression.png", "tip": "Expressions", "func": self.callCategory},
                 { "button": None, "icon": "an_expressedit.png", "tip": "Expression editor", "func": self.callCategory}
             ], [

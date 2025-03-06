@@ -1,3 +1,23 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Function:
+    * ErrorBox
+
+    Classes:
+    * clickableProgressBar
+    * IconButton
+    * MHGroupBox
+    * MHTagEdit
+    * WorkerThread
+    * DialogBox
+    * MHProgWindow
+    * MHBusyWindow
+    * MHFileRequest
+    * TextBox
+"""
+
 import os
 from PySide6.QtWidgets import (
         QLabel, QDialogButtonBox, QVBoxLayout, QDialog, QProgressDialog, QWidget, QApplication, QMessageBox, QFrame,

@@ -1,7 +1,11 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
+
+    Classes:
+    * Renderer
 """
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLineEdit, QGridLayout, QLabel, QMessageBox,  QCheckBox
 
@@ -15,7 +19,7 @@ import os
 
 class Renderer(QVBoxLayout):
     """
-    should do with a few methods in background
+    Render screen
     """
     def __init__(self, parent, glob):
         super().__init__()
@@ -32,6 +36,12 @@ class Renderer(QVBoxLayout):
         self.subdiv = False
 
         self.prog_window = None     # progressbar
+        #
+        # close subwindows just in case because they cannot work on mesh copies
+        #
+        self.glob.closeSubwindow("materialedit")
+        self.glob.closeSubwindow("material")
+        self.glob.closeSubwindow("asset")
 
         # store used n_objects (used for unsubdividing)
         #
