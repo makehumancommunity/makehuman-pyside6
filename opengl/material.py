@@ -204,7 +204,7 @@ class Material:
         if self.shader == "litsphere" and not hasattr(self, "sp_litsphereTexture"):
             self.shader = "phong3l"
 
-        print(self)
+        # print(self)
         return (True)
 
     def textureRelName(self, path):

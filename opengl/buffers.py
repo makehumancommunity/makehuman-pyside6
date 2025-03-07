@@ -1,6 +1,13 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
+
+    Classes:
+    * OpenGlBuffers
+    * RenderedObject
+    * RenderedLines
+    * RenderedSimple
+    * PixelBuffer
 """
 import time
 import numpy as np
@@ -100,6 +107,7 @@ class RenderedObject:
         self.nomap = None
         self.mrmap = None
         self.emmap = None
+        self.emfac = 0.0
         self.z_depth = obj.z_depth
         self.name = obj.filename
         self.boundingbox = boundingbox
@@ -138,6 +146,8 @@ class RenderedObject:
             self.aomap = self.material.loadAOMap(self.parent.white)
             self.mrmap = self.material.loadMRMap(self.parent.white)
             self.emmap = self.material.loadEMMap(self.parent.black)
+            self.emfac = material.metallicFactor if hasattr(self, 'metallicRoughnessTexture') else 1.0 - material.metallicFactor
+
         elif material.shader == "normal":
             self.shader = self.shaders.getShader("normal")
             self.aomap = self.material.loadAOMap(self.parent.white)
@@ -249,7 +259,7 @@ class RenderedObject:
                 functions.glActiveTexture(gl.GL_TEXTURE1)
                 self.aomap.bind()
 
-                functions.glUniform1f(shader.uniforms['MeMult'], self.material.metallicFactor)
+                functions.glUniform1f(shader.uniforms['MeMult'], self.emfac)
                 functions.glUniform1f(shader.uniforms['RoMult'], self.material.pbrMetallicRoughness)
 
                 functions.glUniform1i(shader.uniforms['MRTexture'], 2)

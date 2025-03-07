@@ -430,7 +430,7 @@ class baseClass():
         if multi is False:
             for elem in self.attachedAssets:
                 if elem.type == eqtype:
-                    print ("Need to delete: " + elem.filename)
+                    self.env.logLine(2, "Unconnect asset: " + elem.filename)
                     self.delAsset(elem.filename)
 
         asset = self.addAsset(path, eqtype)
