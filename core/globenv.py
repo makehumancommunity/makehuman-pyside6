@@ -139,7 +139,7 @@ class globalObjects():
             self.textSlot[num-1] = target
 
     def generateBaseSubDirs(self, basename):
-        for name in self.env.basefolders + ["exports", "skins", "models", "target", "dbcache"]:
+        for name in self.env.basefolders + ["exports", "skins", "models", "target", "dbcache", "downloads"]:
             folder = os.path.join(self.env.path_userdata, name, basename)
             if self.env.mkdir(folder) is False:
                 return (False)
@@ -529,7 +529,7 @@ class programInfo():
 
         # subfolder inside userdata, so usually base folder + special ones
         #
-        for name in self.basefolders + ["themes", "exports","skins", "models", "target", "dbcache", "shaders", "grab"]:
+        for name in self.basefolders + ["themes", "exports","skins", "models", "target", "dbcache", "downloads", "shaders", "grab"]:
             folder = os.path.join(userdata, name)
             if self.mkdir(folder) is False:
                 return (False)

@@ -14,6 +14,7 @@
 	"url_mhreguests":  "http://www.makehumancommunity.org/content/bugtracker.html",
     	"url_fileserver":  "files.makehumancommunity.org",
 	"url_assetpacks":  "http://static.makehumancommunity.org/assets/assetpacks.html",
+	"url_assetlist": "http://www.makehumancommunity.org/sites/default/files/assets.json",
     	"url_systemassets": "asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip",
 	"url_license_code": "https://github.com/makehumancommunity/makehuman/blob/master/LICENSE.CODE.md",
 	"url_license_assets": "https://github.com/makehumancommunity/makehuman/blob/master/LICENSE.ASSETS.md",

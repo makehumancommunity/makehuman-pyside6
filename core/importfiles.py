@@ -1,9 +1,21 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * UserEnvironment
+    * AssetPack
+    * TargetASCII
+"""
+
 from io import BytesIO
 from urllib.request import Request, urlopen
 from urllib.error import URLError
 from zipfile import ZipFile
+from datetime import datetime
 import numpy as np
 import os
+import re
 import sys
 import shutil
 import platform
@@ -66,6 +78,56 @@ class UserEnvironment():
 class AssetPack():
     def __init__(self):
         self.unzipdir = None
+        self.acceptedfiles = ["obj", "mhclo", "mhmat", "thumb", "mhw_file", "diffuse", "normals" ]
+
+    def testAssetList(self, path):
+        if os.path.isfile(path):
+            return datetime.fromtimestamp(os.path.getctime(path)).strftime("%d/%m/%y %H:%M")
+        else:
+            return None
+
+    def alistGetKey(self, json, search):
+        if "/" in search:
+            search = os.path.split(search)[1]
+            search = os.path.splitext(search)[0]
+            search = search.replace("_", ".")
+            p = re.compile(search, flags=re.I)
+            for key, item in json.items():
+                m = p.match(item.get("title"))
+                if m:
+                    return (key, item["title"])
+        for key, item in json.items():
+            if item.get("title") == search:
+                return (key, search)
+        return None, None
+
+    def alistGetFiles(self, json, key):
+        flist = []
+        item = json[key]
+        mtype = item.get("type")
+        cat = item.get("category")
+        if cat == "Hair":
+            mtype = "hair"
+        if "files" in item:
+            for fkey, fname in item["files"].items():
+                if fkey in self.acceptedfiles:
+                    flist.append(fname)
+            return mtype, flist
+        else:
+            return None, []
+
+    def alistCreateFolderFromTitle(self, path, base, mtype, title):
+        folder = re.sub(' - ', '-', title).lower()
+        folder = re.sub(' ', '_', folder)
+        folder = re.sub('/', '-', folder)
+        folder =os.path.join(path, mtype, base, folder)
+        if os.path.isdir(folder):
+            return (None, "Destination folder already existent: " + folder)
+        try:
+            os.mkdir(folder)
+        except:
+            return (None, "Problems creating new folder: " + folder)
+        return (folder, "Okay")
 
     def getAssetPack(self, url, save_path, filename, unzip=False):
         """
@@ -87,14 +149,17 @@ class AssetPack():
                 return (False, err)
         else:
             if not unzip:
-                outpath = os.path.join(save_path, filename)
-                with open(outpath, mode="wb") as file:
-                    file.write(response.read())
+                outpath = os.path.join(save_path, filename) if filename else save_path
+                with open(outpath, mode="wb") as ifile:
+                    ifile.write(response.read())
             else:
                 with ZipFile(BytesIO(response.read())) as zfile:
                     zfile.extractall(self.unzipdir)
 
         return (True, None)
+
+    def getUrlFile(self, url, destination):
+        return (self.getAssetPack(url, destination, None, unzip=False))
 
     def tempDir(self):
         self.unzipdir = tempfile.mkdtemp(prefix="mh_")

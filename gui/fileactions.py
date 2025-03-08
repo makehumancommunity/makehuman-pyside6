@@ -589,24 +589,59 @@ class DownLoadImport(QVBoxLayout):
         self.bckproc = None     # will contain process running in parallel
         self.error   = None     # will contain possible error text
         self.zipfile = None     # last loaded zipfile
+        self.assetlistpath = None
+        self.assetjson = None
         self.use_userpath = True
         self.assets = AssetPack()
 
         super().__init__()
 
-        # name
+        gb = QGroupBox("Single Asset")
+        gb.setObjectName("subwindow")
+        vlayout = QVBoxLayout()
+        assetname = os.path.split(self.env.release_info["url_assetlist"])[1]
+        self.assetlistpath = os.path.join(self.env.path_userdata, "downloads", self.env.basename, assetname)
+        latest = self.assets.testAssetList(self.assetlistpath)
+        if latest is None:
+            self.asdlbutton=QPushButton("Download asset list")
+        else:
+            self.asdlbutton=QPushButton("Replace current asset list [" + latest + "]")
+
+        self.asdlbutton.clicked.connect(self.listDownLoad)
+        self.asdlbutton.setToolTip("The asset list is needed to load single assets.<br>This must be done once.<br>Usually you only need to reload the list if new assets are available.")
+        vlayout.addWidget(self.asdlbutton)
+
+        vlayout.addWidget(QLabel("\nEnter title or URL of asset [copy/paste from browser]\nor select from list"))
+        hlayout = QHBoxLayout()
+        self.selbutton=QPushButton("Select")
+        self.selbutton.clicked.connect(self.selectfromList)
+        self.selbutton.setToolTip("Select asset from asset list.")
+        hlayout.addWidget(self.selbutton)
+        self.singlename = QLineEdit("")
+        hlayout.addWidget(self.singlename)
+        vlayout.addLayout(hlayout)
+
+        self.sidlbutton=QPushButton("Download single asset")
+        self.sidlbutton.clicked.connect(self.singleDownLoad)
+        vlayout.addWidget(self.sidlbutton)
+
+        gb.setLayout(vlayout)
+        self.addWidget(gb)
+
+        gb = QGroupBox("Asset Pack")
+        gb.setObjectName("subwindow")
+
+        # name and link
         #
         ilayout = QVBoxLayout()
-        ilayout.addWidget(QLabel("To download an asset pack, check name here:"))
-        #
-        # link
-        #
+        hlayout = QHBoxLayout()
+        hlayout.addWidget(QLabel("Check name of asset pack here:"))
         linklabel = QLabel()
         ltext = "<a href='" + self.env.release_info["url_assetpacks"] + "'>Asset Packs</a>"
         linklabel.setText(ltext)
         linklabel.setOpenExternalLinks(True)
-        ilayout.addWidget(linklabel)
-
+        hlayout.addWidget(linklabel)
+        ilayout.addLayout(hlayout)
 
         ilayout.addWidget(QLabel("then copy URL into this box, press Download:"))
         self.url = QLineEdit("")
@@ -615,13 +650,12 @@ class DownLoadImport(QVBoxLayout):
         self.dlbutton.clicked.connect(self.downLoad)
         ilayout.addWidget(self.dlbutton)
 
-        ilayout.addWidget(QLabel("\nBase is: " + self.env.basename))
-        userpath = QLabel("Destination user path:\n"+ self.env.path_userdata)
+        userpath = QLabel("Destination user path for base: "  + self.env.basename + "\n"+ self.env.path_userdata)
         userpath.setToolTip("Files will be extracted to " + self.env.basename + " folders in "  + self.env.path_userdata)
         ilayout.addWidget(userpath)
 
         if self.env.admin:
-            syspath = QLabel("Destination system path:\n"+ self.env.path_sysdata)
+            syspath = QLabel("Destination system path for base: " + self.env.basename + "\n"+ self.env.path_sysdata)
             syspath.setToolTip("Files will be extracted to " + self.env.basename + " folders in "  + self.env.path_sysdata)
             ilayout.addWidget(syspath)
 
@@ -647,13 +681,17 @@ class DownLoadImport(QVBoxLayout):
         self.clbutton=QPushButton("Clean Up")
         self.clbutton.clicked.connect(self.cleanUp)
         ilayout.addWidget(self.clbutton)
-        self.addLayout(ilayout)
+        gb.setLayout(ilayout)
+        self.addWidget(gb)
 
     def setMethod(self, value):
         if self.userbutton.isChecked():
             self.use_userpath = True
         else:
             self.use_userpath = False
+
+    def selectfromList(self):
+        print ("select called")
 
     def par_unzip(self, bckproc, *args):
         tempdir = self.assets.unZip(self.filename.text())
@@ -715,9 +753,79 @@ class DownLoadImport(QVBoxLayout):
             tempdir = self.assets.tempDir()
             self.parent.glob.lastdownload = os.path.join(tempdir, filename)
             self.filename.setText(self.parent.glob.lastdownload)
-            self.prog_window = MHBusyWindow("Download Assetfile to " + tempdir, "loading ...")
+            self.prog_window = MHBusyWindow("Download pack to " + tempdir, "loading ...")
             self.prog_window.progress.forceShow()
             self.bckproc = WorkerThread(self.par_download, tempdir, filename)
+            self.bckproc.start()
+            self.bckproc.finishmsg = "Download finished"
+            self.bckproc.finished.connect(self.finishLoad)
+
+    def par_listdownload(self, bckproc, *args):
+        destination = args[0][0]
+        self.error = None
+        (err, text) = self.assets.getUrlFile(self.env.release_info["url_assetlist"], destination)
+        self.error = text
+
+    def listDownLoad(self):
+        url = self.env.release_info["url_assetlist"]
+        if self.bckproc == None:
+            self.assetjson = None       # reset this
+            self.prog_window = MHBusyWindow("Download list to " + self.assetlistpath, "loading ...")
+            self.prog_window.progress.forceShow()
+            self.bckproc = WorkerThread(self.par_listdownload, self.assetlistpath)
+            self.bckproc.start()
+            self.bckproc.finishmsg = "Download finished"
+            self.bckproc.finished.connect(self.finishLoad)
+
+    def par_filesdownload(self, bckproc, *args):
+        destination = args[0][0]
+        files = args[0][1]
+        print (files)
+        self.error = None
+        for elem in files:
+            dest = os.path.split(elem)[1]
+            print ("Loading: ", elem)
+            self.prog_window.setLabelText("Loading: " + elem)
+            (loaded, text) = self.assets.getUrlFile(elem, os.path.join(destination, dest))
+            if loaded is False:
+                self.error = text
+                return
+
+        self.error = text
+
+    def singleDownLoad(self):
+        assetname = self.singlename.text()
+        if assetname == "":
+            ErrorBox(self.parent, "Please enter an asset name.")
+            return
+
+        # if not loaded, load json now
+        if self.assetjson is None:
+            self.assetjson = self.env.readJSON(self.assetlistpath)
+
+        # if still None, error in JSON file
+        if self.assetjson is None:
+            ErrorBox(self.parent, self.env.last_error)
+            return
+
+        key, assetname = self.assets.alistGetKey(self.assetjson, assetname)
+        if key is None:
+            ErrorBox(self.parent, "Asset '" + assetname + "' not found in list.")
+            return
+        mtype, flist = self.assets.alistGetFiles(self.assetjson, key)
+        print (key, mtype, flist)
+        if mtype != "hair" and mtype != "clothes":
+            ErrorBox(self.parent, "Until now, only hair and clothes are supported.")
+            return
+
+        folder, err = self.assets.alistCreateFolderFromTitle(self.env.path_userdata, self.env.basename, mtype, assetname)
+        if folder is None:
+            ErrorBox(self.parent, err)
+            return
+        if self.bckproc == None:
+            self.prog_window = MHBusyWindow("Download files to " + folder, "loading ...")
+            self.prog_window.progress.forceShow()
+            self.bckproc = WorkerThread(self.par_filesdownload, folder, flist)
             self.bckproc.start()
             self.bckproc.finishmsg = "Download finished"
             self.bckproc.finished.connect(self.finishLoad)
