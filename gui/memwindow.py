@@ -1,5 +1,18 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * MemTableModel
+    * MHMemWindow
+    * MHSelectAssetWindow
+"""
+
 from PySide6.QtCore import Qt, QAbstractTableModel, QSortFilterProxyModel
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTabWidget, QPushButton, QRadioButton, QGroupBox, QCheckBox, QTableView, QGridLayout, QHeaderView
+from PySide6.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTabWidget, QPushButton, QRadioButton, QGroupBox, QCheckBox,
+    QTableView, QGridLayout, QHeaderView, QAbstractItemView
+    )
 from PySide6.QtGui import QColor
 
 import sys
@@ -309,3 +322,136 @@ class MHMemWindow(QWidget):
     def close_call(self):
         self.close()
 
+
+class MHSelectAssetWindow(QWidget):
+    """
+    Message window to select assets from asset list
+    """
+    def __init__(self, parent, json, textbox):
+        super().__init__()
+        self.parent = parent
+        self.env = parent.env
+        self.glob = parent.glob
+        self.textbox = textbox
+        self.json = json
+        self.setWindowTitle("Select from asset list")
+        self.resize (800, 600)
+
+        tab = QTabWidget()
+
+        # clothes
+        #
+        clothespage = QWidget()
+        layout = QVBoxLayout()
+        clothespage.setLayout(layout)
+
+        self.clothesTable = QTableView()
+        self.clothesTable.setSortingEnabled(True)
+        self.clothesTable.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.clothesTable.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.clothesTable.verticalHeader().setVisible(False)
+        self.clothesTable.clicked.connect(self.clothes_selected)
+
+        data = self.refreshClothesTable()
+
+        self.clothesModel = MemTableModel(data, ["id", "Name", "Author"])
+
+        filter_proxy_model = QSortFilterProxyModel()
+        filter_proxy_model.setSourceModel(self.clothesModel)
+        filter_proxy_model.setFilterKeyColumn(0)
+
+        self.clothesTable.setModel(filter_proxy_model)
+        self.clothesModel.bestFit(self.clothesTable)
+        layout.addWidget(self.clothesTable)
+
+
+        # hair
+        #
+        hairpage = QWidget()
+        layout = QVBoxLayout()
+        hairpage.setLayout(layout)
+
+        self.hairTable = QTableView()
+        self.hairTable.setSortingEnabled(True)
+        self.hairTable.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.hairTable.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.hairTable.verticalHeader().setVisible(False)
+        self.hairTable.clicked.connect(self.hair_selected)
+
+        data = self.refreshHairTable()
+
+        self.hairModel = MemTableModel(data, ["id", "Name", "Author"])
+        filter_proxy_model = QSortFilterProxyModel()
+        filter_proxy_model.setSourceModel(self.hairModel)
+
+        self.hairTable.setModel(filter_proxy_model)
+        self.hairModel.bestFit(self.hairTable)
+        layout.addWidget(self.hairTable)
+
+        tab.addTab(clothespage, "Clothes")
+        tab.addTab(hairpage, "Hair")
+
+        layout = QVBoxLayout()
+        layout.addWidget(tab)
+        hlayout = QHBoxLayout()
+
+        rbutton = QPushButton("Redisplay")
+        rbutton.clicked.connect(self.redisplay_call)
+        hlayout.addWidget(rbutton)
+
+        button = QPushButton("Close")
+        button.clicked.connect(self.close_call)
+        hlayout.addWidget(button)
+
+        layout.addLayout(hlayout)
+        self.setLayout(layout)
+
+    def refreshClothesTable(self):
+        data = []
+        for key, elem in self.json.items():
+            mtype = elem.get("type")
+            if mtype == "clothes":
+                author = elem.get("username")
+                if author is None:
+                    author = "unknown"
+                data.append([key, elem["title"], author])
+
+        if len(data) == 0:
+            data = [["no clothes discovered"]]
+        return (data)
+
+    def clothes_selected(self):
+        idx = self.clothesTable.selectionModel().currentIndex()
+        value= idx.sibling(idx.row(),0).data()
+        self.textbox(value)
+
+    def hair_selected(self):
+        idx = self.hairTable.selectionModel().currentIndex()
+        value= idx.sibling(idx.row(),0).data()
+        self.textbox(value)
+
+    def refreshHairTable(self):
+        data = []
+        for key, elem in self.json.items():
+            mtype = elem.get("type")
+            if mtype == "hair":
+                author = elem.get("username")
+                if author is None:
+                    author = "unknown"
+                data.append([key, elem["title"], author])
+
+        if len(data) == 0:
+            data = [["no hair discovered"]]
+        return (data)
+
+    def redisplay_call(self):
+        """
+        refreshes all tabs
+        """
+        self.clothesModel.refreshWithReset(self.refreshClothesTable())
+        self.clothesTable.viewport().update()
+        self.hairModel.refreshWithReset(self.refreshHairTable())
+        self.hairTable.viewport().update()
+
+    def close_call(self):
+        self.close()

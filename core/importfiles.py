@@ -86,28 +86,48 @@ class AssetPack():
         else:
             return None
 
+    def alistReadJSON(self, env, path):
+        json = env.readJSON(path)
+        if json is not None:
+            for key, item in json.items():
+                cat = item.get("category")
+                if cat == "Hair":
+                    item["type"] = "hair"
+                folder = item.get("title").lower()
+                folder = re.sub('[^a-z0-9 ]', '', folder).strip()
+                folder = folder.replace(" ", "_")
+                folder = re.sub('__+', '_', folder)
+                if len(folder) == 0:
+                    folder = key
+                item["folder"] = folder
+
+        return(json)
+
     def alistGetKey(self, json, search):
-        if "/" in search:
+        if search.startswith("%"):
+            key = search[1:]
+            if key in json:
+                item = json[key]
+                return key, item.get("folder")
+            return None, None
+
+        elif "/" in search:
             search = os.path.split(search)[1]
             search = os.path.splitext(search)[0]
-            search = search.replace("_", ".")
-            p = re.compile(search, flags=re.I)
             for key, item in json.items():
-                m = p.match(item.get("title"))
-                if m:
-                    return (key, item["title"])
+                folder = item.get("folder")
+                if folder == search:
+                    return key, folder
+
         for key, item in json.items():
             if item.get("title") == search:
-                return (key, search)
+                return key, item.get("folder")
         return None, None
 
     def alistGetFiles(self, json, key):
         flist = []
         item = json[key]
         mtype = item.get("type")
-        cat = item.get("category")
-        if cat == "Hair":
-            mtype = "hair"
         if "files" in item:
             for fkey, fname in item["files"].items():
                 if fkey in self.acceptedfiles:
@@ -116,10 +136,7 @@ class AssetPack():
         else:
             return None, []
 
-    def alistCreateFolderFromTitle(self, path, base, mtype, title):
-        folder = re.sub(' - ', '-', title).lower()
-        folder = re.sub(' ', '_', folder)
-        folder = re.sub('/', '-', folder)
+    def alistCreateFolderFromTitle(self, path, base, mtype, folder):
         folder =os.path.join(path, mtype, base, folder)
         if os.path.isdir(folder):
             return (None, "Destination folder already existent: " + folder)

@@ -19,6 +19,7 @@ from PySide6.QtGui import QPixmap
 from gui.poseactions import AnimMode
 from gui.imageselector import MHPictSelectable, PicSelectWidget
 from gui.materialwindow import  MHMaterialWindow, MHAssetWindow
+from gui.memwindow import MHSelectAssetWindow
 from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, IconButton, MHTagEdit
 import os
 from core.globenv import cacheRepoEntry
@@ -583,8 +584,9 @@ class ExportRightPanel(QVBoxLayout):
 class DownLoadImport(QVBoxLayout):
     def __init__(self, parent, view, displaytitle):
         self.parent = parent
-        self.view = view
+        self.glob = parent.glob
         self.env = parent.env
+        self.view = view
         self.displaytitle = displaytitle
         self.bckproc = None     # will contain process running in parallel
         self.error   = None     # will contain possible error text
@@ -690,8 +692,13 @@ class DownLoadImport(QVBoxLayout):
         else:
             self.use_userpath = False
 
+    def fillSingleName(self, value):
+        self.singlename.setText("%" + value)
+
     def selectfromList(self):
-        print ("select called")
+        if self.assetjson is None:
+            self.assetjson =  self.assets.alistReadJSON(self.env, self.assetlistpath)
+        self.glob.showSubwindow("loadasset", self, MHSelectAssetWindow, self.assetjson, self.fillSingleName)
 
     def par_unzip(self, bckproc, *args):
         tempdir = self.assets.unZip(self.filename.text())
@@ -801,14 +808,14 @@ class DownLoadImport(QVBoxLayout):
 
         # if not loaded, load json now
         if self.assetjson is None:
-            self.assetjson = self.env.readJSON(self.assetlistpath)
+            self.assetjson = self.assets.alistReadJSON(self.env, self.assetlistpath)
 
         # if still None, error in JSON file
         if self.assetjson is None:
             ErrorBox(self.parent, self.env.last_error)
             return
 
-        key, assetname = self.assets.alistGetKey(self.assetjson, assetname)
+        key, folder = self.assets.alistGetKey(self.assetjson, assetname)
         if key is None:
             ErrorBox(self.parent, "Asset '" + assetname + "' not found in list.")
             return
@@ -818,7 +825,7 @@ class DownLoadImport(QVBoxLayout):
             ErrorBox(self.parent, "Until now, only hair and clothes are supported.")
             return
 
-        folder, err = self.assets.alistCreateFolderFromTitle(self.env.path_userdata, self.env.basename, mtype, assetname)
+        folder, err = self.assets.alistCreateFolderFromTitle(self.env.path_userdata, self.env.basename, mtype, folder)
         if folder is None:
             ErrorBox(self.parent, err)
             return
