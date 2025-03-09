@@ -93,6 +93,14 @@ class AssetPack():
                 cat = item.get("category")
                 if cat == "Hair":
                     item["type"] = "hair"
+                elif cat == "Eyes":
+                    item["type"] = "eyes"
+                elif cat == "Eyebrows":
+                    item["type"] = "eyebrows"
+                elif cat == "Eyelashes":
+                    item["type"] = "eyelashes"
+                elif cat == "Teeth":
+                    item["type"] = "teeth"
                 folder = item.get("title").lower()
                 folder = re.sub('[^a-z0-9 ]', '', folder).strip()
                 folder = folder.replace(" ", "_")

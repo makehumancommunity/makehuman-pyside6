@@ -698,7 +698,8 @@ class DownLoadImport(QVBoxLayout):
     def selectfromList(self):
         if self.assetjson is None:
             self.assetjson =  self.assets.alistReadJSON(self.env, self.assetlistpath)
-        self.glob.showSubwindow("loadasset", self, MHSelectAssetWindow, self.assetjson, self.fillSingleName)
+        w = self.glob.showSubwindow("loadasset", self, MHSelectAssetWindow, self.assetjson)
+        w.setParam(self.fillSingleName)
 
     def par_unzip(self, bckproc, *args):
         tempdir = self.assets.unZip(self.filename.text())
@@ -801,6 +802,8 @@ class DownLoadImport(QVBoxLayout):
         self.error = text
 
     def singleDownLoad(self):
+
+        supportedclasses = ["clothes", "hair", "eyes", "teeth", "eyebrows", "eyelashes" ]
         assetname = self.singlename.text()
         if assetname == "":
             ErrorBox(self.parent, "Please enter an asset name.")
@@ -821,8 +824,8 @@ class DownLoadImport(QVBoxLayout):
             return
         mtype, flist = self.assets.alistGetFiles(self.assetjson, key)
         print (key, mtype, flist)
-        if mtype != "hair" and mtype != "clothes":
-            ErrorBox(self.parent, "Until now, only hair and clothes are supported.")
+        if mtype not in supportedclasses:
+            ErrorBox(self.parent, "Supported classes until now: " + str(supportedclasses))
             return
 
         folder, err = self.assets.alistCreateFolderFromTitle(self.env.path_userdata, self.env.basename, mtype, folder)

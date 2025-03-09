@@ -4,6 +4,7 @@
 
     Classes:
     * MemTableModel
+    * MHQTableView
     * MHMemWindow
     * MHSelectAssetWindow
 """
@@ -68,6 +69,47 @@ class MemTableModel(QAbstractTableModel):
         self.refreshData(data)
         super().endResetModel()
 
+class MHQTableView(QTableView):
+    def __init__(self, parent, mtype):
+        super().__init__()
+        self.type = mtype
+        self.setSortingEnabled(True)
+        self.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.verticalHeader().setVisible(False)
+
+    def setResponse(self, result):
+        if result is not None:
+            self.textbox = result
+            self.clicked.connect(self.insert_into_widget)
+
+    def addModel(self, refresh_func, header):
+
+        self.refresh_func = refresh_func
+        self.mtmodel = MemTableModel(refresh_func(self.type), header)
+
+        filter_proxy_model = QSortFilterProxyModel()
+        filter_proxy_model.setSourceModel(self.mtmodel)
+        filter_proxy_model.setFilterKeyColumn(0)
+
+        self.setModel(filter_proxy_model)
+        self.mtmodel.bestFit(self)
+
+    def refreshData(self):
+        self.mtmodel.refreshWithReset(self.refresh_func(self.type))
+        self.viewport().update()
+
+    def createPage(self):
+        page = QWidget()
+        layout = QVBoxLayout()
+        page.setLayout(layout)
+        layout.addWidget(self)
+        return page
+
+    def insert_into_widget(self):
+        idx = self.selectionModel().currentIndex()
+        value= idx.sibling(idx.row(),0).data()
+        self.textbox(value)
 
 class MHMemWindow(QWidget):
     """
@@ -81,121 +123,57 @@ class MHMemWindow(QWidget):
         self.setWindowTitle("Memory Usage and Ressources")
         self.resize (800, 600)
 
+        self.tables = []
         tab = QTabWidget()
 
         # assets
         #
-        assetpage = QWidget()
-        layout = QVBoxLayout()
-        assetpage.setLayout(layout)
-
-        self.assetTable = QTableView()
-        self.assetTable.setSortingEnabled(True)
-        data = self.refreshAssetTable()
-
-
-        self.assetModel = MemTableModel(data, ["Group", "Name", "used", "UUID",  "Author", "File Name", "Tags"])
-
-        filter_proxy_model = QSortFilterProxyModel()
-        filter_proxy_model.setSourceModel(self.assetModel)
-        filter_proxy_model.setFilterKeyColumn(0)
-
-        self.assetTable.setModel(filter_proxy_model)
-        self.assetModel.bestFit(self.assetTable)
-        layout.addWidget(self.assetTable)
+        table = MHQTableView(self, "assets")
+        table.addModel(self.refreshAssetTable, ["Group", "Name", "used", "UUID",  "Author", "File Name", "Tags"])
+        tab.addTab(table.createPage(), "Asset Repository")
+        self.tables.append(table)
 
         # targets
         #
-        targetpage = QWidget()
-        layout = QVBoxLayout()
-        targetpage.setLayout(layout)
-
-        self.targetTable = QTableView()
-        data = self.refreshTargetTable()
-
-        self.targetModel = MemTableModel(data, ["Name", "File Increment", "Verts I",  "File Decrement", "Verts D", "MHM Identifier", "Current"])
-
-        self.targetTable.setModel(self.targetModel)
-        self.targetModel.bestFit(self.targetTable)
-        layout.addWidget(self.targetTable)
+        table = MHQTableView(self, "targets")
+        table.addModel(self.refreshTargetTable, ["Name", "File Increment", "Verts I",  "File Decrement", "Verts D", "MHM Identifier", "Current"])
+        tab.addTab(table, "Targets")
+        self.tables.append(table)
 
         # macros
         #
-        macropage = QWidget()
-        layout = QVBoxLayout()
-        macropage.setLayout(layout)
+        table = MHQTableView(self, "macros")
+        table.addModel(self.refreshMacroTable, ["Name", "Verts"])
+        tab.addTab(table, "Macro-Targets")
+        self.tables.append(table)
 
-        self.macroTable = QTableView()
-        data = self.refreshMacroTable()
-
-        self.macroModel = MemTableModel(data, ["Name", "Verts"])
-        self.macroTable.setModel(self.macroModel)
-        self.macroModel.bestFit(self.macroTable)
-        layout.addWidget(self.macroTable)
-
-        # objects
+        # meshes
         #
-        objectpage = QWidget()
-        layout = QVBoxLayout()
-        objectpage.setLayout(layout)
-
-        self.objectTable = QTableView()
-        data = self.refreshObjectTable()
-
-        self.objectModel = MemTableModel(data, ["Name", "UUID", "File Name"])
-        self.objectTable.setModel(self.objectModel)
-        self.objectModel.bestFit(self.objectTable)
-        layout.addWidget(self.objectTable)
+        table = MHQTableView(self, "objects")
+        table.addModel(self.refreshObjectTable, ["Name", "UUID", "File Name"])
+        tab.addTab(table, "Meshes")
+        self.tables.append(table)
 
         # materials
         #
-        materialpage = QWidget()
-        layout = QVBoxLayout()
-        materialpage.setLayout(layout)
+        table = MHQTableView(self, "material")
+        table.addModel(self.refreshMaterialTable, ["Name", "File Name"])
+        tab.addTab(table, "Materials")
+        self.tables.append(table)
 
-        self.materialTable = QTableView()
-        data = self.refreshMaterialTable()
-
-        self.materialModel = MemTableModel(data, ["Name", "File Name"])
-        self.materialTable.setModel(self.materialModel)
-        self.materialModel.bestFit(self.materialTable)
-        layout.addWidget(self.materialTable)
-
-        # images
+        # textures
         #
-        imagepage = QWidget()
-        layout = QVBoxLayout()
-        imagepage.setLayout(layout)
-
-        self.textureTable = QTableView()
-        data = self.refreshTextureTable()
-
-        self.textureModel = MemTableModel(data, ["#", "Name", "Width", "Height"])
-        self.textureTable.setModel(self.textureModel)
-        self.textureModel.bestFit(self.textureTable)
-        layout.addWidget(self.textureTable)
+        table = MHQTableView(self, "textures")
+        table.addModel(self.refreshTextureTable, ["#", "Name", "Width", "Height"])
+        tab.addTab(table, "Textures")
+        self.tables.append(table)
 
         # missing targets
         #
-        misstargetpage = QWidget()
-        layout = QVBoxLayout()
-        misstargetpage.setLayout(layout)
-
-        self.missTargetTable = QTableView()
-        data = self.refreshMissTargetTable()
-
-        self.missTargetModel = MemTableModel(data, ["Name"])
-        self.missTargetTable.setModel(self.missTargetModel)
-        self.missTargetModel.bestFit(self.missTargetTable)
-        layout.addWidget(self.missTargetTable)
-
-        tab.addTab(assetpage, "Asset Repository")
-        tab.addTab(targetpage, "Targets")
-        tab.addTab(macropage, "Macro-Targets")
-        tab.addTab(objectpage, "Meshes")
-        tab.addTab(materialpage, "Materials")
-        tab.addTab(imagepage, "Textures")
-        tab.addTab(misstargetpage, "Missing Targets (last load)")
+        table = MHQTableView(self, "missing targets")
+        table.addModel(self.refreshMissTargetTable, ["Name"])
+        tab.addTab(table, "Missing Targets (last load)")
+        self.tables.append(table)
 
         layout = QVBoxLayout()
         layout.addWidget(tab)
@@ -212,14 +190,7 @@ class MHMemWindow(QWidget):
         layout.addLayout(hlayout)
         self.setLayout(layout)
 
-
-    def show(self):
-        """
-        normal show + flush to get the newest entries
-        """
-        super().show()
-
-    def refreshAssetTable(self):
+    def refreshAssetTable(self, dummy):
         data = []
         if self.glob.baseClass is not None:
             for elem in self.glob.cachedInfo:
@@ -230,7 +201,7 @@ class MHMemWindow(QWidget):
             data = [["no assets discovered"]]
         return (data)
 
-    def refreshTargetTable(self):
+    def refreshTargetTable(self, dummy):
         data = []
         targets = self.glob.Targets
         if targets is not None:
@@ -240,7 +211,7 @@ class MHMemWindow(QWidget):
             data = [["no targets loaded"]]
         return (data)
 
-    def refreshMacroTable(self):
+    def refreshMacroTable(self, dummy):
         data = []
         macros = self.glob.macroRepo
         if macros is not None:
@@ -251,7 +222,7 @@ class MHMemWindow(QWidget):
             data = [["no macros loaded"]]
         return (data)
 
-    def refreshObjectTable(self):
+    def refreshObjectTable(self, dummy):
         data = []
         if self.glob.baseClass is not None:
             base = self.glob.baseClass
@@ -261,7 +232,7 @@ class MHMemWindow(QWidget):
             data = [["no objects loaded"]]
         return (data)
 
-    def refreshMaterialTable(self):
+    def refreshMaterialTable(self, dummy):
         data = []
         if self.glob.baseClass is not None:
             base = self.glob.baseClass
@@ -272,7 +243,7 @@ class MHMemWindow(QWidget):
             data = [["no material loaded"]]
         return (data)
 
-    def refreshTextureTable(self):
+    def refreshTextureTable(self, dummy):
         data = []
         t = self.glob.textureRepo.getTextures()
         if len(t) > 0:
@@ -283,7 +254,7 @@ class MHMemWindow(QWidget):
         return (data)
 
 
-    def refreshMissTargetTable(self):
+    def refreshMissTargetTable(self, dummy):
         data = []
         targets = self.glob.missingTargets
         for target in targets:
@@ -297,27 +268,8 @@ class MHMemWindow(QWidget):
         """
         refreshes all tabs
         """
-        self.assetModel.refreshWithReset(self.refreshAssetTable())
-        self.assetTable.viewport().update()
-
-        self.targetModel.refreshWithReset(self.refreshTargetTable())
-        self.targetTable.viewport().update()
-
-        self.macroModel.refreshWithReset(self.refreshMacroTable())
-        self.macroTable.viewport().update()
-
-        self.objectModel.refreshWithReset(self.refreshObjectTable())
-        self.objectTable.viewport().update()
-
-        self.materialModel.refreshWithReset(self.refreshMaterialTable())
-        self.materialTable.viewport().update()
-
-        self.textureModel.refreshWithReset(self.refreshTextureTable())
-        self.textureTable.viewport().update()
-
-        self.missTargetModel.refreshWithReset(self.refreshMissTargetTable())
-        self.missTargetTable.viewport().update()
-
+        for table in self.tables:
+            table.refreshData()
 
     def close_call(self):
         self.close()
@@ -327,69 +279,25 @@ class MHSelectAssetWindow(QWidget):
     """
     Message window to select assets from asset list
     """
-    def __init__(self, parent, json, textbox):
+    def __init__(self, parent, json):
         super().__init__()
         self.parent = parent
         self.env = parent.env
         self.glob = parent.glob
-        self.textbox = textbox
         self.json = json
         self.setWindowTitle("Select from asset list")
         self.resize (800, 600)
+        columns = ["id", "Name", "Category", "Author"]
+
+        self.tables = []
 
         tab = QTabWidget()
 
-        # clothes
-        #
-        clothespage = QWidget()
-        layout = QVBoxLayout()
-        clothespage.setLayout(layout)
-
-        self.clothesTable = QTableView()
-        self.clothesTable.setSortingEnabled(True)
-        self.clothesTable.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.clothesTable.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.clothesTable.verticalHeader().setVisible(False)
-        self.clothesTable.clicked.connect(self.clothes_selected)
-
-        data = self.refreshClothesTable()
-
-        self.clothesModel = MemTableModel(data, ["id", "Name", "Author"])
-
-        filter_proxy_model = QSortFilterProxyModel()
-        filter_proxy_model.setSourceModel(self.clothesModel)
-        filter_proxy_model.setFilterKeyColumn(0)
-
-        self.clothesTable.setModel(filter_proxy_model)
-        self.clothesModel.bestFit(self.clothesTable)
-        layout.addWidget(self.clothesTable)
-
-
-        # hair
-        #
-        hairpage = QWidget()
-        layout = QVBoxLayout()
-        hairpage.setLayout(layout)
-
-        self.hairTable = QTableView()
-        self.hairTable.setSortingEnabled(True)
-        self.hairTable.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.hairTable.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.hairTable.verticalHeader().setVisible(False)
-        self.hairTable.clicked.connect(self.hair_selected)
-
-        data = self.refreshHairTable()
-
-        self.hairModel = MemTableModel(data, ["id", "Name", "Author"])
-        filter_proxy_model = QSortFilterProxyModel()
-        filter_proxy_model.setSourceModel(self.hairModel)
-
-        self.hairTable.setModel(filter_proxy_model)
-        self.hairModel.bestFit(self.hairTable)
-        layout.addWidget(self.hairTable)
-
-        tab.addTab(clothespage, "Clothes")
-        tab.addTab(hairpage, "Hair")
+        for name in ("clothes", "hair", "eyes", "eyebrows", "eyelashes", "teeth"):
+            table = MHQTableView(self, name)
+            table.addModel(self.refreshGeneric, columns)
+            tab.addTab(table.createPage(), name.capitalize())
+            self.tables.append(table)
 
         layout = QVBoxLayout()
         layout.addWidget(tab)
@@ -406,52 +314,31 @@ class MHSelectAssetWindow(QWidget):
         layout.addLayout(hlayout)
         self.setLayout(layout)
 
-    def refreshClothesTable(self):
+    def setParam(self, callback):
+        for table in self.tables:
+            table.setResponse(callback)
+
+    def refreshGeneric(self, dtype):
         data = []
         for key, elem in self.json.items():
             mtype = elem.get("type")
-            if mtype == "clothes":
+            cat = elem.get("category")
+            if mtype == dtype:
                 author = elem.get("username")
                 if author is None:
                     author = "unknown"
-                data.append([key, elem["title"], author])
+                data.append([key, elem["title"], cat, author])
 
         if len(data) == 0:
-            data = [["no clothes discovered"]]
-        return (data)
-
-    def clothes_selected(self):
-        idx = self.clothesTable.selectionModel().currentIndex()
-        value= idx.sibling(idx.row(),0).data()
-        self.textbox(value)
-
-    def hair_selected(self):
-        idx = self.hairTable.selectionModel().currentIndex()
-        value= idx.sibling(idx.row(),0).data()
-        self.textbox(value)
-
-    def refreshHairTable(self):
-        data = []
-        for key, elem in self.json.items():
-            mtype = elem.get("type")
-            if mtype == "hair":
-                author = elem.get("username")
-                if author is None:
-                    author = "unknown"
-                data.append([key, elem["title"], author])
-
-        if len(data) == 0:
-            data = [["no hair discovered"]]
+            data = [["no " + dtype + " discovered"]]
         return (data)
 
     def redisplay_call(self):
         """
         refreshes all tabs
         """
-        self.clothesModel.refreshWithReset(self.refreshClothesTable())
-        self.clothesTable.viewport().update()
-        self.hairModel.refreshWithReset(self.refreshHairTable())
-        self.hairTable.viewport().update()
+        for table in self.tables:
+            table.refreshData()
 
     def close_call(self):
         self.close()
