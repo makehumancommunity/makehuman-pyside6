@@ -158,6 +158,7 @@ class AssetPack():
         """
         get URL and extract zipfile
         """
+        url = url.replace(' ', '%20')
         try:
             req = Request(url)
         except Exception as err:

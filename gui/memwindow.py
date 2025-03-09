@@ -14,10 +14,12 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTabWidget, QPushButton, QRadioButton, QGroupBox, QCheckBox,
     QTableView, QGridLayout, QHeaderView, QAbstractItemView
     )
-from PySide6.QtGui import QColor
+from PySide6.QtGui import QColor, QPixmap
+from gui.common import IconButton, ErrorBox
 
 import sys
 import re
+import os
 
 class MemTableModel(QAbstractTableModel):
     def __init__(self, data, columns):
@@ -70,7 +72,7 @@ class MemTableModel(QAbstractTableModel):
         super().endResetModel()
 
 class MHQTableView(QTableView):
-    def __init__(self, parent, mtype):
+    def __init__(self, parent, mtype, callback=None):
         super().__init__()
         self.type = mtype
         self.setSortingEnabled(True)
@@ -78,10 +80,9 @@ class MHQTableView(QTableView):
         self.setSelectionMode(QAbstractItemView.SingleSelection)
         self.verticalHeader().setVisible(False)
 
-    def setResponse(self, result):
-        if result is not None:
-            self.textbox = result
-            self.clicked.connect(self.insert_into_widget)
+        self.callback = callback
+        if callback is not None:
+            self.clicked.connect(self.sendResult)
 
     def addModel(self, refresh_func, header):
 
@@ -106,10 +107,10 @@ class MHQTableView(QTableView):
         layout.addWidget(self)
         return page
 
-    def insert_into_widget(self):
+    def sendResult(self):
         idx = self.selectionModel().currentIndex()
         value= idx.sibling(idx.row(),0).data()
-        self.textbox(value)
+        self.callback(value)
 
 class MHMemWindow(QWidget):
     """
@@ -285,38 +286,101 @@ class MHSelectAssetWindow(QWidget):
         self.env = parent.env
         self.glob = parent.glob
         self.json = json
+        self.current_asset = None
         self.setWindowTitle("Select from asset list")
-        self.resize (800, 600)
+        self.resize (1000, 600)
         columns = ["id", "Name", "Category", "Author"]
+        self.thumbpath = os.path.join(self.env.path_userdata, "downloads", self.env.basename, "thumb.png")
 
+
+        self.textboxfill = None
         self.tables = []
 
         tab = QTabWidget()
 
         for name in ("clothes", "hair", "eyes", "eyebrows", "eyelashes", "teeth"):
-            table = MHQTableView(self, name)
+            table = MHQTableView(self, name, self.callback)
             table.addModel(self.refreshGeneric, columns)
             tab.addTab(table.createPage(), name.capitalize())
             self.tables.append(table)
 
-        layout = QVBoxLayout()
+        layout = QHBoxLayout()
         layout.addWidget(tab)
-        hlayout = QHBoxLayout()
+        vlayout = QVBoxLayout()
+
+        assetgb = QGroupBox("Selected asset")
+        assetgb.setObjectName("subwindow")
+        gblayout = QGridLayout()
+        gblayout.addWidget(IconButton(1,  os.path.join(self.env.path_sysicon, "camera.png"), "Load thumbnail", self.loadThumb), 0, 0)
+        self.imglabel = QLabel()
+        self.displayThumb(None)
+        gblayout.addWidget(self.imglabel, 0, 1)
+
+        gblayout.addWidget(QLabel("Created:"), 1, 0)
+        gblayout.addWidget(QLabel("Changed:"), 2, 0)
+        gblayout.addWidget(QLabel("License:"), 3, 0)
+        self.created = QLabel()
+        self.changed = QLabel()
+        self.license = QLabel()
+        self.description = QLabel()
+        self.description.setWordWrap(True)
+        self.description.setMaximumSize(300, 400)
+        self.description.setToolTip("Description created by author.")
+
+        gblayout.addWidget(self.created, 1, 1)
+        gblayout.addWidget(self.changed, 2, 1)
+        gblayout.addWidget(self.license, 3, 1)
+        gblayout.addWidget(self.description, 4, 0, 1, 2)
+        assetgb.setLayout(gblayout)
+        vlayout.addWidget(assetgb)
+        vlayout.addStretch()
 
         rbutton = QPushButton("Redisplay")
         rbutton.clicked.connect(self.redisplay_call)
-        hlayout.addWidget(rbutton)
+        vlayout.addWidget(rbutton)
 
         button = QPushButton("Close")
         button.clicked.connect(self.close_call)
-        hlayout.addWidget(button)
+        vlayout.addWidget(button)
 
-        layout.addLayout(hlayout)
+        layout.addLayout(vlayout)
         self.setLayout(layout)
 
     def setParam(self, callback):
-        for table in self.tables:
-            table.setResponse(callback)
+        self.textboxfill = callback
+
+    def displayThumb(self, name):
+        if name is None:
+            pixmap = QPixmap(os.path.join(self.env.path_sysicon, "noidea.png"))
+        else:
+            #pixmap = QPixmap.fromImage(name)
+            pixmap = QPixmap(name)
+        self.imglabel.setPixmap(pixmap)
+
+
+    def loadThumb(self):
+        v = self.current_asset
+        if v is not None and v in self.json:
+            m = self.json[v]
+            if "thumb" in m["files"]:
+                thumb_url = m["files"]["thumb"]
+                print ("Load thumb", thumb_url)
+                self.parent.assets.getUrlFile(thumb_url, self.thumbpath)
+                self.displayThumb(self.thumbpath)
+            else:
+                ErrorBox(self, "Asset has no thumbnail.")
+
+
+    def callback(self, value):
+        if value in self.json:
+            self.current_asset = value
+            m = self.json[value]
+            self.created.setText(m["created"])
+            self.changed.setText(m["changed"])
+            self.license.setText(m["license"])
+            self.description.setText(m["description"])
+
+            self.textboxfill(value)
 
     def refreshGeneric(self, dtype):
         data = []
