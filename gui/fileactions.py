@@ -605,25 +605,27 @@ class DownLoadImport(QVBoxLayout):
         self.assetlistpath = os.path.join(self.env.path_userdata, "downloads", self.env.basename, assetname)
         latest = self.assets.testAssetList(self.assetlistpath)
         if latest is None:
-            self.asdlbutton=QPushButton("Download asset list")
+            self.asdlbutton=QPushButton("Download Asset List")
         else:
-            self.asdlbutton=QPushButton("Replace current asset list [" + latest + "]")
+            self.asdlbutton=QPushButton("Replace Current Asset List [" + latest + "]")
 
         self.asdlbutton.clicked.connect(self.listDownLoad)
         self.asdlbutton.setToolTip("The asset list is needed to load single assets.<br>This must be done once.<br>Usually you only need to reload the list if new assets are available.")
         vlayout.addWidget(self.asdlbutton)
 
-        vlayout.addWidget(QLabel("\nEnter title or URL of asset [copy/paste from browser]\nor select from list"))
+        vlayout.addWidget(QLabel("\nEnter title or URL of asset [copy/paste from browser]<br>or select from list"))
         hlayout = QHBoxLayout()
         self.selbutton=QPushButton("Select")
+        self.selbutton.setEnabled(latest is not None)
         self.selbutton.clicked.connect(self.selectfromList)
         self.selbutton.setToolTip("Select asset from asset list.")
         hlayout.addWidget(self.selbutton)
         self.singlename = QLineEdit("")
+        self.singlename.editingFinished.connect(self.singleinserted)
         hlayout.addWidget(self.singlename)
         vlayout.addLayout(hlayout)
 
-        self.sidlbutton=QPushButton("Download single asset")
+        self.sidlbutton=QPushButton("Download Single Asset")
         self.sidlbutton.clicked.connect(self.singleDownLoad)
         vlayout.addWidget(self.sidlbutton)
 
@@ -646,9 +648,11 @@ class DownLoadImport(QVBoxLayout):
         ilayout.addLayout(hlayout)
 
         ilayout.addWidget(QLabel("then copy URL into this box, press Download:"))
-        self.url = QLineEdit("")
-        ilayout.addWidget(self.url)
-        self.dlbutton=QPushButton("Download")
+        self.packname = QLineEdit("")
+        self.packname.editingFinished.connect(self.packinserted)
+        ilayout.addWidget(self.packname)
+
+        self.dlbutton=QPushButton("Download Asset Pack")
         self.dlbutton.clicked.connect(self.downLoad)
         ilayout.addWidget(self.dlbutton)
 
@@ -672,6 +676,7 @@ class DownLoadImport(QVBoxLayout):
 
         ilayout.addWidget(QLabel("\nAfter download use the filename inserted by\nprogram or type in a name of an already\ndownloaded file and press extract:"))
         self.filename = QLineEdit("")
+        self.filename.editingFinished.connect(self.fnameinserted)
         self.filename.setText(self.parent.glob.lastdownload)
         ilayout.addWidget(self.filename)
 
@@ -685,6 +690,9 @@ class DownLoadImport(QVBoxLayout):
         ilayout.addWidget(self.clbutton)
         gb.setLayout(ilayout)
         self.addWidget(gb)
+        self.singleinserted()
+        self.packinserted()
+        self.fnameinserted()
 
     def setMethod(self, value):
         if self.userbutton.isChecked():
@@ -692,8 +700,18 @@ class DownLoadImport(QVBoxLayout):
         else:
             self.use_userpath = False
 
+    def singleinserted(self):
+        self.sidlbutton.setEnabled(len(self.singlename.text()) > 0)
+
+    def packinserted(self):
+        self.dlbutton.setEnabled(len(self.packname.text()) > 0)
+
+    def fnameinserted(self):
+        self.savebutton.setEnabled(len(self.filename.text()) > 0)
+
     def fillSingleName(self, value):
         self.singlename.setText("%" + value)
+        self.singleinserted()
 
     def selectfromList(self):
         if self.assetjson is None:
@@ -736,7 +754,7 @@ class DownLoadImport(QVBoxLayout):
         self.error = None
         print (tempdir)
         print (filename)
-        (err, text) = self.assets.getAssetPack(self.url.text(), tempdir, filename)
+        (err, text) = self.assets.getAssetPack(self.packname.text(), tempdir, filename)
         self.error = text
 
     def finishLoad(self):
@@ -751,7 +769,7 @@ class DownLoadImport(QVBoxLayout):
 
     def downLoad(self):
         print ("Download")
-        url = self.url.text()
+        url = self.packname.text()
         if not (url.startswith("ftp:") or url.startswith("http:") or url.startswith("https:")):
             ErrorBox(self.parent, "URL must start with a known protocol [http, https, ftp]")
             return
@@ -761,6 +779,7 @@ class DownLoadImport(QVBoxLayout):
             tempdir = self.assets.tempDir()
             self.parent.glob.lastdownload = os.path.join(tempdir, filename)
             self.filename.setText(self.parent.glob.lastdownload)
+            self.fnameinserted()
             self.prog_window = MHBusyWindow("Download pack to " + tempdir, "loading ...")
             self.prog_window.progress.forceShow()
             self.bckproc = WorkerThread(self.par_download, tempdir, filename)
@@ -803,7 +822,7 @@ class DownLoadImport(QVBoxLayout):
 
     def singleDownLoad(self):
 
-        supportedclasses = ["clothes", "hair", "eyes", "teeth", "eyebrows", "eyelashes" ]
+        supportedclasses = ["clothes", "hair", "eyes", "teeth", "eyebrows", "eyelashes", "expression", "pose" ]
         assetname = self.singlename.text()
         if assetname == "":
             ErrorBox(self.parent, "Please enter an asset name.")

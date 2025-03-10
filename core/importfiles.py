@@ -78,7 +78,7 @@ class UserEnvironment():
 class AssetPack():
     def __init__(self):
         self.unzipdir = None
-        self.acceptedfiles = ["obj", "mhclo", "mhmat", "thumb", "mhw_file", "diffuse", "normals" ]
+        self.acceptedfiles = ["obj", "mhclo", "mhmat", "thumb", "mhw_file", "diffuse", "normals", "mhpose", "meta", "bvh" ]
 
     def testAssetList(self, path):
         if os.path.isfile(path):
@@ -145,7 +145,16 @@ class AssetPack():
             return None, []
 
     def alistCreateFolderFromTitle(self, path, base, mtype, folder):
-        folder =os.path.join(path, mtype, base, folder)
+        if mtype == "expression" or mtype == "pose":
+            # no subfolder, but name is plural
+            #
+            folder =os.path.join(path, mtype+"s", base)
+            return(folder, "Okay")
+        else:    
+            folder =os.path.join(path, mtype, base, folder)
+
+        # subfolder needed
+        #
         if os.path.isdir(folder):
             return (None, "Destination folder already existent: " + folder)
         try:

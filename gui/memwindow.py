@@ -292,13 +292,13 @@ class MHSelectAssetWindow(QWidget):
         columns = ["id", "Name", "Category", "Author"]
         self.thumbpath = os.path.join(self.env.path_userdata, "downloads", self.env.basename, "thumb.png")
 
-
         self.textboxfill = None
         self.tables = []
 
         tab = QTabWidget()
 
-        for name in ("clothes", "hair", "eyes", "eyebrows", "eyelashes", "teeth"):
+        for name in ("clothes", "hair", "eyes", "eyebrows", "eyelashes", "teeth",
+                "expression", "pose", "skin", "rig", "proxy", "target", "model", "material"):
             table = MHQTableView(self, name, self.callback)
             table.addModel(self.refreshGeneric, columns)
             tab.addTab(table.createPage(), name.capitalize())
@@ -311,7 +311,8 @@ class MHSelectAssetWindow(QWidget):
         assetgb = QGroupBox("Selected asset")
         assetgb.setObjectName("subwindow")
         gblayout = QGridLayout()
-        gblayout.addWidget(IconButton(1,  os.path.join(self.env.path_sysicon, "camera.png"), "Load thumbnail", self.loadThumb), 0, 0)
+        self.camera = IconButton(1,  os.path.join(self.env.path_sysicon, "camera.png"), "Load thumbnail (enabled if available)", self.loadThumb)
+        gblayout.addWidget(self.camera, 0, 0)
         self.imglabel = QLabel()
         self.displayThumb(None)
         gblayout.addWidget(self.imglabel, 0, 1)
@@ -351,10 +352,8 @@ class MHSelectAssetWindow(QWidget):
 
     def displayThumb(self, name):
         if name is None:
-            pixmap = QPixmap(os.path.join(self.env.path_sysicon, "noidea.png"))
-        else:
-            #pixmap = QPixmap.fromImage(name)
-            pixmap = QPixmap(name)
+            name = os.path.join(self.env.path_sysicon, "noidea.png")
+        pixmap = QPixmap(name).scaled(128, 128, aspectMode=Qt.KeepAspectRatio)
         self.imglabel.setPixmap(pixmap)
 
 
@@ -370,11 +369,13 @@ class MHSelectAssetWindow(QWidget):
             else:
                 ErrorBox(self, "Asset has no thumbnail.")
 
-
     def callback(self, value):
         if value in self.json:
-            self.current_asset = value
+            if value != self.current_asset:
+                self.current_asset = value
+                self.displayThumb(None)
             m = self.json[value]
+            self.camera.setEnabled("thumb" in m["files"])
             self.created.setText(m["created"])
             self.changed.setText(m["changed"])
             self.license.setText(m["license"])
