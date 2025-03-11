@@ -807,11 +807,10 @@ class DownLoadImport(QVBoxLayout):
     def par_filesdownload(self, bckproc, *args):
         destination = args[0][0]
         files = args[0][1]
-        print (files)
         self.error = None
         for elem in files:
             dest = os.path.split(elem)[1]
-            print ("Loading: ", elem)
+            self.env.logLine(8, "Get: " + elem + " >" + destination)
             self.prog_window.setLabelText("Loading: " + elem)
             (loaded, text) = self.assets.getUrlFile(elem, os.path.join(destination, dest))
             if loaded is False:
@@ -820,9 +819,22 @@ class DownLoadImport(QVBoxLayout):
 
         self.error = text
 
+    def parentAsset(self, key):
+        """
+        still yields false in each case
+        """
+        pobj = self.assetjson[key]["belongs_to"]
+        if pobj["belonging_is_assigned"] is False:
+            return False, "No parent asset given"
+        else:
+            if "belongs_to_core_asset" in pobj:
+                return False, pobj["belongs_to_core_asset"]
+            return False, pobj["belongs_to_type"] + " " + pobj["belongs_to_title"]
+
     def singleDownLoad(self):
 
-        supportedclasses = ["clothes", "hair", "eyes", "teeth", "eyebrows", "eyelashes", "expression", "pose" ]
+        supportedclasses = ["clothes", "hair", "eyes", "teeth", "eyebrows", "eyelashes", "expression",
+                "pose", "skin", "rig", "proxy", "model", "target", "material" ]
         assetname = self.singlename.text()
         if assetname == "":
             ErrorBox(self.parent, "Please enter an asset name.")
@@ -842,7 +854,14 @@ class DownLoadImport(QVBoxLayout):
             ErrorBox(self.parent, "Asset '" + assetname + "' not found in list.")
             return
         mtype, flist = self.assets.alistGetFiles(self.assetjson, key)
-        print (key, mtype, flist)
+        print (key, mtype, flist, folder)
+        if mtype == "material":
+            okay, text = self.parentAsset(key)
+            if okay is False:
+                ErrorBox(self.parent, text)
+            # TODO still return always
+            return
+            
         if mtype not in supportedclasses:
             ErrorBox(self.parent, "Supported classes until now: " + str(supportedclasses))
             return

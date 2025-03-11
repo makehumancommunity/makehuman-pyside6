@@ -289,7 +289,7 @@ class MHSelectAssetWindow(QWidget):
         self.current_asset = None
         self.setWindowTitle("Select from asset list")
         self.resize (1000, 600)
-        columns = ["id", "Name", "Category", "Author"]
+        columns = ["id", "Name", "Category", "Author", "Faces"]
         self.thumbpath = os.path.join(self.env.path_userdata, "downloads", self.env.basename, "thumb.png")
 
         self.textboxfill = None
@@ -298,11 +298,16 @@ class MHSelectAssetWindow(QWidget):
         tab = QTabWidget()
 
         for name in ("clothes", "hair", "eyes", "eyebrows", "eyelashes", "teeth",
-                "expression", "pose", "skin", "rig", "proxy", "target", "model", "material"):
+                "expression", "pose", "skin", "rig", "target", "model", "material"):
             table = MHQTableView(self, name, self.callback)
-            table.addModel(self.refreshGeneric, columns)
+            table.addModel(self.refreshGeneric, columns[:4])
             tab.addTab(table.createPage(), name.capitalize())
             self.tables.append(table)
+
+        table = MHQTableView(self, "proxy", self.callback)
+        table.addModel(self.refreshProxy, columns)
+        tab.addTab(table.createPage(), "Proxy")
+        self.tables.append(table)
 
         layout = QHBoxLayout()
         layout.addWidget(tab)
@@ -387,8 +392,8 @@ class MHSelectAssetWindow(QWidget):
         data = []
         for key, elem in self.json.items():
             mtype = elem.get("type")
-            cat = elem.get("category")
             if mtype == dtype:
+                cat = elem.get("category")
                 author = elem.get("username")
                 if author is None:
                     author = "unknown"
@@ -397,6 +402,23 @@ class MHSelectAssetWindow(QWidget):
         if len(data) == 0:
             data = [["no " + dtype + " discovered"]]
         return (data)
+
+    def refreshProxy(self, dtype):
+        data = []
+        for key, elem in self.json.items():
+            mtype = elem.get("type")
+            if mtype == dtype:
+                cat = elem.get("category")
+                author = elem.get("username")
+                faces  = elem.get("faces")
+                if author is None:
+                    author = "unknown"
+                data.append([key, elem["title"], cat, author, faces])
+
+        if len(data) == 0:
+            data = [["no " + dtype + " discovered"]]
+        return (data)
+
 
     def redisplay_call(self):
         """

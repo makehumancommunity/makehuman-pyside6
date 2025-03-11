@@ -78,7 +78,8 @@ class UserEnvironment():
 class AssetPack():
     def __init__(self):
         self.unzipdir = None
-        self.acceptedfiles = ["obj", "mhclo", "mhmat", "thumb", "mhw_file", "diffuse", "normals", "mhpose", "meta", "bvh" ]
+        self.acceptedfiles = ["obj", "mhclo", "mhmat", "thumb", "mhw_file", "diffuse", "normals",
+                "mhpose", "meta", "bvh", "mhskel", "mhw", "obj_file", "file", "mhm" ]
 
     def testAssetList(self, path):
         if os.path.isfile(path):
@@ -90,24 +91,32 @@ class AssetPack():
         json = env.readJSON(path)
         if json is not None:
             for key, item in json.items():
-                cat = item.get("category")
-                if cat == "Hair":
-                    item["type"] = "hair"
-                elif cat == "Eyes":
-                    item["type"] = "eyes"
-                elif cat == "Eyebrows":
-                    item["type"] = "eyebrows"
-                elif cat == "Eyelashes":
-                    item["type"] = "eyelashes"
-                elif cat == "Teeth":
-                    item["type"] = "teeth"
                 folder = item.get("title").lower()
                 folder = re.sub('[^a-z0-9 ]', '', folder).strip()
                 folder = folder.replace(" ", "_")
                 folder = re.sub('__+', '_', folder)
                 if len(folder) == 0:
                     folder = key
-                item["folder"] = folder
+
+                cat = item.get("category")
+                if item["type"] == "target":        # targets need a hint for category
+                    cat = cat.lower()
+                    cat = re.sub('[^a-z0-9 ]', '', cat).strip()
+                    cat = cat.replace(" ", "_")
+                    item["folder"] = cat + "/" + folder
+                else:
+                    if cat == "Hair":
+                        item["type"] = "hair"
+                    elif cat == "Eyes":
+                        item["type"] = "eyes"
+                    elif cat == "Eyebrows":
+                        item["type"] = "eyebrows"
+                    elif cat == "Eyelashes":
+                        item["type"] = "eyelashes"
+                    elif cat == "Teeth":
+                        item["type"] = "teeth"
+
+                    item["folder"] = folder
 
         return(json)
 
@@ -144,18 +153,29 @@ class AssetPack():
         else:
             return None, []
 
-    def alistCreateFolderFromTitle(self, path, base, mtype, folder):
-        if mtype == "expression" or mtype == "pose":
+    def alistCreateFolderFromTitle(self, path, base, mtype, title):
+        if mtype == "expression" or mtype == "pose" or mtype == "model":
             # no subfolder, but name is plural
             #
             folder =os.path.join(path, mtype+"s", base)
             return(folder, "Okay")
-        else:    
-            folder =os.path.join(path, mtype, base, folder)
+
+        elif mtype == "skin" or mtype == "rig":
+            # folder name is plural
+            folder =os.path.join(path, mtype+"s", base, title)
+        elif mtype == "target":
+            # sub folder is part of the name, return if available
+            sub = title.split("/")[0]
+            folder =os.path.join(path, mtype, base, sub)
+            if os.path.isdir(folder):
+                return (folder, "Okay")
+        else:
+            # proxy and all type of clothes
+            folder =os.path.join(path, mtype, base, title)
 
         # subfolder needed
         #
-        if os.path.isdir(folder):
+        if os.path.isdir(folder) and  mtype != "target":
             return (None, "Destination folder already existent: " + folder)
         try:
             os.mkdir(folder)
