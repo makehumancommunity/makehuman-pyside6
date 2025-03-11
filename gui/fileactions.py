@@ -603,11 +603,11 @@ class DownLoadImport(QVBoxLayout):
         vlayout = QVBoxLayout()
         assetname = os.path.split(self.env.release_info["url_assetlist"])[1]
         self.assetlistpath = os.path.join(self.env.path_userdata, "downloads", self.env.basename, assetname)
-        latest = self.assets.testAssetList(self.assetlistpath)
-        if latest is None:
+        self.latest = self.assets.testAssetList(self.assetlistpath)
+        if self.latest is None:
             self.asdlbutton=QPushButton("Download Asset List")
         else:
-            self.asdlbutton=QPushButton("Replace Current Asset List [" + latest + "]")
+            self.asdlbutton=QPushButton("Replace Current Asset List [" + self.latest + "]")
 
         self.asdlbutton.clicked.connect(self.listDownLoad)
         self.asdlbutton.setToolTip("The asset list is needed to load single assets.<br>This must be done once.<br>Usually you only need to reload the list if new assets are available.")
@@ -616,7 +616,7 @@ class DownLoadImport(QVBoxLayout):
         vlayout.addWidget(QLabel("\nEnter title or URL of asset [copy/paste from browser]<br>or select from list"))
         hlayout = QHBoxLayout()
         self.selbutton=QPushButton("Select")
-        self.selbutton.setEnabled(latest is not None)
+        self.selbutton.setEnabled(self.latest is not None)
         self.selbutton.clicked.connect(self.selectfromList)
         self.selbutton.setToolTip("Select asset from asset list.")
         hlayout.addWidget(self.selbutton)
@@ -767,6 +767,19 @@ class DownLoadImport(QVBoxLayout):
             QMessageBox.information(self.parent, "Done!", self.bckproc.finishmsg)
         self.bckproc = None
 
+    def finishListLoad(self):
+        if self.prog_window is not None:
+            self.prog_window.progress.close()
+            self.prog_window = None
+        if self.error:
+            ErrorBox(self.parent, self.error)
+        else:
+            QMessageBox.information(self.parent, "Done!", self.bckproc.finishmsg)
+        self.bckproc = None
+        self.latest = self.assets.testAssetList(self.assetlistpath)
+        self.selbutton.setEnabled(self.latest is not None)
+
+
     def downLoad(self):
         print ("Download")
         url = self.packname.text()
@@ -802,7 +815,7 @@ class DownLoadImport(QVBoxLayout):
             self.bckproc = WorkerThread(self.par_listdownload, self.assetlistpath)
             self.bckproc.start()
             self.bckproc.finishmsg = "Download finished"
-            self.bckproc.finished.connect(self.finishLoad)
+            self.bckproc.finished.connect(self.finishListLoad)
 
     def par_filesdownload(self, bckproc, *args):
         destination = args[0][0]
