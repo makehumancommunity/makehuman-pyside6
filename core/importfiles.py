@@ -81,6 +81,25 @@ class AssetPack():
         self.acceptedfiles = ["obj", "mhclo", "mhmat", "thumb", "mhw_file", "diffuse", "normals",
                 "mhpose", "meta", "bvh", "mhskel", "mhw", "obj_file", "file", "mhm" ]
 
+    def titleToFileName(self, title):
+        fname = re.sub('[^a-z0-9 ]', '', title.lower()).strip()
+        fname = fname.replace(" ", "_")
+        return(re.sub('__+', '_', fname))
+
+    def createMaterialsFolder(self, path):
+        #
+        # if material folder is already selected return path itself
+        #
+        if path.endswith("materials"):
+            return path, "Okay"
+        matfolder = os.path.join(path, "materials")
+        if not os.path.isdir(matfolder):
+            try:
+                os.mkdir(matfolder)
+            except:
+                return (None, "Problems creating new folder: " + matfolder)
+        return (matfolder, "Okay")
+
     def testAssetList(self, path):
         if os.path.isfile(path):
             return datetime.fromtimestamp(os.path.getctime(path)).strftime("%d/%m/%y %H:%M")
@@ -91,18 +110,13 @@ class AssetPack():
         json = env.readJSON(path)
         if json is not None:
             for key, item in json.items():
-                folder = item.get("title").lower()
-                folder = re.sub('[^a-z0-9 ]', '', folder).strip()
-                folder = folder.replace(" ", "_")
-                folder = re.sub('__+', '_', folder)
+                folder = self.titleToFileName(item.get("title"))
                 if len(folder) == 0:
                     folder = key
 
                 cat = item.get("category")
                 if item["type"] == "target":        # targets need a hint for category
-                    cat = cat.lower()
-                    cat = re.sub('[^a-z0-9 ]', '', cat).strip()
-                    cat = cat.replace(" ", "_")
+                    cat = self.titleToFileName(cat)
                     item["folder"] = cat + "/" + folder
                 else:
                     if cat == "Hair":

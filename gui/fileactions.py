@@ -841,8 +841,16 @@ class DownLoadImport(QVBoxLayout):
             return False, "No parent asset given"
         else:
             if "belongs_to_core_asset" in pobj:
-                return False, pobj["belongs_to_core_asset"]
-            return False, pobj["belongs_to_type"] + " " + pobj["belongs_to_title"]
+                return False, "core assets not yet supported " + pobj["belongs_to_core_asset"]
+
+            parentkey = str(pobj["belongs_to_id"])
+            mtype = self.assetjson[parentkey]["type"]        # changed type includes hair etc.
+            folder = self.assets.titleToFileName(pobj["belongs_to_title"])
+
+            path = self.env.existDataDir(mtype, self.env.basename, folder)
+            if path is None:
+                return False, self.env.last_error
+            return True, path
 
     def singleDownLoad(self):
 
@@ -867,22 +875,30 @@ class DownLoadImport(QVBoxLayout):
             ErrorBox(self.parent, "Asset '" + assetname + "' not found in list.")
             return
         mtype, flist = self.assets.alistGetFiles(self.assetjson, key)
-        print (key, mtype, flist, folder)
-        if mtype == "material":
-            okay, text = self.parentAsset(key)
-            if okay is False:
-                ErrorBox(self.parent, text)
-            # TODO still return always
-            return
-            
+
         if mtype not in supportedclasses:
             ErrorBox(self.parent, "Supported classes until now: " + str(supportedclasses))
             return
 
-        folder, err = self.assets.alistCreateFolderFromTitle(self.env.path_userdata, self.env.basename, mtype, folder)
+        print (key, mtype, flist, folder)
+        if mtype == "material":
+            #
+            # materials are handle different
+            #
+            okay, path = self.parentAsset(key)
+            if okay is False:
+                # TODO ask for path
+                ErrorBox(self.parent, path)
+                return
+
+            folder, err = self.assets.createMaterialsFolder(path)
+        else:
+            folder, err = self.assets.alistCreateFolderFromTitle(self.env.path_userdata, self.env.basename, mtype, folder)
+
         if folder is None:
             ErrorBox(self.parent, err)
             return
+
         if self.bckproc == None:
             self.prog_window = MHBusyWindow("Download files to " + folder, "loading ...")
             self.prog_window.progress.forceShow()
