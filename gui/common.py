@@ -16,6 +16,7 @@
     * MHBusyWindow
     * MHFileRequest
     * TextBox
+    * ImageBox
 """
 
 import os
@@ -240,13 +241,23 @@ class MHFileRequest(QFileDialog):
     def __init__(self, ftext, pattern, directory, save=None):
         super(MHFileRequest, self).__init__()
         self.save = save
-        self.setNameFilters([pattern, "Any files (*)"])
 
-        self.setDirectory(directory)
+        if pattern is not None:
+            self.setNameFilters([pattern, "Any files (*)"])
+
+        if directory is not None:
+            self.setDirectory(directory)
+
         if self.save is None:
             self.setWindowTitle("Load " + str(ftext) + " file")
             self.setFileMode(QFileDialog.FileMode.ExistingFile)
             self.setAcceptMode(QFileDialog.AcceptOpen)
+        elif self.save == ".":
+            self.setWindowTitle(str(ftext))
+            self.setFileMode(QFileDialog.Directory)
+            self.setOption(QFileDialog.ShowDirsOnly)
+            self.setAcceptMode(QFileDialog.AcceptSave)
+            self.save = None
         else:
             self.setWindowTitle("Save " + str(ftext) + " file")
             self.setFileMode(QFileDialog.FileMode.AnyFile)
@@ -306,4 +317,29 @@ class TextBox(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setMinimumWidth(minwidth)
+        self.show()
+
+class ImageBox(QDialog):
+    """
+    for e.g. presentation of a downloaded render
+    no close buttons etc. to avoid bad window error onClose with normal window button
+    """
+    def __init__(self, parent, title, image):
+        super(ImageBox, self).__init__(parent)
+        self.setWindowTitle(title)
+        self.setWindowFlags(Qt.Dialog | Qt.CustomizeWindowHint | Qt.WindowTitleHint)
+
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
+        buttonBox.accepted.connect(self.close)
+        buttonBox.button(QDialogButtonBox.Ok).setDefault(True)
+
+        layout = QVBoxLayout()
+        imglabel = QLabel()
+        imglabel.setPixmap(QPixmap(image))
+        layout.addWidget(imglabel)
+        layout.addWidget(buttonBox)
+
+        self.setLayout(layout)
+        self.setWindowModality(Qt.WindowModal)
+        self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.show()

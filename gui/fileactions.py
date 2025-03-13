@@ -20,7 +20,7 @@ from gui.poseactions import AnimMode
 from gui.imageselector import MHPictSelectable, PicSelectWidget
 from gui.materialwindow import  MHMaterialWindow, MHAssetWindow
 from gui.memwindow import MHSelectAssetWindow
-from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, IconButton, MHTagEdit
+from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, IconButton, MHTagEdit, MHFileRequest
 import os
 from core.globenv import cacheRepoEntry
 from core.importfiles import AssetPack
@@ -834,22 +834,36 @@ class DownLoadImport(QVBoxLayout):
 
     def parentAsset(self, key):
         """
-        still yields false in each case
+        calculate path of parent asset or return a path to type if possible
         """
         pobj = self.assetjson[key]["belongs_to"]
         if pobj["belonging_is_assigned"] is False:
-            return False, "No parent asset given"
+            self.env.last_error = "No parent asset given"
+            return False, None
         else:
             if "belongs_to_core_asset" in pobj:
-                return False, "core assets not yet supported " + pobj["belongs_to_core_asset"]
+                #
+                # core assets must be recalculated (basename added).
+                # eyes will always go into a common folder
+
+                (mtype, folder) = pobj["belongs_to_core_asset"].split("/", 2)
+                if mtype == "eyes":
+                    path = self.env.existDataDir(mtype, self.env.basename)
+                else:
+                    path = self.env.existDataDir(mtype, self.env.basename, folder)
+                if path is None:
+                    self.env.last_error = "core assets not found: " + pobj["belongs_to_core_asset"]
+                    return False, None
+
+                return True, path
 
             parentkey = str(pobj["belongs_to_id"])
-            mtype = self.assetjson[parentkey]["type"]        # changed type includes hair etc.
+            mtype = self.assetjson[parentkey]["type"]        # changed type includes hair, cannot use belongs_to_type
             folder = self.assets.titleToFileName(pobj["belongs_to_title"])
 
             path = self.env.existDataDir(mtype, self.env.basename, folder)
             if path is None:
-                return False, self.env.last_error
+                return False, self.env.existDataDir(mtype, self.env.basename)
             return True, path
 
     def singleDownLoad(self):
@@ -883,13 +897,23 @@ class DownLoadImport(QVBoxLayout):
         print (key, mtype, flist, folder)
         if mtype == "material":
             #
-            # materials are handle different
-            #
+            # for materials the parent asset is needed and the path should be calculated
+
             okay, path = self.parentAsset(key)
             if okay is False:
-                # TODO ask for path
-                ErrorBox(self.parent, path)
-                return
+                if path is None:
+                    ErrorBox(self.parent, self.env.last_error)
+                    return
+                #
+                # part of the path is known, create a file request box
+
+                freq = MHFileRequest("Select a directory to save additional materials", None, path, save=".")
+                path = freq.request()
+                if path is None:
+                    return              # cancel
+
+                print ("Working with", path)
+
 
             folder, err = self.assets.createMaterialsFolder(path)
         else:

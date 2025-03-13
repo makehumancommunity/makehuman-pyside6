@@ -12,10 +12,10 @@
 from PySide6.QtCore import Qt, QAbstractTableModel, QSortFilterProxyModel
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTabWidget, QPushButton, QRadioButton, QGroupBox, QCheckBox,
-    QTableView, QGridLayout, QHeaderView, QAbstractItemView
+    QTableView, QGridLayout, QHeaderView, QAbstractItemView, QScrollArea
     )
 from PySide6.QtGui import QColor, QPixmap
-from gui.common import IconButton, ErrorBox
+from gui.common import IconButton, ErrorBox, ImageBox
 
 import sys
 import re
@@ -291,6 +291,7 @@ class MHSelectAssetWindow(QWidget):
         self.resize (1000, 600)
         columns = ["id", "Name", "Category", "Author", "Faces"]
         self.thumbpath = os.path.join(self.env.path_userdata, "downloads", self.env.basename, "thumb.png")
+        self.renderpath = os.path.join(self.env.path_userdata, "downloads", self.env.basename, "render")
 
         self.textboxfill = None
         self.tables = []
@@ -317,29 +318,37 @@ class MHSelectAssetWindow(QWidget):
         assetgb.setObjectName("subwindow")
         gblayout = QGridLayout()
         self.camera = IconButton(1,  os.path.join(self.env.path_sysicon, "camera.png"), "Load thumbnail (enabled if available)", self.loadThumb)
+        self.render = IconButton(2,  os.path.join(self.env.path_sysicon, "render.png"), "Load demo picture (enabled if available)", self.loadDemo)
         gblayout.addWidget(self.camera, 0, 0)
+        gblayout.addWidget(self.render, 1, 0)
         self.imglabel = QLabel()
         self.displayThumb(None)
-        gblayout.addWidget(self.imglabel, 0, 1)
+        gblayout.addWidget(self.imglabel, 0, 1, 2, 1)
 
-        gblayout.addWidget(QLabel("Created:"), 1, 0)
-        gblayout.addWidget(QLabel("Changed:"), 2, 0)
-        gblayout.addWidget(QLabel("License:"), 3, 0)
+        gblayout.addWidget(QLabel("Created:"), 2, 0)
+        gblayout.addWidget(QLabel("Changed:"), 3, 0)
+        gblayout.addWidget(QLabel("License:"), 4, 0)
+        gblayout.addWidget(QLabel("Attached:"),5, 0)
         self.created = QLabel()
         self.changed = QLabel()
         self.license = QLabel()
+        self.attached= QLabel()
+
         self.description = QLabel()
         self.description.setWordWrap(True)
-        self.description.setMaximumSize(300, 400)
         self.description.setToolTip("Description created by author.")
 
-        gblayout.addWidget(self.created, 1, 1)
-        gblayout.addWidget(self.changed, 2, 1)
-        gblayout.addWidget(self.license, 3, 1)
-        gblayout.addWidget(self.description, 4, 0, 1, 2)
+        scroll = QScrollArea(self)
+        scroll.setWidget(self.description)
+        scroll.setWidgetResizable(True)
+
+        gblayout.addWidget(self.created, 2, 1)
+        gblayout.addWidget(self.changed, 3, 1)
+        gblayout.addWidget(self.license, 4, 1)
+        gblayout.addWidget(self.attached,5, 1)
+        gblayout.addWidget(scroll, 6, 0, 1, 2)
         assetgb.setLayout(gblayout)
         vlayout.addWidget(assetgb)
-        vlayout.addStretch()
 
         rbutton = QPushButton("Redisplay")
         rbutton.clicked.connect(self.redisplay_call)
@@ -374,6 +383,20 @@ class MHSelectAssetWindow(QWidget):
             else:
                 ErrorBox(self, "Asset has no thumbnail.")
 
+    def loadDemo(self):
+        v = self.current_asset
+        if v is not None and v in self.json:
+            m = self.json[v]
+            if "render" in m["files"]:
+                url = m["files"]["render"]
+                (base, ext) = os.path.splitext(url)
+                path = self.renderpath + ext
+                print ("Load render", url, " to ", path)
+                self.parent.assets.getUrlFile(url, path)
+                ImageBox(self, "Demo image", path)
+            else:
+                ErrorBox(self, "Asset has no demo picture.")
+
     def callback(self, value):
         if value in self.json:
             if value != self.current_asset:
@@ -381,9 +404,22 @@ class MHSelectAssetWindow(QWidget):
                 self.displayThumb(None)
             m = self.json[value]
             self.camera.setEnabled("thumb" in m["files"])
+            self.render.setEnabled("render" in m["files"])
             self.created.setText(m["created"])
             self.changed.setText(m["changed"])
             self.license.setText(m["license"])
+            text = ""
+            if m["type"] == "material":
+                if "belongs_to" in m:
+                    b = m["belongs_to"]
+                    text = "not attached"
+                    if b["belonging_is_assigned"] is True:
+                        if "belongs_to_core_asset" in b:
+                            text = b["belongs_to_core_asset"]
+                        elif "belongs_to_title" in b:
+                            text = b["belongs_to_title"]
+            self.attached.setText(text)
+                    
             self.description.setText(m["description"])
 
             self.textboxfill(value)

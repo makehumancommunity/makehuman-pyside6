@@ -1,3 +1,11 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * MHInfoWindow
+"""
+
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap, QScreen
@@ -5,7 +13,7 @@ import os
 
 class MHInfoWindow(QWidget):
     """
-    demonstration of an info window, borderless (mouseclick)
+    splash-window, borderless (mouseclick)
     """
     def __init__(self, glob):
         super().__init__()
