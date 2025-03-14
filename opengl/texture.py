@@ -1,6 +1,16 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * TextureRepo
+    * MH_Texture
+    * MH_Thumb
+"""
+
 from PySide6.QtOpenGL import QOpenGLTexture
 from PySide6.QtGui import QImage, QColor
-from PySide6.QtCore import QSize
+from PySide6.QtCore import QSize, Qt
 
 class TextureRepo():
     def __init__(self):
@@ -109,4 +119,16 @@ class MH_Texture():
         self.create(path, image)
         self.repo.add(path, self.texture)
         return self.texture
+
+class MH_Thumb():
+    def __init__(self, maxsize=128):
+        self.maxsize = maxsize
+        self.img = None
+
+    def rescale(self, name):
+        self.img = QImage(name)
+        size = self.img.size()
+        if size.height() > self.maxsize or size.width() > self.maxsize:
+            newimage = self.img.scaled(self.maxsize, self.maxsize, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            newimage.save(name, "PNG", -1)
 

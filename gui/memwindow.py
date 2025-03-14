@@ -12,7 +12,7 @@
 from PySide6.QtCore import Qt, QAbstractTableModel, QSortFilterProxyModel
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTabWidget, QPushButton, QRadioButton, QGroupBox, QCheckBox,
-    QTableView, QGridLayout, QHeaderView, QAbstractItemView, QScrollArea
+    QTableView, QGridLayout, QHeaderView, QAbstractItemView, QScrollArea, QLineEdit, QComboBox
     )
 from PySide6.QtGui import QColor, QPixmap
 from gui.common import IconButton, ErrorBox, ImageBox
@@ -75,6 +75,7 @@ class MHQTableView(QTableView):
     def __init__(self, parent, mtype, callback=None):
         super().__init__()
         self.type = mtype
+        self.filter_proxy = None
         self.setSortingEnabled(True)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSelectionMode(QAbstractItemView.SingleSelection)
@@ -87,14 +88,22 @@ class MHQTableView(QTableView):
     def addModel(self, refresh_func, header):
 
         self.refresh_func = refresh_func
+        self.header = header
         self.mtmodel = MemTableModel(refresh_func(self.type), header)
 
-        filter_proxy_model = QSortFilterProxyModel()
-        filter_proxy_model.setSourceModel(self.mtmodel)
-        filter_proxy_model.setFilterKeyColumn(0)
-
-        self.setModel(filter_proxy_model)
+        self.filter_proxy = QSortFilterProxyModel()
+        self.filter_proxy.setSourceModel(self.mtmodel)
+        self.filter_proxy.setFilterCaseSensitivity(Qt.CaseInsensitive)
+        self.filter_proxy.setFilterKeyColumn(-1)
+        self.setModel(self.filter_proxy)
         self.mtmodel.bestFit(self)
+
+    def headerColumns(self):
+        return self.header
+
+    def addFilter(self, column, text):
+        self.filter_proxy.setFilterFixedString(text)
+        self.filter_proxy.setFilterKeyColumn(column)
 
     def refreshData(self):
         self.mtmodel.refreshWithReset(self.refresh_func(self.type))
@@ -296,22 +305,40 @@ class MHSelectAssetWindow(QWidget):
         self.textboxfill = None
         self.tables = []
 
-        tab = QTabWidget()
+        self.query = QLineEdit()
+        self.columnNum = QComboBox()
+        self.columnNum.currentIndexChanged.connect(self.applySearch)
+        self.tab = QTabWidget()
+        self.tab.currentChanged.connect(self.tabChanged)
 
         for name in ("clothes", "hair", "eyes", "eyebrows", "eyelashes", "teeth",
                 "expression", "pose", "skin", "rig", "target", "model", "material"):
             table = MHQTableView(self, name, self.callback)
             table.addModel(self.refreshGeneric, columns[:4])
-            tab.addTab(table.createPage(), name.capitalize())
+            self.tab.addTab(table.createPage(), name.capitalize())
             self.tables.append(table)
 
         table = MHQTableView(self, "proxy", self.callback)
         table.addModel(self.refreshProxy, columns)
-        tab.addTab(table.createPage(), "Proxy")
+        self.tab.addTab(table.createPage(), "Proxy")
         self.tables.append(table)
 
         layout = QHBoxLayout()
-        layout.addWidget(tab)
+
+        vlayout = QVBoxLayout()
+        vlayout.addWidget(self.tab)
+        gb = QGroupBox("Filter")
+        gb.setObjectName("subwindow")
+        hlayout = QHBoxLayout()
+        self.query.returnPressed.connect(self.applySearch)
+        #hlayout.addWidget(QLabel("Filter:"))
+        hlayout.addWidget(self.query)
+        hlayout.addWidget(QLabel("Column:"))
+        hlayout.addWidget(self.columnNum)
+        gb.setLayout(hlayout)
+        vlayout.addWidget(gb)
+        layout.addLayout(vlayout)
+
         vlayout = QVBoxLayout()
 
         assetgb = QGroupBox("Selected asset")
@@ -360,6 +387,28 @@ class MHSelectAssetWindow(QWidget):
 
         layout.addLayout(vlayout)
         self.setLayout(layout)
+        self.fillComboBox()
+
+    def fillComboBox(self):
+        if len(self.tables) == 0:
+            return
+        tindex = self.tab.currentIndex()
+        cols = self.tables[tindex].headerColumns()
+        self.columnNum.clear()
+        self.columnNum.addItem("Any")
+        self.columnNum.addItems(cols[1:])
+
+    def tabChanged(self):
+        self.query.setText("")
+        self.fillComboBox()
+
+    def applySearch(self):
+        tindex = self.tab.currentIndex()
+        text = self.query.text()
+        col = self.columnNum.currentIndex()
+        if col == 0:
+            col = -1
+        self.tables[tindex].addFilter(col, text)
 
     def setParam(self, callback):
         self.textboxfill = callback

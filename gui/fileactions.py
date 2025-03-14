@@ -21,7 +21,7 @@ from gui.imageselector import MHPictSelectable, PicSelectWidget
 from gui.materialwindow import  MHMaterialWindow, MHAssetWindow
 from gui.memwindow import MHSelectAssetWindow
 from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, IconButton, MHTagEdit, MHFileRequest
-import os
+from opengl.texture import MH_Thumb
 from core.globenv import cacheRepoEntry
 from core.importfiles import AssetPack
 from core.export_gltf import gltfExport
@@ -29,6 +29,8 @@ from core.export_stl import stlExport
 from core.export_obj import objExport
 from core.export_bvh import bvhExport
 from core.blender_communication import blendCom
+
+import os
 
 class BaseSelect(QVBoxLayout):
     def __init__(self, parent, callback):
@@ -825,10 +827,17 @@ class DownLoadImport(QVBoxLayout):
             dest = os.path.split(elem)[1]
             self.env.logLine(8, "Get: " + elem + " >" + destination)
             self.prog_window.setLabelText("Loading: " + elem)
-            (loaded, text) = self.assets.getUrlFile(elem, os.path.join(destination, dest))
+            destpath = os.path.join(destination, dest)
+            (loaded, text) = self.assets.getUrlFile(elem, destpath)
             if loaded is False:
                 self.error = text
                 return
+            #
+            # resize thumbfile if needed
+            #
+            if destpath.endswith(".thumb"):
+                thumb = MH_Thumb()
+                thumb.rescale(destpath)
 
         self.error = text
 
@@ -838,8 +847,9 @@ class DownLoadImport(QVBoxLayout):
         """
         pobj = self.assetjson[key]["belongs_to"]
         if pobj["belonging_is_assigned"] is False:
-            self.env.last_error = "No parent asset given"
-            return False, None
+            #
+            # asset missing return User-data path
+            return False, self.env.path_userdata
         else:
             if "belongs_to_core_asset" in pobj:
                 #
