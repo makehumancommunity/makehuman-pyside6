@@ -1,7 +1,14 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
+
+    Classes:
+    * MacroTree
+    * Modelling
+    * Morphtarget
+    * Targets
 """
+
 from gui.common import WorkerThread
 from gui.slider import ScaleComboItem
 from core.targetcat import TargetCategories
@@ -465,8 +472,19 @@ class Targets:
         glob.Targets = self
         self.collection = None
         self.macrodef = None
+        self.categories = None
         self.baseClass = glob.baseClass
         self.symmetry = False
+
+        self.target_env = [ {
+            "targetpath": self.env.stdSysPath("target"),
+            "targets": None
+            }, {
+            "targetpath": self.env.stdUserPath("target"),
+            "targets": None
+        }]
+        self.default_icon = os.path.join(self.env.path_sysicon, "empty_target.png")
+
 
     def __str__(self):
         return ("Target-Collection: " + str(self.collection))
@@ -529,20 +547,31 @@ class Targets:
 
         return (targetjson)
 
-    def loadTargets(self):
-        target_env = [ {
-            "targetpath": self.env.stdSysPath("target"),
-            "targets": None
-            }, {
-            "targetpath": self.env.stdUserPath("target"),
-            "targets": None
-        }]
+    def createTarget(self, name, t):
+        mode = 1 if "user" in t else 0
+        targetpath = self.target_env[mode]["targetpath"]
+        bintargets = self.target_env[mode]["targets"]
+        iconpath = os.path.join(targetpath, "icons")
+        icon = os.path.join(iconpath, t["icon"]) if "icon" in t else self.default_icon
 
-        default_icon = os.path.join(self.env.path_sysicon, "empty_target.png")
+        m = Modelling(self.glob, name, icon)
+        m.setFromDict(t, targetpath, bintargets)
+
+        pattern = m.search_pattern(mode)
+        if pattern != "None":
+            if isinstance(pattern, list):
+                for l in pattern:
+                    self.glob.targetRepo[l["name"]] = m
+            else:
+                    self.glob.targetRepo[pattern] = m
+        self.modelling_targets.append(m)
+
+
+    def loadTargets(self):
         self.collection = self.env.basename
 
-        tg = TargetCategories(self.glob)
-        tg.readFiles()
+        self.categories= TargetCategories(self.glob)
+        self.categories.readFiles()
 
         targetjson = self.loadModellingJSON()
         if targetjson is None:
@@ -551,7 +580,7 @@ class Targets:
        
         # load binary targets
         #
-        for x in target_env:
+        for x in self.target_env:
             bintargets = os.path.join(x["targetpath"], "compressedtargets.npz")
             if os.path.exists(bintargets):
                 self.env.logLine(8, "Load binary targets: " + bintargets)
@@ -564,29 +593,13 @@ class Targets:
                 name = self.macrodef["targetlink"][link]
                 if name is not None and name not in self.glob.macroRepo:
                     mt = Morphtarget(self.env, name)
-                    mt.loadTargetData(target_env[0]["targetpath"], target_env[0]["targets"])
+                    mt.loadTargetData(self.target_env[0]["targetpath"], self.target_env[0]["targets"])
                     self.glob.macroRepo[name] = mt
 
         # load targets mentioned in modelling.json
         #
         for name, t in targetjson.items():
-            mode = 1 if "user" in t else 0
-            targetpath = target_env[mode]["targetpath"]
-            bintargets = target_env[mode]["targets"]
-            iconpath = os.path.join(targetpath, "icons")
-            icon = os.path.join(iconpath, t["icon"]) if "icon" in t else default_icon
-
-            m = Modelling(self.glob, name, icon)
-            m.setFromDict(t, targetpath, bintargets)
-
-            pattern = m.search_pattern(mode)
-            if pattern != "None":
-                if isinstance(pattern, list):
-                    for l in pattern:
-                        self.glob.targetRepo[l["name"]] = m
-                else:
-                    self.glob.targetRepo[pattern] = m
-            self.modelling_targets.append(m)
+            self.createTarget(name, t)
 
     def saveBinaryTargets(self, bckproc, *args):
         """

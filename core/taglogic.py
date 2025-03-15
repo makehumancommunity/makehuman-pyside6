@@ -1,3 +1,10 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * tagLogic
+"""
 
 class tagLogic():
     def __init__(self, json):
@@ -75,4 +82,3 @@ class tagLogic():
     def create(self):
         self.convertJSON(self.json)
         self.createTagGroups(self.json, "")
-

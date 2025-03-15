@@ -833,11 +833,18 @@ class DownLoadImport(QVBoxLayout):
                 self.error = text
                 return
             #
-            # resize thumbfile if needed
+            # resize thumbfile if needed or recreate targetlist
             #
             if destpath.endswith(".thumb"):
                 thumb = MH_Thumb()
                 thumb.rescale(destpath)
+            elif destpath.endswith(".target"):
+                self.glob.Targets.categories.newUserCategories()
+                tname, t = self.glob.Targets.categories.findUserAsset(dest)
+                if tname is not None:
+                    self.glob.Targets.createTarget(tname, t)
+                else:
+                    self.error = "target not found, please restart makehuman"
 
         self.error = text
 
@@ -922,7 +929,7 @@ class DownLoadImport(QVBoxLayout):
                 if path is None:
                     return              # cancel
 
-                print ("Working with", path)
+                print ("Working with path: ", path)
 
 
             folder, err = self.assets.createMaterialsFolder(path)

@@ -1,3 +1,11 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * TargetCategories
+"""
+
 import os
 
 class TargetCategories:
@@ -10,8 +18,6 @@ class TargetCategories:
         self.glob = glob
         self.env = glob.env
         self.basename = self.env.basename
-        self.mod_cat = 0
-        self.mod_modelling = 0
         self.user_targets = []
         self.icon_repos = []
 
@@ -92,10 +98,14 @@ class TargetCategories:
 
     def getAListOfTargets(self, folder, latest):
         """
-        allow two layers as a maximum
+        scan targets, two layers as a maximum
         """
+        # check own folder
+        #
+        mod = int(os.stat(folder).st_mtime)
+        rescan = ( mod > latest)
+
         dirs = os.listdir(folder)
-        rescan = False
         for ifile in dirs:
 
             fname = os.path.join(folder, ifile)
@@ -109,6 +119,11 @@ class TargetCategories:
             # we don't do it recursive to avoid more than two layers
             #
             if os.path.isdir(fname):
+                # check sub folder
+                #
+                mod = int(os.stat(fname).st_mtime)
+                rescan |= ( mod > latest)
+
                 dir2s = os.listdir(fname)
                 for ifile2 in dir2s:
                     if ifile2.endswith(".target"):
@@ -146,49 +161,39 @@ class TargetCategories:
 
         return (user_cat, user_mod)
 
-    def readFiles(self):
+    def recreateUserCategories(self):
         """
-        create internal structure of target categories
-        this method re-creates a target category for user space 
-        the user category is appended to system category
+        recreates target category for user space 
         """
-
-        # read the system target category first
-        #
-        filename = os.path.join(self.env.stdSysPath("target"), "target_cat.json")
-        categoryjson = self.env.readJSON(filename)
-
-        # now user
-        #
+        mod_cat = 0
+        mod_modelling = 0
         targetpath = self.env.stdUserPath("target")
 
         # if folder does not exists do nothing
         #
         if not os.path.isdir(targetpath):
             self.env.logLine(8, "No target folder for " + self.basename + " in user space")
-            return (categoryjson)
+            return None
 
         #    check for "target_cat.json" (with date)
         #
         catfilename = os.path.join(targetpath, "target_cat.json")
         if os.path.isfile(catfilename):
-            self.mod_cat = int(os.stat(catfilename).st_mtime)
-            self.env.logTime(self.mod_cat, "last change of User target category file")
+            mod_cat = int(os.stat(catfilename).st_mtime)
+            self.env.logTime(mod_cat, "last change of User target category file")
         else:
             self.env.logLine(8, "User target category file does not exists")
-            self.mod_cat = 0
 
         #    check for "modelling.json" (with date)
         #
         modfilename = os.path.join(targetpath, "modelling.json")
         if os.path.isfile(modfilename):
-            self.mod_modelling = int(os.stat(modfilename).st_mtime)
-            self.env.logTime(self.mod_modelling, "last change of User target modelling.json")
+            mod_modelling = int(os.stat(modfilename).st_mtime)
+            self.env.logTime(mod_modelling, "last change of User target modelling.json")
         else:
             self.env.logLine(8, "User target modelling file does not exists")
-            self.mod_modelling = 0
 
-        lastcreated = self.mod_cat if self.mod_cat < self.mod_modelling else self.mod_modelling
+        lastcreated = mod_cat if mod_cat < mod_modelling else mod_modelling
 
         # now scan targets
         #
@@ -203,13 +208,46 @@ class TargetCategories:
             self.env.logLine(8, "User target category and modelling file is not changed")
 
         userjson = self.env.readJSON(catfilename)
-        if userjson is not None:
-            if categoryjson is not None:
-                categoryjson["User"] = userjson["User"]
-            else:
-                categoryjson = userjson         # only user targets
+        return userjson
 
-        # make it globally available
+    def connectCategories(self, json):
+        if self.glob.targetCategories is not None:
+            self.glob.targetCategories["User"] = json["User"]
+        else:
+            self.glob.targetCategories = json         # only user targets
+
+    def readFiles(self):
+        """
+        create internal structure of target categories
+        the user category is appended to system category
+        """
+
+        # read the system target category first
         #
-        self.glob.targetCategories = categoryjson
+        filename = os.path.join(self.env.stdSysPath("target"), "target_cat.json")
 
+        # make it globally available and add user categories
+        #
+        self.glob.targetCategories = self.env.readJSON(filename)
+        self.newUserCategories()
+
+    def newUserCategories(self):
+        userjson = self.recreateUserCategories()
+        self.connectCategories(userjson)
+
+    def findUserAsset(self, search):
+        s1 = search[:-7]
+        s2 = "/" + s1
+        targetpath = self.env.stdUserPath("target")
+        modfilename = os.path.join(targetpath, "modelling.json")
+        json = self.env.readJSON(modfilename)
+        found = None
+        for name, t in json.items():
+            if t["incr"].endswith(s2) or t["incr"] == s1:
+                found = name
+                return name, t
+            if "decr" in t and (t["decr"].endswith(s2) or t["decr"] == s1):
+                found = name
+                return name, t
+
+        return None, None
