@@ -1,0 +1,44 @@
+<h1>Load a Character</h1>
+
+This context provides the possibility to load a character from a file.
+<p>
+<i>Characters are usually saved in the <b>models</b> folder. Inside this folder there are the folders<br>
+for different base-meshes. So an hm08 character is saved in folder <b>models/hm08</b></i>.
+<p>
+Loading a new character will replace the old one, which might be already changed before, in this<br>
+case the program will ask you if you want to save the existing character before.
+<p>
+<h3>Filtering</h3>
+
+To select a character, you can use a filter with some predefined values, like gender, era and genre.<br>
+As long as the characters are tagged with these attributes, they will be shown.<br>
+Characters with no attributes are always shown. You can:
+<ul>
+<li>select from the attributes
+<li>click on a filter icon
+<li>or enter a text in the filter box
+</ul>
+Hint: If the program shows too many characters on right side, load and save the non-fitting characters<br>
+with the appropriate tags set.
+<p>
+<h3>Loading</h3>
+
+Select a character from the right side. Be aware it is not yet loaded, but the information is displayed on<br>
+left side. To load it, press the checkmark on the right side.
+<p>
+<h3>Filter icons, left side:</h3>
+<p>
+<table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">
+<tr><td><img src="data/models/hm08/icons/male.png"></td><td>Display all male characters. Characters without gender are also displayed.</td></tr>
+<tr><td><img src="data/models/hm08/icons/female.png"></td><td>Display all female characters. Characters without gender are also displayed.</td></tr>
+<tr><td><img src="data/icons/sweep.png"></td><td>Reset all filters, all characters are shown on right side.</td></tr>
+</table>
+<p>
+<h3>Icons, right side:</h3>
+<p>
+<table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">
+<tr><td><img src="data/icons/use.png"></td><td>Load the character selected. This will be done in background and will take some time.</td></tr>
+<tr><td><img src="data/icons/resize.png"></td><td>Resíze the icons on right side. Size changes between 48, 64, 96 and 128 pixel.</td></tr>
+<tr><td><img src="data/icons/rescan.png"></td><td>Reload the models folder. This is needed if you add a model after makehuman was started.</td></tr>
+</table>
+<p>

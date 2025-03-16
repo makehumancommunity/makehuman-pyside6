@@ -218,6 +218,9 @@ class MHMainWindow(QMainWindow):
 
         info_menu = menu_bar.addMenu("&Information")
 
+        cont_help = info_menu.addAction("Context Help")
+        cont_help.triggered.connect(self.context_help)
+
         meas_act = info_menu.addAction("Character Info")
         meas_act.triggered.connect(self.measure_call)
 
@@ -1017,6 +1020,17 @@ class MHMainWindow(QMainWindow):
     def socket_finish(self):
         self.glob.Targets.setSkinDiffuseColor()
         self.graph.view.Tweak()
+
+    def context_help(self):
+        path = os.path.join(self.env.path_sysdata, "help",
+                "help-" + str(self.tool_mode) + "-" + str(self.category_mode) + ".txt")
+        print (path)
+        try:
+            with open(path) as f:
+                text = f.read()
+        except IOError as e:
+            text = "Error: " + str(e)
+        TextBox(self, "Context Help", None, text, modal=False)
 
     def vers_call(self):
         text = "Numpy: " + ".".join([str(x) for x in self.env.numpy_version]) + "<br>" + \

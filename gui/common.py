@@ -282,7 +282,7 @@ class TextBox(QDialog):
     for e.g. presentation of license or OpenGL info, text is selectable
     no close buttons etc. to avoid bad window error onClose with normal window button
     """
-    def __init__(self, parent, title, image, text):
+    def __init__(self, parent, title, image, text, modal=True):
         super(TextBox, self).__init__(parent)
         self.setWindowTitle(title)
         self.setWindowFlags(Qt.Dialog | Qt.CustomizeWindowHint | Qt.WindowTitleHint)
@@ -314,7 +314,8 @@ class TextBox(QDialog):
         layout.addWidget(buttonBox)
 
         self.setLayout(layout)
-        self.setWindowModality(Qt.WindowModal)
+        if modal:
+            self.setWindowModality(Qt.WindowModal)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setMinimumWidth(minwidth)
         self.show()
