@@ -1,0 +1,40 @@
+<h1>Save a Character</h1>
+
+This context provides the possibility to save a character to a file.
+<p>
+<i>Characters are usually saved in the <b>models</b> folder. Inside this folder there are the folders<br>
+for different base-meshes. So an hm08 character is saved in folder <b>models/hm08</b></i>.
+<p>
+Saving a character means to overwrite an existing character or save it as a new one. If one wants to<br>
+replace or update an existing character, best to click at the character icon on the right side.<br>
+In this case the information will be inserted in the form of the left side.
+<h3>Form</h3>
+Add parameters in the form to be used as attributes for filtering.
+<ul>
+<li>The photo icon takes a screenshot to be used as a thumbnail. Best to switch off skybox (the globe)<br>
+and use a background with light color. Under "<u>S</u>ettings" change light and scene and select a light<br>
+background color.
+<li>Enter a name for your character.
+<li>Enter your name as the author.
+<li>You can generate a UUID (Universally Unique Identifier).
+<li>Select from tags, usually gender and genre (recommended) or insert your own tags manually.<br>
+A standard tag can be inserted by selecting it from the list and press the plus button.<br>
+You can also delete a tag row or delete all tags by pressing the sweep icon.
+<li>Enter the filename. The suffix ".mhm" will always be appended.
+</ul>
+<h3>Form icons, left side:</h3>
+<p>
+<table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">
+<tr><td><img src="data/icons/sweep.png"></td><td>Clear all tags.</td></tr>
+<tr><td><img src="data/icons/plus.png"></td><td>Add the selected tag.</td></tr>
+</table>
+<h3>Saving</h3>
+
+Is done by pressing the save button after filling out the form.
+<h3>Icons, right side:</h3>
+<p>
+<table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">
+<tr><td><img src="data/icons/resize.png"></td><td>Resíze the icons on right side. Size changes between 48, 64, 96 and 128 pixel.</td></tr>
+<tr><td><img src="data/icons/rescan.png"></td><td>Reload the models folder. This is needed if you add a model after makehuman was started.</td></tr>
+</table>
+<p>
