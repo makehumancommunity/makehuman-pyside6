@@ -1,0 +1,71 @@
+<h1>Modify character</h1>
+
+This context is used to model the character. The mesh will be morphed. It is used for all different<br>
+categories. Morphing means to move certain vertices of a mesh to a new position (the target).<br>
+By using the sliders on the right column, you can determine how much the morph is used.<p>
+There are one-sided sliders from 0-100 percent, but also combined sliders, which decrease and increase<br>
+the value in the range from -100 to +100 percent.
+<p>
+<b>To use one of the sliders, click on a icon in the left column, the slider will expand and it is possible<br>
+to use different ways to enter the value. There is also a small "sweep" button to reset it default.</b>
+<p>
+<h2>Categories</h2>
+The categories are used to modify either the complete character or only parts of it. You need<br>
+to select the category first.
+<p>
+<h3>Main category ("macro")</h3>
+<ul>
+<li>The Gender slider is used to define the gender of the character. Male or female or a mixture of<br>
+both characteristics are possible.
+<li>The Age slider is used to alter the age of the character. Interally different morphs from baby<br>
+to an old person are used.
+<li>The Muscle sider is used to adjust the amount of muscle of the character.
+<li>The Weight silder is used to adjust the weight of the character. The default setting is the<br>
+character with average weight. Used along with “Muscle” it can be used to specify the proportion<br>
+of muscle and fat contributing to the weight.
+<li>The Height slider is used to adjust the height of the characters.
+<li>The Proportions slider is used to adjust the the proportions, from “uncommon” to “idealistic”.
+<li>The ethinicity slider is a triangle slider with the values: African, Asian, Caucasian.<br>
+The influence of each phenotype can be adjusted.
+</ul>
+<h3>Body Shapes</h3>
+Makehuman uses common expressions for different bodyshapes, like "apple" or "diamond". It is an<br>
+easy way to modify the body. There are different forms for males and females. Also a sub-category<br>
+with hormonal components is available.
+<p>
+<h3>Face</h3>
+Face modifiers in makehuman are organised into several sub-categories (eyes, nose, chin etc.). Each<br>
+detail can be changed separately. Usually you should start with the head shape and size and<br>
+then continue with the details.
+<p>
+<h3>Torso, Arm, Legs</h3>
+Torso contains all different features to change the torso (shape, hip, stomach etc.).<br>
+Arms contain shoulder, arm and hand (left and right separately).<br>
+Legs contain a common size and leg and foot with left and right modifier each.
+<p>
+<h3>Gender</h3>
+Gender has options to modify female breast and male genital. For male genital a proxy must be<br>
+activated, otherwise nothing will be shown.
+<p>
+<h3>Measure</h3>
+With measure the typical parameters like bust circum, band size etc. can be changed.<br>
+The character indicates the changed area graphically.
+<p>
+<i>These values can also be shown by using "character info" from information menu. You will get<br>
+an extra window. In this window cup sizes will be shown, when your character is "mostly female".<br>
+However: For a realistic value set horizontal distance of breast to approx -50%.</i>
+<p>
+<h3>User</h3>
+Own modifications (or "targets") are placed in this user category. This will happen, when<br>
+targets are downloaded from makehuman page. Sub-categories are created when the target is<br>
+placed in a sub-folder of the user target folder (so like "targets/hm08/head_detail").
+<p>
+<h3>Icons, left side:</h3>
+<p>
+<table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">
+<tr><td><img src="data/icons/reset.png"></td><td>Reset the character to default. You need to comfirm this action, not to lose your work done before.</td></tr>
+<tr><td><img src="data/icons/symm1.png"></td><td>Mirror the left side to the right side.</td></tr>
+<tr><td><img src="data/icons/symm2.png"></td><td>Mirror the right side to left side.</td></tr>
+<tr><td><img src="data/icons/symm.png"></td><td>always work with symmetry.</td></tr>
+</table>
+
