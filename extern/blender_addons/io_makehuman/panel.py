@@ -53,4 +53,6 @@ class MH2B_PT_Panel(bpy.types.Panel):
         addbox = layout.box()
         addbox.label(text="Additional functions")
         addbox.operator("mh2b.randomize", text="Randomize")
+        addbox.label(text="Method:")
+        addbox.prop(scn, 'MH2B_getrandom')
 

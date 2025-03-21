@@ -1,6 +1,9 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
+
+    classes:
+    * TargetRandomizer
 """
 from numpy import random
 
@@ -41,6 +44,7 @@ class TargetRandomizer():
         self.fromDefault = True     # use no standard values for all non-mentioned targets
         self.weirdofactor = 0.2     # value between 0 and 1 how much randomization should be used
         self.symfactor    = 1.0     # symmetry factor
+        self.method = 0             # 0 is linear, 1 is gauss
 
         self.before = []            # keep the old values
         self.targetlist = []        # list of evaluated targets
@@ -173,9 +177,22 @@ class TargetRandomizer():
                         # print ("Reset:", t[1].name)
                         t[2] = 0.0
 
+    def random(self):
+        if self.method == 0:
+            return random.rand()
+        else:
+            # truncated normal distribution
+            #
+            x = random.normal(loc=0.5, scale=0.2)
+            if x < 0.0:
+                return(0.0)
+            elif x > 1.0:
+                return(1.0)
+            return (x)
+
     def randomBaryCentric(self):
-        x = random.rand()
-        y = random.rand() * (1-x)
+        x = self.random()
+        y = self.random() * (1-x)
         z = 1 - x -y
         return [x, y, z]
 
@@ -186,12 +203,12 @@ class TargetRandomizer():
         if target.decr is None or target.incr is None:
             if target.default != 0.0:
                 modrange = 100-target.default if target.default > 50.0 else target.default
-                x = (random.rand() * modrange * self.weirdofactor + target.default) / 100.0
+                x = (self.random() * modrange * self.weirdofactor + target.default) / 100.0
             else:
-                x = random.rand() * self.weirdofactor
+                x = self.random() * self.weirdofactor
             return x, 0
 
-        x = (1 - random.rand() * 2) * self.weirdofactor
+        x = (1 - self.random() * 2) * self.weirdofactor
         return x, 1
 
     def randomGender(self, key, target):
@@ -200,13 +217,13 @@ class TargetRandomizer():
         HINT: one could also use weirdo factor to "reduce in betweens"
         """
         if self.gender == 0:
-            val  = random.rand()
+            val  = self.random()
         elif self.gender == 1:
             val = 0.0
         elif self.gender == 2:
             val = 1.0
         else:
-            val = round(random.rand())  # yields either 0 or 1
+            val = round(self.random())  # yields either 0 or 1
         self.targetlist.append([key, target, val])
 
     def randomProportions(self, key, target):
@@ -214,7 +231,7 @@ class TargetRandomizer():
         handle proportions
         """
         factor = 1.0 - self.idealMin
-        val = random.rand() * factor + self.idealMin
+        val = self.random() * factor + self.idealMin
         self.targetlist.append([key, target, val])
 
     def addTarget(self, key, target):
@@ -267,10 +284,10 @@ class TargetRandomizer():
                     # s == 0 is single sided slider
                     #
                     if s == 0:
-                        d = (random.rand() - 0.5) * (1.0 - self.symfactor) # -0.5 to create -0.5 to 0.5
+                        d = (self.random() - 0.5) * (1.0 - self.symfactor) # -0.5 to create -0.5 to 0.5
                         lower = 0.0
                     else:
-                        d = (1 - random.rand() * 2) * (1.0 - self.symfactor)
+                        d = (1 - self.random() * 2) * (1.0 - self.symfactor)
                         lower = 1.0
                     #
                     # use values either between min and rnd or rnd and max
@@ -300,7 +317,13 @@ class TargetRandomizer():
                 rnd, dummy = self.randomValue(target)
                 self.targetlist.append([key, target, rnd])
 
-    def do(self):
+    def do(self, mode):
+        """
+        the randomizer function
+
+        :param mode: 0 = linear, 1 = gauss
+        :returns: False if error
+        """
         if self.glob.baseClass is None:
             print ("No base")
             return False
@@ -311,6 +334,7 @@ class TargetRandomizer():
         if self.fromDefault:
             self.glob.Targets.reset()
 
+        self.method = mode
         self.gendset = False
         self.idealset = False
         self.targetlist = []

@@ -152,12 +152,14 @@ class MH2B_OT_Randomize(bpy.types.Operator):
     def execute(self, context):
         scn = context.scene
 
+        params = { "mode": int(scn.MH2B_getrandom) }
+
         info = "Randomize started " + scn.MH2B_apihost + " Port " + str(scn.MH2B_apiport)
         api = API(scn.MH2B_apihost, scn.MH2B_apiport)
         if not api.connect(self, info):
             return {'FINISHED'}
 
-        api.send("randomize")
+        api.send("randomize", params)
         data = api.receive()
 
         res, text = api.decodeAnswer(self, "randomize", data)

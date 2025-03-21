@@ -1,3 +1,12 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    classes:
+    * RandomValues
+    * RandomForm
+"""
+
 from PySide6.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QCheckBox, QPushButton, QComboBox, QLabel, QLabel, QListWidget, QAbstractItemView,
     QListWidgetItem
@@ -77,10 +86,15 @@ class RandomForm(QVBoxLayout):
         self.nonrandbutton.clicked.connect(self.norandom)
         self.addWidget(self.nonrandbutton)
 
-        self.randbutton=QPushButton("Random character")
-        self.randbutton.setToolTip("The character is changed according to parameters.")
+        self.randbutton=QPushButton("Random character [linear]")
+        self.randbutton.setToolTip("The character is changed according to parameters using a linear distribution.")
         self.randbutton.clicked.connect(self.randomize)
         self.addWidget(self.randbutton)
+
+        self.gaussbutton=QPushButton("Random character [gauss]")
+        self.gaussbutton.setToolTip("The character is changed according to parameters using a gaussian distribution.")
+        self.gaussbutton.clicked.connect(self.randomgauss)
+        self.addWidget(self.gaussbutton)
 
         self.setValues()
 
@@ -146,7 +160,12 @@ class RandomForm(QVBoxLayout):
 
     def randomize(self):
         tr = self.values.tr
-        if tr.do():
+        if tr.do(0):
+            tr.apply()
+
+    def randomgauss(self):
+        tr = self.values.tr
+        if tr.do(1):
             tr.apply()
 
     def norandom(self):

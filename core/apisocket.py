@@ -1,6 +1,9 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
+
+    Classes:
+    * apiSocket
 """
 import socket
 import json
@@ -102,9 +105,13 @@ class apiSocket(QThread):
                 self.blcom = None
                 return True
             elif f == "randomize":
+                mode = 0
+                if "params" in js:
+                    p = js["params"]
+                    mode = p["mode"] if "mode" in p else mode
                 tr = self.glob.randomValues.tr
                 tr.storeAllValues()
-                if tr.do():
+                if tr.do(mode):
                     tr.apply(True)
                 self.jsonparam = {}
                 self.viewRedisplay.emit(1)

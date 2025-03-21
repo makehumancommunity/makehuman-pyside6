@@ -40,6 +40,9 @@ def register():
         ("3.937", "Inch", "Inch scale", 3), ("10.0", "Centimeter", "Centimeter scale", 4), \
         ("100.0", "Millimeter", "Millimeter scale", 5) ]
 
+    _randommodes = [("0", "Linear", "Linear random values between 0 and 1", 0), \
+            ("1", "Gauss", "Truncated gaussian random values between 0 and 1", 1)]
+
     scn.MH2B_subdiv = BoolProperty(name="Subdivision",
             description="After loading a subdivision surface modifier will be added.", default=False)
     scn.MH2B_apihost = StringProperty(name="API hostname", description="Makehuman server hostname", default="127.0.0.1")
@@ -53,6 +56,7 @@ def register():
     scn.MH2B_getscale = EnumProperty(items=_scales, name="", description="Scale of character")
     scn.MH2B_replacechar = BoolProperty(name="API ReplaceCharacter", description="Replace last character imported by API", default=False)
     scn.MH2B_lastchar = StringProperty(name="API LastCharacterName", description="Name of last character imported by API", default="")
+    scn.MH2B_getrandom = EnumProperty(items=_randommodes, name="", description="Random mode")
 
     for cls in MH2B_CLASSES:
         register_class(cls)
