@@ -2,23 +2,23 @@
 
 This context provides the possibility to save a character to a file.
 <p>
-<i>Characters are usually saved in the <b>models</b> folder. Inside this folder there are the folders<br>
+<i>Characters are usually saved in the <b>models</b> folder. Inside this folder there are the folders
 for different base-meshes. So an hm08 character is saved in folder <b>models/hm08</b></i>.
 <p>
-Saving a character means to overwrite an existing character or save it as a new one. If one wants to<br>
-replace or update an existing character, best to click at the character icon on the right side.<br>
+Saving a character means to overwrite an existing character or save it as a new one. If one wants to
+replace or update an existing character, best to click at the character icon on the right side.
 In this case the information will be inserted in the form of the left side.
 <h3>Form</h3>
 Add parameters in the form to be used as attributes for filtering.
 <ul>
-<li>The photo icon takes a screenshot to be used as a thumbnail. Best to switch off skybox (the globe)<br>
-and use a background with light color. Under "<u>S</u>ettings" change light and scene and select a light<br>
+<li>The photo icon takes a screenshot to be used as a thumbnail. Best to switch off skybox (the globe)
+and use a background with light color. Under "<u>S</u>ettings" change light and scene and select a light
 background color.
 <li>Enter a name for your character.
 <li>Enter your name as the author.
 <li>You can generate a UUID (Universally Unique Identifier).
-<li>Select from tags, usually gender and genre (recommended) or insert your own tags manually.<br>
-A standard tag can be inserted by selecting it from the list and press the plus button.<br>
+<li>Select from tags, usually gender and genre (recommended) or insert your own tags manually.
+A standard tag can be inserted by selecting it from the list and press the plus button.
 You can also delete a tag row or delete all tags by pressing the sweep icon.
 <li>Enter the filename. The suffix ".mhm" will always be appended.
 </ul>

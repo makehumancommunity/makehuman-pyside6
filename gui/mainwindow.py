@@ -134,74 +134,45 @@ class MHMainWindow(QMainWindow):
         self.resize (s["w"], s["h"])
         
         menu_bar = self.menuBar()
+
         about_menu = menu_bar.addMenu(QIcon(os.path.join(env.path_sysicon, "makehuman.png")), "&About")
-        about_act = about_menu.addAction("Info")
-        about_act.triggered.connect(self.info_call)
+        self.addActCallBack(about_menu, "Info", self.info_call)
 
         file_menu = menu_bar.addMenu("&File")
-        load_act = file_menu.addAction("Load Model")
-        load_act.triggered.connect(self.loadmhm_call)
-
-        save_act = file_menu.addAction("Save Model")
-        save_act.triggered.connect(self.savemhm_call)
-
-        exp_act = file_menu.addAction("Export Model")
-        exp_act.triggered.connect(self.exportmhm_call)
-
-        down_act = file_menu.addAction("Download Assets")
-        down_act.triggered.connect(self.download_call)
-
-        quit_act = file_menu.addAction("Quit")
-        quit_act.triggered.connect(self.quit_call)
+        self.addActCallBack(file_menu, "Load Model", self.loadmhm_call)
+        self.addActCallBack(file_menu, "Save Model", self.savemhm_call)
+        self.addActCallBack(file_menu, "Export Model", self.exportmhm_call)
+        self.addActCallBack(file_menu, "Download Assets", self.download_call)
+        self.addActCallBack(file_menu, "Quit", self.quit_call)
 
         set_menu = menu_bar.addMenu("&Settings")
-        pref_act = set_menu.addAction("Preferences")
-        pref_act.triggered.connect(self.pref_call)
-
-        pref_act = set_menu.addAction("Lights and Scene")
-        pref_act.triggered.connect(self.scene_call)
-
-        log_act = set_menu.addAction("Messages")
-        log_act.triggered.connect(self.log_call)
+        self.addActCallBack(set_menu, "Preferences", self.pref_call)
+        self.addActCallBack(set_menu, "Lights and Scene", self.scene_call)
+        self.addActCallBack(set_menu, "Messages", self.log_call)
 
         binaries = set_menu.addMenu("Create Binaries")
-        cuserobj_act = binaries.addAction("User 3d Objects")
-        cuserobj_act.triggered.connect(self.compress_user3dobjs)
-
-        cusertar_act = binaries.addAction("User Targets")
-        cusertar_act.triggered.connect(self.compress_usertargets)
+        self.addActCallBack(binaries, "User 3d Objects", self.compress_user3dobjs)
+        self.addActCallBack(binaries, "User Targets", self.compress_usertargets)
 
         if env.admin:
-            csysobj_act = binaries.addAction("System 3d Objects")
-            csysobj_act.triggered.connect(self.compress_sys3dobjs)
-
-            csystar_act = binaries.addAction("System Targets")
-            csystar_act.triggered.connect(self.compress_systargets)
+            self.addActCallBack(binaries, "System 3d Objects", self.compress_sys3dobjs)
+            self.addActCallBack(binaries, "System Targets", self.compress_systargets)
 
         set_menu.addSeparator()
         regenerate = set_menu.addMenu("Regenerate all Binaries")
-        ruserobj_act = regenerate.addAction("User 3d Objects")
-        ruserobj_act.triggered.connect(self.regenerate_user3dobjs)
+        self.addActCallBack(regenerate, "User 3d Objects", self.regenerate_user3dobjs)
 
         if env.admin:
-            rsystar_act = regenerate.addAction("System 3d Objects")
-            rsystar_act.triggered.connect(self.regenerate_sys3dobjs)
+            self.addActCallBack(regenerate, "System 3d Objects", self.regenerate_sys3dobjs)
 
         set_menu.addSeparator()
-        exportuserdb = set_menu.addAction("Backup User Database")
-        exportuserdb.triggered.connect(self.exportUserDB)
-
-        importuserdb = set_menu.addAction("Restore User Database")
-        importuserdb.triggered.connect(self.importUserDB)
+        self.addActCallBack(set_menu, "Backup User Database", self.exportUserDB)
+        self.addActCallBack(set_menu, "Restore User Database", self.importUserDB)
 
         tools_menu = menu_bar.addMenu("&Tools")
-        base_act = tools_menu.addAction("Change Base")
-        base_act.triggered.connect(self.base_call)
-        morph_act = tools_menu.addAction("Change Character")
-        morph_act.triggered.connect(self.morph_call)
-
-        random_act = tools_menu.addAction("Randomize Character")
-        random_act.triggered.connect(self.random_call)
+        self.addActCallBack(tools_menu, "Change Base", self.base_call)
+        self.addActCallBack(tools_menu, "Change Character", self.morph_call)
+        self.addActCallBack(tools_menu, "Randomize Character", self.random_call)
 
         self.equip = tools_menu.addMenu("Equipment")
         self.animenu = tools_menu.addMenu("Animation")
@@ -217,38 +188,26 @@ class MHMainWindow(QMainWindow):
         self.deb_act.triggered.connect(self.deb_cam)
 
         info_menu = menu_bar.addMenu("&Information")
+        self.addActCallBack(info_menu, "Character Info", self.measure_call)
+        self.addActCallBack(info_menu, "Memory Info", self.memory_call)
+        self.addActCallBack(info_menu, "Local OpenGL Information", self.glinfo_call)
+        self.addActCallBack(info_menu, "Used library versions", self.vers_call)
+        self.addActCallBack(info_menu, "License", self.lic_call)
 
-        cont_help = info_menu.addAction("Context Help")
-        cont_help.triggered.connect(self.context_help)
-
-        meas_act = info_menu.addAction("Character Info")
-        meas_act.triggered.connect(self.measure_call)
-
-        mem_act = info_menu.addAction("MemInfo")
-        mem_act.triggered.connect(self.memory_call)
-
-        entry = info_menu.addAction("Local OpenGL Information")
-        entry.triggered.connect(self.glinfo_call)
-
-        entry = info_menu.addAction("Used library versions")
-        entry.triggered.connect(self.vers_call)
-
-        entry = info_menu.addAction("License")
-        entry.triggered.connect(self.lic_call)
         lics = info_menu.addMenu("3rd Party licenses")
         for elem in ["PySide6", "PyOpenGL", "NumPy"]:
-            entry = lics.addAction(elem)
-            entry.triggered.connect(self.lic_call)
+            self.addActCallBack(lics, elem, self.lic_call)
 
-        entry = info_menu.addAction("Credits")
-        entry.triggered.connect(self.lic_call)
+        self.addActCallBack(info_menu, "Credits", self.lic_call)
 
         if "support_urls" in self.env.release_info:
             for elem in self.env.release_info["support_urls"]:
                 urlname = self.env.release_info["support_urls"][elem]
                 if urlname in self.env.release_info:
-                    entry = info_menu.addAction(elem)
-                    entry.triggered.connect(self.url_info_call)
+                    self.addActCallBack(info_menu, elem, self.url_info_call)
+
+        help_menu = menu_bar.addMenu("&Help")
+        self.addActCallBack(help_menu, "Context Help", self.context_help)
 
         if self.glob.baseClass is not None:
             self.createImageSelection()
@@ -274,12 +233,16 @@ class MHMainWindow(QMainWindow):
         self.createCentralWidget()
         self.setWindowTitle("default character")
 
+    def addActCallBack(self, menu, title, callback):
+        entry = menu.addAction(title)
+        entry.triggered.connect(callback)
+        return entry
+
     def createImageSelection(self):
         for elem in self.equipment:
             elem["func"] = ImageSelection(self, self.glob.cachedInfo, elem["name"], elem["mode"], self.equipCallback)
             elem["func"].prepare()
-            elem["menu"] = self.equip.addAction(elem["name"])
-            elem["menu"].triggered.connect(self.equip_call)
+            elem["menu"] = self.addActCallBack(self.equip, elem["name"], self.equip_call)
 
         self.charselect = ImageSelection(self, self.glob.cachedInfo, "models", 0, self.loadByIconCallback, 3)
         self.charselect.prepare()
@@ -287,8 +250,7 @@ class MHMainWindow(QMainWindow):
         for elem in self.animation:
             elem["func"] = ImageSelection(self, self.glob.cachedInfo, elem["name"], elem["mode"], self.animCallback)
             elem["func"].prepare()
-            elem["menu"] = self.animenu.addAction(elem["name"])
-            elem["menu"].triggered.connect(self.anim_call)
+            elem["menu"] = self.addActCallBack(self.animenu, elem["name"], self.anim_call)
 
     def setWindowTitle(self, text):
         title = self.env.release_info["name"] + " (" + text + ")"

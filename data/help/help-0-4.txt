@@ -3,23 +3,23 @@
 This context provides the possibility to download either single assets or zipped asset packs.
 <p>
 <h2>Download a single asset</h2>
-An asset may consist of more than one file, e.g. a mesh, some textures and a thumbnail.<br>
-www.makehumancommunity.org provides a list of assets, this has to be loaded first in any case.<br>
-If this list is already loaded, it is possible to update this list. It is only needed, if you need newer<br>
+An asset may consist of more than one file, e.g. a mesh, some textures and a thumbnail.
+www.makehumancommunity.org provides a list of assets, this has to be loaded first in any case.
+If this list is already loaded, it is possible to update this list. It is only needed, if you need newer
 assets than the date of the last download of your list.
 <p>
 Now there are two possibilities for a download:
 <ol>
-<li>when you want to browse the current asset list, press "Select" to get a window for searching.<br>
+<li>when you want to browse the current asset list, press "Select" to get a window for searching.
 <i>Hint: Since the list is longer, it may take some time to open that window first time.</i>
-<li>when you just browse the "user contributed assets" pages in a web-browser, you can open one<br>
+<li>when you just browse the "user contributed assets" pages in a web-browser, you can open one
 of these pages and copy the title or the URL into the input box near the "Select" button.
 </ol>
-"Download Single Asset" will be activated, when the input box contains data. In case you use the<br>
+"Download Single Asset" will be activated, when the input box contains data. In case you use the
 selection by window, this box will contain a number preceeded by a "%".
 <p>
-According to the asset, the program is able to find the folder, where the asset should be placed.<br>
-In this case it downloads the asset without interaction. In all other cases (mainly material assets)<br>
+According to the asset, the program is able to find the folder, where the asset should be placed.
+In this case it downloads the asset without interaction. In all other cases (mainly material assets)
 a file browser will open and a folder should be selected.
 
 <h2>Select from Asset List</h2>
@@ -30,12 +30,12 @@ When you work with the extra window for searching you have three columns.
 <li>A detail view, where a selected asset is presented.
 </ol>
 <h3>Main selection</h3>
-In top row the tabs represent the different types of assets. Selecting one of these will show assets<br>
-of the type selected. All columns can be sorted by clicking on the column-header. When the tab is<br>
+In top row the tabs represent the different types of assets. Selecting one of these will show assets
+of the type selected. All columns can be sorted by clicking on the column-header. When the tab is
 changed the filter is cleared.
 
 <h3>Filter</h3>
-It is possible to filter the assets either by column or with full text search ("Any"). Only the filtered<br>
+It is possible to filter the assets either by column or with full text search ("Any"). Only the filtered
 assets are displayed. When the tab is changed, this filter box is cleared.
 
 <h3>Detail view "Selected asset"</h3>
@@ -47,37 +47,37 @@ The detail view shows all attributes for the current asset selected. These are:
 <li>A description, which was added by the user.
 <li>In case of a material, the asset for which it should be used, if available ("Attached").
 </ul>
-Icons:<br>
+Icons:
 <table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">
 <tr><td><img src="data/icons/camera.png"></td><td>Show the thumbnail, if available to get an idea of the asset.
-<br>When you press the button, the thumbnail is loaded to a temporary file and displayed.</td></tr>
-<tr><td><img src="data/icons/render.png"></td><td>Some assets have a demo picture included, you can display this as well.<br>
+When you press the button, the thumbnail is loaded to a temporary file and displayed.</td></tr>
+<tr><td><img src="data/icons/render.png"></td><td>Some assets have a demo picture included, you can display this as well.
 It is a temporary download and will be presented in an extra window.</td></tr>
 </table>
 <p>
-Furthermore there is an extra "Close" button and a "Redisplay" button. Redisplay is only needed,<br>
+Furthermore there is an extra "Close" button and a "Redisplay" button. Redisplay is only needed,
 if the asset list itself was downloaded again after this window was openend.
 
 <h2>Download an asset pack</h2>
 <p>
-<i><b>Important</b>: The asset pack functionality is currently only loading the pack without extracting the zip-package.<br>
+<i><b>Important</b>: The asset pack functionality is currently only loading the pack without extracting the zip-package.
 This is done not to overwrite assets when under development and will be changed later.</i>
 <p>
-We also provide the possibility to download complete asset packs. In this case you need to open a<br>
+We also provide the possibility to download complete asset packs. In this case you need to open a
 web browser, to do that, click on the link provided. Select the pack you need.<p>
-For the link: right click on mirror1 or mirror2 and use "copy link address". Paste that address into<br>
-the Download box. Then download the asset pack. Technically a folder in a temporary directory is<br>
+For the link: right click on mirror1 or mirror2 and use "copy link address". Paste that address into
+the Download box. Then download the asset pack. Technically a folder in a temporary directory is
 created and the zip-file is downloaded. This may take some time.
 <p>
-Only in case of using the -A ("administrator") option when makehuman was startet, you can<br>
-extract the files also to the system folder. In all other cases the destination is the user folder.<br>
+Only in case of using the -A ("administrator") option when makehuman was startet, you can
+extract the files also to the system folder. In all other cases the destination is the user folder.
 <b>It is not recommended to extract into the system folder.</b>
 <p>
-Usually the filename to extract from is inserted after download into the extract box. However it is<br>
-also possible to extract from a file you already downloaded manually. In this case, just enter the<br>
+Usually the filename to extract from is inserted after download into the extract box. However it is
+also possible to extract from a file you already downloaded manually. In this case, just enter the
 name into this box.
 <p>
-The extract procedure should extract all files and put them into the appropriate folders.<br>
+The extract procedure should extract all files and put them into the appropriate folders.
 <b>- This is currently disabled. -</b>
 <p>
 "Clean Up" will delete the temporary folder, which is not needed any more.

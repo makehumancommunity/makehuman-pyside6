@@ -289,11 +289,13 @@ class TextBox(QDialog):
 
         textframe = QLabel(self)
         textframe.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        textframe.setWordWrap(True)
         fm = QFontMetrics(textframe.font())
         minwidth = fm.horizontalAdvance("#") * 80
 
         textframe.setText(text)
         textframe.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        textframe.setStyleSheet("font: 11pt;") # TODO make that flexible?
         textframe.setOpenExternalLinks(True)
         textframe.setTextFormat(Qt.RichText)
 

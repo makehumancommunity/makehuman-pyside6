@@ -1,36 +1,36 @@
 <h1>Random character</h1>
 
-This context is used to model the character by random. The mesh will be morphed. It is possible to<br>
-change only parts of a character by random or nearly all parts. There are a few possibilities to<br>
-avoid really weird characters, however it is possible also to produce them. A method to first<br>
-create a character and then randomize parts of it is available. As an example you can create a<br>
+This context is used to model the character by random. The mesh will be morphed. It is possible to
+change only parts of a character by random or nearly all parts. There are a few possibilities to
+avoid really weird characters, however it is possible also to produce them. A method to first
+create a character and then randomize parts of it is available. As an example you can create a
 character which has identical size and you only change the head.
 <p>
 <h3>Parameters</h3>
 <ul>
-<li>Gender can be set to "any" to allow all kinds of in-between positions, to only male, to only female<br>
+<li>Gender can be set to "any" to allow all kinds of in-between positions, to only male, to only female
 or to either male or female
 <li>Select all parts of the body to be randomized in the selection box.
-<li>The weirdo factor is a way to avoid weird creations. Of course when you set it to a 100% then you<br>
+<li>The weirdo factor is a way to avoid weird creations. Of course when you set it to a 100% then you
 will get every kind of character possible.
 <li>The minimal ideal factor can be used to get better proportions.
-<li>Symmetry factor is used to get symmetry. It is recommended to use a high value, because<br>
+<li>Symmetry factor is used to get symmetry. It is recommended to use a high value, because
 especially arms and legs might differ too much in the end.
-<li>Reset character to default character is usually used, when you start from scratch, if you want to<br>
-get similar characters, just create one and un-select this box. Then your character is the current<br>
+<li>Reset character to default character is usually used, when you start from scratch, if you want to
+get similar characters, just create one and un-select this box. Then your character is the current
 default character.
 </ul>
 
 <h3>Buttons</h3>
 <ul>
 <li>"Reset to initial character" resets the character to the state before the randomizer was started.
-<li>"Random character [linear]" uses a random distribution, so all values according to the parameters<br>
+<li>"Random character [linear]" uses a random distribution, so all values according to the parameters
 are accepted.
 <li>"Random character [gauss]" uses a normal distribution preferring the values in the middle.
 </ul>
 <p>
-<i>mathematically:<br>
+<i>mathematically:
 Gauss "sigma" is currently 0.2, location "mu" is 0.5 and the range is truncated to values between 0 and 1</i>
 <p>
-<b>Hint: This function can be called by API from Blender.</b><br>
+<b>Hint: This function can be called by API from Blender.</b>
 - In that case it uses the parameters predefined in this context.

@@ -2,26 +2,26 @@
 
 This context provides the possibility to export a character using different formats
 <p>
-<i>Characters are usually exported to the <b>exports</b> folder. Inside this folder there are the folders<br>
+<i>Characters are usually exported to the <b>exports</b> folder. Inside this folder there are the folders
 for different base-meshes. So an hm08 character is exported to folder <b>exports/hm08</b></i>.
 <p>
 It is possible to overwrite existing files.
 <h3>Form</h3>
-Add or select parameters in the form to be used for export. Some of the parameters are not selectable<br>
+Add or select parameters in the form to be used for export. Some of the parameters are not selectable
 because either the file format demands this parameter or does not support the parameter.
 <ul>
 <li>Enter a filename. A suffix according to file format will always be appended.
-<li>Binary mode, if a file format supports a binary mode, it can be selected here. Binary files are<br>
+<li>Binary mode, if a file format supports a binary mode, it can be selected here. Binary files are
 usually shorter.
-<li>Feet on the ground. The root of the character is near pelvis. This option allows to pose a character<br>
+<li>Feet on the ground. The root of the character is near pelvis. This option allows to pose a character
 on the ground.
 <li>Character posed. Load and set a pose in animation before. This pose will be used.
-<li>Save hidden vertices. Vertices under clothes are usually not saved, because they might shine<br>
+<li>Save hidden vertices. Vertices under clothes are usually not saved, because they might shine
 through. If you need these vertices, enable this parameter.
-<li>Save animation. Some of the formats allow skeletons, skinning and animation.<br>
+<li>Save animation. Some of the formats allow skeletons, skinning and animation.
 You need to load an animation before.
 <li>Save helpers. A feature to export the clothes helper. Rarely needed.
-<li>Save normals. Some formats demand or have the possibility of reading normals.<br>
+<li>Save normals. Some formats demand or have the possibility of reading normals.
 Technically they can also be calculated from the mesh itself.
 </ul>
 <h3>Exporting</h3>
@@ -32,7 +32,7 @@ Is done by pressing the export button after selecting the options.
 <table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">
 <tr><td>glTF</td><td>GL Transmission Format from Khronos. Embedded JSON and binary data. Suffix: .glb</td></tr>
 <tr><td>STL</td><td>Stereolithography. Ancient ASCII format from 1988. Used for 3d printing. Suffix: .stl</td></tr>
-<tr><td>blender</td><td>Makehuman-Blender communication file. Also used by the socket communicator. Suffix: .mh2b<br>
+<tr><td>blender</td><td>Makehuman-Blender communication file. Also used by the socket communicator. Suffix: .mh2b
 Embedded JSON and binary data. Very similar to glTF.</td></tr>
 <tr><td>obj</td><td>Wavefront Technologies file. Ancient ASCII format from 1989. Suffix: .obj</td></tr>
 <tr><td>bvh</td><td>BioVision Hierarchy, Format to export animation only. Suffix: .bvh</td></tr>

@@ -2,28 +2,28 @@
 
 This context provides the possibility to load a character from a file.
 <p>
-<i>Characters are usually saved in the <b>models</b> folder. Inside this folder there are the folders<br>
+<i>Characters are usually saved in the <b>models</b> folder. Inside this folder there are the folders
 for different base-meshes. So an hm08 character is saved in folder <b>models/hm08</b></i>.
 <p>
-Loading a new character will replace the old one, which might be already changed before, in this<br>
+Loading a new character will replace the old one, which might be already changed before, in this
 case the program will ask you if you want to save the existing character before.
 <p>
 <h3>Filtering</h3>
 
-To select a character, you can use a filter with some predefined values, like gender, era and genre.<br>
-As long as the characters are tagged with these attributes, they will be shown.<br>
+To select a character, you can use a filter with some predefined values, like gender, era and genre.
+As long as the characters are tagged with these attributes, they will be shown.
 Characters with no attributes are always shown. You can:
 <ul>
 <li>select from the attributes
 <li>click on a filter icon
 <li>or enter a text in the filter box
 </ul>
-Hint: If the program shows too many characters on right side, load and save the non-fitting characters<br>
+Hint: If the program shows too many characters on right side, load and save the non-fitting characters
 with the appropriate tags set.
 <p>
 <h3>Loading</h3>
 
-Select a character from the right side. Be aware it is not yet loaded, but the information is displayed on<br>
+Select a character from the right side. Be aware it is not yet loaded, but the information is displayed on
 left side. To load it, press the checkmark on the right side.
 <p>
 <h3>Filter icons, left side:</h3>

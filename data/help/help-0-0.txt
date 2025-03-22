@@ -2,7 +2,7 @@
 
 This context provides a possibility to select a different base mesh.
 <p>
-<i>The classical MakeHuman mesh is the hm08 mesh. The application is written flexible enough to support other<br>
+<i>The classical MakeHuman mesh is the hm08 mesh. The application is written flexible enough to support other
 meshes as well. This would demand a number of targets and assets, and some effort in configuration.<p>
 There will be examples in the future.</i>
 <p>
