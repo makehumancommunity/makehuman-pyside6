@@ -4,7 +4,7 @@ This context provides the possibility to equip the character with hair.
 <p>
 <i>Hair can be used only once and can be replaced by another hair-style. Add-ons for hair must be handled like clothes.</i>
 <p>
-The currently selected hair is marked with a yellow frame.
+The currently selected hair is marked with a yellow frame. A green frame means, that the hair-style is used.
 <p>
 <h3>Filtering</h3>
 As long as tags are provided, hair can be filtered in numerous ways. Hair with no tags is always
@@ -48,8 +48,7 @@ In the end you need to save the asset information.
 however will replace the old one.</i>
 <p>
 <h3>Change Material</h3>
-To change a material, the item must be selected and it must also be used. It is not possible to change
-a material for a not-used item.
+To change a material, the item must be selected and it must also be used. It is not possible to change a material for an unused item.
 <p>
 The material selection then will open. Especially if there are more materials than just one, select
 the material you want to use. In the viewport, the mesh will use the selected material. You can also edit
@@ -67,7 +66,7 @@ this and either use it or save it (with the same name or also as an additional m
 <p>
 <table style="background-color:#c0c0c0;color:#000000;border:2;vertical-align:middle;">
 <tr><td><img src="data/icons/use.png"></td><td>Use the <b>selected</b> hair-style. Can only be used if a hair-style is selected.</td></tr>
-<tr><td><img src="data/icons/delete.png"></td><td>Drop <b>selected</b> the selected hair.</td></tr>
+<tr><td><img src="data/icons/delete.png"></td><td>Drop <b>selected</b> hair.</td></tr>
 <tr><td><img src="data/icons/information.png"></td><td>Change the information of the <b>selected</b> hair-style.</td></tr>
 <tr><td><img src="data/icons/materials.png"></td><td>Change the material of the <b>selected</b> hair-style.</td></tr>
 <tr><td><img src="data/icons/resize.png"></td><td>Resíze the icons on right side. Size changes between 48, 64, 96 and 128 pixel.</td></tr>

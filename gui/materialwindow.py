@@ -219,13 +219,14 @@ class MHAssetWindow(QWidget):
         # different materials are used like this
         # if we have a material, generate name of thumbnail
         # if the thumbnail is the same as the standard material or we still have no thumb we have "no material"
-        # then test if file is existent, use empty icon or own icon
+        # then test if file is existent, use empty icon or own icon.
+        # eyes standard material should not be overwritten
         #
         if self.matPath is not None:
             if self.matPath.endswith(".mhmat"):
                 matthumb = self.matPath[:-6] + ".thumb"
                 print ("Matfile would be: " + matthumb)
-                if matthumb == self.thumb or self.thumb is None:
+                if self.asset.folder != "eyes" and (matthumb == self.thumb or self.thumb is None):
                     print ("but is the standard thumb")
                     self.matPath = None
                 else:

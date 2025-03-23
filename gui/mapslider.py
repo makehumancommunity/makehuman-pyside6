@@ -1,3 +1,15 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * MapInputWidget
+    * MapInputWidgetXY
+    * MapInputWidgetBaryCentric
+    * MapBaryCentricCombo
+    * MapXYCombo
+"""
+
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QLabel, QWidget, QHBoxLayout, QVBoxLayout, QFrame
 from PySide6.QtCore import Qt, QObject, QEvent, QPointF

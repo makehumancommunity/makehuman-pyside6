@@ -1,9 +1,24 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * ScaleComboItem
+    * ScalePictureButton
+    * ScaleCombo
+    * ScaleComboArray
+    * SimpleSlider
+    * ColorButton
+"""
+
 import os
 import sys
 from PySide6.QtCore import Qt, QRect, QPoint
 from PySide6.QtGui import QPainter, QPixmap, QPen, QIcon
-
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QSlider, QStyle, QStyleOptionSlider, QLabel, QPushButton, QSizePolicy, QDoubleSpinBox, QProgressBar, QFrame, QColorDialog
+from PySide6.QtWidgets import (
+    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QSlider, QStyle, QStyleOptionSlider, QLabel, QPushButton,
+    QSizePolicy, QDoubleSpinBox, QProgressBar, QFrame, QColorDialog
+    )
 from gui.mapslider import MapBaryCentricCombo
 from gui.common import clickableProgressBar
 

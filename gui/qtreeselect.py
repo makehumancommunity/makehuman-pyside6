@@ -1,3 +1,13 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * JsonItem
+    * QTreeMain
+    * MHTreeView
+"""
+
 from PySide6.QtWidgets import QApplication, QMainWindow, QTreeView, QAbstractItemView, QWidget, QGroupBox, QVBoxLayout, QCheckBox
 from PySide6.QtGui import QStandardItemModel, QStandardItem, QColor, QFont
 

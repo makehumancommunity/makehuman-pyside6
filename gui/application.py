@@ -1,3 +1,14 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * MHApplication
+
+    Functions:
+    * QTVersion
+"""
+
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QScreen, QImageReader, QSurfaceFormat
 from PySide6.QtCore import qVersion, QCoreApplication
@@ -23,14 +34,13 @@ class MHApplication(QApplication):
         self.env = glob.env
         super().__init__(argv)
 
-        # set openGL Parameters (Minimum 3.3)
+        # Alphacover (if available), is used to use more than one alpha-layer
+        #
         sformat = QSurfaceFormat()
         if self.env.noalphacover is False:
             sformat.setSamples(4)
             QSurfaceFormat.setDefaultFormat(sformat)
 
-        #sformat.setMajorVersion(3)
-        #sformat.setMinorVersion(3)
         QSurfaceFormat.setDefaultFormat(sformat)
 
     def setStyles(self, theme):
