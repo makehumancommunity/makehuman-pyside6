@@ -13,14 +13,14 @@ Add parameters in the form to be used as attributes for filtering.
 <ul>
 <li>The photo icon takes a screenshot to be used as a thumbnail. Best to switch off skybox (the globe)
 and use a background with light color. Under "<u>S</u>ettings" change light and scene and select a light
-background color.
-<li>Enter a name for your character.
-<li>Enter your name as the author.
-<li>You can generate a UUID (Universally Unique Identifier).
+background color.</li>
+<li>Enter a name for your character.</li>
+<li>Enter your name as the author.</li>
+<li>You can generate a UUID (Universally Unique Identifier).</li>
 <li>Select from tags, usually gender and genre (recommended) or insert your own tags manually.
 A standard tag can be inserted by selecting it from the list and press the plus button.
-You can also delete a tag row or delete all tags by pressing the sweep icon.
-<li>Enter the filename. The suffix ".mhm" will always be appended.
+You can also delete a tag row or delete all tags by pressing the sweep icon.</li>
+<li>Enter the filename. The suffix ".mhm" will always be appended.</li>
 </ul>
 <h3>Form icons, left side:</h3>
 <p>

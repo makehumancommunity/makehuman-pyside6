@@ -656,6 +656,7 @@ class object3d:
         called when starting work with one slider, a copy without the value
         of this slider is created.
         """
+        print ("getInitialCopyForSlider")
         self.createWCopy()
         if factor == 0.0:
             return
@@ -727,11 +728,11 @@ class object3d:
         self.gl_coord[verts+1] += data[srcVerts][1::3] * factor
         self.gl_coord[verts+2] += data[srcVerts][2::3] * factor
 
-    def addAllNonMacroTargets(self):
+    def resetToNonMacroTargets(self):
         """
-        copy original mesh + add all changes of non-macrotargets
+        reset to original mesh + add all changes of non-macrotargets
         """
-        print ("+++ Add all non Macro Targets to buffer")
+        print ("+++ reset mesh and add non macro targets")
         self.resetMesh()
         targets = self.glob.Targets.modelling_targets
         for target in targets:
@@ -739,9 +740,10 @@ class object3d:
                 # print ("Set " + target.name)
                 self.setTarget(target.value / 100, target.decr, target.incr)
 
-        # overflow vertices
+        # overflow vertices and copy to non-macrobuffer
         #
         self.overflowCorrection(self.gl_coord)
+        self.gl_coord_mn =  self.gl_coord.copy()
 
     def prepareMacroBuffer(self):
         """

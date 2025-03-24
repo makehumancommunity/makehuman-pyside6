@@ -268,6 +268,13 @@ class MHAssetWindow(QWidget):
             self.owntags =row[0].split("|")
 
     def currentMatPath(self, filename):
+        #
+        # special case for proxy first, proxies have no own material
+        #
+        if self.asset.folder == "proxy":
+            self.matPath = None
+            return
+
         attached = self.glob.baseClass.getAttachedByFilename(filename)
         if attached is not None:
             self.matPath = attached.obj.getMaterialFilename()

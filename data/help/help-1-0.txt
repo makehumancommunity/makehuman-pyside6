@@ -1,13 +1,14 @@
 <h1>Modify character</h1>
-
+<!--Screenshot:screenshot/modifycharacter.png-->
+<p>
 This context is used to model the character. The mesh will be morphed. It is used for all different
 categories. Morphing means to move certain vertices of a mesh to a new position (the target).
 By using the sliders on the right column, you can determine how much the morph is used.<p>
 There are one-sided sliders from 0-100 percent, but also combined sliders, which decrease and increase
 the value in the range from -100 to +100 percent.
 <p>
-<b>To use one of the sliders, click on a icon in the left column, the slider will expand and it is possible
-to use different ways to enter the value. There is also a small "sweep" button to reset it default.</b>
+<b>To use one of the sliders, click on a icon in the right column, the slider will expand and it is possible
+to use different ways to enter the value. There is also a small "sweep" button to reset it to default.</b>
 <p>
 <h2>Categories</h2>
 The categories are used to modify either the complete character or only parts of it. You need
@@ -16,17 +17,17 @@ to select the category first.
 <h3>Main category ("macro")</h3>
 <ul>
 <li>The Gender slider is used to define the gender of the character. Male or female or a mixture of
-both characteristics are possible.
+both characteristics are possible.</li>
 <li>The Age slider is used to alter the age of the character. Interally different morphs from baby
-to an old person are used.
-<li>The Muscle sider is used to adjust the amount of muscle of the character.
+to an old person are used.</li>
+<li>The Muscle sider is used to adjust the amount of muscle of the character.</li>
 <li>The Weight silder is used to adjust the weight of the character. The default setting is the
 character with average weight. Used along with “Muscle” it can be used to specify the proportion
-of muscle and fat contributing to the weight.
-<li>The Height slider is used to adjust the height of the characters.
-<li>The Proportions slider is used to adjust the the proportions, from “uncommon” to “idealistic”.
+of muscle and fat contributing to the weight.</li>
+<li>The Height slider is used to adjust the height of the characters.</li>
+<li>The Proportions slider is used to adjust the the proportions, from “uncommon” to “idealistic”.</li>
 <li>The ethinicity slider is a triangle slider with the values: African, Asian, Caucasian.
-The influence of each phenotype can be adjusted.
+The influence of each phenotype can be adjusted.</li>
 </ul>
 <h3>Body Shapes</h3>
 Makehuman uses common expressions for different bodyshapes, like "apple" or "diamond". It is an
@@ -66,6 +67,6 @@ placed in a sub-folder of the user target folder (so like "targets/hm08/head_det
 <tr><td><img src="data/icons/reset.png"></td><td>Reset the character to default. You need to comfirm this action, not to lose your work done before.</td></tr>
 <tr><td><img src="data/icons/symm1.png"></td><td>Mirror the left side to the right side.</td></tr>
 <tr><td><img src="data/icons/symm2.png"></td><td>Mirror the right side to left side.</td></tr>
-<tr><td><img src="data/icons/symm.png"></td><td>always work with symmetry.</td></tr>
+<tr><td><img src="data/icons/symm.png"></td><td>Always work with symmetry.</td></tr>
 </table>
 

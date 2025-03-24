@@ -220,7 +220,7 @@ class Modelling(ScaleComboItem):
         print("init  " + self.name)
         self.glob.openGLWindow.delMarker()
         if self.macro is not None:
-            self.obj.baseMesh.addAllNonMacroTargets()
+            self.obj.baseMesh.resetToNonMacroTargets()
         elif self.incr is not None or self.decr is not None:
             self.obj.getInitialCopyForSlider(factor, self.decr, self.incr)
             if self.measure is not None:

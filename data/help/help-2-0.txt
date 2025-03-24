@@ -15,14 +15,14 @@ shown.  These are the possibilities to filter  on the left side:
 the less icons will be on right side. The top-level items (<b>Gender-Age</b>, <b>Era</b>, <b>Occasion</b>, <b>Slot</b>) work
 like 'and', so you can select Layer 2 clothes like <b>Sweater</b> only for females. Sublayers
 are combined with 'or', so clicking on <b>Tanktop</b> in <b>Layer 1</b> and <b>Shirt</b> in <b>Layer 2</b> will
-present shirts and tanktops.
+present shirts and tanktops.</li>
 <p>
 <li>By clicking on an icon below the selection. These icons create a combined filter. So the lingerie
 item activates gender <b>Female</b> and <b>Bra</b> from <b>Top-Torso</b> <b>Layer 1</b> with additional <b>Panties</b>
-from <b>Bottom</b> <b>Layer 1</b>
+from <b>Bottom</b> <b>Layer 1</b></li>
 <p>
 <li>By using a text filter, the text filter works on all tags presented in the <b>Tags</b> field after a
-piece of cloth is selected.
+piece of cloth is selected.</li>
 </ul>
 <p>
 Hint: If the program shows too many items on right side, it is possible to supply all clothes
@@ -42,11 +42,11 @@ Select the piece of cloth before. The asset editor will open. You can now change
 <ul>
 <li>The photo icon takes a screenshot to be used as a thumbnail. Best to switch off skybox (the globe)
 and use a one-colored background. Under "<u>S</u>ettings" change light and scene and select a
-background color with contrast.
+background color with contrast.</li>
 <li>If you want to use own tags, you can either copy tags to tag editor and change the tags there or
 create new ones by using the standard tags (recommended for filtering). A standard tag can be
 inserted by selecting it from the list and press the plus button.
-You can also delete a tag row or delete all tags by pressing the sweep icon.
+You can also delete a tag row or delete all tags by pressing the sweep icon.</li>
 </ul>
 In the end you need to save the asset information.
 <p><i>Hint: the tags are saved in the database, the original tags in the files are not changed. The icon

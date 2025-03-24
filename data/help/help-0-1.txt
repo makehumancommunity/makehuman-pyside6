@@ -14,9 +14,9 @@ To select a character, you can use a filter with some predefined values, like ge
 As long as the characters are tagged with these attributes, they will be shown.
 Characters with no attributes are always shown. You can:
 <ul>
-<li>select from the attributes
-<li>click on a filter icon
-<li>or enter a text in the filter box
+<li>select from the attributes</li>
+<li>click on a filter icon</li>
+<li>or enter a text in the filter box</li>
 </ul>
 Hint: If the program shows too many characters on right side, load and save the non-fitting characters
 with the appropriate tags set.

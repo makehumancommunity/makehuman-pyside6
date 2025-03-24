@@ -10,18 +10,16 @@ It is possible to overwrite existing files.
 Add or select parameters in the form to be used for export. Some of the parameters are not selectable
 because either the file format demands this parameter or does not support the parameter.
 <ul>
-<li>Enter a filename. A suffix according to file format will always be appended.
-<li>Binary mode, if a file format supports a binary mode, it can be selected here. Binary files are
-usually shorter.
-<li>Feet on the ground. The root of the character is near pelvis. This option allows to pose a character
-on the ground.
-<li>Character posed. Load and set a pose in animation before. This pose will be used.
+<li>Enter a filename. A suffix according to file format will always be appended.</li>
+<li>Binary mode, if a file format supports a binary mode, it can be selected here. Binary files are usually shorter.</li>
+<li>Feet on the ground. The root of the character is near pelvis. This option allows to pose a character on the ground.</li>
+<li>Character posed. Load and set a pose in animation before. This pose will be used.</li>
 <li>Save hidden vertices. Vertices under clothes are usually not saved, because they might shine
-through. If you need these vertices, enable this parameter.
+through. If you need these vertices, enable this parameter.</li>
 <li>Save animation. Some of the formats allow skeletons, skinning and animation.
-You need to load an animation before.
-<li>Save helpers. A feature to export the clothes helper. Rarely needed.
-<li>Save normals. Some formats demand or have the possibility of reading normals.
+You need to load an animation before.</li>
+<li>Save helpers. A feature to export the clothes helper. Rarely needed.</li>
+<li>Save normals. Some formats demand or have the possibility of reading normals.</li>
 Technically they can also be calculated from the mesh itself.
 </ul>
 <h3>Exporting</h3>

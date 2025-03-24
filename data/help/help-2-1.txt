@@ -13,11 +13,11 @@ shown.  These are the possibilities to filter  on the left side:
 <li>By expanding the items, like <b>Style</b>, then select a style. The more it gets detailed,
 the less icons will be on right side. The top-level items (<b>Gender-Age</b>, <b>Era</b>, <b>Style</b>) work
 like 'and', so you can select a Style like <b>Short</b> only for females. Sublayers
-are combined with 'or', so clicking on <b>Bob</b> and <b>Braid</b> will present both hair-styles.
+are combined with 'or', so clicking on <b>Bob</b> and <b>Braid</b> will present both hair-styles.</li>
 <p>
-<li>By clicking on an icon below the selection. There are only two icons, one for males and one for females.
+<li>By clicking on an icon below the selection. There are only two icons, one for males and one for females.</li>
 <p>
-<li>By using a text filter, the text filter works on all tags presented in the <b>Tags</b> field after hair is selected.
+<li>By using a text filter, the text filter works on all tags presented in the <b>Tags</b> field after hair is selected.</li>
 </ul>
 <p>
 Hint: If the program shows too many items on right side, it is possible to supply hair
@@ -37,11 +37,11 @@ Select the hair before. The asset editor will open. You can now change the infor
 <ul>
 <li>The photo icon takes a screenshot to be used as a thumbnail. Best to switch off skybox (the globe)
 and use a one-colored background. Under "<u>S</u>ettings" change light and scene and select a
-background color with contrast.
+background color with contrast.</li>
 <li>If you want to use own tags, you can either copy tags to tag editor and change the tags there or
 create new ones by using the standard tags (recommended for filtering). A standard tag can be
 inserted by selecting it from the list and press the plus button.
-You can also delete a tag row or delete all tags by pressing the sweep icon.
+You can also delete a tag row or delete all tags by pressing the sweep icon.</li>
 </ul>
 In the end you need to save the asset information.
 <p><i>Hint: the tags are saved in the database, the original tags in the files are not changed. The icon

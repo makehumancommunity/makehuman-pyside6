@@ -12,9 +12,9 @@ As long as tags are provided, eyes can be filtered in numerous ways. Eyes with n
 shown.  These are the possibilities to filter  on the left side:
 <ul>
 <li>By expanding the items, like <b>Mode</b>, then select a mode. The top-level items (at the moment <b>Mode</b> only) work like 'and'. Sublayers
-are combined with 'or'.
+are combined with 'or'.</li>
 <p>
-<li>By using a text filter, the text filter works on all tags presented in the <b>Tags</b> field after eyes are selected.
+<li>By using a text filter, the text filter works on all tags presented in the <b>Tags</b> field after eyes are selected.</li>
 </ul>
 <p>
 Hint: If the program shows too many items on right side, it is possible to supply eyes
@@ -34,11 +34,11 @@ Select the eyes before. The asset editor will open. You can now change the infor
 <ul>
 <li>The photo icon takes a screenshot to be used as a thumbnail. For eyes the thumbnail is created for
 the textures with eye-colors, these are replaced, not the icons showing the geometry of the mesh.
-Make sure you create a thumbnail of only eye region.
+Make sure you create a thumbnail of only eye region.</li>
 <li>If you want to use own tags, you can either copy tags to tag editor and change the tags there or
 create new ones by using the standard tags (recommended for filtering). A standard tag can be
 inserted by selecting it from the list and press the plus button.
-You can also delete a tag row or delete all tags by pressing the sweep icon.
+You can also delete a tag row or delete all tags by pressing the sweep icon.</li>
 </ul>
 In the end you need to save the asset information.
 <p><i>Hint: the tags are saved in the database, the original tags in the files are not changed. The icon

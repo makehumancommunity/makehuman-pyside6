@@ -649,9 +649,8 @@ class baseClass():
         """
         applies all targets and corrects attached assets
         """
-        #self.baseMesh.resetMesh()
         targets = self.glob.Targets.modelling_targets
-        self.baseMesh.addAllNonMacroTargets()
+        self.baseMesh.resetToNonMacroTargets()
 
         if self.glob.targetMacros is not None:
             #

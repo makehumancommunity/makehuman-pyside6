@@ -1,0 +1,65 @@
+<h1>Equipment, Teeth</h1>
+
+This context provides the possibility to equip the character with teeth.
+<p>
+<i>The character is equipped with no teeth per default. Teeth can be used only once and can be replaced by other teeth.</i>
+<p>
+The currently selected teeth are marked with a yellow frame. A green frame means, that the teeth are used.
+<p>
+<h3>Filtering</h3>
+<ul>
+<li>For teeth only the text filter can be used, the text filter works on all tags presented in the <b>Tags</b> field after teeth are selected.</li>
+</ul>
+<p>
+Hint: It is possible to supply teeth
+with extra tags, these tags are then used instead of the tags provided in the teeth files.
+<p>
+<h3>Loading</h3>
+
+Select teeth from the right side. Be aware it is not yet loaded, only the information is
+displayed on left side. To use them, press the checkmark button on the right side.
+<p>
+<h3>Drop Teeth</h3>
+
+It is possible to drop the teeth, so the character has no teeth.
+You can also replace the teeth by selecting different teeth
+and press the checkmark button.
+<p>
+<h3>Change Information</h3>
+Select the teeth before. The asset editor will open. You can now change the information:
+<ul>
+<li>Unfortunately it does not make sense to create a screenshot as a thumbnail, in standard position teeth are not visible. Normally the
+thumbnail is supplied from a graphics program.</li>
+<li>If you want to use own tags, you can either copy tags to tag editor and change the tags there or
+create new ones by using the standard tags (recommended for filtering). A standard tag can be
+inserted by selecting it from the list and press the plus button.
+You can also delete a tag row or delete all tags by pressing the sweep icon.</li>
+</ul>
+In the end you need to save the asset information.
+<p><i>Hint: the tags are saved in the database, the original tags in the files are not changed. The icon
+however will replace the old one.</i>
+<p>
+<h3>Change Material</h3>
+To change a material, the item must be selected and it must also be used. It is not possible to change a material for an unused item.
+<p>
+The material selection then will open. Especially if there are more materials than just one, select
+the material you want to use. In the viewport, the mesh will use the selected material. You can also edit
+this and either use it or save it (with the same name or also as an additional material).
+<p>
+<h3>Icons, left side:</h3>
+<p>
+<table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">
+<tr><td><img src="data/icons/sweep.png"></td><td>Reset all filters, all items are shown on right side.</td></tr>
+</table>
+<p>
+<h3>Icons, right side:</h3>
+<p>
+<table style="background-color:#c0c0c0;color:#000000;border:2;vertical-align:middle;">
+<tr><td><img src="data/icons/use.png"></td><td>Use the <b>selected</b> teeth. Can only be used if teeth are selected.</td></tr>
+<tr><td><img src="data/icons/delete.png"></td><td>Drop the <b>selected</b> teeth.</td></tr>
+<tr><td><img src="data/icons/information.png"></td><td>Change the information of the <b>selected</b> teeth.</td></tr>
+<tr><td><img src="data/icons/materials.png"></td><td>Change the material of the <b>selected</b> teeth.</td></tr>
+<tr><td><img src="data/icons/resize.png"></td><td>Resíze the icons on right side. Size changes between 48, 64, 96 and 128 pixel.</td></tr>
+<tr><td><img src="data/icons/rescan.png"></td><td>Reload the teeth folder. This is needed if you add teeth after makehuman was started.</td></tr>
+</table>
+<p>

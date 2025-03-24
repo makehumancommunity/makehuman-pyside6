@@ -556,9 +556,10 @@ class MHMainWindow(QMainWindow):
             else:
                 return False
         elif self.tool_mode == 2:
+            mask = 13 if self.category_mode == 7 else 15
             equip = self.equipment[self.category_mode]
             text = "Equipment, category: " + equip["name"]
-            self.drawImageSelector(equip["func"], text, 15)
+            self.drawImageSelector(equip["func"], text, mask)
         elif self.tool_mode == 3:
             if self.category_mode == 0 or self.category_mode == 1 or self.category_mode == 3:
                 equip = self.animation[self.category_mode]

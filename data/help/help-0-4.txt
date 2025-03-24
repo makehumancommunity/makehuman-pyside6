@@ -10,10 +10,10 @@ assets than the date of the last download of your list.
 <p>
 Now there are two possibilities for a download:
 <ol>
-<li>when you want to browse the current asset list, press "Select" to get a window for searching.
+<li>when you want to browse the current asset list, press "Select" to get a window for searching.</li>
 <i>Hint: Since the list is longer, it may take some time to open that window first time.</i>
 <li>when you just browse the "user contributed assets" pages in a web-browser, you can open one
-of these pages and copy the title or the URL into the input box near the "Select" button.
+of these pages and copy the title or the URL into the input box near the "Select" button.</li>
 </ol>
 "Download Single Asset" will be activated, when the input box contains data. In case you use the
 selection by window, this box will contain a number preceeded by a "%".
@@ -25,9 +25,9 @@ a file browser will open and a folder should be selected.
 <h2>Select from Asset List</h2>
 When you work with the extra window for searching you have three columns.
 <ol>
-<li>The main selection box with tabs, where all assets are presented.
-<li>A filter
-<li>A detail view, where a selected asset is presented.
+<li>The main selection box with tabs, where all assets are presented.</li>
+<li>A filter</li>
+<li>A detail view, where a selected asset is presented.</li>
 </ol>
 <h3>Main selection</h3>
 In top row the tabs represent the different types of assets. Selecting one of these will show assets
@@ -41,11 +41,11 @@ assets are displayed. When the tab is changed, this filter box is cleared.
 <h3>Detail view "Selected asset"</h3>
 The detail view shows all attributes for the current asset selected. These are:
 <ul>
-<li>Date of creation
-<li>Last change of asset
-<li>License
-<li>A description, which was added by the user.
-<li>In case of a material, the asset for which it should be used, if available ("Attached").
+<li>Date of creation</li>
+<li>Last change of asset</li>
+<li>License</li>
+<li>A description, which was added by the user.</li>
+<li>In case of a material, the asset for which it should be used, if available ("Attached").</li>
 </ul>
 Icons:
 <table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">

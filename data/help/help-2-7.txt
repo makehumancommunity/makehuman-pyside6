@@ -1,0 +1,66 @@
+<h1>Equipment, Proxy</h1>
+
+This context provides the possibility to use a proxy instead of the basemesh. This is normally needed, when you need
+a simpler basemesh (low-poly version) or need a mesh with gender attributes. Also special meshes can be used, e.g.
+a proxy with only a head and the rest will be equipped as clothes to create a robot.
+<p>
+<i>A proxy can only be used once and can be replaced by another proxy.</i>
+<p>
+The currently selected proxy is marked with a yellow frame. A green frame means, that the proxy is used.
+<p>
+<h3>Filtering</h3>
+As long as tags are provided, proxies can be filtered in numerous ways. Proxies with no tags all always
+shown.  These are the possibilities to filter  on the left side:
+<ul>
+<li>By expanding the item <b>Gender-Age</b>, then select a gender.</li>
+<p>
+<li>By clicking on an icon below the selection. There are only two icons, one for males and one for females.</li>
+<p>
+<li>By using a text filter, the text filter works on all tags presented in the <b>Tags</b> field after a proxy is selected.</li>
+</ul>
+<p>
+Hint: If the program shows too many items on right side, it is possible to supply a proxy
+with extra tags, these tags are then used instead of the tags provided in the proxy files.
+<p>
+<h3>Loading</h3>
+
+Select a proxy from the right side. Be aware it is not yet loaded, only the information is
+displayed on left side. To load it, press the checkmark button on the right side.
+<p>
+<h3>Drop Proxy</h3>
+
+It is possible to drop the proxy, so the character is displayed in the original way or simply select another proxy and replace old one.
+<p>
+<h3>Change Information</h3>
+Select the proxy before. The asset editor will open. You can now change the information:
+<ul>
+<li>The photo icon takes a screenshot to be used as a thumbnail. Best to switch off skybox (the globe)
+and use a one-colored background. Under "<u>S</u>ettings" change light and scene and select a
+background color with contrast. Then maybe change the mesh to wireframe.</li>
+<li>If you want to use own tags, you can either copy tags to tag editor and change the tags there or
+create new ones by using the standard tags (recommended for filtering). A standard tag can be
+inserted by selecting it from the list and press the plus button.
+You can also delete a tag row or delete all tags by pressing the sweep icon.</li>
+</ul>
+In the end you need to save the asset information.
+<p><i>Hint: the tags are saved in the database, the original tags in the files are not changed. The icon
+however will replace the old one.</i>
+<p>
+<h3>Filter icons, left side:</h3>
+<p>
+<table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">
+<tr><td><img src="data/proxy/hm08/icons/male.png"></td><td>Displays only proxies for females. All other non-grouped proxies are also displayed.</td></tr>
+<tr><td><img src="data/proxy/hm08/icons/female.png"></td><td>Displays only proxies for males. All other non-grouped proxies are also displayed.</td></tr>
+<tr><td><img src="data/icons/sweep.png"></td><td>Reset all filters, all items are shown on right side.</td></tr>
+</table>
+<p>
+<h3>Icons, right side:</h3>
+<p>
+<table style="background-color:#c0c0c0;color:#000000;border:2;vertical-align:middle;">
+<tr><td><img src="data/icons/use.png"></td><td>Use the <b>selected</b> proxy. Can only be used if a proxy is selected.</td></tr>
+<tr><td><img src="data/icons/delete.png"></td><td>Drop <b>selected</b> proxy.</td></tr>
+<tr><td><img src="data/icons/information.png"></td><td>Change the information of the <b>selected</b> proxy.</td></tr>
+<tr><td><img src="data/icons/resize.png"></td><td>Resíze the icons on right side. Size changes between 48, 64, 96 and 128 pixel.</td></tr>
+<tr><td><img src="data/icons/rescan.png"></td><td>Reload the proxy folder. This is needed if you add a proxy after makehuman was started.</td></tr>
+</table>
+<p>

@@ -8,7 +8,7 @@ The currently selected eyelashes are marked with a yellow frame. A green frame m
 <p>
 <h3>Filtering</h3>
 <ul>
-<li>For eyelashes only the text filter can be used, the text filter works on all tags presented in the <b>Tags</b> field after eyelashes are selected.
+<li>For eyelashes only the text filter can be used, the text filter works on all tags presented in the <b>Tags</b> field after eyelashes are selected.</li>
 </ul>
 <p>
 Hint: It is possible to supply eyelashes
@@ -28,11 +28,11 @@ and press the checkmark button.
 <h3>Change Information</h3>
 Select the eyelashes before. The asset editor will open. You can now change the information:
 <ul>
-<li>The photo icon takes a screenshot to be used as a thumbnail. Best do that on a small section of your image, where only eyes and eyelashes are visible.
+<li>The photo icon takes a screenshot to be used as a thumbnail. Best do that on a small section of your image, where only eyes and eyelashes are visible.</li>
 <li>If you want to use own tags, you can either copy tags to tag editor and change the tags there or
 create new ones by using the standard tags (recommended for filtering). A standard tag can be
 inserted by selecting it from the list and press the plus button.
-You can also delete a tag row or delete all tags by pressing the sweep icon.
+You can also delete a tag row or delete all tags by pressing the sweep icon.</li>
 </ul>
 In the end you need to save the asset information.
 <p><i>Hint: the tags are saved in the database, the original tags in the files are not changed. The icon
@@ -54,7 +54,7 @@ this and either use it or save it (with the same name or also as an additional m
 <h3>Icons, right side:</h3>
 <p>
 <table style="background-color:#c0c0c0;color:#000000;border:2;vertical-align:middle;">
-<tr><td><img src="data/icons/use.png"></td><td>Use the <b>selected</b> eye-mesh. Can only be used if eyelashes are selected.</td></tr>
+<tr><td><img src="data/icons/use.png"></td><td>Use the <b>selected</b> eyelashes. Can only be used if eyelashes are selected.</td></tr>
 <tr><td><img src="data/icons/delete.png"></td><td>Drop the <b>selected</b> eyelashes.</td></tr>
 <tr><td><img src="data/icons/information.png"></td><td>Change the information of the <b>selected</b> eyelashes.</td></tr>
 <tr><td><img src="data/icons/materials.png"></td><td>Change the material of the <b>selected</b> eyelashes.</td></tr>
