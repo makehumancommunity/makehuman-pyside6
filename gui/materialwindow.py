@@ -225,24 +225,25 @@ class MHAssetWindow(QWidget):
         if self.matPath is not None:
             if self.matPath.endswith(".mhmat"):
                 matthumb = self.matPath[:-6] + ".thumb"
-                print ("Matfile would be: " + matthumb)
                 if self.asset.folder != "eyes" and (matthumb == self.thumb or self.thumb is None):
-                    print ("but is the standard thumb")
                     self.matPath = None
                 else:
                     if os.path.isfile(matthumb):
                         self.thumb = matthumb
                     else:
                         self.thumb = None
-
+        tooltip = "no icon"
         if self.icon is None:
             if self.thumb is None:
                 pixmap = QPixmap(self.emptyIcon)
             else:
                 pixmap = QPixmap(self.thumb)
+                tooltip = self.thumb
         else:
             pixmap = QPixmap.fromImage(self.icon)
+            tooltip = self.icon
         self.imglabel.setPixmap(pixmap)
+        self.imglabel.setToolTip(tooltip)
 
     def thumbnail(self):
         self.icon = self.view.createThumbnail()

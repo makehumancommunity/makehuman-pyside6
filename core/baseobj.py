@@ -207,6 +207,7 @@ class baseClass():
             if skelpath is not None:
                 if self.pose_skelpath == skelpath:  # reuse pose-skeleton
                     self.skeleton = self.pose_skeleton
+                    self.glob.markAssetByFileName(skelpath, True)
                 else:
                     if verbose is not None:
                         verbose.setLabelText("Load: " + skelpath)
@@ -450,6 +451,7 @@ class baseClass():
         # reuse pose-skeleton in case of identical selection
         if self.pose_skelpath == path:
             self.skeleton = self.pose_skeleton
+            self.glob.markAssetByFileName(path, True)
         else:
             self.skeleton = skeleton(self.glob, name)
             if self.skeleton.loadJSON(path):
