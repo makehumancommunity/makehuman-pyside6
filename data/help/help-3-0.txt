@@ -9,7 +9,7 @@ the character. Nevertheless for an export into another system a skeleton is need
 The currently selected skeleton is marked with a yellow frame. A green frame means, that the skeleton is used.
 <p>
 <h3>Filtering</h3>
-As long as tags are provided, skeleton can be filtered in different ways. Skeletons with no tags all always
+As long as tags are provided, skeleton can be filtered in different ways. Skeletons with no tags are always
 shown.  These are the possibilities to filter  on the left side:
 <ul>
 <li>By expanding the item <b>Skeleton</b>, then select a type.</li>

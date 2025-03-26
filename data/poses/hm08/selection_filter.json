@@ -1,5 +1,6 @@
 {
-	"activity": ["Fighting", "Gesture", "Kneeling", "Laying", "Running",  "Sitting", "Standing", "Walking" ],
+	"activity": ["Exercise", "Fighting", "Gesture", "Kneeling", "Laying",
+		"Running", "Sitting", "Standing", "Swimming", "Walking" ],
 	"situation": ["Reference-pose", "Fashion", "Profession", "Sport"],
 	"GuessName": {
                 "fight": "activity:fighting"

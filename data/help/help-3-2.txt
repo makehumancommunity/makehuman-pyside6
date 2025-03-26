@@ -1,0 +1,38 @@
+<h1>Pose and Animation, Player</h1>
+
+This context provides a possibility to show an animation.
+In case a pose or animation was loaded, the character will be presented in pose mode.
+At least a pose (an animation with one frame) should be loaded before. Best to load an animation with a number of frames, otherwise only one pose could be displayed.
+<p>
+<i>The speed of the animation can be changed. Be aware that high-poly assets may slow down the animation, so that the indicated frame rate cannot not be reached.</i>
+<p>
+<h3>Animation</h3>
+
+The animation group box presents the name and number of frames of an animation and will work like a player.
+<ul>
+<li>The "Frame number" slider could be used to select a specific frame.</li>
+<li>The "Frames per second" slider can change the speed of the animation. It could be used for debugging an animation as well.</li>
+<li>Face animation can be switched off.</li>
+</ul>
+<p>
+<table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">
+<tr><td><img src="data/icons/playerfirstimage.png"></td><td>Show first frame of animation.</td></tr>
+<tr><td><img src="data/icons/playerprevimage.png"></td><td>Show previous frame of animation.</td></tr>
+<tr><td><img src="data/icons/playernextimage.png"></td><td>Show next frame animation.</td></tr>
+<tr><td><img src="data/icons/playerlastimage.png"></td><td>Show last frame of animation.</td></tr>
+<tr><td><img src="data/icons/reset.png"></td><td>Start or stop animation.</td></tr>
+</table>
+<p>
+<h3>Rotator</h3>
+<p>
+It is possible to rotate the character when displaying the animation.
+<ul>
+<li>The rotation speed can be changed between -5 and +5 degrees per frame using 0.25 degree steps.</li>
+<li>It is possible to rotate the skybox as well. Be aware that even 1 degree per frame is very fast.</li>
+<p>
+</ul>
+<table style="background-color:#c0c0c0;color:#000000;border:2;vertical-align:middle;">
+<tr><td><img src="data/icons/none.png"></td><td>Reset rotator to standard value (0 degrees).</td></tr>
+<tr><td><img src="data/icons/reset.png"></td><td>Start or stop rotation.</td></tr>
+</table>
+<p>

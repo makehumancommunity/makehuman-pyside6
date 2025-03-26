@@ -241,7 +241,8 @@ class MHAssetWindow(QWidget):
                 tooltip = self.thumb
         else:
             pixmap = QPixmap.fromImage(self.icon)
-            tooltip = self.icon
+            if self.thumb is not None:
+                tooltip = self.thumb
         self.imglabel.setPixmap(pixmap)
         self.imglabel.setToolTip(tooltip)
 
