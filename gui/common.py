@@ -325,12 +325,14 @@ class TextBox(QDialog):
 class ImageBox(QDialog):
     """
     for e.g. presentation of a downloaded render
-    no close buttons etc. to avoid bad window error onClose with normal window button
     """
-    def __init__(self, parent, title, image):
+    def __init__(self, parent, title, image, winframe=True):
         super(ImageBox, self).__init__(parent)
         self.setWindowTitle(title)
-        self.setWindowFlags(Qt.Dialog | Qt.CustomizeWindowHint | Qt.WindowTitleHint)
+        if winframe is False:
+            self.setWindowFlags(Qt.Dialog | Qt.CustomizeWindowHint | Qt.WindowTitleHint)
+        else:
+            self.setWindowFlag(Qt.WindowMaximizeButtonHint, True)
 
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
         buttonBox.accepted.connect(self.close)
@@ -338,9 +340,16 @@ class ImageBox(QDialog):
 
         layout = QVBoxLayout()
         imglabel = QLabel()
-        imglabel.setPixmap(QPixmap(image))
-        layout.addWidget(imglabel)
-        layout.addWidget(buttonBox)
+        if isinstance(image, str):
+            imglabel.setPixmap(QPixmap(image))
+        else:
+            imglabel.setPixmap(QPixmap.fromImage(image))
+        scroll = QScrollArea(self)
+        scroll.setWidget(imglabel)
+        scroll.setWidgetResizable(True)
+
+        layout.addWidget(scroll)
+        layout.addWidget( buttonBox)
 
         self.setLayout(layout)
         self.setWindowModality(Qt.WindowModal)

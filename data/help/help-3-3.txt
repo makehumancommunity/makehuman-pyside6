@@ -1,0 +1,59 @@
+<h1>Pose and Animation, Expressions</h1>
+
+This context provides the possibility to add a facial expression to a character.
+If a pose or animation was loaded, the character will be presented in pose mode.
+<p>
+The currently selected expression is marked with a yellow frame. A green frame means, that the expression is used.
+<p>
+<h3>Filtering</h3>
+As long as tags are provided, expressions can be filtered in different ways. Expressions with no tags are always
+shown.  These are the possibilities to filter on the left side:
+<ul>
+<li>By expanding an item like <b>positive</b>, then select a type.</li>
+<p>
+<li>By using a text filter, the text filter works on all tags presented in the <b>Tags</b> field after a expression is selected.</li>
+</ul>
+<p>
+Hint: If the program shows too many items on right side, it is possible to supply a expression
+with extra tags, these tags are then used instead of the tags provided in the expression files.
+<p>
+<h3>Loading</h3>
+
+Select a expression from the right side. Be aware it is not yet loaded, only the information is
+displayed on left side. To load it, press the checkmark button on the right side.
+<p>
+<h3>Drop Expression</h3>
+
+It is possible to drop the expression or simply select another expression and replace old one.
+<p>
+<h3>Change Information</h3>
+Select the expression before. The asset editor will open. You can now change the information:
+<ul>
+<li>The photo icon takes a screenshot to be used as a thumbnail. Best to switch off skybox (the globe)
+and use a one-colored background. Under "<u>S</u>ettings" change light and scene and select a
+background color with contrast.</li>
+<li>If you want to use own tags, you can either copy tags to tag editor and change the tags there or
+create new ones by using the standard tags (recommended for filtering). A standard tag can be
+inserted by selecting it from the list and press the plus button.
+You can also delete a tag row or delete all tags by pressing the sweep icon.</li>
+</ul>
+In the end you need to save the asset information.
+<p><i>Hint: the tags are saved in the database, the original tags in the files are not changed. The icon
+however will replace the old one.</i>
+<p>
+<h3>Filter icons, left side:</h3>
+<p>
+<table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">
+<tr><td><img src="data/icons/sweep.png"></td><td>Reset all filters, all items are shown on right side.</td></tr>
+</table>
+<p>
+<h3>Icons, right side:</h3>
+<p>
+<table style="background-color:#c0c0c0;color:#000000;border:2;vertical-align:middle;">
+<tr><td><img src="data/icons/use.png"></td><td>Use the <b>selected</b> expression. Can only be used if a expression is selected.</td></tr>
+<tr><td><img src="data/icons/delete.png"></td><td>Drop <b>selected</b> expression.</td></tr>
+<tr><td><img src="data/icons/information.png"></td><td>Change the information of the <b>selected</b> expression.</td></tr>
+<tr><td><img src="data/icons/resize.png"></td><td>Resíze the icons on right side. Size changes between 48, 64, 96 and 128 pixel.</td></tr>
+<tr><td><img src="data/icons/rescan.png"></td><td>Reload the expression folder. This is needed if you add a expression after makehuman was started.</td></tr>
+</table>
+<p>

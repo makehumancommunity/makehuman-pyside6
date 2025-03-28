@@ -473,7 +473,7 @@ class MHMainWindow(QMainWindow):
                 self.leftColumn.setTitle("Expressions :: editor")
                 self.lastClass = AnimExpressionEdit(self, self.glob)
                 filterparam = self.glob.baseClass.getFaceUnits().createFilterDict()
-                self.qTree = MHTreeView(filterparam, "Expressions", self.redrawNewExpression, None)
+                self.qTree = MHTreeView(filterparam, "Categories", self.redrawNewExpression, None)
                 self.expressionfilter = self.qTree.getStartPattern()
                 self.LeftBox.addWidget(self.qTree)
                 layout = self.lastClass.addClassWidgets()

@@ -9,7 +9,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLineEdit, QGridLayout, QLabel, QMessageBox,  QCheckBox
 
-from gui.common import IconButton, MHFileRequest, MHBusyWindow, WorkerThread
+from gui.common import IconButton, MHFileRequest, MHBusyWindow, WorkerThread, ImageBox
 from gui.slider import SimpleSlider
 
 from opengl.buffers import PixelBuffer
@@ -97,6 +97,8 @@ class Renderer(QVBoxLayout):
         self.addWidget(button)
 
         self.saveButton = IconButton(1,  os.path.join(self.env.path_sysicon, "f_save.png"), "save image", self.saveImage)
+        self.viewButton = IconButton(2,  os.path.join(self.env.path_sysicon, "render.png"), "show image", self.viewImage)
+        self.addWidget(self.viewButton)
         self.addWidget(self.saveButton)
         self.setButtons()
 
@@ -160,6 +162,7 @@ class Renderer(QVBoxLayout):
 
     def setButtons(self):
         self.saveButton.setEnabled(self.image is not None)
+        self.viewButton.setEnabled(self.image is not None)
         self.transButton.setChecked(self.transparent)
         if self.anim:
             self.posedButton.setChecked(self.posed)
@@ -262,6 +265,9 @@ class Renderer(QVBoxLayout):
         pix.releaseBuffer()
         self.setButtons()
         #self.glob.openGLBlock = False
+
+    def viewImage(self):
+        ImageBox(self.parent, "Viewer", self.image)
 
     def saveImage(self):
         directory = self.env.stdUserPath()

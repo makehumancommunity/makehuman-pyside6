@@ -526,11 +526,12 @@ class PixelBuffer:
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
 
         proj_view_matrix = self.view.camera.getProjViewMatrix()
+        campos = self.view.camera.getCameraPos()
         baseClass = self.glob.baseClass
         start = 1 if baseClass.proxy is True else 0
 
         for obj in self.view.objects[start:]:
-            obj.draw(proj_view_matrix, self.view.light)
+            obj.draw(proj_view_matrix, campos, self.view.light)
 
 
     def bufferToImage(self):

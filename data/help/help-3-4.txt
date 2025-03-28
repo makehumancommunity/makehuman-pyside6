@@ -1,0 +1,45 @@
+<h1>Create Expressions</h1>
+<p>
+This context is used to create own expressions. The expressions are not morphs, they are created
+by face bones. A final position of a set of bones was created and you need to decide, how much of this movement is used.
+So a "jaw drop" was created in a full open position and you can determine, how much
+this position should be used by dragging the slider on the right column.<p>
+All slider are one-sided sliders from 0-100 percent.
+<p>
+<b>To use one of the sliders, click on a icon in the right column, the slider will expand and it is possible
+to use different ways to enter the value. There is also a small "sweep" button to reset it to default.</b>
+<p>
+<i>Best to load a skin texture before changing sliders here, otherwise some of the categories are rarely visible.</i>
+<p>
+In the end the expression should be saved. It will appear in the "Expressions" module.
+It is possible to load existing expression as well.
+<p>
+<h2>Categories</h2>
+The categories are used to modify parts of the face. You need to select the category first.
+<p>
+<ul>
+<li>Eyebrows: you can change left and right brow independently.</li>
+<li>Eyelids: you can close or open all four eyelids independently.</li>
+<li>Eyes: both eyes can be moved in all directions independently.</li>
+<li>Cheeks: cheeks can be changed independently or both cheeks the same time.</li>
+<li>Chin: the chin can be moved. Useful as a correction of jaw movement.</li>
+<li>Lips: Upper- and lower lips can be changed here in various positions.</li>
+<li>Mouth: Jaw and skin movement in mouth region.</li>
+<li>Tongue: When a tongue is added, tongue movement can be done here.</li>
+</ul>
+<p>
+<h3>Load and save an expression</h3>
+You can load an existent expression by pressing the load button and modify it.
+<p>
+If you want to save your own expression, it is possible to do a screen shot with the camera icon. Use a name for the expression.
+Supply tags if you want or do that later in the asset editor. Save it with the save-button.
+<p>
+<h3>Icons, left side:</h3>
+<p>
+<table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">
+<tr><td><img src="data/icons/camera.png"></td><td>Take a screenshot of the expression.</td></tr>
+<tr><td><img src="data/icons/reset.png"></td><td>Reset the expression to default.</td></tr>
+<tr><td><img src="data/icons/f_load.png"></td><td>Load an existent expression.</td></tr>
+<tr><td><img src="data/icons/f_save.png"></td><td>Save your expression.</td></tr>
+</table>
+
