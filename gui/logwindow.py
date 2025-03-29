@@ -1,5 +1,17 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * MHLogWindow
+"""
+
+
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QListWidget, QPushButton, QListWidgetItem, QRadioButton, QGroupBox, QCheckBox, QLineEdit, QGridLayout
+from PySide6.QtWidgets import (
+        QWidget, QVBoxLayout, QHBoxLayout, QLabel, QListWidget, QPushButton, QListWidgetItem, QRadioButton,
+        QGroupBox, QCheckBox, QLineEdit, QGridLayout
+        )
 from PySide6.QtGui import QColor
 
 import sys

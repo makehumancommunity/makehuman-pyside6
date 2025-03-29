@@ -3,7 +3,7 @@
     Author: black-punkduck
 
     Classes:
-    * MHMaterialWindow
+    * MHMaterialSelect
     * MHAssetWindow
 """
 import os
@@ -18,9 +18,9 @@ from gui.common import MHTagEdit, IconButton
 from gui.materialeditor import MHMaterialEditor
 
 
-class MHMaterialWindow(QWidget):
+class MHMaterialSelect(QWidget):
     """
-    MaterialWindow
+    select materials
     """
     def __init__(self, parent, PicSelectWidget, materials, asset):
         super().__init__()
@@ -214,35 +214,75 @@ class MHAssetWindow(QWidget):
         layout.addLayout(hlayout)
         self.setLayout(layout)
 
-    def displayPixmap(self):
+    def guessThumbNailPath(self):
+        """
+        calculate thumbnail path and evaluate if it already exists
+        fallback is the asset-path, otherwise a material path is used
+        eyes always use the materialpath
+        """
+
+        # calculate fallback
         #
-        # different materials are used like this
-        # if we have a material, generate name of thumbnail
-        # if the thumbnail is the same as the standard material or we still have no thumb we have "no material"
-        # then test if file is existent, use empty icon or own icon.
-        # eyes standard material should not be overwritten
+        assetthumb, extension = os.path.splitext(self.asset.path)
+        assetthumb += ".thumb"
+
+        # special for eyes
         #
-        if self.matPath is not None:
+        if self.asset.folder == "eyes":
             if self.matPath.endswith(".mhmat"):
                 matthumb = self.matPath[:-6] + ".thumb"
-                if self.asset.folder != "eyes" and (matthumb == self.thumb or self.thumb is None):
-                    self.matPath = None
-                else:
-                    if os.path.isfile(matthumb):
-                        self.thumb = matthumb
-                    else:
-                        self.thumb = None
-        tooltip = "no icon"
+                return matthumb, True
+            return assetthumb, False
+
+        # now for all others check if available
+        #
+        if self.matPath is not None and self.matPath.endswith(".mhmat"):
+            matthumb = self.matPath[:-6] + ".thumb"
+            print ("looking for", matthumb)
+
+            # check thumb
+            if not os.path.isfile(matthumb):
+                guess = os.path.basename(matthumb)
+
+                if self.asset.thumbfile is None:
+                    return assetthumb, False
+
+                orig  = os.path.basename(self.asset.thumbfile)
+
+                # this should avoid two icons for standard material
+                #
+                if guess == orig:
+                    return self.asset.thumbfile, True
+
+                return matthumb, False
+
+            return matthumb, True
+
+        # if thumbfile is there, use it
+        #
+        if self.asset.thumbfile is not None:
+            return self.asset.thumbfile, os.path.isfile(self.asset.thumbfile)
+
+        # otherwise use assetpath
+        #
+        return assetthumb, False
+
+    def displayPixmap(self):
+        """
+        calculate expected path first
+        """
+        self.thumb, exists = self.guessThumbNailPath()
+
+        # always add the (expected) path name as a tool tip
+        #
+        tooltip = "no icon" if self.thumb is None else self.thumb
         if self.icon is None:
-            if self.thumb is None:
+            if not exists:
                 pixmap = QPixmap(self.emptyIcon)
             else:
                 pixmap = QPixmap(self.thumb)
-                tooltip = self.thumb
         else:
             pixmap = QPixmap.fromImage(self.icon)
-            if self.thumb is not None:
-                tooltip = self.thumb
         self.imglabel.setPixmap(pixmap)
         self.imglabel.setToolTip(tooltip)
 
@@ -323,19 +363,11 @@ class MHAssetWindow(QWidget):
                 insert = "|".join(newtags)
                 self.env.fileCache.insertParamUser(self.asset.uuid, insert)
                 self.asset.tags = newtags
-            print (self.asset.tags)
             iconpath = None
             if self.icon is not None:
                 #
                 # decide if material path
-
-                if self.matPath is not None:
-                    path = self.matPath
-                else:
-                    path = self.asset.path
-                    
-                iconpath, extension = os.path.splitext(path)
-                iconpath += ".thumb"
+                iconpath = self.thumb
                 self.env.logLine(8, "Save icon as " + iconpath)
                 self.icon.save(iconpath, "PNG", -1)
 
@@ -347,8 +379,7 @@ class MHAssetWindow(QWidget):
                 self.changefunc(self.asset, iconpath)
         else:
             if self.icon is not None:
-                iconpath, extension = os.path.splitext(self.asset.path)
-                iconpath += ".thumb"
+                iconpath = self.thumb
                 self.env.logLine(8, "Save icon as " + iconpath)
                 self.icon.save(iconpath, "PNG", -1)
 

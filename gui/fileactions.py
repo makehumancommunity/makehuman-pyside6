@@ -18,7 +18,7 @@ from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPixmap
 from gui.poseactions import AnimMode
 from gui.imageselector import MHPictSelectable, PicSelectWidget
-from gui.materialwindow import  MHMaterialWindow, MHAssetWindow
+from gui.materialwindow import  MHMaterialSelect, MHAssetWindow
 from gui.memwindow import MHSelectAssetWindow
 from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, IconButton, MHTagEdit, MHFileRequest
 from opengl.texture import MH_Thumb
@@ -126,7 +126,7 @@ class BaseSelect(QVBoxLayout):
 
         mw = self.glob.getSubwindow("material")
         if mw is None:
-            mw = self.glob.showSubwindow("material", self.parent, MHMaterialWindow, PicSelectWidget, matimg, basemesh)
+            mw = self.glob.showSubwindow("material", self.parent, MHMaterialSelect, PicSelectWidget, matimg, basemesh)
         else:
             mw.updateWidgets(matimg, basemesh)
             mw.show()

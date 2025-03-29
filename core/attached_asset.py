@@ -90,6 +90,7 @@ class attachedAsset:
         self.offsets = None         # (x,y,z) list of vertex offsets, indexed by reference vert
         self.deleteVerts = None     # will contain vertices to delete
         self.material = None        # path material, fully qualified
+        self.standard_material = None # path material, fully qualified
         self.vertexboneweights_file = None # path to vbone file
         self.bWeights = None        # bone weights
         self.materialsource = None    # path material, relative
@@ -206,10 +207,10 @@ class attachedAsset:
 
         self.obj_file = os.path.join(os.path.dirname(filename), self.obj_file)
         if self.material is not None:
-            self.material_orgpath = self.material
+            self.standard_material = self.material
             self.material = os.path.normpath(os.path.join(os.path.dirname(filename), self.material))
         else:
-            self.material_orgpath = ""
+            self.standard_material = ""
 
         if self.env.verbose & 16:
             print("Material: " + str(self.material))
@@ -306,10 +307,10 @@ class attachedAsset:
 
         self.obj_file = path
         if self.material is not None:
-            self.material_orgpath = self.material
+            self.standard_material = self.material
             self.material = os.path.normpath(os.path.join(os.path.dirname(path), self.material))
         else:
-            self.material_orgpath = ""
+            self.standard_material = ""
 
         importObjValues(npzfile, self.obj)
 
@@ -419,7 +420,7 @@ class attachedAsset:
         lweight = "|S" + str(len(vwfile))
 
         files_type = np.dtype({'names':('material', 'weight'), 'formats': (lmat, lweight)})
-        content["files"] =  np.array([(self.material_orgpath, vwfile)], dtype=files_type)
+        content["files"] =  np.array([(self.standard_material, vwfile)], dtype=files_type)
 
         # save scale if used correctly
         #

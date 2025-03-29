@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (
         QLabel, QDialogButtonBox, QVBoxLayout, QDialog, QProgressDialog, QWidget, QApplication, QMessageBox, QFrame,
         QHBoxLayout, QLineEdit, QPushButton, QComboBox, QProgressBar, QScrollArea, QFileDialog
         )
-from PySide6.QtGui import QIcon, QPixmap, QFontMetrics
+from PySide6.QtGui import QIcon, QPixmap, QFontMetrics, QImage
 from PySide6.QtCore import Qt, QThread, Signal, QSize
 
 def ErrorBox(qw, text):
@@ -329,7 +329,12 @@ class ImageBox(QDialog):
     def __init__(self, parent, title, image, winframe=True):
         super(ImageBox, self).__init__(parent)
         self.setWindowTitle(title)
-        if winframe is False:
+        if isinstance(image, str):
+            image = QImage(image)
+        size = image.size()
+        scrollbars = (size.width() > 1024) or (size.height() > 768)
+
+        if winframe is False or not scrollbars:
             self.setWindowFlags(Qt.Dialog | Qt.CustomizeWindowHint | Qt.WindowTitleHint)
         else:
             self.setWindowFlag(Qt.WindowMaximizeButtonHint, True)
@@ -340,15 +345,18 @@ class ImageBox(QDialog):
 
         layout = QVBoxLayout()
         imglabel = QLabel()
-        if isinstance(image, str):
-            imglabel.setPixmap(QPixmap(image))
-        else:
-            imglabel.setPixmap(QPixmap.fromImage(image))
-        scroll = QScrollArea(self)
-        scroll.setWidget(imglabel)
-        scroll.setWidgetResizable(True)
+        imglabel.setPixmap(QPixmap.fromImage(image))
 
-        layout.addWidget(scroll)
+        if scrollbars:
+            scroll = QScrollArea(self)
+            scroll.setWidget(imglabel)
+            scroll.setWidgetResizable(True)
+
+            layout.addWidget(scroll)
+            self.setMinimumWidth(1024)
+            self.setMinimumHeight(768)
+        else:
+            layout.addWidget(imglabel)
         layout.addWidget( buttonBox)
 
         self.setLayout(layout)

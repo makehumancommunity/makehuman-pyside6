@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
         QGroupBox, QVBoxLayout, QLabel, QLineEdit, QTreeView, QAbstractItemView, QScrollArea, QPlainTextEdit, QHBoxLayout
         )
 
-from gui.materialwindow import  MHMaterialWindow, MHAssetWindow
+from gui.materialwindow import MHMaterialSelect, MHAssetWindow
 from gui.common import IconButton
 from core.taglogic import tagLogic
 
@@ -786,16 +786,24 @@ class ImageSelection():
         matfiles = found.obj.listAllMaterials()
         for elem in matfiles:
             (folder, name) = os.path.split(elem)
+
             thumb = elem[:-6] + ".thumb"
             if not os.path.isfile(thumb):
-                thumb = None
+                # second guess in parent folder
+                #
+                (folder, dummy) = os.path.split(found.obj.filename)
+                thumb = os.path.join(folder, name[:-6] + ".thumb")
+
+                if not os.path.isfile(thumb):
+                    thumb = None
+
             p = MHPictSelectable(name[:-6], thumb, elem, None, [])
             if elem == oldmaterial:
                 p.status = 1
             matimg.append(p)
 
         if mw is None:
-            mw = self.glob.showSubwindow("material", self.parent, MHMaterialWindow, PicSelectWidget, matimg, found)
+            mw = self.glob.showSubwindow("material", self.parent, MHMaterialSelect, PicSelectWidget, matimg, found)
         else:
             mw.updateWidgets(matimg, found)
             mw.show()
