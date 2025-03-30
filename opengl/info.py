@@ -1,8 +1,23 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Functions:
+    * openGLError
+
+    Classes:
+    * GLDebug
+"""
+
 import OpenGL
 from OpenGL import GL as gl
 
-def openGLReset():
-    a = gl.glGetError() # this is a joke, usually makeCurrent should work but it does not (it returns 1280)
+def openGLError():
+    while True:
+        a = gl.glGetError()
+        if a == gl.GL_NO_ERROR:
+            return
+        print (a)
 
 class GLDebug:
     def __init__(self, initialized=True):
@@ -58,7 +73,6 @@ class GLDebug:
         return(info)
 
     def getTextInfo(self):
-        openGLReset()  
         text = "Minimum version demanded: " + str(self.min_version) + \
             "<br>Highest version available: " + str(self.getVersion()) + \
             "<br>Card Driver: " + self.getCard() + \
