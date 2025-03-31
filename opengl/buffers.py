@@ -316,6 +316,7 @@ class RenderedObject:
 
         indices = self.getindex()
 
+        functions.glLineWidth(1)
         functions.glEnable(gl.GL_DEPTH_TEST)
         gl.glPolygonMode(gl.GL_FRONT_AND_BACK, gl.GL_LINE)
         functions.glDrawElements(gl.GL_TRIANGLES, len(indices), gl.GL_UNSIGNED_INT, indices)

@@ -116,7 +116,7 @@ class BoneList(LineElements):
         for bone in skeleton.bones.values():
             lines.extend ([bone.headPos, bone.tailPos])
         super().__init__(context, shader, name, lines, col)
-        self.create(width=3.0)
+        self.create(3.0, True)
 
     def newGeometry(self,posed=True):
         skeleton = self.skeleton

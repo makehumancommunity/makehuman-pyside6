@@ -45,6 +45,11 @@ QFrame#gboxnontitle {
    border-radius: 6px;
 }
 
+QFrame#gboxseltools {
+   background-color: #8a979b;
+   border-radius: 6px;
+}
+
 QTreeView {
     selection-color: white;
     selection-background-color: #d7801a;

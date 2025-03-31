@@ -459,6 +459,7 @@ class baseClass():
                 self.glob.openGLWindow.addSkeleton()
             else:
                 self.skeleton = None
+        self.glob.openGLWindow.addSkeleton()
 
     def delSkeleton(self, path):
         self.skeleton = None

@@ -90,7 +90,7 @@ class OpenGLView(QOpenGLWidget):
         # this slows animation down, better way?
         #if self.framefeedback is not None:
         #    self.framefeedback()
-        skeleton.pose(bvh.joints, bvh.currentFrame, self.objects_invisible)
+        skeleton.pose(bvh.joints, bvh.currentFrame)
         if bvh.currentFrame < (bvh.frameCount-1):
             bvh.currentFrame += 1
         else:
@@ -136,6 +136,10 @@ class OpenGLView(QOpenGLWidget):
         else:
             skeleton = self.glob.baseClass.skeleton 
             col = [1.0, 1.0, 1.0]
+
+        if skeleton is None:
+            skeleton = self.glob.baseClass.default_skeleton
+            col = [1.0, 0.5, 0.5]
 
         if "skeleton" in self.prims:
             self.delSkeleton()
@@ -309,6 +313,7 @@ class OpenGLView(QOpenGLWidget):
 
         if baseClass is not None:
             self.newMesh()
+            self.addSkeleton()
 
         # create environment
         #
@@ -370,7 +375,9 @@ class OpenGLView(QOpenGLWidget):
         campos = self.camera.getCameraPos()
         baseClass = self.glob.baseClass
 
-        if baseClass is not None and self.objects_invisible is False:
+        showskel = self.objects_invisible is True and "skeleton" in self.prims
+
+        if baseClass is not None:
             if baseClass.proxy is True:
                 body = self.objects[1]
                 asset_start = 2
@@ -380,7 +387,7 @@ class OpenGLView(QOpenGLWidget):
             if self.wireframe:
                 body.drawWireframe(proj_view_matrix, campos, self.black, self.white)
             else:
-                body.draw(proj_view_matrix, campos, self.light)
+                body.draw(proj_view_matrix, campos, self.light, showskel)
 
             # either with xray or normal shader draw assets
             #
@@ -388,7 +395,7 @@ class OpenGLView(QOpenGLWidget):
                 if self.wireframe:
                     obj.drawWireframe(proj_view_matrix, campos, self.black, self.white)
                 else:
-                    obj.draw(proj_view_matrix, campos, self.light, self.xrayed)
+                    obj.draw(proj_view_matrix, campos, self.light, showskel | self.xrayed)
 
         if self.visLights is not None and self.prims["axes"].isVisible():
             self.visLights.draw(proj_view_matrix, campos)
@@ -400,7 +407,7 @@ class OpenGLView(QOpenGLWidget):
             posed = (baseClass.bvh is not None) or (baseClass.expression is not None)
             self.diamondskel.draw(proj_view_matrix, posed)
 
-        if self.objects_invisible is True and "skeleton" in self.prims:
+        if showskel:
             posed = (baseClass.bvh is not None) or (baseClass.expression is not None)
             self.prims["skeleton"].newGeometry(posed)
 

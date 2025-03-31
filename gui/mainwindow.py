@@ -101,7 +101,7 @@ class MHMainWindow(QMainWindow):
         ]
         self.category_buttons = [
             [ 
-                { "button": None, "icon": "f_newbase.png", "tip": "new basemesh", "func": self.callCategory},
+                { "button": None, "icon": "f_newbase.png", "tip": "select basemesh", "func": self.callCategory},
                 { "button": None, "icon": "f_load.png", "tip": "load character", "func": self.callCategory},
                 { "button": None, "icon": "f_save.png", "tip": "save character", "func": self.callCategory},
                 { "button": None, "icon": "f_export.png", "tip": "export character", "func": self.callCategory},
@@ -170,7 +170,7 @@ class MHMainWindow(QMainWindow):
         self.addActCallBack(set_menu, "Restore User Database", self.importUserDB)
 
         tools_menu = menu_bar.addMenu("&Tools")
-        self.addActCallBack(tools_menu, "Change Base", self.base_call)
+        self.addActCallBack(tools_menu, "Select Basemesh", self.base_call)
         self.addActCallBack(tools_menu, "Change Character", self.morph_call)
         self.addActCallBack(tools_menu, "Randomize Character", self.random_call)
 
@@ -297,6 +297,7 @@ class MHMainWindow(QMainWindow):
         for n, b in enumerate(subtool):
             row.addWidget(b["button"])
         row.addStretch()
+
         return(row)
 
     def markSelectedButtons(self, row, button):
@@ -326,20 +327,26 @@ class MHMainWindow(QMainWindow):
         hLayout.setSpacing(2)
         hLayout.setContentsMargins(2, 3, 2, 3)
 
-        # left side, first button box
+        # left side, two rows of buttons
+        # first select tools
         #
-        b2group  = QFrame()
-        b2group.setObjectName("gboxnontitle")
-        b2group.setMaximumWidth(400)
-
-        self.ButtonBox = QVBoxLayout()
+        rowgroup1 = QFrame()
+        rowgroup1.setObjectName("gboxseltools")
+        rowgroup1.setMaximumWidth(400)
+        self.ToolSelBox = QVBoxLayout()
         row = self.buttonRow(self.tool_buttons)
-        self.ButtonBox.addLayout(row)
+        self.ToolSelBox.addLayout(row)
+        rowgroup1.setLayout(self.ToolSelBox)
 
+        # second select category
+        #
+        rowgroup2  = QFrame()
+        rowgroup2.setObjectName("gboxnontitle")
+        rowgroup2.setMaximumWidth(400)
+        self.ButtonBox = QVBoxLayout()
         self.CategoryBox= self.buttonRow(self.category_buttons[0])
         self.ButtonBox.addLayout(self.CategoryBox)
-
-        b2group.setLayout(self.ButtonBox)
+        rowgroup2.setLayout(self.ButtonBox)
 
         # left side base panel
         #
@@ -350,7 +357,8 @@ class MHMainWindow(QMainWindow):
         self.drawLeftPanel()
 
         v2Layout = QVBoxLayout()
-        v2Layout.addWidget(b2group)
+        v2Layout.addWidget(rowgroup1)
+        v2Layout.addWidget(rowgroup2)
         v2Layout.addLayout(self.leftColumn.MHLayout(self.LeftBox),1)
 
         hLayout.addLayout(v2Layout)
@@ -604,7 +612,7 @@ class MHMainWindow(QMainWindow):
             buttons = self.category_buttons[tool]
             self.CategoryBox= self.buttonRow(buttons)
             if self.CategoryBox is not None:
-                self.ButtonBox.insertLayout(1, self.CategoryBox)
+                self.ButtonBox.insertLayout(0, self.CategoryBox)
                 self.markSelectedButtons(buttons, buttons[category])
             self.drawLeftPanel()
             vis = self.drawRightPanel()
@@ -987,7 +995,6 @@ class MHMainWindow(QMainWindow):
     def context_help(self):
         path = os.path.join(self.env.path_sysdata, "help",
                 "help-" + str(self.tool_mode) + "-" + str(self.category_mode) + ".txt")
-        print (path)
         try:
             with open(path) as f:
                 text = f.read()
