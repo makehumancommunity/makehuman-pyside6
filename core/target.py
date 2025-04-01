@@ -356,6 +356,22 @@ class Modelling(ScaleComboItem):
                 texture =base.material.mixColors(self.barycentric_diffuse, influence)
                 base.openGL.setTexture(texture)
 
+    def postChange(self):
+        """
+        all actions after change:
+        * change size
+        * change skeleton
+        * mark a change
+        """
+        self.glob.midColumn.setSizeInfo()
+        bc = self.glob.baseClass
+        if bc.skeleton is not None:
+            bc.skeleton.newGeometry()
+        elif bc.default_skeleton is not None:
+            bc.default_skeleton.newGeometry()
+        self.glob.project_changed = True
+
+
     def finished_bckproc(self):
         print ("done")
         self.glob.openGLWindow.Tweak()
@@ -370,8 +386,7 @@ class Modelling(ScaleComboItem):
         if self.value != self._last_value:
             self.callback()
         else:
-            self.glob.midColumn.setSizeInfo()
-            self.glob.project_changed = True
+            self.postChange()
 
     def callback(self):
         """
@@ -407,10 +422,9 @@ class Modelling(ScaleComboItem):
                     key.value = self.value
                 else:
                     print ("Target missing")
-            self.glob.project_changed = True
-            self.glob.midColumn.setSizeInfo()
             if self.measure is not None:
                 self.displayMeasurement()
+            self.postChange()
             self.glob.openGLWindow.Tweak()
 
     #def __del__(self):

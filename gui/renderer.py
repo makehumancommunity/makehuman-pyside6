@@ -105,7 +105,7 @@ class Renderer(QVBoxLayout):
 
     def enter(self):
         if self.anim:
-            self.view.addSkeleton(True)
+            self.view.prepareSkeleton(True)
             self.bc.pose_skeleton.newGeometry()
             self.mesh.createWCopy()
             self.setFrame(0)
@@ -123,7 +123,7 @@ class Renderer(QVBoxLayout):
         if self.anim and self.posed:
             self.setFrame(0)
             self.mesh.resetFromCopy()
-            self.view.addSkeleton(False)
+            self.view.prepareSkeleton(False)
             self.bc.updateAttachedAssets()
 
         self.view.Tweak()

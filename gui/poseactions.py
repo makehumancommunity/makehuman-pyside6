@@ -30,7 +30,7 @@ class AnimMode():
         self.baseClass.pose_skeleton.newGeometry()
         self.baseClass.restPose()
         self.baseClass.precalculateAssetsInRestPose()
-        self.view.addSkeleton(True)
+        self.view.prepareSkeleton(True)
         print ("init pose")
         self.baseClass.in_posemode = True
         if self.baseClass.bvh:
@@ -42,7 +42,7 @@ class AnimMode():
     def leave(self):
         self.mesh.resetFromCopy()
         self.baseClass.updateAttachedAssets()
-        self.view.addSkeleton(False)
+        self.view.prepareSkeleton(False)
         self.baseClass.in_posemode = False
         self.view.Tweak()
 
@@ -131,7 +131,7 @@ class AnimPlayer(QVBoxLayout):
     def enter(self):
         self.loopbutton.setChecked(False)
         self.rotSkyBox.setChecked(False)
-        self.view.addSkeleton(True)
+        self.view.prepareSkeleton(True)
         self.view.setRotSkyBox(False)
         self.bc.pose_skeleton.newGeometry()
         self.bc.precalculateAssetsInRestPose()
@@ -147,7 +147,7 @@ class AnimPlayer(QVBoxLayout):
             self.anim.identFinal()
         self.firstframe()
         self.mesh.resetFromCopy()
-        self.view.addSkeleton(False)    # reset to unposed
+        self.view.prepareSkeleton(False)    # reset to unposed
         self.bc.updateAttachedAssets()
         self.bc.in_posemode = False
         self.view.Tweak()
@@ -261,7 +261,7 @@ class AnimExpressionEdit():
         self.mesh = glob.baseClass.baseMesh
         self.mesh.createWCopy()
         self.baseClass.in_posemode = True
-        self.view.addSkeleton(True)
+        self.view.prepareSkeleton(True)
         self.baseClass.pose_skeleton.newGeometry()
         self.baseClass.restPose()
         self.baseClass.precalculateAssetsInRestPose()
@@ -418,7 +418,7 @@ class AnimExpressionEdit():
         self.mesh.resetFromCopy()
         self.baseClass.updateAttachedAssets()
         self.baseClass.in_posemode = False
-        self.view.addSkeleton(False)
+        self.view.prepareSkeleton(False)
         self.view.Tweak()
 
 

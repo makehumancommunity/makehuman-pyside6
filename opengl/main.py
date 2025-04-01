@@ -126,31 +126,39 @@ class OpenGLView(QOpenGLWidget):
         self.blocked = True
         self.stopRotate()
 
-    def addSkeleton(self, pose=False):
+    def prepareSkeleton(self, pose=False):
         """
-        add a white skeleton for the one added to character or pose skeleton in animation mode
+        prepare graphical presentation of skeleton
         """
+
+        # delete old one
+        #
+        self.delSkeleton()
+
+        bc = self.glob.baseClass
+
+        # really no skeleton
+        #
+        if bc is None or (bc.skeleton is None and bc.default_skeleton is None):
+            return
+
+        # pose mode: orange, normal mode white, internal=no skeleton red
         if pose:
-            skeleton = self.glob.baseClass.pose_skeleton
+            skeleton = bc.pose_skeleton
             col = [1.0, 0.5, 0.0]
         else:
-            skeleton = self.glob.baseClass.skeleton 
+            skeleton = bc.skeleton 
             col = [1.0, 1.0, 1.0]
 
         if skeleton is None:
-            skeleton = self.glob.baseClass.default_skeleton
+            skeleton = bc.default_skeleton
             col = [1.0, 0.5, 0.5]
 
-        if "skeleton" in self.prims:
-            self.delSkeleton()
-
-        if skeleton is not None:
-            shader = self.mh_shaders.getShader("fixcolor")
-            self.prims["skeleton"] = BoneList(self.context(), shader, "skeleton", skeleton, col)
-            if self.objects_invisible is True:
-                self.togglePrims("skeleton", True)
-            # self.diamondskel = DiamondSkeleton(self.context(), self.mh_shaders, "diamondskel", skeleton, self.white)
-
+        shader = self.mh_shaders.getShader("fixcolor")
+        self.prims["skeleton"] = BoneList(self.context(), shader, "skeleton", skeleton, col)
+        if self.objects_invisible is True:
+            self.togglePrims("skeleton", True)
+        # self.diamondskel = DiamondSkeleton(self.context(), self.mh_shaders, "diamondskel", skeleton, self.white)
         self.Tweak()
 
     def toggleObjects(self, status):
@@ -313,7 +321,7 @@ class OpenGLView(QOpenGLWidget):
 
         if baseClass is not None:
             self.newMesh()
-            self.addSkeleton()
+            self.prepareSkeleton()
 
         # create environment
         #
@@ -459,16 +467,12 @@ class OpenGLView(QOpenGLWidget):
         create of complete new mesh with assets
         """
         self.noGLObjects()
-
-        if "skeleton" in self.prims:
-            self.prims["skeleton"].delete()
-            del self.prims["skeleton"]
+        self.delSkeleton()
 
         if self.glob.baseClass is not None:
             self.createObject(self.glob.baseClass.baseMesh)
             self.addAssets()
-            if self.glob.baseClass.skeleton is not None:
-                self.addSkeleton(False)
+            self.prepareSkeleton(False)
             self.setCameraCenter()
             self.paintGL()
             self.update()

@@ -456,16 +456,17 @@ class baseClass():
             self.skeleton = skeleton(self.glob, name)
             if self.skeleton.loadJSON(path):
                 self.glob.markAssetByFileName(path, True)
-                self.glob.openGLWindow.addSkeleton()
             else:
                 self.skeleton = None
-        self.glob.openGLWindow.addSkeleton()
+        self.glob.openGLWindow.prepareSkeleton()
+        self.glob.midColumn.setSizeInfo()
 
     def delSkeleton(self, path):
         self.skeleton = None
         self.glob.markAssetByFileName(path, False)
-        self.glob.openGLWindow.delSkeleton()
+        self.glob.openGLWindow.prepareSkeleton()
         self.glob.openGLWindow.Tweak()
+        self.glob.midColumn.setSizeInfo()
 
     def restPose(self):
         self.pose_skeleton.restPose()

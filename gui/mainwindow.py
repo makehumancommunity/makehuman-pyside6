@@ -690,7 +690,7 @@ class MHMainWindow(QMainWindow):
         self.graph.view.setCameraCenter()
         self.graph.view.addAssets()
         self.graph.view.newSkin(self.glob.baseClass.baseMesh)
-        self.graph.view.addSkeleton()
+        self.graph.view.prepareSkeleton()
         if self.prog_window is not None:
             self.prog_window.progress.close()
             self.prog_window = None

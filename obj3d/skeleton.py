@@ -31,6 +31,11 @@ class skeleton:
         if json is None:
             return False
 
+        # replace name for internal file
+        #
+        if "name" in json:
+            self.name = json["name"]
+
         # check for main elements in json file:
         #
         for elem in ["joints", "bones"]:

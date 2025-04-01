@@ -176,7 +176,11 @@ class MHGraphicWindow(QWidget):
         for idx,slot in enumerate(self.glob.textSlot):
             if slot is not None:
                 text += slot() + "\n"
-        text += "Size: " + self.env.toUnit(value)
+        text += "Size: " + self.env.toUnit(value) + "\n"
+        if self.glob.baseClass.skeleton is None:
+            text += "no skeleton"
+        else:
+            text += "Skeleton: " + self.glob.baseClass.skeleton.name
         self.sizeInfo.setText(text)
 
     def setDebug(self,val):
