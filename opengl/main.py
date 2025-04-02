@@ -46,15 +46,13 @@ class OpenGLView(QOpenGLWidget):
         self.blocked = False
         self.glfunc = None
         self.visLights = None
-        self.diamondskel = None
+        self.diamondskel = False
         self.marker = None
 
     def delSkeleton(self):
         if "skeleton" in self.prims:
             self.prims["skeleton"].delete()
             del self.prims["skeleton"]
-            if self.diamondskel is not None:
-                self.diamondskel.delete()
 
     def setFPS(self, value, callback=None):
         self.fps = value
@@ -155,10 +153,12 @@ class OpenGLView(QOpenGLWidget):
             col = [1.0, 0.5, 0.5]
 
         shader = self.mh_shaders.getShader("fixcolor")
-        self.prims["skeleton"] = BoneList(self.context(), shader, "skeleton", skeleton, col)
+        if self.diamondskel:
+            self.prims["skeleton"] = DiamondSkeleton(self.context(), self.mh_shaders, "diamondskel", skeleton, self.white)
+        else:
+            self.prims["skeleton"] = BoneList(self.context(), shader, "skeleton", skeleton, col)
         if self.objects_invisible is True:
             self.togglePrims("skeleton", True)
-        # self.diamondskel = DiamondSkeleton(self.context(), self.mh_shaders, "diamondskel", skeleton, self.white)
         self.Tweak()
 
     def toggleObjects(self, status):
@@ -411,16 +411,18 @@ class OpenGLView(QOpenGLWidget):
         if self.light.skybox and self.skybox and self.camera.cameraPers:
             self.skybox.draw(proj_view_matrix)
 
-        if self.diamondskel is not None:
-            posed = (baseClass.bvh is not None) or (baseClass.expression is not None)
-            self.diamondskel.draw(proj_view_matrix, posed)
-
         if showskel:
-            posed = (baseClass.bvh is not None) or (baseClass.expression is not None)
-            self.prims["skeleton"].newGeometry(posed)
+            if self.diamondskel:
+                pass
+                #self.prims["skeleton"].draw(proj_view_matrix, posed)
+            else:
+                self.prims["skeleton"].newGeometry(baseClass.in_posemode)
 
         for name in self.prims:
-            self.prims[name].draw(proj_view_matrix)
+            if self.diamondskel and name == "skeleton":
+                self.prims[name].draw(proj_view_matrix, baseClass.in_posemode)
+            else:
+                self.prims[name].draw(proj_view_matrix)
 
         if self.marker is not None:
             self.marker.draw(proj_view_matrix)

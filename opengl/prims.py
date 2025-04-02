@@ -140,7 +140,7 @@ class SimpleObject():
     create geometry for gdrawelements
     array of positions, array of faces, array of normals
     """
-    def __init__(self, context, shaders, name, coords, norm, indices, uv=None):
+    def __init__(self, context, shaders, name, coords, norm, indices, uv=None, infront=False):
         self.name = name
         self.simple = None
         self.glfunc =  context.functions()
@@ -150,14 +150,14 @@ class SimpleObject():
             self.uv = np.zeros(len(self.icoord), dtype=np.float32)
         else:
             self.uv = uv
-
+        self.infront = infront
         self.glbuffer = OpenGlBuffers()
         self.glbuffer.VertexBuffer(coords)
         self.glbuffer.NormalBuffer(norm)
         self.glbuffer.TexCoordBuffer(self.uv)
 
     def create(self):
-        self.simple = RenderedSimple(self.glfunc, self.shaders, self.icoord, self.name, self.glbuffer)
+        self.simple = RenderedSimple(self.glfunc, self.shaders, self.icoord, self.name, self.glbuffer, self.infront)
 
     def draw(self, proj_view_matrix, white):
         self.simple.draw(proj_view_matrix, white)
@@ -206,16 +206,33 @@ class Diamond(SimpleObject):
         self.coord = self.flatShade(self.icoord, self.coord)
         self.norm = self.calcNorm(self.icoord, self.coord)
         self.coord = self.coord.flatten()
-        super().__init__(context, shaders, name, self.coord, self.norm, self.icoord)
+        super().__init__(context, shaders, name, self.coord, self.norm, self.icoord, infront=True)
         self.create()
 
 class DiamondSkeleton(Diamond):
     def __init__(self, context, shaders, name, skeleton, col):
         self.skeleton = skeleton
         self.texture = col
+        self.visible = False
         super().__init__(context, shaders, name)
 
+    def isVisible(self):
+        return self.visible
+
+    def setVisible(self, status):
+        self.visible = status
+
+    def setYRotation(self, angle):
+        # TODO: missing function, viewmatrix?
+        pass
+
+    def newGeometry(self,posed=True):
+        # dummy
+        pass
+
     def draw(self, proj_view_matrix, posed):
+        if self.visible is False:
+            return
         skeleton = self.skeleton
         if posed:
             for bone in skeleton.bones.values():

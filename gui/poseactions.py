@@ -27,11 +27,11 @@ class AnimMode():
         self.baseClass = glob.baseClass
         self.mesh = glob.baseClass.baseMesh
         self.mesh.createWCopy()
-        self.baseClass.pose_skeleton.newGeometry()
         self.baseClass.restPose()
         self.baseClass.precalculateAssetsInRestPose()
-        self.view.prepareSkeleton(True)
+        self.baseClass.pose_skeleton.newGeometry()
         print ("init pose")
+        self.view.prepareSkeleton(True)
         self.baseClass.in_posemode = True
         if self.baseClass.bvh:
             self.baseClass.showPose()
@@ -41,9 +41,10 @@ class AnimMode():
 
     def leave(self):
         self.mesh.resetFromCopy()
+        self.baseClass.restPose()
         self.baseClass.updateAttachedAssets()
-        self.view.prepareSkeleton(False)
         self.baseClass.in_posemode = False
+        self.view.prepareSkeleton(False)
         self.view.Tweak()
 
 
@@ -147,9 +148,9 @@ class AnimPlayer(QVBoxLayout):
             self.anim.identFinal()
         self.firstframe()
         self.mesh.resetFromCopy()
+        self.bc.in_posemode = False         # must be before prepare skeleton
         self.view.prepareSkeleton(False)    # reset to unposed
         self.bc.updateAttachedAssets()
-        self.bc.in_posemode = False
         self.view.Tweak()
 
     def changeFaceAnim(self, param):

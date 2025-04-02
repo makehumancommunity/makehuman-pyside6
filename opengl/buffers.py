@@ -400,7 +400,7 @@ class RenderedLines:
         self.functions.glDisable(gl.GL_DEPTH_TEST)
 
 class RenderedSimple:
-    def __init__(self, functions, shaders, indices, name, glbuffers):
+    def __init__(self, functions, shaders, indices, name, glbuffers, infront=False):
         self.functions = functions
         self.name = name
         self.scale = QVector3D(1, 1, 1)
@@ -410,6 +410,7 @@ class RenderedSimple:
         self.rotation = QMatrix4x4()
         self.glbuffers = glbuffers
         self.indices = indices
+        self.infront = infront
 
         self.shader = shaders.getShader("phong3l")
         self.mvp_matrix_location = self.shader.uniforms["uMvpMatrix" ]
@@ -452,7 +453,10 @@ class RenderedSimple:
         self.functions.glActiveTexture(gl.GL_TEXTURE0)
         self.functions.glUniform1i(t1, 0)
         self.texture.bind()
-        self.functions.glEnable(gl.GL_DEPTH_TEST)
+        if self.infront:
+            self.functions.glDisable(gl.GL_DEPTH_TEST)
+        else:
+            self.functions.glEnable(gl.GL_DEPTH_TEST)
         self.functions.glEnable(gl.GL_BLEND)
         self.functions.glBlendFunc(gl.GL_ONE, gl.GL_ZERO)
         self.functions.glDrawElements(gl.GL_TRIANGLES, len(self.indices), gl.GL_UNSIGNED_INT, self.indices)
