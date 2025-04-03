@@ -1,3 +1,11 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * OpenGLSkyBox
+"""
+
 from PySide6.QtOpenGL import QOpenGLTexture, QOpenGLBuffer
 from PySide6.QtGui import QImage, QVector4D, QMatrix4x4
 import numpy as np

@@ -1,6 +1,10 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
+
+    Classes:
+    * Camera
+    * Light
 """
 from PySide6.QtGui import QMatrix4x4, QVector3D, QVector4D, QOpenGLContext
 import OpenGL

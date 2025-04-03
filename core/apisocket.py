@@ -26,6 +26,7 @@ class apiSocket(QThread):
         self.jsonparam = None
         self.binarybuffers = None
         self.blcom = None
+        self.socket = None
         self.host = self.env.config["apihost"] if "apihost" in self.env.config else '127.0.0.1'
         self.port = self.env.config["apiport"] if "apiport" in self.env.config else 12345
 
@@ -129,7 +130,7 @@ class apiSocket(QThread):
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.socket.bind((self.host, self.port))
         except socket.error as msg:
-            self.env.logLine(1, 'Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
+            self.env.logLine(1, 'Bind failed. Error Code : %s' %  msg)
             return
 
         self.env.logLine(1, "Using host: " + self.host + ", Port: " + str(self.port))
@@ -154,13 +155,15 @@ class apiSocket(QThread):
                 # usually it sends an error when terminated, all other will be displayed
                 #
                 if not self.exiting:
-                    self.env.logLine(1, 'Socket Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
+                    self.env.logLine(1, 'Socket Error Code : %s' %  msg)
                 pass
 
     def stopListening(self):
         if not self.exiting:
             self.env.logLine(1, "Stopping socket connection")
             self.exiting = True
+            if self.socket is None:
+                return
             try:
                 self.socket.shutdown(socket.SHUT_RDWR)
             except socket.error:

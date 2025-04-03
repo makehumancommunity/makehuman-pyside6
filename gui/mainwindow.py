@@ -179,13 +179,17 @@ class MHMainWindow(QMainWindow):
 
         act_menu = menu_bar.addMenu("&Activate")
 
-        self.sock_act = QAction('Socket active', act_menu, checkable=True)
-        act_menu.addAction(self.sock_act)
-        self.sock_act.triggered.connect(self.socket_call)
+        act = QAction('Diamond skeleton', act_menu, checkable=True)
+        act_menu.addAction(act)
+        act.triggered.connect(self.dimskel_call)
 
-        self.deb_act = QAction('Debug Camera', act_menu, checkable=True)
-        act_menu.addAction(self.deb_act)
-        self.deb_act.triggered.connect(self.deb_cam)
+        act = QAction('Socket active', act_menu, checkable=True)
+        act_menu.addAction(act)
+        act.triggered.connect(self.socket_call)
+
+        act = QAction('Debug camera', act_menu, checkable=True)
+        act_menu.addAction(act)
+        act.triggered.connect(self.deb_cam)
 
         info_menu = menu_bar.addMenu("&Information")
         self.addActCallBack(info_menu, "Character Info", self.measure_call)
@@ -626,7 +630,7 @@ class MHMainWindow(QMainWindow):
 
 
     def deb_cam(self):
-        self.graph.setDebug(self.deb_act.isChecked())
+        self.graph.setDebug(self.sender().isChecked())
 
     def closeEvent(self, event):
         self.quit_call(event)
@@ -977,8 +981,11 @@ class MHMainWindow(QMainWindow):
         text = self.env.convertToRichFile(os.path.join(self.env.path_sysdata, "licenses", licname))
         TextBox(self, boxname, image, text)
 
+    def dimskel_call(self):
+        self.graph.view.setDiamondSkeleton(self.sender().isChecked())
+
     def socket_call(self):
-        if self.sock_act.isChecked() and self.glob.apiSocket is None:
+        if self.sender().isChecked() and self.glob.apiSocket is None:
             self.glob.apiSocket = apiSocket(self.glob)
             self.glob.apiSocket.viewRedisplay.connect(self.socket_finish)
             self.glob.apiSocket.start()

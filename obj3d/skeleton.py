@@ -26,6 +26,9 @@ class skeleton:
         self.mesh = self.glob.baseClass.baseMesh
         self.filename = None
 
+    def __str__(self):
+        return ("Skeleton: " + self.name)
+
     def loadJSON(self, path):
         json = self.env.readJSON(path)
         if json is None:

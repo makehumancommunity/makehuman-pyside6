@@ -1,3 +1,11 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * OpenGLView
+"""
+
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
 from PySide6.QtWidgets import QSizePolicy
 from PySide6.QtCore import QSize, Qt, QTimer
@@ -48,6 +56,12 @@ class OpenGLView(QOpenGLWidget):
         self.visLights = None
         self.diamondskel = False
         self.marker = None
+
+    def setDiamondSkeleton(self, v):
+        self.diamondskel = v
+        if self.glob.baseClass is not None:
+            self.prepareSkeleton(self.glob.baseClass.in_posemode)
+            self.Tweak()
 
     def delSkeleton(self):
         if "skeleton" in self.prims:
@@ -144,17 +158,20 @@ class OpenGLView(QOpenGLWidget):
         if pose:
             skeleton = bc.pose_skeleton
             col = [1.0, 0.5, 0.0]
+            coltex= self.orange
         else:
             skeleton = bc.skeleton 
             col = [1.0, 1.0, 1.0]
+            coltex= self.white
 
         if skeleton is None:
             skeleton = bc.default_skeleton
             col = [1.0, 0.5, 0.5]
+            coltex= self.red
 
         shader = self.mh_shaders.getShader("fixcolor")
         if self.diamondskel:
-            self.prims["skeleton"] = DiamondSkeleton(self.context(), self.mh_shaders, "diamondskel", skeleton, self.white)
+            self.prims["skeleton"] = DiamondSkeleton(self.context(), self.mh_shaders, "diamondskel", skeleton, coltex)
         else:
             self.prims["skeleton"] = BoneList(self.context(), shader, "skeleton", skeleton, col)
         if self.objects_invisible is True:
@@ -280,13 +297,14 @@ class OpenGLView(QOpenGLWidget):
         self.objects[0].setMaterial(obj.material)
 
     def createSysMaterials(self):
-        for name in ("black", "white", "grey"):
+        for name in ("black", "white", "orange", "red"):
             m = Material(self.glob, name, "system")
             self.sysmaterials.append(m)
 
         self.black = self.sysmaterials[0].uniColor([0.0, 0.0, 0.0])
         self.white = self.sysmaterials[1].uniColor([1.0, 1.0, 1.0])
-        self.grey  = self.sysmaterials[2].uniColor([0.5, 0.5, 0.5])
+        self.orange= self.sysmaterials[2].uniColor([1.0, 0.5, 0.0])
+        self.red   = self.sysmaterials[2].uniColor([1.0, 0.5, 0.5])
 
     def initializeGL(self):
         """
@@ -411,16 +429,14 @@ class OpenGLView(QOpenGLWidget):
         if self.light.skybox and self.skybox and self.camera.cameraPers:
             self.skybox.draw(proj_view_matrix)
 
-        if showskel:
-            if self.diamondskel:
-                pass
-                #self.prims["skeleton"].draw(proj_view_matrix, posed)
-            else:
-                self.prims["skeleton"].newGeometry(baseClass.in_posemode)
-
         for name in self.prims:
-            if self.diamondskel and name == "skeleton":
-                self.prims[name].draw(proj_view_matrix, baseClass.in_posemode)
+            if name == "skeleton":
+                if showskel:
+                    if self.diamondskel:
+                        self.prims[name].draw(proj_view_matrix, baseClass.in_posemode)
+                    else:
+                        self.prims[name].newGeometry(baseClass.in_posemode)
+                        self.prims[name].draw(proj_view_matrix)
             else:
                 self.prims[name].draw(proj_view_matrix)
 

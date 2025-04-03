@@ -1,13 +1,15 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
+
+    (load and store shaders)
+
+    Classes:
+    * ShaderFiles
+    * ShaderRepository
 """
 import os
 from PySide6.QtOpenGL import QOpenGLBuffer, QOpenGLShader, QOpenGLShaderProgram
-
-"""
-    load and store shaders
-"""
 
 class ShaderFiles(QOpenGLShaderProgram):
     """

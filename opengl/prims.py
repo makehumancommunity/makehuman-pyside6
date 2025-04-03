@@ -1,6 +1,21 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * LineElements
+    * CoordinateSystem
+    * Grid
+    * BoneList
+    * SimpleObject
+    * Diamond
+    * DiamondSkeleton
+    * VisLights
+"""
+
 from opengl.buffers import OpenGlBuffers, RenderedLines, RenderedObject, RenderedSimple
 
-from PySide6.QtGui import QVector3D
+from PySide6.QtGui import QVector3D, QMatrix4x4
 import numpy as np
 import os
 
@@ -194,7 +209,7 @@ class SimpleObject():
 
 class Diamond(SimpleObject):
     def __init__(self, context, shaders, name):
-        w = 0.7
+        w = 0.5
         self.coord = np.asarray(
             [[-w, 1.0, 0.0],  [0.0, 1.0, w],  [0.0, 1.0, -w],
              [w, 1.0, 0.0],  [0.0, 4.0, 0.0],  [0.0, 0.0, 0.0]], 
@@ -214,6 +229,7 @@ class DiamondSkeleton(Diamond):
         self.skeleton = skeleton
         self.texture = col
         self.visible = False
+        self.y_rotation = 0.0
         super().__init__(context, shaders, name)
 
     def isVisible(self):
@@ -223,29 +239,32 @@ class DiamondSkeleton(Diamond):
         self.visible = status
 
     def setYRotation(self, angle):
-        # TODO: missing function, viewmatrix?
-        pass
+        # must be done here
+        self.y_rotation = angle
 
     def newGeometry(self,posed=True):
-        # dummy
+        # dummy, because geometry consists of multiple parts
         pass
 
     def draw(self, proj_view_matrix, posed):
         if self.visible is False:
             return
         skeleton = self.skeleton
+        view_matrix = QMatrix4x4(proj_view_matrix.copyDataTo())
+        if self.y_rotation != 0.0:
+            view_matrix.rotate(self.y_rotation, 0.0, 1.0, 0.0)
         if posed:
             for bone in skeleton.bones.values():
                 l = bone.posetailPos - bone.poseheadPos
                 self.setScale(np.sqrt(l.dot(l)) / 4.0)
                 self.setRotation(bone.matPoseGlobal)
-                super().draw(proj_view_matrix, self.texture)
+                super().draw(view_matrix, self.texture)
         else:
             for bone in skeleton.bones.values():
                 l = bone.tailPos - bone.headPos
                 self.setScale(np.sqrt(l.dot(l)) / 4.0)
                 self.setRotation(bone.matRestGlobal)
-                super().draw(proj_view_matrix, self.texture)
+                super().draw(view_matrix, self.texture)
 
     
 class VisLights():

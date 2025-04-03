@@ -132,11 +132,13 @@ class AnimPlayer(QVBoxLayout):
     def enter(self):
         self.loopbutton.setChecked(False)
         self.rotSkyBox.setChecked(False)
-        self.view.prepareSkeleton(True)
-        self.view.setRotSkyBox(False)
-        self.bc.pose_skeleton.newGeometry()
-        self.bc.precalculateAssetsInRestPose()
         self.mesh.createWCopy()
+        self.bc.restPose()
+        self.bc.precalculateAssetsInRestPose()
+        self.bc.pose_skeleton.newGeometry()
+        self.view.prepareSkeleton(True)
+
+        self.view.setRotSkyBox(False)
         self.bc.in_posemode = True
         self.firstframe()
 
@@ -261,11 +263,11 @@ class AnimExpressionEdit():
         self.baseClass = glob.baseClass
         self.mesh = glob.baseClass.baseMesh
         self.mesh.createWCopy()
-        self.baseClass.in_posemode = True
-        self.view.prepareSkeleton(True)
-        self.baseClass.pose_skeleton.newGeometry()
         self.baseClass.restPose()
         self.baseClass.precalculateAssetsInRestPose()
+        self.baseClass.pose_skeleton.newGeometry()
+        self.view.prepareSkeleton(True)
+        self.baseClass.in_posemode = True
         self.expressions = []
         self.thumbimage = None
         self.view.Tweak()
