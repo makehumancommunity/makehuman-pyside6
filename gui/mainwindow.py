@@ -86,9 +86,9 @@ class MHMainWindow(QMainWindow):
         ]
 
         self.model_buttons = [ 
-                { "button": None, "icon": "reset.png", "tip": "Reset all targets", "func": self.reset_call},
-                { "button": None, "icon": "symm1.png", "tip": "Symmetry, right to left", "func": self.symRToL },
-                { "button": None, "icon": "symm2.png", "tip": "Symmetry, left to right", "func": self.symLToR },
+                { "button": None, "icon": "reset.png", "tip": "Reset all targets", "func": self.reset_call, "check": False },
+                { "button": None, "icon": "symm1.png", "tip": "Symmetry, right to left", "func": self.symRToL, "check": False },
+                { "button": None, "icon": "symm2.png", "tip": "Symmetry, left to right", "func": self.symLToR, "check": False },
                 { "button": None, "icon": "symm.png", "tip": "Symmetry applied always", "func": self.symSwitch }
         ]
 
@@ -220,7 +220,8 @@ class MHMainWindow(QMainWindow):
         #
         for elem in (self.tool_buttons, self.model_buttons):
             for n, b in enumerate(elem):
-                b["button"] = IconButton(n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"], checkable=True)
+                c = b["check"] if "check" in b else True
+                b["button"] = IconButton(n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"], checkable=c)
         self.markSelectedButtons(self.tool_buttons, self.tool_buttons[0])
 
         # generate category buttons

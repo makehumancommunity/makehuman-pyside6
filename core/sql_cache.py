@@ -1,3 +1,10 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    classes:
+    * FileCache
+"""
 import sqlite3
 import os
 import json

@@ -1,4 +1,10 @@
 """
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * LoopApproximation
+
 realization of loop subdivision algorithm, invented by Charles Loop
 
 loop algorithm only works with triangles
@@ -99,7 +105,7 @@ class LoopApproximation:
                 for nv in faceverts[nface]:
                     if nv != v1 and nv != v2:
                         self.adjacent_odd[fIndex][i] = nv
-                    break
+                        break
 
     def createSubTriangles(self, faceverts, uvvertsarr):
         """
@@ -127,8 +133,8 @@ class LoopApproximation:
             for i in range(0,3):
                 j = (i+1) % 3               # to generate 0, 1, 2, 0
                 k = (i+2) % 3
-                v1, v2, v3 = verts[i], verts[j], verts[k]
-                a, b, c = coords[v1], coords[v2], coords[v3]
+                v1, v2, = verts[i], verts[j]
+                a, b = coords[v1], coords[v2]
 
                 # UVS
                 w1, w2 = uvverts[i], uvverts[j]
@@ -141,6 +147,7 @@ class LoopApproximation:
                     if a_odd[i] != -1:
                         # not a boundary, so calculate interior vertex
                         #
+                        c = coords[verts[k]]
                         d = coords[a_odd[i]]
                         v = 0.375 *( a + b)+  0.125 *(c + d)
                     else:
@@ -207,7 +214,7 @@ class LoopApproximation:
                     self.nuvs[ucount] =  uvs[uvn]
                     ucount += 1
                 else:
-                    evenIndex[i] = self.evenVertsNew[verts[i]]
+                    evenIndex[i] = self.evenVertsNew[vi]
 
                 if uvn >= maxmesh:
                     oi = evenIndex[i]
@@ -225,8 +232,8 @@ class LoopApproximation:
             c = icount
             self.indices[c:c+12] = [
                 evenIndex[0], oddIndex[0], oddIndex[2],
-                evenIndex[1], oddIndex[1], oddIndex[0],
-                evenIndex[2], oddIndex[2], oddIndex[1],
+                oddIndex[0], evenIndex[1], oddIndex[1],
+                oddIndex[1], evenIndex[2], oddIndex[2],
                 oddIndex[0], oddIndex[1], oddIndex[2]
             ]
             icount += 12

@@ -136,6 +136,15 @@ class MHGraphicWindow(QWidget):
         self.focusSlider = SimpleSlider("Focal Length: ", 15, 200, self.focusChanged)
         vlayout.addWidget(self.focusSlider )
 
+    def poseViews(self, param):
+        nbutton = self.buttons[16][0]
+        if param:
+            nbutton.setEnabled(False)
+            nbutton.setToolTip('face normals cannot be recalculated in pose and render view')
+        else:
+            nbutton.setEnabled(True)
+            nbutton.setToolTip('Recalculate face normals')
+
     def renderView(self, param):
         hbutton = self.buttons[10][0]
         if param:
@@ -144,6 +153,7 @@ class MHGraphicWindow(QWidget):
         else:
             hbutton.setEnabled(True)
             hbutton.setToolTip('do not delete vertices under clothes')
+        self.poseViews(param)
 
     def screenShot(self, param):
         icon = self.view.grabFramebuffer()

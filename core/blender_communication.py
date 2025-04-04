@@ -2,6 +2,8 @@
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
 
+    Classes:
+    * blendCom
 
     new Blender exchange format similar to glTF, so binary buffers for
     verts, vertex per faces, faces, uvs => to read with from_pydata() in Blender

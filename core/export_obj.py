@@ -1,6 +1,13 @@
 """
-wavefront exporter
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Classes:
+    * objExport
+
+    wavefront exporter
 """
+
 import os
 import numpy as np
 

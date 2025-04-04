@@ -1,40 +1,44 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
+
+    Classes:
+    * stlExport
+
+    stl exporter
+
+    posed can be achieved by setting the option to pose
+
+ASCII STL just contains zillions of triangles without any order + normals on these triangles
+
+solid name
+
+facet normal ni nj nk
+  outer loop
+    vertex v1x v1y v1z
+    vertex v2x v2y v2z
+    vertex v3x v3y v3z
+  endloop
+endfacet
+
+endsolid
+
+Binary STL starts a bit odd ===================
+
+80 bytes of something (usually full of 0-bytes but sometimes different)
+Uint32 number of triangles
+
+then per triangle:
+REAL32[3] – Normal vector
+REAL32[3] – Vertex 1
+REAL32[3] – Vertex 2
+REAL32[3] – Vertex 3
+UINT16    – Attribute byte count  (which can be used for everything but mostly is zero)
 """
-#
-# ASCII STL just contains zillions of triangles without any order + normals on these triangles
-#
-# solid name
-#
-# facet normal ni nj nk      
-#   outer loop
-#     vertex v1x v1y v1z
-#     vertex v2x v2y v2z
-#     vertex v3x v3y v3z
-#   endloop
-# endfacet
-#
-# endsolid
-#
-# Binary STL starts a bit odd ===================
-#
-# 80 bytes of something (usually full of 0-bytes but sometimes different)
-# Uint32 number of triangles
-#
-# then per triangle:
-# REAL32[3] – Normal vector
-# REAL32[3] – Vertex 1
-# REAL32[3] – Vertex 2
-# REAL32[3] – Vertex 3
-# UINT16    – Attribute byte count  (which can be used for everything but mostly is zero)
 
 import struct
 
 class stlExport:
-    """
-    posed can be achieved by setting the option to pose
-    """
     def __init__(self, glob, exportfolder, hidden=False, scale=1.0):
         self.exportfolder = exportfolder
         self.env = glob.env

@@ -1,3 +1,15 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Functions:
+    * memInfo
+    * dumper
+
+    Classes:
+    * measureTime
+"""
+
 import psutil
 import time
 

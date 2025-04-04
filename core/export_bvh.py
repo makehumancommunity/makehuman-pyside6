@@ -1,14 +1,19 @@
 """
-bvh exporter
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
 
-in export we use order XYZ always
-atm only rotation is used for all bones except root
+    Classes:
+    * bvhExport
 
-Options:
+    bvh exporter
 
-* on ground is used on each frame for root bone
-* scale must be for offsets and positions in frames
+    in export we use order XYZ always
+    atm only rotation is used for all bones except root
 
+    Options:
+
+    * on ground is used on each frame for root bone
+    * scale must be for offsets and positions in frames
 """
 import os
 import numpy as np

@@ -1,20 +1,22 @@
 """
     License information: data/licenses/makehuman_license.txt
     Author: black-punkduck
-"""
-import os
-import json
-import struct
-import numpy as np
-from obj3d.skeleton import skeleton as newSkeleton
 
-"""
+    Classes:
+    * gltfExport
+
     GLTF module:
     Orientation
     + Y = up
     + z = to front
     + x = right
 """
+
+import os
+import json
+import struct
+import numpy as np
+from obj3d.skeleton import skeleton as newSkeleton
 
 class gltfExport:
     def __init__(self, glob, exportfolder, hiddenverts=False, onground=True, animation=False, scale =0.1):

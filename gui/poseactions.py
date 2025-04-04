@@ -130,6 +130,7 @@ class AnimPlayer(QVBoxLayout):
         self.addLayout(layout)
 
     def enter(self):
+        self.glob.midColumn.poseViews(True)
         self.loopbutton.setChecked(False)
         self.rotSkyBox.setChecked(False)
         self.mesh.createWCopy()
@@ -153,6 +154,7 @@ class AnimPlayer(QVBoxLayout):
         self.bc.in_posemode = False         # must be before prepare skeleton
         self.view.prepareSkeleton(False)    # reset to unposed
         self.bc.updateAttachedAssets()
+        self.glob.midColumn.poseViews(False)
         self.view.Tweak()
 
     def changeFaceAnim(self, param):

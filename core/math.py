@@ -1,13 +1,21 @@
+"""
+    License information: data/licenses/makehuman_license.txt
+    Author: black-punkduck
+
+    Functions:
+    * eulerMatrixXYZ                  Euler rotation, fixed order
+    * eulerMatrix                     Euler rotation, order must be given as e.g. yzx
+    * quaternionToRotMatrix           Return homogeneous rotation matrix from quaternion.
+    * quaternionFromMatrix            Return quaternion from rotation matrix.
+    * quaternionMult                  Return multiplication of two quaternions.
+    * quaternionSlerp                 Return spherical linear interpolation between two quaternions.
+    * quaternionSlerpFromMatrix       do a slerp from Restmatix by ratio
+    * rotMatrix                       calculate rotation matrix by angle and direction
+    * changeOrientation               calculate orientations like 'yUpFaceZ', 'yUpFaceX', 'zUpFaceNegY',  'zUpFaceX'
+"""
+
 import math
 import numpy as np
-
-"""
-quaternionToRotMatrix           Return homogeneous rotation matrix from quaternion.
-quaternionFromMatrix            Return quaternion from rotation matrix.
-quaternionMult                  Return multiplication of two quaternions.
-quaternionSlerp                 Return spherical linear interpolation between two quaternions.
-quaternionSlerpFromMatrix       do a slerp from Restmatix by ratio
-"""
 
 _EPS = np.finfo(float).eps * 4.0
 
