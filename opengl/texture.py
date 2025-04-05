@@ -11,9 +11,16 @@
 from PySide6.QtOpenGL import QOpenGLTexture
 from PySide6.QtGui import QImage, QColor
 from PySide6.QtCore import QSize, Qt
+import os
 
 class TextureRepo():
-    def __init__(self):
+    """
+    texture repo contains information about loaded textures
+    key is the filename, values are: [ openGL texture, usage, filedate, mhtex ]
+    if filedate is "0" it is a generated texture
+    """
+    def __init__(self, glob):
+        self.glob = glob
         self.textures = {}
         self.systextures = {}
 
@@ -22,14 +29,14 @@ class TextureRepo():
 
     def show(self):
         for t in self.textures.keys():
-            print (t, self.textures[t][1])
+            print (t, self.textures[t][1], self.textures[t][2])
 
-    def add(self, path, texture, textype="user"):
+    def add(self, path, texture, timestamp, mhtex, textype="user"):
         if textype == "system":
-            self.systextures[path] = [texture, 1]
+            self.systextures[path] = [texture, 1, 0, None]
         else:
             if path not in self.textures:
-                self.textures[path] = [texture, 1]
+                self.textures[path] = [texture, 1, timestamp, mhtex]
 
     def exists(self, path):
         if path in self.textures:
@@ -49,6 +56,18 @@ class TextureRepo():
                     t[elem][0].destroy()
                     del t[elem]
                 return
+
+    def refresh(self):
+        for name, v in self.textures.items():
+            # do not work with filedate 0 (means generated map)
+            if v[2] != 0:
+                if os.path.isfile(name):
+                    timestamp = int(os.stat(name).st_mtime)
+                    if timestamp > v[2]:
+                        v[0] = v[3].refresh(name)
+                        v[2] = timestamp
+                else:
+                    self.glob.env.logLine(1, name + " does not exist, no reload.")
 
     def cleanup(self, textype="user"):
         """
@@ -102,9 +121,8 @@ class MH_Texture():
         image = QImage(QSize(1,1),QImage.Format_ARGB32)
         image.fill(color)
         self.texture = self.create(name, image)
-        self.repo.add(name, self.texture, self.textype)
+        self.repo.add(name, self.texture, 0, None, self.textype)
         return self.texture
-
 
     def load(self, path):
         """
@@ -115,10 +133,19 @@ class MH_Texture():
             self.repo.inc(path)
             return texture
 
+        timestamp = int(os.stat(path).st_mtime)
         image = QImage(path)
         self.create(path, image)
-        self.repo.add(path, self.texture)
+        self.repo.add(path, self.texture, timestamp, self)
         return self.texture
+
+    def refresh(self, path):
+        # print ("refresh: ", path)
+        self.destroy()
+        image = QImage(path)
+        self.create(path, image)
+        return self.texture
+
 
 class MH_Thumb():
     def __init__(self, maxsize=128):

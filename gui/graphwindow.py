@@ -59,6 +59,9 @@ class MHGraphicWindow(QWidget):
         self.debug = False
         super().__init__()
 
+        self.textrecalc = "Recalculate normals and reload changed textures"
+        self.texthidden = "do not delete vertices under clothes"
+
         # bind keys to action and set up event filter
         #
         self.funcDict = {
@@ -99,13 +102,13 @@ class MHGraphicWindow(QWidget):
             [None, "XY-Grid","xygrid.png", self.toggle_grid,3, 1, True ],
             [None, "YZ-Grid","yzgrid.png", self.toggle_grid,3, 2, True ],
             [None, "Floor-Grid","xzgrid.png", self.toggle_grid, 3, 3, True ],
-            [None, "Show hidden vertices", "unhide.png", self.changeHidden, 4, 0, True ],
+            [None, self.texthidden, "unhide.png", self.changeHidden, 4, 0, True ],
             [None, "Visualize skeleton", "an_skeleton.png", self.toggle_objects, 4, 1, True ],
             [None, "Visualize mesh", "eq_proxy.png", self.toggle_wireframe, 4, 2, True ],
             [None, "Visualize hidden geometry", "ghost.png", self.toggle_transpassets, 4, 3, True ],
             [None, "Perspective", "persp.png", self.toggle_perspective, 5, 0, True ],
             [None, "Skybox","skybox.png",self.toggle_skybox, 5, 1, True ],
-            [None, "Recalculate normals","normals.png",self.recalc_normals, 5, 2, False ],
+            [None, self.textrecalc, "recalc.png",self.recalc_graph, 5, 2, False ],
             [None, "Grab screen", "camera.png",  self.screenShot, 5, 3, False]
         ]
 
@@ -143,7 +146,7 @@ class MHGraphicWindow(QWidget):
             nbutton.setToolTip('face normals cannot be recalculated in pose and render view')
         else:
             nbutton.setEnabled(True)
-            nbutton.setToolTip('Recalculate face normals')
+            nbutton.setToolTip(self.textrecalc)
 
     def renderView(self, param):
         hbutton = self.buttons[10][0]
@@ -152,7 +155,7 @@ class MHGraphicWindow(QWidget):
             hbutton.setToolTip('hidden geometry cannot be changed in render view')
         else:
             hbutton.setEnabled(True)
-            hbutton.setToolTip('do not delete vertices under clothes')
+            hbutton.setToolTip(self.texthidden)
         self.poseViews(param)
 
     def screenShot(self, param):
@@ -272,9 +275,11 @@ class MHGraphicWindow(QWidget):
         if self.debug:
             self.camChanged()
 
-    def recalc_normals(self):
+    def recalc_graph(self):
+        self.glob.textureRepo.refresh()
         if self.glob.baseClass is not None:
             self.glob.baseClass.updateNormals()
+        self.view.Tweak()
 
     def stop_anim(self):
         self.view.stopAnimation()

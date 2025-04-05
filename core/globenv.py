@@ -47,7 +47,7 @@ class globalObjects():
                 "Stop Animation": "Esc", "Toggle Perspective": "Num+0"
                 }
 
-        self.textureRepo = TextureRepo()
+        self.textureRepo = TextureRepo(self)
         self.apiSocket = None              # will contain socket for applications
         self.reset()
 
