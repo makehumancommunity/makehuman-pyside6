@@ -13,6 +13,10 @@ from OpenGL import GL as gl
 import os
 
 class OpenGLSkyBox:
+    """
+    create a 2048x2048 skybox from files named posx, negx, posy, negy, posz, negz
+    with suffix .png or .jpg
+    """
     def __init__(self, glob, glprog, glfunc):
         self.glob = glob
         self.env  = glob.env
@@ -22,6 +26,9 @@ class OpenGLSkyBox:
         self.vbuffer = None
         self.model_matrix = QMatrix4x4()
         self.y_rotation = 0.0
+        self.cubemap = [[None, "posx", QOpenGLTexture.CubeMapPositiveX], [None, "negx", QOpenGLTexture.CubeMapNegativeX],
+                        [None, "posy", QOpenGLTexture.CubeMapPositiveY], [None, "negy", QOpenGLTexture.CubeMapNegativeY],
+                        [None, "posz", QOpenGLTexture.CubeMapPositiveZ], [None, "negz", QOpenGLTexture.CubeMapNegativeZ]]
 
     def create(self, skyboxname):
         shaderpath = self.env.existDataDir("shaders", "skybox", skyboxname)
@@ -35,20 +42,20 @@ class OpenGLSkyBox:
         self.texture.setSize(2048, 2048)
         self.texture.create()
         self.texture.setFormat(QOpenGLTexture.RGBAFormat)
-
-        for i, elem in enumerate (["posx.jpg", "negx.jpg", "posy.jpg", "negy.jpg", "posz.jpg", "negz.jpg"]):
-            filename = os.path.join(shaderpath, elem)
-            self.image[i] = QImage(filename)
-
         self.texture.allocateStorage()
 
-        self.texture.setData(0, 0, QOpenGLTexture.CubeMapPositiveX, QOpenGLTexture.RGBA, QOpenGLTexture.UInt8, self.image[0].bits())
-        self.texture.setData(0, 0, QOpenGLTexture.CubeMapNegativeX, QOpenGLTexture.RGBA, QOpenGLTexture.UInt8, self.image[1].bits())
-        self.texture.setData(0, 0, QOpenGLTexture.CubeMapPositiveY, QOpenGLTexture.RGBA, QOpenGLTexture.UInt8, self.image[2].bits())
-        self.texture.setData(0, 0, QOpenGLTexture.CubeMapNegativeY, QOpenGLTexture.RGBA, QOpenGLTexture.UInt8, self.image[3].bits())
-        self.texture.setData(0, 0, QOpenGLTexture.CubeMapPositiveZ, QOpenGLTexture.RGBA, QOpenGLTexture.UInt8, self.image[4].bits())
-        self.texture.setData(0, 0, QOpenGLTexture.CubeMapNegativeZ, QOpenGLTexture.RGBA, QOpenGLTexture.UInt8, self.image[5].bits())
-
+        for i, elem in enumerate (self.cubemap):
+            path = os.path.join(shaderpath, elem[1])
+            pfile = path + ".png"
+            jfile = path + ".jpg"
+            if os.path.isfile(pfile):
+                path = pfile
+            elif os.path.isfile(jfile):
+                path = jfile
+            else:
+                continue
+            elem[0] = QImage(path)
+            self.texture.setData(0, 0, elem[2], QOpenGLTexture.RGBA, QOpenGLTexture.UInt8, elem[0].bits())
 
         self.texture.setMinMagFilters(QOpenGLTexture.Linear, QOpenGLTexture.Linear)
         self.texture.setWrapMode(QOpenGLTexture.ClampToEdge)
@@ -67,9 +74,6 @@ class OpenGLSkyBox:
         self.vbuffer.create()
         self.vbuffer.bind()
         self.vbuffer.allocate(skyboxVerts, len(skyboxVerts)*4)
-
-        self.prog.enableAttributeArray(0)
-        self.prog.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3, 3 * 4)
         return True
 
     def delete(self):
@@ -78,7 +82,6 @@ class OpenGLSkyBox:
         if self.texture is not None:
             self.texture.destroy()
 
-
     def setYRotation(self, rot):
         self.y_rotation = rot
 
@@ -86,15 +89,13 @@ class OpenGLSkyBox:
         self.prog.bind()
         self.func.glEnable(gl.GL_DEPTH_TEST)
         self.func.glDepthFunc(gl.GL_LEQUAL);
-        key = self.prog.uniformLocation("uModelMatrix")
         self.model_matrix.setToIdentity()
         if self.y_rotation != 0.0:
             self.model_matrix.rotate(self.y_rotation, 0.0, 1.0, 0.0)
         self.model_matrix = projection * self.model_matrix
 
-        #self.prog.setUniformValue(key, projection)
+        key = self.prog.uniformLocation("uModelMatrix")
         self.prog.setUniformValue(key, self.model_matrix)
-
         self.vbuffer.bind()
         self.prog.enableAttributeArray(0)
         self.prog.setAttributeBuffer(0, gl.GL_FLOAT, 0, 3, 3 * 4)
