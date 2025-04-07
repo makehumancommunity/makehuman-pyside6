@@ -199,13 +199,16 @@ class AnimPlayer(QVBoxLayout):
         self.setFrame(0)
 
     def prevframe(self):
-        self.setFrame(self.anim.currentFrame - 1)
+        if self.anim is not None:
+            self.setFrame(self.anim.currentFrame - 1)
 
     def nextframe(self):
-        self.setFrame(self.anim.currentFrame + 1)
+        if self.anim is not None:
+            self.setFrame(self.anim.currentFrame + 1)
 
     def lastframe(self):
-        self.setFrame(self.anim.frameCount -1)
+        if self.anim is not None:
+            self.setFrame(self.anim.frameCount -1)
 
     def frameFeedback(self):
         self.frameSlider.setSliderValue(self.anim.currentFrame)

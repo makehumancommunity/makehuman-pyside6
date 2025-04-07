@@ -37,7 +37,6 @@ class OpenGLSkyBox:
             return False
 
         # textures
-        self.image = [ None, None, None, None, None, None ]
         self.texture = QOpenGLTexture(QOpenGLTexture.TargetCubeMap)
         self.texture.setSize(2048, 2048)
         self.texture.create()
