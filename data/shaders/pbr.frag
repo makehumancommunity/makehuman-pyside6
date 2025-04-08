@@ -20,6 +20,7 @@ in VS_OUT {
     vec2 TexCoords;
 } fs_in;
 
+uniform samplerCube skybox;
 uniform sampler2D Texture;
 uniform sampler2D AOTexture;
 uniform sampler2D MRTexture;
@@ -29,6 +30,7 @@ uniform float AOMult;
 uniform float RoMult;
 uniform float MeMult;
 uniform float EmMult;
+uniform bool useSky;
 
 uniform vec4 ambientLight;
 uniform vec3 viewPos;
@@ -148,6 +150,12 @@ void main()
 
 	// emissive map
 	color.xyz += EmMult * em;
+
+	// cubemap
+	if (useSky) {
+		vec3 r = reflect(viewPos, normalize(fs_in.Normal));
+		color.xyz += color.xyz * vec3(texture(skybox, r)) * metallic;
+	}
 
 	FragColor = vec4(clamp(color, 0.0, 1.0), transp);
 }

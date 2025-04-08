@@ -267,10 +267,17 @@ class RenderedObject:
                 self.mrmap.bind()
 
                 functions.glUniform1f(shader.uniforms['EmMult'], self.material.emissiveFactor)
-
                 functions.glUniform1i(shader.uniforms['EMTexture'], 3)
                 functions.glActiveTexture(gl.GL_TEXTURE3)
                 self.emmap.bind()
+
+                if light.skybox is True and self.parent.skybox is not None:
+                    functions.glUniform1i(shader.uniforms['useSky'], True)
+                    functions.glUniform1i(shader.uniforms['skybox'], 4)
+                    functions.glActiveTexture(gl.GL_TEXTURE4)
+                    self.parent.skybox.getTexture().bind()
+                else:
+                    functions.glUniform1i(shader.uniforms['useSky'], False)
 
             elif self.material.shader == "normal":
                 functions.glUniform1f(shader.uniforms['AOMult'], self.material.aomapIntensity)

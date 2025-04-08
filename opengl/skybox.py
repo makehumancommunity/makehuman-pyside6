@@ -30,6 +30,9 @@ class OpenGLSkyBox:
                         [None, "posy", QOpenGLTexture.CubeMapPositiveY], [None, "negy", QOpenGLTexture.CubeMapNegativeY],
                         [None, "posz", QOpenGLTexture.CubeMapPositiveZ], [None, "negz", QOpenGLTexture.CubeMapNegativeZ]]
 
+    def getTexture(self):
+        return self.texture
+
     def create(self, skyboxname):
         shaderpath = self.env.existDataDir("shaders", "skybox", skyboxname)
 
