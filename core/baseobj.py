@@ -280,7 +280,7 @@ class baseClass():
         # skeleton
         #
         if self.skeleton is not None:
-            fp.write ("skeleton " + self.skeleton.name + "\n")
+            fp.write ("skeleton " + os.path.basename(self.skeleton.filename) + "\n")
 
         fp.close()
         return (True)

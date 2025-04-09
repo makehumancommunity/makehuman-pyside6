@@ -14,7 +14,8 @@ class skeleton:
     def __init__(self, glob, name):
         self.glob = glob
         self.env  = glob.env
-        self.name = name
+        self.name = name            # maybe replaced by json
+        self.filename = None
         self.newSkeleton()
 
     def newSkeleton(self):

@@ -86,6 +86,8 @@ class TextureBox(QGroupBox):
             self.label.setText("None")
         self.slider1text()
         self.slider2text()
+        self.slider1set()
+        self.slider2set()
         if redisplay:
             self.Tweak()
 
@@ -118,12 +120,12 @@ class TextureBox(QGroupBox):
                 self.intensity2.setLabelText(self.slider2[2])
 
     def slider1set(self):
-        if hasattr(self.material, self.slider1attr):
-            item = getattr(self.material, self.slider1attr)
-            self.intensity1.setSliderValue(item * 100)
+        if self.slider1 is not None and hasattr(self.material, self.slider1attr):
+                item = getattr(self.material, self.slider1attr)
+                self.intensity1.setSliderValue(item * 100)
 
     def slider2set(self):
-        if hasattr(self.material, self.slider2attr):
+        if self.slider2 is not None and hasattr(self.material, self.slider2attr):
             item = getattr(self.material, self.slider2attr)
             self.intensity2.setSliderValue(item * 100)
 
