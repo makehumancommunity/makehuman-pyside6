@@ -82,7 +82,8 @@ class MHMainWindow(QMainWindow):
                 { "func": None, "menu": None, "name": "poses", "mode": 0 },
                 { "func": None, "menu": None, "name": "animation", "mode": 0 },
                 { "func": None, "menu": None, "name": "expressions", "mode": 0 },
-                { "func": None, "menu": None, "name": "expression editor", "mode": 0 }
+                { "func": None, "menu": None, "name": "expression editor", "mode": 0 },
+                { "func": None, "menu": None, "name": "pose editor", "mode": 0 }
         ]
 
         self.model_buttons = [ 
@@ -123,7 +124,8 @@ class MHMainWindow(QMainWindow):
                 { "button": None, "icon": "an_pose.png", "tip": "Load pose or animation", "func": self.callCategory},
                 { "button": None, "icon": "an_movie.png", "tip": "Play animation", "func": self.callCategory},
                 { "button": None, "icon": "an_expression.png", "tip": "Expressions", "func": self.callCategory},
-                { "button": None, "icon": "an_expressedit.png", "tip": "Expression editor", "func": self.callCategory}
+                { "button": None, "icon": "an_expressedit.png", "tip": "Expression editor", "func": self.callCategory},
+                { "button": None, "icon": "an_modpose.png", "tip": "Pose editor", "func": self.callCategory}
             ], [
             ]
         ]
@@ -482,7 +484,7 @@ class MHMainWindow(QMainWindow):
                 self.lastClass = AnimMode(self.glob)
                 layout = self.animation[self.category_mode]["func"].leftPanel()
                 self.LeftBox.addLayout(layout)
-            else:
+            elif self.category_mode == 4:
                 self.leftColumn.setTitle("Expressions :: editor")
                 self.lastClass = AnimExpressionEdit(self, self.glob)
                 filterparam = self.glob.baseClass.getFaceUnits().createFilterDict()
@@ -491,6 +493,9 @@ class MHMainWindow(QMainWindow):
                 self.LeftBox.addWidget(self.qTree)
                 layout = self.lastClass.addClassWidgets()
                 self.LeftBox.addLayout(layout)
+            else:
+                ErrorBox(self.central_widget, "not yet implemented")
+                return
 
         elif self.tool_mode == 4:
             self.leftColumn.setTitle("Rendering :: parameters")

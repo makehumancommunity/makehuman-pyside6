@@ -13,7 +13,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from gui.common import IconButton, WorkerThread, ErrorBox, MHFileRequest
 from gui.slider import ScaleComboItem, SimpleSlider
-from obj3d.animation import FaceUnits, MHPose
+from obj3d.animation import PosePrims, MHPose
 import os
 import time
 
@@ -419,7 +419,13 @@ class AnimExpressionEdit():
         for elem in self.expressions:
             if elem.value != 0.0:
                 blends.append([elem.mat, elem.value])
-        self.baseClass.pose_skeleton.posebyBlends(blends, None)
+
+        # change if there are blends, otherwise reset to rest pose
+        #
+        if len(blends) > 0:
+            self.baseClass.pose_skeleton.posebyBlends(blends, None)
+        else:
+            self.baseClass.restPose()
         self.view.Tweak()
 
     def leave(self):

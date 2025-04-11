@@ -6,7 +6,7 @@
     * BVHJoint
     * BVH
     * MHPose
-    * FaceUnits
+    * PosePrims
 """
 import numpy as np
 import core.math as mquat
@@ -248,13 +248,13 @@ class BVH():
                     joint.identFinal()
 
 
-    def debugChanged(self):
+    def debugChanged(self, num):
         np.set_printoptions(precision=3, suppress=True)
         restmatrix= np.zeros((3,4), dtype=np.float32)
         restmatrix[:3,:3] = np.identity(3, dtype=np.float32)
         print ("Frame: " + str(self.currentFrame))
         for joint in self.bvhJointOrder:
-            m = np.round(joint.matrixPoses[self.currentFrame], decimals=3)
+            m = np.round(joint.matrixPoses[num], decimals=3)
             if not np.array_equiv(m,restmatrix):
                 if np.where(~m.any(axis=0))[0] == 3:
                     s = list(m[:3,:3].flatten())
@@ -369,7 +369,7 @@ class MHPose():
         json["name"] = self.name
         return(self.env.writeJSON(filename, json))
 
-class FaceUnits():
+class PosePrims():
     def __init__(self, glob):
         self.glob = glob
         self.env = glob.env
@@ -387,29 +387,30 @@ class FaceUnits():
             self.filterparam.append(elem)
         return (self.filterparam)
 
-    def load(self):
-        filename =self.env.existDataFile("base", self.env.basename, "face-poses.json")
+    def load(self, name):
+        filename =self.env.existDataFile("base", self.env.basename, name)
         if filename is None:
-            return (False, "face-poses.json not existent")
+            return (False, name + "is not existent")
 
-        faceunits = self.env.readJSON(filename)
-        if faceunits is None:
+        prims = self.env.readJSON(filename)
+        if prims is None:
             return (False, self.env.last_error)
 
         # create a bone mask and collect groups, convert to posematrix
 
-        for elem in faceunits:
-            if "group" in faceunits[elem]:
-                g = faceunits[elem]["group"]
+        for val in prims.values():
+            if "group" in val:
+                g = val["group"]
                 if g not in self.groups:
                     self.groups.append(g)
 
-            if "bones" in faceunits[elem]:
-                g =  faceunits[elem]["bones"]
+            if "bones" in val:
+                g = val["bones"]
                 for bone in g:
                     g[bone] = np.asarray(g[bone], dtype=np.float32).reshape(3,3)
                     if bone not in self.bonemask:
                         self.bonemask.append(bone)
-        self.units = faceunits
+
+        self.units = prims
         return (True, "Okay")
 

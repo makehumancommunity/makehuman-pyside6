@@ -13,7 +13,7 @@ from core.target import Targets
 from core.attached_asset import attachedAsset
 from obj3d.object3d import object3d
 from obj3d.skeleton import skeleton
-from obj3d.animation import BVH, MHPose, FaceUnits
+from obj3d.animation import BVH, MHPose, PosePrims
 from core.debug import memInfo, dumper
 from core.target import Modelling
 from gui.common import WorkerThread, ErrorBox
@@ -82,8 +82,10 @@ class baseClass():
         self.bvh = None             # indicates that object is posed
         self.expression = None      # indicates that expressions are used
         self.faceunits  = None      # indicates that face-units are initalized
+        self.bodyunits  = None      # indicates that body-units are initalized
         self.hide_verts = True      # hide vertices
         self.getFaceUnits()         # get face-units to use the bone mask
+        self.getBodyUnits()         # get face-units to use the bone mask
 
     def loadMHMFile(self, filename, verbose=None):
         """
@@ -473,7 +475,7 @@ class baseClass():
 
     def showPose(self):
         self.pose_skeleton.pose(self.bvh.joints, self.bvh.currentFrame)
-        #self.bvh.debugChanged()
+        #self.bvh.debugChanged(self.bvh.currentFrame)
         self.glob.openGLWindow.Tweak()
 
     def showExpression(self):
@@ -510,13 +512,23 @@ class baseClass():
 
     def getFaceUnits(self):
         if self.faceunits is None:
-            m = FaceUnits(self.glob)
-            loaded, msg = m.load()
+            m = PosePrims(self.glob)
+            loaded, msg = m.load("face-poses.json")
             if not loaded:
                 self.env.logLine(1, "faceUnits: " + msg)
-                return (None)
+                return None
             self.faceunits = m
-        return (self.faceunits)
+        return self.faceunits
+
+    def getBodyUnits(self):
+        if self.bodyunits is None:
+            m = PosePrims(self.glob)
+            loaded, msg = m.load("body-poses.json")
+            if not loaded:
+                self.env.logLine(1, "bodyUnits: " + msg)
+                return None
+            self.bodyunits = m
+        return self.bodyunits
  
     def addExpression(self, name, path):
         if self.pose_skeleton is None:

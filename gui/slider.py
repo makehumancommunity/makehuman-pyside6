@@ -133,7 +133,7 @@ class ScaleCombo(QWidget):
         self.comboLayout.setContentsMargins(self.margin,self.margin, self.margin,self.margin +5)
         self.spinLayout = QHBoxLayout()
         self.dSpinBox = QDoubleSpinBox()
-        self.dSpinBox.setRange(-100.0, 100.0)
+        self.dSpinBox.setRange(self.min, self.max)
         self.dSpinBox.setSingleStep(0.01)
         self.dSpinBox.setValue(self.elem.value)
         self.dSpinBox.valueChanged.connect(self.dspinValueChanged)
