@@ -252,7 +252,7 @@ class BVH():
         np.set_printoptions(precision=3, suppress=True)
         restmatrix= np.zeros((3,4), dtype=np.float32)
         restmatrix[:3,:3] = np.identity(3, dtype=np.float32)
-        print ("Frame: " + str(self.currentFrame))
+        print ("Frame: " + str(num))
         for joint in self.bvhJointOrder:
             m = np.round(joint.matrixPoses[num], decimals=3)
             if not np.array_equiv(m,restmatrix):
@@ -319,6 +319,7 @@ class BVH():
                 words = fp.readline().split()
                 data = [float(word) for word in words]
                 self.calcLocRotMat(i, data)
+                #self.debugChanged(i)
 
         # self.debugJoints("lowerarm02.L")
         # make a copy of the pointers

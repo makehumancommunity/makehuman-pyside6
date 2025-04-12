@@ -85,7 +85,24 @@ class baseClass():
         self.bodyunits  = None      # indicates that body-units are initalized
         self.hide_verts = True      # hide vertices
         self.getFaceUnits()         # get face-units to use the bone mask
-        self.getBodyUnits()         # get face-units to use the bone mask
+        self.getBodyUnits()         # get body-units to use the bone mask
+
+    def setPoseMode(self):
+        self.baseMesh.createWCopy()
+        self.restPose()
+        self.precalculateAssetsInRestPose()
+        self.pose_skeleton.newGeometry()
+        self.glob.openGLWindow.prepareSkeleton(True)
+        self.glob.openGLWindow.Tweak()
+        self.in_posemode = True
+
+    def setStandardMode(self):
+        self.baseMesh.resetFromCopy()
+        self.restPose()
+        self.updateAttachedAssets()
+        self.in_posemode = False
+        self.glob.openGLWindow.prepareSkeleton(False)
+        self.glob.openGLWindow.Tweak()
 
     def loadMHMFile(self, filename, verbose=None):
         """

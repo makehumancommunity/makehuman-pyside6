@@ -20,7 +20,8 @@ from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.randomwindow import RandomForm, RandomValues
 from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport, ExportLeftPanel, ExportRightPanel
-from gui.poseactions import AnimPlayer, AnimMode, AnimExpressionEdit
+from gui.poseactions import AnimPlayer, AnimMode
+from gui.poseeditor import AnimExpressionEdit, AnimPoseEdit
 from gui.slider import ScaleComboArray
 from gui.imageselector import ImageSelection
 from gui.renderer import Renderer
@@ -62,6 +63,7 @@ class MHMainWindow(QMainWindow):
         self.in_close = False
         self.targetfilter = None
         self.expressionfilter = None
+        self.posefilter = None
         self.bckproc = None         # background process is running
 
         self.tool_mode = 0          # 0 = files, 1 = modelling, 2 = equipment, 3 = pose, 4 = render, 10 = information
@@ -494,8 +496,14 @@ class MHMainWindow(QMainWindow):
                 layout = self.lastClass.addClassWidgets()
                 self.LeftBox.addLayout(layout)
             else:
-                ErrorBox(self.central_widget, "not yet implemented")
-                return
+                self.leftColumn.setTitle("Pose :: editor")
+                self.lastClass = AnimPoseEdit(self, self.glob)
+                filterparam = self.glob.baseClass.getBodyUnits().createFilterDict()
+                self.qTree = MHTreeView(filterparam, "Categories", self.redrawNewPose, None)
+                self.posefilter = self.qTree.getStartPattern()
+                self.LeftBox.addWidget(self.qTree)
+                layout = self.lastClass.addClassWidgets()
+                self.LeftBox.addLayout(layout)
 
         elif self.tool_mode == 4:
             self.leftColumn.setTitle("Rendering :: parameters")
@@ -515,6 +523,19 @@ class MHMainWindow(QMainWindow):
             expressions = self.lastClass.fillExpressions()
             self.exprArray = ScaleComboArray(widget, expressions, self.expressionfilter, sweep)
             widget.setLayout(self.exprArray.layout)
+            scrollArea = QScrollArea()
+            scrollArea.setWidget(widget)
+            scrollArea.setWidgetResizable(True)
+            self.ToolBox.addWidget(scrollArea)
+
+    def drawPosePanel(self, text=""):
+        self.rightColumn.setTitle("Poses, category: " + text)
+        widget = QWidget()
+        sweep = os.path.join(self.glob.env.path_sysicon, "sweep.png")
+        if self.lastClass is not None:
+            poses = self.lastClass.fillPoses()
+            self.poseArray = ScaleComboArray(widget, poses, self.posefilter, sweep)
+            widget.setLayout(self.poseArray.layout)
             scrollArea = QScrollArea()
             scrollArea.setWidget(widget)
             scrollArea.setWidgetResizable(True)
@@ -585,6 +606,8 @@ class MHMainWindow(QMainWindow):
                 self.drawImageSelector(equip["func"], text, 13)
             elif self.category_mode == 4:
                 self.drawExpressionPanel(text)
+            elif self.category_mode == 5:
+                self.drawPosePanel(text)
             else:
                 return False
         else:
@@ -841,6 +864,17 @@ class MHMainWindow(QMainWindow):
         self.emptyLayout(self.ToolBox)
         self.expressionfilter = category
         self.drawExpressionPanel(text)
+        self.ToolBox.update()
+
+    def redrawNewPose(self, category, text=None):
+        print (category)
+        if category is None:
+            category =self.qTree.getLastCategory()
+        if text is None:
+            text =self.qTree.getLastHeadline()
+        self.emptyLayout(self.ToolBox)
+        self.posefilter = category
+        self.drawPosePanel(text)
         self.ToolBox.update()
 
     def finished_bckproc(self):

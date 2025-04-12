@@ -105,9 +105,7 @@ class Renderer(QVBoxLayout):
 
     def enter(self):
         if self.anim:
-            self.view.prepareSkeleton(True)
-            self.bc.pose_skeleton.newGeometry()
-            self.mesh.createWCopy()
+            self.bc.setPoseMode()
             self.setFrame(0)
         self.glob.midColumn.renderView(True)
 
@@ -122,9 +120,7 @@ class Renderer(QVBoxLayout):
 
         if self.anim and self.posed:
             self.setFrame(0)
-            self.mesh.resetFromCopy()
-            self.view.prepareSkeleton(False)
-            self.bc.updateAttachedAssets()
+            self.bc.setStandardMode()
 
         self.view.Tweak()
         self.glob.midColumn.renderView(False)
