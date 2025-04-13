@@ -13,7 +13,7 @@ from core.target import Targets
 from core.attached_asset import attachedAsset
 from obj3d.object3d import object3d
 from obj3d.skeleton import skeleton
-from obj3d.animation import BVH, MHPose, PosePrims
+from obj3d.animation import BVH, MHPose, PosePrims, MHPoseFaceConverter
 from core.debug import memInfo, dumper
 from core.target import Modelling
 from gui.common import WorkerThread, ErrorBox
@@ -559,7 +559,8 @@ class baseClass():
             self.restPose()
 
         self.expression = MHPose(self.glob, self.faceunits, name)
-        loaded, msg  = self.expression.load(path)
+        converter = MHPoseFaceConverter()
+        loaded, msg  = self.expression.load(path, converter.convert)
         if not loaded:
             self.env.logLine(1, "mhpose: " + path + " " + msg)
         else:

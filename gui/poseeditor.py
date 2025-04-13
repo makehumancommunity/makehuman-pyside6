@@ -4,6 +4,7 @@
 
     Classes:
     * PoseItem
+    * GenericPoseEdit
     * AnimExpressionEdit
     * AnimPoseEdit
 """
@@ -12,7 +13,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from gui.common import IconButton, ErrorBox, MHFileRequest
 from gui.slider import ScaleComboItem
-from obj3d.animation import PosePrims, MHPose
+from obj3d.animation import PosePrims, MHPose, MHPoseFaceConverter
 import os
 import time
 
@@ -21,6 +22,9 @@ class PoseItem(ScaleComboItem):
         super().__init__(name, icon)    # inherit attributs
         self.glob = glob
         self.callback = callback
+        if "reverse" in pose:
+            self.opposite = True
+            self.rmat = pose["reverse"]
         self.mat = pose["bones"]
         self.measure = None
         if "group" in pose:
@@ -44,62 +48,7 @@ class GenericPoseEdit():
         self.poses = []
         self.thumbimage = None
 
-    def addClassWidgets(self):
-        layout = QVBoxLayout()
-
-        # name
-        #
-        ilayout = QGridLayout()
-        ilayout.addWidget(QLabel("Pose name:"), 0, 0)
-        self.editname = QLineEdit("Pose")
-        ilayout.addWidget(self.editname, 0, 1)
-        ilayout.addWidget(IconButton(3,  os.path.join(self.env.path_sysicon, "reset.png"), "reset pose", self.resetButton))
-        layout.addLayout(ilayout)
-        return (layout)
-
-    def fillPoses(self, funits):
-        if len(self.poses) > 0 or funits is None:
-            return(self.poses)
-
-        default_icon = os.path.join(self.glob.env.path_sysicon, "empty_target.png")
-        for elem in funits.units.keys():
-            poses = funits.units[elem]
-            if "bones" in poses:
-                self.poses.append(PoseItem(self.glob, elem, default_icon, self.changedPoses, poses))
-        return(self.poses)
-
-    def resetPoseSliders(self):
-        for elem in self.poses:
-            elem.value = 0.0
-
-    def changedPoses(self):
-        blends = []
-        for elem in self.poses:
-            if elem.value != 0.0:
-                blends.append([elem.mat, elem.value])
-
-        # change if there are blends, otherwise reset to rest pose
-        #
-        if len(blends) > 0:
-            self.baseClass.pose_skeleton.posebyBlends(blends, None)
-        else:
-            self.baseClass.restPose()
-        self.view.Tweak()
-
-    def resetButton(self):
-        self.resetPoseSliders()
-        self.redraw(None)
-        self.baseClass.restPose()
-        self.view.Tweak()
-
-    def leave(self):
-        self.baseClass.setStandardMode()
-
-class AnimExpressionEdit(GenericPoseEdit):
-    def __init__(self, parent, glob):
-        super().__init__(parent, glob, parent.redrawNewExpression)    # inherit attributs
-
-    def addClassWidgets(self):
+    def addClassWidgets(self, default):
         layout = QVBoxLayout()
 
         # photo
@@ -115,7 +64,7 @@ class AnimExpressionEdit(GenericPoseEdit):
         #
         ilayout = QGridLayout()
         ilayout.addWidget(QLabel("Pose name:"), 0, 0)
-        self.editname = QLineEdit("Expression")
+        self.editname = QLineEdit(default)
         ilayout.addWidget(self.editname, 0, 1)
 
         ilayout.addWidget(QLabel("Author:"), 1, 0)
@@ -151,17 +100,54 @@ class AnimExpressionEdit(GenericPoseEdit):
             pixmap = QPixmap.fromImage(self.thumbimage)
         self.imglabel.setPixmap(pixmap)
 
+    def fillPoses(self, funits):
+        if len(self.poses) > 0 or funits is None:
+            return(self.poses)
+
+        default_icon = os.path.join(self.glob.env.path_sysicon, "empty_target.png")
+        for elem in funits.units.keys():
+            poses = funits.units[elem]
+            if "bones" in poses:
+                self.poses.append(PoseItem(self.glob, elem, default_icon, self.changedPoses, poses))
+        return(self.poses)
+
+    def resetPoseSliders(self):
+        for elem in self.poses:
+            elem.value = 0.0
+
+    def changedPoses(self):
+        blends = []
+        for elem in self.poses:
+            if elem.value < 0.0:
+                blends.append([elem.rmat, -elem.value])
+            elif elem.value > 0.0:
+                blends.append([elem.mat, elem.value])
+
+        # change if there are blends, otherwise reset to rest pose
+        #
+        if len(blends) > 0:
+            self.baseClass.pose_skeleton.posebyBlends(blends, None)
+        else:
+            self.baseClass.restPose()
+        self.view.Tweak()
+
     def thumbnail(self):
         self.thumbimage = self.view.createThumbnail()
         self.displayPixmap()
 
-    def loadButton(self):
-        directory = self.env.stdUserPath("expressions")
-        freq = MHFileRequest("Expressions", "expression files (*.mhpose)", directory)
+    def resetButton(self):
+        self.resetPoseSliders()
+        self.redraw(None)
+        self.baseClass.restPose()
+        self.view.Tweak()
+
+    def loadButton(self, path, getUnits, mask, convert=None):
+        directory = self.env.stdUserPath(path)
+        freq = MHFileRequest(path.capitalize(), path + " files (*.mhpose)", directory)
         filename = freq.request()
         if filename is not None:
-            pose = MHPose(self.glob, self.glob.baseClass.getFaceUnits(), "dummy")
-            (res, text) =  pose.load(filename)
+            pose = MHPose(self.glob, getUnits, "dummy")
+            (res, text) =  pose.load(filename, convert)
             if res is False:
                 ErrorBox(self.parent.central_widget, text)
                 return
@@ -175,12 +161,13 @@ class AnimExpressionEdit(GenericPoseEdit):
                 if elem.name in pose.poses:
                     elem.value =  pose.poses[elem.name] * 100
             self.redraw(None)
-            self.baseClass.pose_skeleton.posebyBlends(pose.blends, self.baseClass.faceunits.bonemask)
+            self.baseClass.pose_skeleton.posebyBlends(pose.blends, mask)
             self.view.Tweak()
 
-    def saveButton(self):
-        directory = self.env.stdUserPath("expressions")
-        freq = MHFileRequest("Expressions", "expression files (*.mhpose)", directory, save=".mhpose")
+
+    def saveButton(self, path, getUnits):
+        directory = self.env.stdUserPath(path)
+        freq = MHFileRequest(path.capitalize(), path + " files (*.mhpose)", directory, save=".mhpose")
         filename = freq.request()
         if filename is not None:
             print ("Save " + filename)
@@ -197,7 +184,7 @@ class AnimExpressionEdit(GenericPoseEdit):
             if cnt == 0:
                 ErrorBox(self.parent.central_widget, "No changes to save as pose.")
                 return
-            savepose = MHPose(self.glob, self.glob.baseClass.getFaceUnits(), name)
+            savepose = MHPose(self.glob, getUnits, name)
             json = {"name": name, "author": self.author.text(),
                     "licence": self.license.text(), "description": self.description.text(),
                     "tags": tags, "unit_poses": unit_poses }
@@ -207,6 +194,23 @@ class AnimExpressionEdit(GenericPoseEdit):
             if self.thumbimage is not None:
                 iconpath = filename[:-7] + ".thumb"
                 self.thumbimage.save(iconpath, "PNG", -1)
+
+    def leave(self):
+        self.baseClass.setStandardMode()
+
+class AnimExpressionEdit(GenericPoseEdit):
+    def __init__(self, parent, glob):
+        super().__init__(parent, glob, parent.redrawNewExpression)    # inherit attributs
+
+    def addClassWidgets(self):
+        return(super().addClassWidgets("Expression"))
+
+    def loadButton(self):
+        converter = MHPoseFaceConverter()
+        super().loadButton("expressions", self.glob.baseClass.getFaceUnits(), self.baseClass.faceunits.bonemask, converter.convert)
+
+    def saveButton(self):
+        super().saveButton("expressions", self.glob.baseClass.getFaceUnits())
 
     def fillExpressions(self):
         return (super().fillPoses(self.glob.baseClass.getFaceUnits()))
@@ -218,4 +222,13 @@ class AnimPoseEdit(GenericPoseEdit):
 
     def fillPoses(self):
         return (super().fillPoses(self.glob.baseClass.getBodyUnits()))
+
+    def addClassWidgets(self):
+        return(super().addClassWidgets("Pose"))
+
+    def saveButton(self):
+        super().saveButton("poses", self.glob.baseClass.getBodyUnits())
+
+    def loadButton(self):
+        super().loadButton("poses", self.glob.baseClass.getBodyUnits(), self.baseClass.bodyunits.bonemask)
 

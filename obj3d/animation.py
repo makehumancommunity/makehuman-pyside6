@@ -6,6 +6,7 @@
     * BVHJoint
     * BVH
     * MHPose
+    * MHPoseFaceConverter
     * PosePrims
 """
 import numpy as np
@@ -279,9 +280,12 @@ class BVH():
             joint.calculateRestMat()
 
     def load(self, filename):
+        if filename.endswith(".mhpose"):
+            self.env.last_error = "Reader of mhpose files not yet realized"
+            return False
+
         self.filename = filename
         self.env.logLine(8, "Load bvh " + filename)
-
         with open(filename, "r", encoding='utf-8') as fp:
             # starts with HIERARCHIE 
             # ROOT
@@ -330,7 +334,7 @@ class MHPose():
     """
     class for expressions
     """
-    def __init__(self, glob, faceunits, name):
+    def __init__(self, glob, units, name):
         self.glob = glob
         self.env = glob.env
         self.name = name
@@ -338,20 +342,21 @@ class MHPose():
         self.license =""
         self.author =""
         self.filename = None
-        self.units = faceunits.units
+        self.units = units.units
         self.blends = []
         self.tags = []
         self.poses = {}
 
-    def load(self, filename):
+    def load(self, filename, convert=None):
         self.filename = filename
         pose = self.env.readJSON(filename)
         if pose is None:
             return (False, self.env.last_error)
 
-        for elem in pose["unit_poses"]:
-            weight = pose["unit_poses"][elem]
-            print (elem, weight)
+        if convert:
+            pose = convert(pose)
+
+        for elem, weight in pose["unit_poses"].items():
             self.poses[elem] = weight
             if elem in self.units:
                 if "bones" in self.units[elem]:
@@ -363,12 +368,70 @@ class MHPose():
                 setattr (self, elem, pose[elem])
             else:
                 setattr (self, elem, "")
-        
         return (True, "Okay")
 
     def save(self, filename, json):
         json["name"] = self.name
         return(self.env.writeJSON(filename, json))
+
+class MHPoseFaceConverter():
+    def __init__(self):
+        self.reverse = {
+                "LeftUpperLidOpen": "LeftUpperLidClosed",
+                "RightUpperLidOpen": "RightUpperLidClosed",
+                "LeftEyeturnLeft": "LeftEyeturnRight",
+                "RightEyeturnLeft": "RightEyeturnRight",
+                "LeftEyeUp": "LeftEyeDown",
+                "RightEyeUp": "RightEyeDown"
+        }
+        self.rename = {
+                "LeftEyeturnRight": "LeftEyeturn",
+                "RightEyeturnRight": "RightEyeturn",
+                "LeftEyeDown": "LeftEyeUpDown",
+                "RightEyeDown": "RightEyeUpDown"
+        }
+
+    def convert(self, json):
+        deletes = []
+        newones = {}
+        u = json["unit_poses"]
+
+        # pass1 : replacement, avoids also contradictions
+        #
+        for key, val in u.items():
+            if key in self.reverse:
+                contrary = self.reverse[key]
+                if contrary in u:
+                    u[contrary] -= val
+                    deletes.append(key)
+                else:
+                    deletes.append(key)
+                    newones[contrary] = -val
+
+        # changes pass 1
+        #
+        for key in deletes:
+            del u[key]
+        for key, val in newones.items():
+            u[key] = val
+
+        # pass2 : renaming
+        #
+        deletes = []
+        newones = {}
+        for key, val in u.items():
+            if key in self.rename:
+                newname = self.rename[key]
+                deletes.append(key)
+                newones[newname] = val
+
+        # changes pass 2
+        #
+        for key in deletes:
+            del u[key]
+        for key, val in newones.items():
+            u[key] = val
+        return (json)
 
 class PosePrims():
     def __init__(self, glob):
@@ -397,7 +460,8 @@ class PosePrims():
         if prims is None:
             return (False, self.env.last_error)
 
-        # create a bone mask and collect groups, convert to posematrix
+        # create a bone mask and collect groups,
+        # in the dictionary the values are replaced by 3x3 posematrices instead of the array
 
         for val in prims.values():
             if "group" in val:
@@ -411,6 +475,11 @@ class PosePrims():
                     g[bone] = np.asarray(g[bone], dtype=np.float32).reshape(3,3)
                     if bone not in self.bonemask:
                         self.bonemask.append(bone)
+
+            if "reverse" in val:
+                g = val["reverse"]
+                for bone in g:
+                    g[bone] = np.asarray(g[bone], dtype=np.float32).reshape(3,3)
 
         self.units = prims
         return (True, "Okay")

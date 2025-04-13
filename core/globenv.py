@@ -712,7 +712,7 @@ class programInfo():
         (.mhclo, .proxy, .mhskel)
         """
         if subdir is None:
-            assetdirs = [[ ".proxy", "proxy"], [ ".mhskel", "rigs" ], [".mhpose", "expressions"], [".bvh", "poses"]]
+            assetdirs = [[ ".proxy", "proxy"], [ ".mhskel", "rigs" ], [".mhpose", "expressions"], [".bvh", "poses"], [".mhpose", "poses"]]
 
             (latest, files) = self.subDirsBaseFolder(".mhclo", None)
             for elem in assetdirs:
