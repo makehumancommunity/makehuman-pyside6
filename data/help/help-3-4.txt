@@ -4,7 +4,7 @@ This context is used to create own expressions. The expressions are not morphs, 
 by face bones. A final position of a set of bones was created and you need to decide, how much of this movement is used.
 So a "jaw drop" was created in a full open position and you can determine, how much
 this position should be used by dragging the slider on the right column.<p>
-All slider are one-sided sliders from 0-100 percent.
+Most sliders are one-sided sliders from 0-100 percent, some are double-sided and use -100 to 100 percent.
 <p>
 <b>To use one of the sliders, click on a icon in the right column, the slider will expand and it is possible
 to use different ways to enter the value. There is also a small "sweep" button to reset it to default.</b>
