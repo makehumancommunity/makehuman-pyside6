@@ -382,13 +382,21 @@ class MHPoseFaceConverter():
                 "LeftEyeturnLeft": "LeftEyeturnRight",
                 "RightEyeturnLeft": "RightEyeturnRight",
                 "LeftEyeUp": "LeftEyeDown",
-                "RightEyeUp": "RightEyeDown"
+                "RightEyeUp": "RightEyeDown",
+                "ChinRight": "ChinLeft",
+                "lowerLipUp": "lowerLipDown",
+                "lowerLipBackward": "lowerLipForward",
+                "UpperLipBackward": "UpperLipForward"
         }
         self.rename = {
                 "LeftEyeturnRight": "LeftEyeturn",
                 "RightEyeturnRight": "RightEyeturn",
                 "LeftEyeDown": "LeftEyeUpDown",
-                "RightEyeDown": "RightEyeUpDown"
+                "RightEyeDown": "RightEyeUpDown",
+                "ChinLeft": "ChinRotate",
+                "lowerLipDown": "lowerLipVertical",
+                "lowerLipForward": "lowerLipDepth",
+                "UpperLipForward": "UpperLipDepth"
         }
 
     def convert(self, json):

@@ -151,7 +151,7 @@ class Material:
 
             # simple bools:
             #
-            elif key in [ "shadeless", "wireframe", "transparent", "alphaToCoverage", "backfaceCull", 
+            elif key in [ "shadeless", "transparent", "alphaToCoverage", "backfaceCull",
                     "depthless", "castShadows", "receiveShadows", "autoBlendSkin", "sssEnabled" ]:
                 setattr (self, key, words[1].lower() in ["yes", "enabled", "true"])
 
@@ -293,7 +293,6 @@ metallicFactor {self.metallicFactor}
 pbrMetallicRoughness {self.pbrMetallicRoughness}
 
 shadeless {self.shadeless}
-wireframe {self.wireframe}
 transparent {self.transparent}
 alphaToCoverage {self.alphaToCoverage}
 backfaceCull {self.backfaceCull}
