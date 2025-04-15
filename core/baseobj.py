@@ -83,6 +83,8 @@ class baseClass():
         self.expression = None      # indicates that expressions are used
         self.faceunits  = None      # indicates that face-units are initalized
         self.bodyunits  = None      # indicates that body-units are initalized
+        self.faceunitsinfo  = None  # contains link to face-units dictionary
+        self.bodyunitsinfo  = None  # contains link to body-units dictionary
         self.hide_verts = True      # hide vertices
         self.getFaceUnits()         # get face-units to use the bone mask
         self.getBodyUnits()         # get body-units to use the bone mask
@@ -535,6 +537,7 @@ class baseClass():
                 self.env.logLine(1, "faceUnits: " + msg)
                 return None
             self.faceunits = m
+            self.faceunitsinfo = m.getInfo()
         return self.faceunits
 
     def getBodyUnits(self):
@@ -545,6 +548,7 @@ class baseClass():
                 self.env.logLine(1, "bodyUnits: " + msg)
                 return None
             self.bodyunits = m
+            self.bodyunitsinfo = m.getInfo()
         return self.bodyunits
  
     def addExpression(self, name, path):

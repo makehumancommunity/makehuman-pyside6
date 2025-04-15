@@ -65,8 +65,8 @@ placed in a sub-folder of the user target folder (so like "targets/hm08/head_det
 <p>
 <table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">
 <tr><td><img src="data/icons/reset.png"></td><td>Reset the character to default. You need to comfirm this action, not to lose your work done before.</td></tr>
-<tr><td><img src="data/icons/symm1.png"></td><td>Mirror the left side to the right side.</td></tr>
-<tr><td><img src="data/icons/symm2.png"></td><td>Mirror the right side to left side.</td></tr>
+<tr><td><img src="data/icons/symm1.png"></td><td>Mirror the right side to the left side (view from character).</td></tr>
+<tr><td><img src="data/icons/symm2.png"></td><td>Mirror the left side to right side (view from character).</td></tr>
 <tr><td><img src="data/icons/symm.png"></td><td>Always work with symmetry.</td></tr>
 </table>
 

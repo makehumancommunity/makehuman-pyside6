@@ -34,6 +34,8 @@ Supply tags if you want or do that later in the asset editor. Save it with the s
 <table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">
 <tr><td><img src="data/icons/camera.png"></td><td>Take a screenshot of the pose.</td></tr>
 <tr><td><img src="data/icons/reset.png"></td><td>Reset the pose to default.</td></tr>
+<tr><td><img src="data/icons/symm1.png"></td><td>Mirror the right side to the left side (view from character).</td></tr>
+<tr><td><img src="data/icons/symm2.png"></td><td>Mirror the left side to right side (view from character).</td></tr>
 <tr><td><img src="data/icons/f_load.png"></td><td>Load an existent pose.</td></tr>
 <tr><td><img src="data/icons/f_save.png"></td><td>Save your pose.</td></tr>
 </table>

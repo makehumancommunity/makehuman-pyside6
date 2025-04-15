@@ -325,7 +325,6 @@ class BVH():
                 self.calcLocRotMat(i, data)
                 #self.debugChanged(i)
 
-        # self.debugJoints("lowerarm02.L")
         # make a copy of the pointers
         self.identFinal()
         return True
@@ -386,17 +385,29 @@ class MHPoseFaceConverter():
                 "ChinRight": "ChinLeft",
                 "lowerLipUp": "lowerLipDown",
                 "lowerLipBackward": "lowerLipForward",
-                "UpperLipBackward": "UpperLipForward"
+                "UpperLipBackward": "UpperLipForward",
+                "MouthMoveRight": "MouthMoveLeft",
+                "MouthLeftPullDown": "MouthLeftPullUp",
+                "MouthRightPullDown": "MouthRightPullUp",
+                "TongueRight": "TongueLeft",
+                "TongueDown": "TongueUp",
+                "TonguePointDown": "TonguePointUp"
         }
         self.rename = {
                 "LeftEyeturnRight": "LeftEyeturn",
                 "RightEyeturnRight": "RightEyeturn",
-                "LeftEyeDown": "LeftEyeUpDown",
-                "RightEyeDown": "RightEyeUpDown",
+                "LeftEyeDown": "LeftEyeVertical",
+                "RightEyeDown": "RightEyeVertical",
                 "ChinLeft": "ChinRotate",
                 "lowerLipDown": "lowerLipVertical",
                 "lowerLipForward": "lowerLipDepth",
-                "UpperLipForward": "UpperLipDepth"
+                "UpperLipForward": "UpperLipDepth",
+                "MouthMoveLeft": "MouthMove",
+                "MouthLeftPullUp": "MouthLeftPullVertical",
+                "MouthRightPullUp": "MouthRightPullVertical",
+                "TongueLeft": "TongueHorizontal",
+                "TongueDown": "TongueVertical",
+                "TonguePointDown": "TonguePointVertical"
         }
 
     def convert(self, json):
@@ -452,6 +463,9 @@ class PosePrims():
 
     def __str__(self):
         return(str(self.units.keys()))
+
+    def getInfo(self):
+        return self.units
 
     def createFilterDict(self):
         self.filterparam = []
