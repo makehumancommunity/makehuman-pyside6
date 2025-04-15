@@ -237,7 +237,8 @@ class MHMainWindow(QMainWindow):
         self.markSelectedButtons(self.category_buttons[0], self.category_buttons[0][0])
 
         # generate random values
-        self.glob.randomValues = RandomValues(self.glob)
+        if self.glob.baseClass is not None:
+            self.glob.randomValues = RandomValues(self.glob)
 
         self.createCentralWidget()
         self.setWindowTitle("default character")
@@ -824,6 +825,7 @@ class MHMainWindow(QMainWindow):
         self.createImageSelection()
         self.emptyLayout(self.ToolBox)
         vis = self.drawRightPanel()
+        self.glob.randomValues = RandomValues(self.glob)
         self.visRightColumn.setVisible(vis)
 
         self.ToolBox.update()
