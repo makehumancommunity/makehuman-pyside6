@@ -260,7 +260,7 @@ class BVH():
                 if np.where(~m.any(axis=0))[0] == 3:
                     s = list(m[:3,:3].flatten())
                 else:
-                    s = list(m.flatten())
+                    s = list(m.flatten())           # bone with location
                 print("\"" + joint.name + "\": " + str(s))
 
     def debugJoints(self, name):
