@@ -280,10 +280,6 @@ class BVH():
             joint.calculateRestMat()
 
     def load(self, filename):
-        if filename.endswith(".mhpose"):
-            self.env.last_error = "Reader of mhpose files not yet realized"
-            return False
-
         self.filename = filename
         self.env.logLine(8, "Load bvh " + filename)
         with open(filename, "r", encoding='utf-8') as fp:
@@ -331,7 +327,7 @@ class BVH():
 
 class MHPose():
     """
-    class for expressions
+    class for combined poses and expressions
     """
     def __init__(self, glob, units, name):
         self.glob = glob
@@ -358,9 +354,14 @@ class MHPose():
         for elem, weight in pose["unit_poses"].items():
             self.poses[elem] = weight
             if elem in self.units:
-                if "bones" in self.units[elem]:
-                    m = self.units[elem]["bones"]
-                    self.blends.append([m, weight * 100])
+                if weight < 0.0:
+                    if "reverse" in self.units[elem]:
+                        m = self.units[elem]["reverse"]
+                        self.blends.append([m, -weight * 100])
+                else:
+                    if "bones" in self.units[elem]:
+                        m = self.units[elem]["bones"]
+                        self.blends.append([m, weight * 100])
 
         for elem in ("name", "author", "description", "tags", "license"):
             if elem in pose:
@@ -374,6 +375,9 @@ class MHPose():
         return(self.env.writeJSON(filename, json))
 
 class MHPoseFaceConverter():
+    """
+    class to convert old Pose-files to use double-sided sliders
+    """
     def __init__(self):
         self.reverse = {
                 "LeftUpperLidOpen": "LeftUpperLidClosed",

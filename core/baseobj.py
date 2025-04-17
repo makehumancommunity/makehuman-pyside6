@@ -80,6 +80,7 @@ class baseClass():
         self.in_posemode = False
         self.pose_skelpath = None
         self.bvh = None             # indicates that object is posed
+        self.posemodifier = None    # indicates that posemodifiers are used
         self.expression = None      # indicates that expressions are used
         self.faceunits  = None      # indicates that face-units are initalized
         self.bodyunits  = None      # indicates that body-units are initalized
@@ -493,16 +494,25 @@ class baseClass():
         self.pose_skeleton.restPose()
 
     def showPose(self):
-        self.pose_skeleton.pose(self.bvh.joints, self.bvh.currentFrame)
-        #self.bvh.debugChanged(self.bvh.currentFrame)
+        if self.bvh:
+            self.pose_skeleton.pose(self.bvh.joints, self.bvh.currentFrame)
+            #self.bvh.debugChanged(self.bvh.currentFrame)
+        elif self.posemodifier:
+            self.showPoseModifiers()
         self.glob.openGLWindow.Tweak()
 
     def showExpression(self):
         self.pose_skeleton.posebyBlends(self.expression.blends, self.faceunits.bonemask )
 
+    def showPoseModifiers(self):
+        self.pose_skeleton.posebyBlends(self.posemodifier.blends, self.bodyunits.bonemask )
+
     def showPoseAndExpression(self):
         if self.bvh:
             self.pose_skeleton.pose(self.bvh.joints, self.bvh.currentFrame)
+        elif self.posemodifier:
+            self.restPose()
+            self.showPoseModifiers()
         if self.expression:
             self.showExpression()
 
@@ -510,20 +520,45 @@ class baseClass():
         if self.pose_skeleton is None:
             return True
 
+        # reset poses
+        #
         if self.bvh is not None:
             self.restPose()
             self.glob.markAssetByFileName(self.bvh.filename, False)
-        self.bvh = BVH(self.glob, name)
-        loaded  = self.bvh.load(path)
+
+        if self.posemodifier is not None:
+            self.glob.markAssetByFileName(self.posemodifier.filename, False)
+            self.restPose()
+
+        mtype = "mhpose" if path.endswith(".mhpose") else "bvh"
+        if mtype == "bvh":
+            self.bvh = BVH(self.glob, name)
+            loaded  = self.bvh.load(path)
+            if not loaded:
+                self.env.logLine(1, "BVH: " + path + " " + self.env.last_error)
+            else:
+                self.showPoseAndExpression()
+                self.glob.markAssetByFileName(path, True)
+            return loaded
+
+        if self.getBodyUnits() is None:
+           return False
+
+        self.posemodifier = MHPose(self.glob, self.bodyunits, name)
+        loaded, msg  = self.posemodifier.load(path)
         if not loaded:
-            self.env.logLine(1, "BVH: " + path + " " + self.env.last_error)
+            self.env.logLine(1, "mhpose: " + path + " " + msg)
         else:
             self.showPoseAndExpression()
             self.glob.markAssetByFileName(path, True)
         return loaded
 
     def delPose(self, path):
+        """
+        set bvh and posemodifier to none
+        """
         self.bvh = None
+        self.posemodifier = None
         self.glob.markAssetByFileName(path, False)
         self.restPose()
         self.showPoseAndExpression()

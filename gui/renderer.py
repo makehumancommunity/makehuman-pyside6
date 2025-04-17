@@ -29,7 +29,8 @@ class Renderer(QVBoxLayout):
         self.view = glob.openGLWindow
         self.bc  = glob.baseClass
         self.mesh = self.bc.baseMesh
-        self.anim = self.bc.bvh
+        self.posemod = self.bc.posemodifier
+        self.bvh = self.bc.bvh
 
         self.image = None
         self.transparent = False
@@ -71,19 +72,20 @@ class Renderer(QVBoxLayout):
         self.transButton.toggled.connect(self.changeTransparency)
         self.addWidget(self.transButton)
 
-        if self.anim:
+        if self.bvh or self.posemod:
             self.posed = True
             self.posedButton = QCheckBox("character posed")
             self.posedButton.setLayoutDirection(Qt.LeftToRight)
             self.posedButton.toggled.connect(self.changePosed)
             self.addWidget(self.posedButton)
-
-            if self.anim.frameCount > 1:
-                self.frameSlider = SimpleSlider("Frame number: ", 0, self.anim.frameCount-1, self.frameChanged, minwidth=250)
-                self.frameSlider.setSliderValue(self.anim.currentFrame)
-                self.addWidget(self.frameSlider )
         else:
             self.posed = False
+
+        if self.bvh:
+            if self.bvh.frameCount > 1:
+                self.frameSlider = SimpleSlider("Frame number: ", 0, self.bvh.frameCount-1, self.frameChanged, minwidth=250)
+                self.frameSlider.setSliderValue(self.bvh.currentFrame)
+                self.addWidget(self.frameSlider )
 
         self.subdivbutton = QPushButton("Smooth (subdivided)")
         self.subdivbutton.clicked.connect(self.toggleSmooth)
@@ -104,7 +106,7 @@ class Renderer(QVBoxLayout):
 
 
     def enter(self):
-        if self.anim:
+        if self.bvh or self.posemod:
             self.bc.setPoseMode()
             self.setFrame(0)
         self.glob.midColumn.renderView(True)
@@ -118,7 +120,7 @@ class Renderer(QVBoxLayout):
     def leave(self):
         self.setUnsubdivided()
 
-        if self.anim and self.posed:
+        if (self.bvh or self.posemod) and self.posed:
             self.setFrame(0)
             self.bc.setStandardMode()
 
@@ -126,18 +128,22 @@ class Renderer(QVBoxLayout):
         self.glob.midColumn.renderView(False)
 
     def setFrame(self, value):
-        if self.anim is None:
+        if self.posemod:
+            self.bc.showPose()
+            return
+
+        if self.bvh is None:
             print ("No file loaded")
             return
 
         if value < 0:
             return
 
-        if value >= self.anim.frameCount:
+        if value >= self.bvh.frameCount:
             return
 
-        self.anim.currentFrame = value
-        if self.anim.frameCount > 1:
+        self.bvh.currentFrame = value
+        if self.bvh.frameCount > 1:
             self.frameSlider.setSliderValue(value)
         self.bc.showPose()
 
@@ -160,7 +166,7 @@ class Renderer(QVBoxLayout):
         self.saveButton.setEnabled(self.image is not None)
         self.viewButton.setEnabled(self.image is not None)
         self.transButton.setChecked(self.transparent)
-        if self.anim:
+        if self.bvh or self.posemod:
             self.posedButton.setChecked(self.posed)
 
     def acceptIntegers(self):

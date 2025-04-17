@@ -24,11 +24,8 @@ class AnimMode():
         self.view = glob.openGLWindow
         self.bc = glob.baseClass
         self.bc.setPoseMode()
-        if self.bc.bvh:
-            self.bc.showPose()
-        if self.bc.expression:
-            self.bc.showExpression()
-            self.view.Tweak()
+        self.bc.showPoseAndExpression()
+        self.view.Tweak()
 
     def leave(self):
         self.bc.setStandardMode()
