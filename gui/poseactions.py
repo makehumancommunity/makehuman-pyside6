@@ -38,9 +38,18 @@ class AnimPlayer(QVBoxLayout):
         self.glob = glob
         self.view = glob.openGLWindow
         env = glob.env
+
+        self.playerButtons = [
+            [None, "playerfirstimage.png", "first frame", self.firstframe, False],
+            [None, "playerprevimage.png", "previous frame", self.prevframe, False],
+            [None, "playernextimage.png", "next frame", self.nextframe, False],
+            [None, "playerlastimage.png", "last frame", self.lastframe, False],
+            [None, "reset.png", "toggle animation (ESC = stop animation)", self.loop, True]
+        ]
         self.bc  = glob.baseClass
         self.mesh = self.bc.baseMesh
         self.anim = self.bc.bvh
+        self.posemod = self.bc.posemodifier
         self.speedValue = 24
         self.rotAngle = 2
         super().__init__()
@@ -61,17 +70,16 @@ class AnimPlayer(QVBoxLayout):
         vlayout.addWidget(QLabel(name))
         vlayout.addWidget(QLabel("Frames: " + str(frames)))
 
+        # generate buttons for player
+        #
         ilayout = QHBoxLayout()
-        ilayout.addWidget(IconButton(1,  os.path.join(env.path_sysicon, "playerfirstimage.png"), "first frame", self.firstframe))
-        ilayout.addWidget(IconButton(2,  os.path.join(env.path_sysicon, "playerprevimage.png"), "previous frame", self.prevframe))
-        ilayout.addWidget(IconButton(3,  os.path.join(env.path_sysicon, "playernextimage.png"), "next frame", self.nextframe))
-        ilayout.addWidget(IconButton(4,  os.path.join(env.path_sysicon, "playerlastimage.png"), "last frame", self.lastframe))
-        self.loopbutton = IconButton(5,  os.path.join(env.path_sysicon, "reset.png"), "toggle animation (ESC = stop animation)", self.loop)
-        self.loopbutton.setCheckable(True)
-        ilayout.addWidget(self.loopbutton)
+        for num, button in enumerate(self.playerButtons):
+            button[0] = IconButton(num+1,  os.path.join(env.path_sysicon, button[1]), button[2], button[3])
+            button[0].setCheckable(button[4])
+            ilayout.addWidget(button[0])
 
         vlayout.addLayout(ilayout)
-        if frames > 0:
+        if frames > 1:
             self.frameSlider = SimpleSlider("Frame number: ", 0, frames-1, self.frameChanged, minwidth=250)
             self.frameSlider.setSliderValue(self.anim.currentFrame)
             vlayout.addWidget(self.frameSlider )
@@ -79,6 +87,9 @@ class AnimPlayer(QVBoxLayout):
             self.speedSlider = SimpleSlider("Frames per Second: ", 1, 70, self.speedChanged, minwidth=250)
             self.speedSlider.setSliderValue(self.speedValue)
             vlayout.addWidget(self.speedSlider )
+        else:
+            self.frameSlider = None
+            self.speedSlider = None
 
         self.faceanim = QCheckBox("allow face animation")
         self.faceanim.setLayoutDirection(Qt.LeftToRight)
@@ -111,14 +122,23 @@ class AnimPlayer(QVBoxLayout):
         layout.addWidget(gb)
         self.addLayout(layout)
 
+    def refreshPlayerButtons(self):
+        enable = (self.anim is not None and self.anim.frameCount > 1)
+        for button in self.playerButtons:
+            button[0].setEnabled(enable)
+
     def enter(self):
         self.glob.midColumn.poseViews(True)
-        self.loopbutton.setChecked(False)
+        self.playerButtons[4][0].setChecked(False)
         self.rotSkyBox.setChecked(False)
 
         self.bc.setPoseMode()
         self.view.setRotSkyBox(False)
-        self.firstframe()
+        if self.anim:
+            self.firstframe()
+        elif self.posemod:
+            self.bc.showPose()
+        self.refreshPlayerButtons()
 
     def leave(self):
         self.view.stopTimer()
@@ -126,7 +146,7 @@ class AnimPlayer(QVBoxLayout):
         self.view.setYRotation()        # reset to 0.0
         if self.anim:
             self.anim.identFinal()
-        self.firstframe()
+            self.firstframe()
         self.bc.setStandardMode()
         self.glob.midColumn.poseViews(False)
 
@@ -141,18 +161,12 @@ class AnimPlayer(QVBoxLayout):
         self.view.setRotSkyBox(param)
 
     def setFrame(self, value):
-        if self.anim is None:
-            print ("No file loaded")
-            return
-
-        if value < 0:
-            return
-
-        if value >= self.anim.frameCount:
+        if value < 0 or value >= self.anim.frameCount:
             return
 
         self.anim.currentFrame = value
-        self.frameSlider.setSliderValue(value)
+        if self.frameSlider:
+            self.frameSlider.setSliderValue(value)
         self.bc.showPose()
 
     def frameChanged(self, value):
@@ -160,7 +174,7 @@ class AnimPlayer(QVBoxLayout):
 
     def speedChanged(self, value):
         self.speedValue = value
-        if self.loopbutton.isChecked():
+        if self.playerButtons[4][0].isChecked():
             self.view.setFPS(self.speedValue)
 
     def rotangChanged(self, value):
@@ -172,24 +186,18 @@ class AnimPlayer(QVBoxLayout):
         self.setFrame(0)
 
     def prevframe(self):
-        if self.anim is not None:
-            self.setFrame(self.anim.currentFrame - 1)
+        self.setFrame(self.anim.currentFrame - 1)
 
     def nextframe(self):
-        if self.anim is not None:
-            self.setFrame(self.anim.currentFrame + 1)
+        self.setFrame(self.anim.currentFrame + 1)
 
     def lastframe(self):
-        if self.anim is not None:
-            self.setFrame(self.anim.frameCount -1)
+        self.setFrame(self.anim.frameCount -1)
 
     def frameFeedback(self):
         self.frameSlider.setSliderValue(self.anim.currentFrame)
 
     def loop(self):
-        if self.anim is None:
-            print ("No file loaded")
-            return
         b = self.sender()
         v = b.isChecked()
         if v:
@@ -215,6 +223,6 @@ class AnimPlayer(QVBoxLayout):
 
     def resetAnimbutton(self):
         self.rotatorbutton.setChecked(False)
-        self.loopbutton.setChecked(False)
+        self.playerButtons[4][0].setChecked(False)
 
 

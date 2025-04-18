@@ -2,6 +2,7 @@
 
 This context provides the possibility to load a single pose or a complete animation.
 If a pose or animation was loaded, the character will be presented in pose mode.
+Poses can be mhpose files, which can be created inside MakeHuman (one frame only) or bvh files.
 <p>
 The currently selected pose or animation is marked with a yellow frame. A green frame means, that the pose is used.
 <p>
@@ -20,7 +21,9 @@ with extra tags, these tags are then used instead of the tags provided in the po
 <h3>Loading</h3>
 
 Select a pose or animation from the right side. Be aware it is not yet loaded, only the information is
-displayed on left side. To load it, press the checkmark button on the right side.
+displayed on left side. To load it, press the checkmark button on the right side. After loading, the first frame
+is showed. For viewing a complete animation, select:
+<table style="background-color:#c0c0c0;color:#000000;border:2;vertical-align:middle;"><tr><td><img src="data/icons/an_movie.png"></td></tr></table>
 <p>
 <h3>Drop Pose/Animation</h3>
 

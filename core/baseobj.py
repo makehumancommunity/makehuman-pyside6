@@ -357,6 +357,9 @@ class baseClass():
         if self.bvh:
             if filename == self.bvh.filename:
                 return (self.bvh)
+        if self.posemodifier:
+            if filename == self.posemodifier.filename:
+                return (self.posemodifier)
         if self.expression:
             if filename == self.expression.filename:
                 return (self.expression)
@@ -525,10 +528,12 @@ class baseClass():
         if self.bvh is not None:
             self.restPose()
             self.glob.markAssetByFileName(self.bvh.filename, False)
+            self.bvh = None
 
         if self.posemodifier is not None:
-            self.glob.markAssetByFileName(self.posemodifier.filename, False)
             self.restPose()
+            self.glob.markAssetByFileName(self.posemodifier.filename, False)
+            self.posemodifier = None
 
         mtype = "mhpose" if path.endswith(".mhpose") else "bvh"
         if mtype == "bvh":
