@@ -298,8 +298,10 @@ class skeleton:
         """
         function used for expressions, with mask set all unchanged bones will be set to rest position
         """
+        changed = []
+
         if len(blends) == 0:
-            return
+            return changed
 
         # check bonewise if blend is used, then use quaternionsSlerpFromMatrix with ratio to pose
         # in case the bone is posed by more than one posemat, multiply quaternion matrices
@@ -323,6 +325,7 @@ class skeleton:
                 # print ("changed " + bone)
                 mat = mquat.quaternionToRotMatrix(q1)
                 self.bones[bone].calcLocalPoseMat(mat)
+                changed.append(bone)
 
             self.bones[bone].calcGlobalPoseMat()
             self.bones[bone].poseBone()
@@ -337,4 +340,6 @@ class skeleton:
         if not bones_only:
             self.skinBasemesh()
             self.glob.baseClass.poseAttachedAssets()
+        
+        return changed
 

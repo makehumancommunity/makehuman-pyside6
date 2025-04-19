@@ -37,7 +37,7 @@ class PoseItem(ScaleComboItem):
         pass
 
 class GenericPoseEdit():
-    def __init__(self, parent, glob, redraw, units, infos, mask):
+    def __init__(self, parent, glob, poses, redraw, units, infos, mask):
         self.glob = glob
         self.parent = parent
         self.redraw = redraw
@@ -48,7 +48,7 @@ class GenericPoseEdit():
         self.env = glob.env
         self.baseClass = glob.baseClass
         self.baseClass.setPoseMode()
-        self.poses = []
+        self.poses = poses
         self.thumbimage = None
 
     def addClassWidgets(self, default):
@@ -93,9 +93,11 @@ class GenericPoseEdit():
         ilayout.addWidget(IconButton(1,  os.path.join(self.env.path_sysicon, "f_load.png"), "load pose", self.loadButton))
         ilayout.addWidget(IconButton(2,  os.path.join(self.env.path_sysicon, "f_save.png"), "save pose", self.saveButton))
         ilayout.addWidget(IconButton(3,  os.path.join(self.env.path_sysicon, "reset.png"), "reset pose", self.resetButton))
-        ilayout.addWidget(IconButton(3,  os.path.join(self.env.path_sysicon, "symm1.png"), "mirror from right to left", self.rightSymm))
-        ilayout.addWidget(IconButton(3,  os.path.join(self.env.path_sysicon, "symm2.png"), "mirror from left to right", self.leftSymm))
+        ilayout.addWidget(IconButton(4,  os.path.join(self.env.path_sysicon, "symm1.png"), "mirror from right to left", self.rightSymm))
+        ilayout.addWidget(IconButton(5,  os.path.join(self.env.path_sysicon, "symm2.png"), "mirror from left to right", self.leftSymm))
+        ilayout.addWidget(IconButton(6,  os.path.join(self.env.path_sysicon, "corr_bone.png"), "push to corrections", self.pushCorrections))
         layout.addLayout(ilayout)
+        self.changedPoses()
         return (layout)
 
     def displayPixmap(self):
@@ -120,13 +122,17 @@ class GenericPoseEdit():
         for elem in self.poses:
             elem.value = 0.0
 
-    def changedPoses(self):
+    def getChangedValues(self):
         blends = []
         for elem in self.poses:
             if elem.value < 0.0:
                 blends.append([elem.rmat, -elem.value])
             elif elem.value > 0.0:
                 blends.append([elem.mat, elem.value])
+        return blends
+
+    def changedPoses(self):
+        blends = self.getChangedValues()
 
         # change if there are blends, otherwise reset to rest pose
         #
@@ -172,6 +178,16 @@ class GenericPoseEdit():
 
     def leftSymm(self):
         self.Symm("rsym")
+
+    def pushCorrections(self):
+        corrections = {}
+        blends = self.getChangedValues()
+        changed = self.baseClass.pose_skeleton.posebyBlends(blends, None, True)
+        for bone in changed:
+            elem = self.baseClass.pose_skeleton.bones[bone]
+            corrections[bone] = elem.matPoseLocal
+        self.baseClass.bodycorrections = corrections
+        print (self.baseClass.bodycorrections)
 
     def loadButton(self, path, convert=None):
         directory = self.env.stdUserPath(path)
@@ -232,10 +248,11 @@ class GenericPoseEdit():
 
 class AnimExpressionEdit(GenericPoseEdit):
     def __init__(self, parent, glob):
+        poses = glob.baseClass.faceposes
         units = glob.baseClass.getFaceUnits()
         infos = glob.baseClass.faceunitsinfo
         mask  = glob.baseClass.faceunits.bonemask
-        super().__init__(parent, glob, parent.redrawNewExpression, units, infos, mask)
+        super().__init__(parent, glob, poses, parent.redrawNewExpression, units, infos, mask)
 
     def addClassWidgets(self):
         return(super().addClassWidgets("Expression"))
@@ -253,10 +270,11 @@ class AnimExpressionEdit(GenericPoseEdit):
 
 class AnimPoseEdit(GenericPoseEdit):
     def __init__(self, parent, glob):
+        poses = glob.baseClass.bodyposes
         units = glob.baseClass.getBodyUnits()
         infos = glob.baseClass.bodyunitsinfo
         mask  = glob.baseClass.bodyunits.bonemask
-        super().__init__(parent, glob, parent.redrawNewPose, units, infos, mask)
+        super().__init__(parent, glob, poses, parent.redrawNewPose, units, infos, mask)
 
     def fillPoses(self):
         return (super().fillPoses())

@@ -52,6 +52,7 @@ class AnimPlayer(QVBoxLayout):
         self.posemod = self.bc.posemodifier
         self.speedValue = 24
         self.rotAngle = 2
+        self.looping = False
         super().__init__()
 
         layout = QVBoxLayout()
@@ -91,11 +92,18 @@ class AnimPlayer(QVBoxLayout):
             self.frameSlider = None
             self.speedSlider = None
 
-        self.faceanim = QCheckBox("allow face animation")
-        self.faceanim.setLayoutDirection(Qt.LeftToRight)
-        self.faceanim.setChecked(True)
-        self.faceanim.toggled.connect(self.changeFaceAnim)
-        vlayout.addWidget(self.faceanim)
+        cb = QCheckBox("allow face animation")
+        cb.setLayoutDirection(Qt.LeftToRight)
+        cb.setChecked(True)
+        cb.toggled.connect(self.changeFaceAnim)
+        vlayout.addWidget(cb)
+
+        cb = QCheckBox("overlay corrections")
+        cb.setLayoutDirection(Qt.LeftToRight)
+        cb.setChecked(False)
+        cb.toggled.connect(self.changeCorrections)
+        vlayout.addWidget(cb)
+
         gb.setLayout(vlayout)
         layout.addWidget(gb)
 
@@ -147,6 +155,7 @@ class AnimPlayer(QVBoxLayout):
         if self.anim:
             self.anim.identFinal()
             self.firstframe()
+        self.looping = False
         self.bc.setStandardMode()
         self.glob.midColumn.poseViews(False)
 
@@ -156,6 +165,20 @@ class AnimPlayer(QVBoxLayout):
                 self.anim.noFaceAnimation()
             else:
                 self.anim.identFinal()
+            if not self.looping:
+                self.bc.showPose()
+
+    def changeCorrections(self, param):
+        if self.anim:
+            if param is False:
+                print ("no corrections")
+                #self.anim.noCorrection(self.bc.pose_skeleton)
+                self.anim.noFaceAnimation()
+            else:
+                print ("corrections")
+                self.anim.modCorrections()
+            if not self.looping:
+                self.bc.showPose()
 
     def changeRotSkyBox(self, param):
         self.view.setRotSkyBox(param)
@@ -201,9 +224,11 @@ class AnimPlayer(QVBoxLayout):
         b = self.sender()
         v = b.isChecked()
         if v:
+            self.looping = True
             self.view.setFPS(self.speedValue, self.resetAnimbutton)
             self.view.startTimer(self.frameFeedback)
         else:
+            self.looping = False
             self.view.stopTimer()
         b.setChecked(v)
 

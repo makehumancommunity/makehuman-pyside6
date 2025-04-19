@@ -83,9 +83,12 @@ class baseClass():
         self.posemodifier = None    # indicates that posemodifiers are used
         self.expression = None      # indicates that expressions are used
         self.faceunits  = None      # indicates that face-units are initalized
+        self.faceposes = []
         self.bodyunits  = None      # indicates that body-units are initalized
         self.faceunitsinfo  = None  # contains link to face-units dictionary
         self.bodyunitsinfo  = None  # contains link to body-units dictionary
+        self.bodycorrections = None # value of body corrections
+        self.bodyposes = []
         self.hide_verts = True      # hide vertices
         self.getFaceUnits()         # get face-units to use the bone mask
         self.getBodyUnits()         # get body-units to use the bone mask

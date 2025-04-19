@@ -51,6 +51,10 @@ class BVHJoint():
         self.finalPoses = np.zeros((count,3,4), dtype=np.float32)
         self.finalPoses[:,:3,:3] = np.identity(3, dtype=np.float32)
 
+    def modCorrections(self, corr, count:int):
+        self.finalPoses = np.zeros((count,3,4), dtype=np.float32)
+        self.finalPoses[:,:3,:3] = np.matmul(corr[:3,:3], self.matrixPoses[:,:3,:3])
+
     def calculateRestMat(self):
         """
         calculates the rest matrix
@@ -248,6 +252,15 @@ class BVH():
                 else:
                     joint.identFinal()
 
+    def modCorrections(self):
+        corrections = self.glob.baseClass.bodycorrections
+        if corrections is not None:
+            for joint in self.bvhJointOrder:
+                if joint.name in corrections:
+                    print ("Need to change", joint.name)
+                    joint.modCorrections(corrections[joint.name], self.frameCount)
+                else:
+                    joint.identFinal()
 
     def debugChanged(self, num):
         np.set_printoptions(precision=3, suppress=True)
