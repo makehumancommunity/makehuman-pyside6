@@ -54,16 +54,15 @@ class MHMainWindow(QMainWindow):
         self.ToolBox = None
 
         self.graph = None
+
         self.qTree = None
+        self.qtreefilter = None
 
         self.ButtonBox = None
         self.CategoryBox = None
         self.baseSelector = None
 
         self.in_close = False
-        self.targetfilter = None
-        self.expressionfilter = None
-        self.posefilter = None
         self.bckproc = None         # background process is running
 
         self.tool_mode = 0          # 0 = files, 1 = modelling, 2 = equipment, 3 = pose, 4 = render, 10 = information
@@ -447,7 +446,7 @@ class MHMainWindow(QMainWindow):
             if self.category_mode == 0:
                 self.leftColumn.setTitle("Modify character :: categories")
                 self.qTree = MHTreeView(self.glob.targetCategories, "Modelling", self.redrawNewCategory, None)
-                self.targetfilter = self.qTree.getStartPattern()
+                self.qtreefilter = self.qTree.getStartPattern()
                 self.LeftBox.addWidget(self.qTree)
                 row = self.buttonRow(self.model_buttons)
                 self.LeftBox.addLayout(row)
@@ -492,7 +491,7 @@ class MHMainWindow(QMainWindow):
                 self.lastClass = AnimExpressionEdit(self, self.glob)
                 filterparam = self.glob.baseClass.getFaceUnits().createFilterDict()
                 self.qTree = MHTreeView(filterparam, "Categories", self.redrawNewExpression, None)
-                self.expressionfilter = self.qTree.getStartPattern()
+                self.qtreefilter = self.qTree.getStartPattern()
                 self.LeftBox.addWidget(self.qTree)
                 layout = self.lastClass.addClassWidgets()
                 self.LeftBox.addLayout(layout)
@@ -501,7 +500,7 @@ class MHMainWindow(QMainWindow):
                 self.lastClass = AnimPoseEdit(self, self.glob)
                 filterparam = self.glob.baseClass.getBodyUnits().createFilterDict()
                 self.qTree = MHTreeView(filterparam, "Categories", self.redrawNewPose, None)
-                self.posefilter = self.qTree.getStartPattern()
+                self.qtreefilter = self.qTree.getStartPattern()
                 self.LeftBox.addWidget(self.qTree)
                 layout = self.lastClass.addClassWidgets()
                 self.LeftBox.addLayout(layout)
@@ -516,38 +515,44 @@ class MHMainWindow(QMainWindow):
             self.leftColumn.setTitle("Not yet implemented") # not reached
 
 
-    def drawExpressionPanel(self, text=""):
+    def drawExpressionPanel(self, text="None"):
+        if text == "None":
+            text = self.qTree.getLastHeadline()
         self.rightColumn.setTitle("Expressions, category: " + text)
         widget = QWidget()
         sweep = os.path.join(self.glob.env.path_sysicon, "sweep.png")
         if self.lastClass is not None:
             expressions = self.lastClass.fillExpressions()
-            self.exprArray = ScaleComboArray(widget, expressions, self.expressionfilter, sweep)
+            self.exprArray = ScaleComboArray(widget, expressions, self.qtreefilter, sweep)
             widget.setLayout(self.exprArray.layout)
             scrollArea = QScrollArea()
             scrollArea.setWidget(widget)
             scrollArea.setWidgetResizable(True)
             self.ToolBox.addWidget(scrollArea)
 
-    def drawPosePanel(self, text=""):
+    def drawPosePanel(self, text="None"):
+        if text == "None":
+            text = self.qTree.getLastHeadline()
         self.rightColumn.setTitle("Poses, category: " + text)
         widget = QWidget()
         sweep = os.path.join(self.glob.env.path_sysicon, "sweep.png")
         if self.lastClass is not None:
             poses = self.lastClass.fillPoses()
-            self.poseArray = ScaleComboArray(widget, poses, self.posefilter, sweep)
+            self.poseArray = ScaleComboArray(widget, poses, self.qtreefilter, sweep)
             widget.setLayout(self.poseArray.layout)
             scrollArea = QScrollArea()
             scrollArea.setWidget(widget)
             scrollArea.setWidgetResizable(True)
             self.ToolBox.addWidget(scrollArea)
 
-    def drawMorphPanel(self, text=""):
+    def drawMorphPanel(self, text="None"):
+        if text == "None":
+            text = self.qTree.getLastHeadline()
         self.rightColumn.setTitle("Morph, category: " + text)
         if self.glob.Targets is not None:
             widget = QWidget()
             sweep = os.path.join(self.glob.env.path_sysicon, "sweep.png")
-            self.scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets, self.targetfilter, sweep)
+            self.scalerArray = ScaleComboArray(widget, self.glob.Targets.modelling_targets, self.qtreefilter, sweep)
             widget.setLayout(self.scalerArray.layout)
             scrollArea = QScrollArea()
             scrollArea.setWidget(widget)
@@ -786,7 +791,7 @@ class MHMainWindow(QMainWindow):
                 print ("Reset")
                 self.glob.Targets.reset(True)
                 self.glob.project_changed = False
-                self.redrawNewCategory(self.targetfilter)
+                self.redrawNewCategory(self.qtreefilter)
                 self.glob.baseClass.applyAllTargets()
                 self.graph.setSizeInfo()
                 self.graph.view.Tweak()
@@ -849,33 +854,35 @@ class MHMainWindow(QMainWindow):
             self.loadNewClass(base, filename)
 
     def redrawNewCategory(self, category, text=None):
-        print (category)
+        if category is None:
+            category = self.qTree.setStart()
+            text =self.qTree.getLastHeadline()
         if text is None:
             text =self.qTree.getLastHeadline()
         self.emptyLayout(self.ToolBox)
-        self.targetfilter = category
+        self.qtreefilter = category
         self.drawMorphPanel(text)
         self.ToolBox.update()
 
     def redrawNewExpression(self, category, text=None):
-        print (category)
         if category is None:
-            category =self.qTree.getLastCategory()
+            category = self.qTree.setStart()
+            text =self.qTree.getLastHeadline()
         if text is None:
             text =self.qTree.getLastHeadline()
         self.emptyLayout(self.ToolBox)
-        self.expressionfilter = category
+        self.qtreefilter = category
         self.drawExpressionPanel(text)
         self.ToolBox.update()
 
     def redrawNewPose(self, category, text=None):
-        print (category)
         if category is None:
-            category =self.qTree.getLastCategory()
+            category = self.qTree.setStart()
+            text =self.qTree.getLastHeadline()
         if text is None:
             text =self.qTree.getLastHeadline()
         self.emptyLayout(self.ToolBox)
-        self.posefilter = category
+        self.qtreefilter = category
         self.drawPosePanel(text)
         self.ToolBox.update()
 

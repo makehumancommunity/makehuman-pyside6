@@ -11,7 +11,7 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QGridLayout, QGroupBox, QCheckBox
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
-from gui.common import IconButton, ErrorBox, MHFileRequest
+from gui.common import IconButton, ErrorBox, HintBox, MHFileRequest
 from gui.slider import ScaleComboItem
 from obj3d.animation import PosePrims, MHPose, MHPoseFaceConverter
 import os
@@ -182,11 +182,15 @@ class GenericPoseEdit():
     def pushCorrections(self):
         corrections = {}
         blends = self.getChangedValues()
+        if len(blends) == 0:
+            ErrorBox(self.parent.central_widget, "No corrections available")
+            return
         changed = self.baseClass.pose_skeleton.posebyBlends(blends, None, True)
         for bone in changed:
             elem = self.baseClass.pose_skeleton.bones[bone]
             corrections[bone] = elem.matPoseLocal
         self.baseClass.bodycorrections = corrections
+        HintBox(self.parent.central_widget, "Corrections added to be used in animation.")
         print (self.baseClass.bodycorrections)
 
     def loadButton(self, path, convert=None):
@@ -211,6 +215,12 @@ class GenericPoseEdit():
             self.redraw(None)
             self.baseClass.pose_skeleton.posebyBlends(pose.blends, self.bonemask)
             self.view.Tweak()
+
+            iconpath = filename[:-7] + ".thumb"
+            if os.path.isfile(iconpath):
+                pixmap = QPixmap(iconpath)
+                self.thumbimage = pixmap.toImage()
+                self.displayPixmap()
 
 
     def saveButton(self, path):

@@ -80,13 +80,27 @@ class QTreeMain(QTreeView):
             for index in range (self.rootNode.rowCount()):
                 child = self.rootNode.child(index,0)
                 if child.hasChildren:
-                    for childindex in range(child.rowCount()):
+                    numchild = child.rowCount()
+                    if numchild == 0:
+                        if child.cat == pre:
+                            cindex = self.model().indexFromItem(child)
+                            self.lastparentindex = self.model().indexFromItem(self.rootNode)
+                            self.setCurrentIndex(cindex)
+                            self.category = child.text      # identical for one layer
+                            self.lastHeadline = child.text
+                            self.lastcategory = None
+                            return
+                    for childindex in range(numchild):
                         grandchild=child.child(childindex,0)
                         if grandchild is not None:
                             if grandchild.cat == pre:
                                 cindex = self.model().indexFromItem(grandchild)
                                 self.lastparentindex = self.model().indexFromItem(child)
                                 self.setCurrentIndex(cindex)
+                                self.category = child.text
+                                self.lastHeadline = child.text + ", " + grandchild.text
+                                self.lastcategory = None
+                                return
 
     def getLastHeadline(self):
         return(self.lastHeadline)
@@ -141,8 +155,11 @@ class MHTreeView(QWidget):
         layoutout.addWidget(gbox)
         self.setLayout(layoutout)
 
-        if pre is not None:
-            self.mt.preSelect(pre)
+        # preselect first value
+        #
+        if pre is None:
+            pre = self.start
+        self.mt.preSelect(pre)
 
     def _getStartColumn(self, data):
         if len(data) > 0:
@@ -162,7 +179,11 @@ class MHTreeView(QWidget):
         return(self.mt.getLastCategory())
 
     def getStartPattern(self):
-        return (self.start)
+        return self.start
+
+    def setStart(self):
+        self.mt.preSelect(self.start)
+        return self.start
 
     def btnstate(self):
         state = self.b1.isChecked()

@@ -4,6 +4,7 @@
 
     Function:
     * ErrorBox
+    * HintBox
 
     Classes:
     * clickableProgressBar
@@ -28,8 +29,12 @@ from PySide6.QtGui import QIcon, QPixmap, QFontMetrics, QImage
 from PySide6.QtCore import Qt, QThread, Signal, QSize
 
 def ErrorBox(qw, text):
-    button = QMessageBox.critical(qw, "An error occured!", text, buttons=QMessageBox.Close)
-    dlg = QMessageBox()
+    box = QMessageBox.critical(qw, "An error occured!", text, buttons=QMessageBox.Close)
+    QMessageBox()
+
+def HintBox(qw, text):
+    box = QMessageBox.information(qw, "Information", text, buttons=QMessageBox.Close)
+    QMessageBox()
 
 class clickableProgressBar(QProgressBar):
     """

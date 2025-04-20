@@ -249,8 +249,6 @@ class BVH():
             for joint in self.bvhJointOrder:
                 if joint.name in bc.faceunits.bonemask:
                     joint.resetFinal(self.frameCount)
-                else:
-                    joint.identFinal()
 
     def modCorrections(self):
         corrections = self.glob.baseClass.bodycorrections
@@ -260,6 +258,7 @@ class BVH():
                     print ("Need to change", joint.name)
                     joint.modCorrections(corrections[joint.name], self.frameCount)
                 else:
+                    # also allow face animation again
                     joint.identFinal()
 
     def debugChanged(self, num):

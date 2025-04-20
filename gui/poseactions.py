@@ -92,17 +92,17 @@ class AnimPlayer(QVBoxLayout):
             self.frameSlider = None
             self.speedSlider = None
 
-        cb = QCheckBox("allow face animation")
-        cb.setLayoutDirection(Qt.LeftToRight)
-        cb.setChecked(True)
-        cb.toggled.connect(self.changeFaceAnim)
-        vlayout.addWidget(cb)
+        self.faceAnim = QCheckBox("allow face animation")
+        self.faceAnim.setLayoutDirection(Qt.LeftToRight)
+        self.faceAnim.setChecked(True)
+        self.faceAnim.toggled.connect(self.changeAnim)
+        vlayout.addWidget(self.faceAnim)
 
-        cb = QCheckBox("overlay corrections")
-        cb.setLayoutDirection(Qt.LeftToRight)
-        cb.setChecked(False)
-        cb.toggled.connect(self.changeCorrections)
-        vlayout.addWidget(cb)
+        self.corrAnim = QCheckBox("overlay corrections")
+        self.corrAnim.setLayoutDirection(Qt.LeftToRight)
+        self.corrAnim.setChecked(False)
+        self.corrAnim.toggled.connect(self.changeAnim)
+        vlayout.addWidget(self.corrAnim)
 
         gb.setLayout(vlayout)
         layout.addWidget(gb)
@@ -159,23 +159,17 @@ class AnimPlayer(QVBoxLayout):
         self.bc.setStandardMode()
         self.glob.midColumn.poseViews(False)
 
-    def changeFaceAnim(self, param):
+    def changeAnim(self):
         if self.anim:
-            if param is False:
+            feat = int(self.faceAnim.isChecked() | (int (self.corrAnim.isChecked()) << 1))
+            if feat == 0:
                 self.anim.noFaceAnimation()
-            else:
+            elif feat == 1:
                 self.anim.identFinal()
-            if not self.looping:
-                self.bc.showPose()
-
-    def changeCorrections(self, param):
-        if self.anim:
-            if param is False:
-                print ("no corrections")
-                #self.anim.noCorrection(self.bc.pose_skeleton)
+            elif feat == 2:
+                self.anim.modCorrections()
                 self.anim.noFaceAnimation()
             else:
-                print ("corrections")
                 self.anim.modCorrections()
             if not self.looping:
                 self.bc.showPose()
