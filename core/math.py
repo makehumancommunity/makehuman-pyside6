@@ -5,6 +5,8 @@
     Functions:
     * eulerMatrixXYZ                  Euler rotation, fixed order
     * eulerMatrix                     Euler rotation, order must be given as e.g. yzx
+    * eulerMatrixXYZToRadians         Calculation x,y,z radians angles from Euler matrix
+    * eulerMatrixXYZToDegrees         Calculation x,y,z degrees angles from Euler matrix
     * quaternionToRotMatrix           Return homogeneous rotation matrix from quaternion.
     * quaternionFromMatrix            Return quaternion from rotation matrix.
     * quaternionMult                  Return multiplication of two quaternions.
@@ -37,6 +39,20 @@ def eulerMatrixXYZ(ri, rj, rk, i, j, k):
     M[k, k] = cj*ci
     return(M)
 
+def eulerMatrixXYZToRadians(m):
+    cy = math.sqrt(m[0, 0] *m[0, 0] + m[1, 0]*m[1, 0])
+    ay = math.atan2(-m[2, 0],  cy)
+    if cy > _EPS:
+        ax = math.atan2( m[2, 1],  m[2, 2])
+        az = math.atan2( m[1, 0],  m[0, 0])
+    else:
+        ax = math.atan2(-m[1, 2],  m[1, 1])
+        az = 0.0
+    return ax, ay, az
+
+def eulerMatrixXYZToDegrees(m):
+    x = np.degrees(eulerMatrixXYZToRadians(m))
+    return x[0], x[1], x[2]
 
 def eulerMatrix(x, y, z, s="xyz"):
     if s == "xyz":

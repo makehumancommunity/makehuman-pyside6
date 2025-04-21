@@ -411,6 +411,15 @@ class blendCom:
         cnt = len(skeleton.bones)
 
         animat = np.zeros((bvh.frameCount, cnt, 3,3), dtype=np.float32)
+
+        # set scale before, if bones are not mentioned in bvh, scale will stay 1.0
+        #
+        for frame in range(bvh.frameCount):
+            for num in range(cnt):
+                animat[frame, num, 1, 0] = 1.0
+                animat[frame, num, 1, 1] = 1.0
+                animat[frame, num, 1, 2] = 1.0
+
         for frame in range(bvh.frameCount):
             for joint in bvh.bvhJointOrder:
                 if joint.nChannels > 0:
@@ -427,9 +436,6 @@ class blendCom:
                         animat[frame, num, 0, 0] = 0.0
                         animat[frame, num, 0, 1] = 0.0
                         animat[frame, num, 0, 2] = 0.0
-                    animat[frame, num, 1, 0] = 1.0      # scale
-                    animat[frame, num, 1, 1] = 1.0
-                    animat[frame, num, 1, 2] = 1.0
                     animat[frame, num, 2, 0] = f[3]     # rotation
                     animat[frame, num, 2, 1] = f[4]
                     animat[frame, num, 2, 2] = f[5]
