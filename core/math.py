@@ -232,11 +232,11 @@ def changeOrientation(mat, orientation=0, rotAxis='y', offset=[0,0,0]):
     if orientation == 0:
         rot = np.identity(4, dtype=np.float32)
     elif orientation == 1:
-        rot =_rotMatrix(math.pi/2, (0,1,0)) # rotation in y
+        rot = rotMatrix(math.pi/2, (0,1,0)) # rotation in y
     elif orientation == 2:
         rot = rotMatrix(math.pi/2, (1,0,0)) # rotation in X
     elif orientation == 3:
-        rot =_np.dot(rotMatrix(math.pi/2, (0,0,1)), rotMatrix(math.pi/2, (1,0,0))) # dot product of Z x X
+        rot = np.dot(rotMatrix(math.pi/2, (0,0,1)), rotMatrix(math.pi/2, (1,0,0))) # dot product of Z x X
 
     if rotAxis.lower() == 'y':
         # Y along self, X bend
