@@ -22,7 +22,7 @@ from opengl.material import Material
 from opengl.buffers import OpenGlBuffers, RenderedObject
 from opengl.camera import Camera, Light
 from opengl.skybox import OpenGLSkyBox
-from opengl.prims import CoordinateSystem, Grid, BoneList, VisLights, DiamondSkeleton, VisMarker
+from opengl.prims import CoordinateSystem, Grid, BoneList, VisLights, DiamondSkeleton, VisMarker, Cuboid
 
 class OpenGLView(QOpenGLWidget):
     def __init__(self, glob):
@@ -55,12 +55,24 @@ class OpenGLView(QOpenGLWidget):
         self.glfunc = None
         self.visLights = None
         self.diamondskel = False
+        self.floor = False
         self.marker = None
 
     def setDiamondSkeleton(self, v):
         self.diamondskel = v
         if self.glob.baseClass is not None:
             self.prepareSkeleton(self.glob.baseClass.in_posemode)
+            self.Tweak()
+
+    def setFloor(self, v):
+        self.floor = v
+        if self.glob.baseClass is not None:
+            if v and self.prims["xzgrid"].isVisible():
+                self.togglePrims("xzgrid", False)
+                self.togglePrims("floorcuboid", True)
+            elif not v and self.prims["floorcuboid"].isVisible():
+                self.togglePrims("floorcuboid", False)
+                self.togglePrims("xzgrid", True)
             self.Tweak()
 
     def delSkeleton(self):
@@ -202,10 +214,17 @@ class OpenGLView(QOpenGLWidget):
         self.Tweak()
 
     def togglePrims(self, name, status):
+        if name == "floor":
+            name = "floorcuboid" if self.floor else "xzgrid"
         if name in self.prims:
             self.prims[name].setVisible(status)
             if status is True:
-                if name.endswith("grid"):
+                if name == "floorcuboid":
+                    baseClass = self.glob.baseClass
+                    lowestPos = baseClass.getLowestPos() if self.glob.baseClass is not None else 20
+                    self.prims[name].setVisible(status)
+                    self.prims[name].newGeometry(lowestPos)
+                elif name.endswith("grid"):
                     direction = name[:2]
                     baseClass = self.glob.baseClass
                     lowestPos = baseClass.getLowestPos() if self.glob.baseClass is not None else 20
@@ -239,6 +258,7 @@ class OpenGLView(QOpenGLWidget):
         self.prims["xygrid"] = Grid(self.context(), shader, "xygrid", 10.0, lowestPos, "xy")
         self.prims["yzgrid"] = Grid(self.context(), shader, "yzgrid", 10.0, lowestPos, "yz")
         self.prims["xzgrid"] = Grid(self.context(), shader, "xzgrid", 10.0, lowestPos, "xz")
+        self.prims["floorcuboid"] = Cuboid(self.context(), self.mh_shaders, "floorcuboid", [10.0, 0.2, 10.0], [0.0, -8.0, 0.0], self.white)
 
         # visualization of lamps (if obj is not found, no lamps are presented)
         #

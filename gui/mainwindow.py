@@ -186,6 +186,10 @@ class MHMainWindow(QMainWindow):
         act_menu.addAction(act)
         act.triggered.connect(self.dimskel_call)
 
+        act = QAction('Floor instead of grid', act_menu, checkable=True)
+        act_menu.addAction(act)
+        act.triggered.connect(self.floor_call)
+
         act = QAction('Socket active', act_menu, checkable=True)
         act_menu.addAction(act)
         act.triggered.connect(self.socket_call)
@@ -1032,6 +1036,9 @@ class MHMainWindow(QMainWindow):
 
     def dimskel_call(self):
         self.graph.view.setDiamondSkeleton(self.sender().isChecked())
+
+    def floor_call(self):
+        self.graph.view.setFloor(self.sender().isChecked())
 
     def socket_call(self):
         if self.sender().isChecked() and self.glob.apiSocket is None:

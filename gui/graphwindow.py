@@ -285,7 +285,7 @@ class MHGraphicWindow(QWidget):
         self.view.stopAnimation()
 
     def toggle_grid(self):
-        pat = ["xygrid", "yzgrid", "xzgrid"]
+        pat = ["xygrid", "yzgrid", "floor"]
         b = self.sender()
         v = b.isChecked()
         b.setChecked(v)

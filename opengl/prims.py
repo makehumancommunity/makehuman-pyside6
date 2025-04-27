@@ -8,6 +8,7 @@
     * Grid
     * BoneList
     * SimpleObject
+    * Cuboid
     * Diamond
     * DiamondSkeleton
     * VisLights
@@ -206,6 +207,50 @@ class SimpleObject():
     def delete(self):
         if self.simple:
             self.simple.delete()
+
+class Cuboid(SimpleObject):
+    def __init__(self, context, shaders, name, size, position, texture):
+        self.texture = texture
+        self.context = context
+        self.shaders = shaders
+        self.name = name
+        self.size = size
+        self.position = position
+        self.visible = False
+
+    def build(self):
+        (x, y, z) = self.size
+        (ox, oy, oz) = self.position
+        self.icoord = np.asarray(
+            [0, 2, 1,  0, 3, 2,  4, 6, 5,  4, 7, 6,
+             4, 0, 1,  4, 1, 5,  7, 3, 2,  7, 2, 6,
+             3, 0, 4,  3, 4, 7,  6, 2, 1,  6, 1, 5],
+            dtype=np.uint32)
+        self.coord = np.asarray(
+            [[-x+ox, -y+oy, -z+oz], [x+ox, -y+oy, -z+oz], [x+ox, y+oy, -z+oz], [-x+ox, y+oy, -z+oz],
+            [-x+ox, -y+oy, z+oz], [x+ox, -y+oy, z+oz], [x+ox, y+oy, z+oz], [-x+ox, y+oy, z+oz]],
+            dtype=np.float32)
+        self.coord = self.flatShade(self.icoord, self.coord)
+        self.norm = self.calcNorm(self.icoord, self.coord)
+        self.coord = self.coord.flatten()
+        super().__init__(self.context, self.shaders, self.name, self.coord, self.norm, self.icoord, infront=False)
+        self.create()
+
+    def isVisible(self):
+        return self.visible
+
+    def setVisible(self, status):
+        self.visible = status
+        if status is False:
+            self.delete()
+
+    def newGeometry(self, oy):
+        self.position[1] = oy - self.size[1]
+        self.build()
+
+    def draw(self, proj_view_matrix):
+        if self.visible:
+            self.simple.draw(proj_view_matrix, self.texture)
 
 class Diamond(SimpleObject):
     def __init__(self, context, shaders, name):
