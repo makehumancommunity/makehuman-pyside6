@@ -258,7 +258,7 @@ class OpenGLView(QOpenGLWidget):
         self.prims["xygrid"] = Grid(self.context(), shader, "xygrid", 10.0, lowestPos, "xy")
         self.prims["yzgrid"] = Grid(self.context(), shader, "yzgrid", 10.0, lowestPos, "yz")
         self.prims["xzgrid"] = Grid(self.context(), shader, "xzgrid", 10.0, lowestPos, "xz")
-        self.prims["floorcuboid"] = Cuboid(self.context(), self.mh_shaders, "floorcuboid", [10.0, 0.2, 10.0], [0.0, -8.0, 0.0], self.white)
+        self.prims["floorcuboid"] = Cuboid(self.context(), self.mh_shaders, "floorcuboid", [10.0, 0.2, 10.0], [0.0, -8.0, 0.0], self.floortex)
 
         # visualization of lamps (if obj is not found, no lamps are presented)
         #
@@ -317,14 +317,15 @@ class OpenGLView(QOpenGLWidget):
         self.objects[0].setMaterial(obj.material)
 
     def createSysMaterials(self):
-        for name in ("black", "white", "orange", "red"):
+        for name in ("black", "white", "orange", "red", "floor"):
             m = Material(self.glob, name, "system")
             self.sysmaterials.append(m)
 
         self.black = self.sysmaterials[0].uniColor([0.0, 0.0, 0.0])
         self.white = self.sysmaterials[1].uniColor([1.0, 1.0, 1.0])
         self.orange= self.sysmaterials[2].uniColor([1.0, 0.5, 0.0])
-        self.red   = self.sysmaterials[2].uniColor([1.0, 0.5, 0.5])
+        self.red   = self.sysmaterials[3].uniColor([1.0, 0.5, 0.5])
+        self.floortex = self.sysmaterials[4].setDiffuse(os.path.join(self.env.path_sysdata, "shaders", "floor", "default.png"))
 
     def initializeGL(self):
         """

@@ -124,7 +124,7 @@ class MH_Texture():
         self.repo.add(name, self.texture, 0, None, self.textype)
         return self.texture
 
-    def load(self, path):
+    def load(self, path, textype="user"):
         """
         load textures
         """
@@ -133,10 +133,13 @@ class MH_Texture():
             self.repo.inc(path)
             return texture
 
+        if not os.path.isfile(path):
+            return None
+
         timestamp = int(os.stat(path).st_mtime)
         image = QImage(path)
         self.create(path, image)
-        self.repo.add(path, self.texture, timestamp, self)
+        self.repo.add(path, self.texture, timestamp, self, textype)
         return self.texture
 
     def refresh(self, path):

@@ -396,6 +396,15 @@ shaderConfig diffuse {self.sc_diffuse}
         return white
 
 
+    def setDiffuse(self, name):
+        self.diffuseTexture = name
+        self.tex_diffuse = MH_Texture(self.glob.textureRepo)
+        texture = self.tex_diffuse.load(self.diffuseTexture, self.type)
+        if texture is not None:
+            self.sc_diffuse = True
+            return texture
+        return None
+
     def loadDiffuse(self):
         self.tex_diffuse = MH_Texture(self.glob.textureRepo)
         if hasattr(self, 'diffuseTexture'):

@@ -163,7 +163,7 @@ class SimpleObject():
         self.icoord = indices
         self.shaders = shaders
         if uv is None:
-            self.uv = np.zeros(len(self.icoord), dtype=np.float32)
+            self.uv = np.zeros(len(self.icoord) *2, dtype=np.float32)
         else:
             self.uv = uv
         self.infront = infront
@@ -226,6 +226,14 @@ class Cuboid(SimpleObject):
              4, 0, 1,  4, 1, 5,  7, 3, 2,  7, 2, 6,
              3, 0, 4,  3, 4, 7,  6, 2, 1,  6, 1, 5],
             dtype=np.uint32)
+        self.uv = np.asarray(
+            [0, 0, 0.1, 1, 0, 1, 0, 0, 0.1, 0, 0.1, 1,
+             0, 0, 0.1, 1, 0, 1, 0, 0, 0.1, 0, 0.1, 1,
+             0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1,
+             0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1,
+             1, 0.1, 1, 0, 0, 0, 1, 0.1, 0, 0, 0, 0.1,
+             0.1, 1, 0.1, 0, 0, 0, 0.1, 1, 0, 0, 0, 1],
+            dtype=np.float32)
         self.coord = np.asarray(
             [[-x+ox, -y+oy, -z+oz], [x+ox, -y+oy, -z+oz], [x+ox, y+oy, -z+oz], [-x+ox, y+oy, -z+oz],
             [-x+ox, -y+oy, z+oz], [x+ox, -y+oy, z+oz], [x+ox, y+oy, z+oz], [-x+ox, y+oy, z+oz]],
@@ -233,7 +241,7 @@ class Cuboid(SimpleObject):
         self.coord = self.flatShade(self.icoord, self.coord)
         self.norm = self.calcNorm(self.icoord, self.coord)
         self.coord = self.coord.flatten()
-        super().__init__(self.context, self.shaders, self.name, self.coord, self.norm, self.icoord, infront=False)
+        super().__init__(self.context, self.shaders, self.name, self.coord, self.norm, self.icoord, uv=self.uv, infront=False)
         self.create()
 
     def isVisible(self):
