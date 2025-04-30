@@ -56,6 +56,7 @@ class OpenGLView(QOpenGLWidget):
         self.visLights = None
         self.diamondskel = False
         self.floor = False
+        self.floortexname = "default.png"
         self.marker = None
 
     def setDiamondSkeleton(self, v):
@@ -267,6 +268,9 @@ class OpenGLView(QOpenGLWidget):
         if not success:
             self.visLights = None
 
+    def modFloorTexture(self):
+        self.prims["floorcuboid"].setTexture(self.floortex)
+
     def compareBoundingBoxes(self, box1, box2):
         n = 0
         for i in range(0,3):
@@ -316,6 +320,11 @@ class OpenGLView(QOpenGLWidget):
     def newSkin(self, obj):
         self.objects[0].setMaterial(obj.material)
 
+    def floorTexture(self, name):
+        floorpath = self.env.existDataFile("shaders", "floor", name)
+        self.floortex = self.sysmaterials[4].setDiffuse(floorpath, self.red)
+        self.floortexname = name
+
     def createSysMaterials(self):
         for name in ("black", "white", "orange", "red", "floor"):
             m = Material(self.glob, name, "system")
@@ -325,7 +334,7 @@ class OpenGLView(QOpenGLWidget):
         self.white = self.sysmaterials[1].uniColor([1.0, 1.0, 1.0])
         self.orange= self.sysmaterials[2].uniColor([1.0, 0.5, 0.0])
         self.red   = self.sysmaterials[3].uniColor([1.0, 0.5, 0.5])
-        self.floortex = self.sysmaterials[4].setDiffuse(os.path.join(self.env.path_sysdata, "shaders", "floor", "default.png"))
+        self.floorTexture(self.floortexname)
 
     def initializeGL(self):
         """

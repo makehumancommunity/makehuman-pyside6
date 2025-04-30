@@ -534,9 +534,9 @@ class programInfo():
             if self.mkdir(folder) is False:
                 return (False)
 
-        # and private litsphere/skybox folders
+        # and private litsphere/skybox/floor folders
         #
-        for name in ["litspheres", "skybox"]:
+        for name in ["litspheres", "skybox", "floor"]:
             folder = os.path.join(userdata, "shaders", name)
             if self.mkdir(folder) is False:
                 return (False)

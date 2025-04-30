@@ -252,6 +252,9 @@ class Cuboid(SimpleObject):
         if status is False:
             self.delete()
 
+    def setTexture(self, texture):
+        self.texture = texture
+
     def newGeometry(self, oy):
         self.position[1] = oy - self.size[1]
         self.build()

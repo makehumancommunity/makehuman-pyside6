@@ -35,6 +35,7 @@ class MHSceneWindow(QWidget):
 
         self._lastusedskybox = self.light.skyboxname
         self._lastselectedskybox = self.light.skyboxname
+        self._lastselectedfloor = self.view.floortexname
 
         # will keep the widgets
         #
@@ -54,8 +55,24 @@ class MHSceneWindow(QWidget):
         self.ambLuminance = SimpleSlider("Luminance: ", 0, 100, self.ambChanged)
         vlayout.addWidget(self.ambLuminance )
 
-        self.ambColor = ColorButton("Color: ", self.ambColorChanged)
+        self.ambColor = ColorButton("Color: ", self.ambColorChanged, horizontal=True)
         vlayout.addWidget(self.ambColor)
+
+        # list of jpg and png for floor pattern
+        #
+        vlayout.addWidget(QLabel("Floor texture:"))
+        self.floorlist = self.env.getDataFileList("png", "shaders", "floor")
+        self.floorlist.update(self.env.getDataFileList("jpg", "shaders", "floor"))
+        self.floorSelect = QListWidget()
+        self.floorSelect.addItems(self.floorlist.keys())
+        self.floorSelect.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.getFloorName()
+        vlayout.addWidget(self.floorSelect)
+
+        b = QPushButton("Select")
+        b.clicked.connect(self.changeFloorName)
+        vlayout.addWidget(b)
+
         l.setLayout(vlayout)
         l2layout.addWidget(l)
 
@@ -166,6 +183,7 @@ class MHSceneWindow(QWidget):
 
     def changeSkybox(self, name, oldname):
         if name != oldname:
+            print (name)
             self.light.skyboxname = name
             self._lastselectedskybox = name
             s = self.light.skybox 
@@ -175,10 +193,24 @@ class MHSceneWindow(QWidget):
             self.light.skybox = s
             self.view.Tweak()
 
+    def changeFloor(self, name, oldname):
+        if name != oldname:
+            print (name)
+            self.view.floorTexture(name)
+            self.view.modFloorTexture()
+            self._lastselectedfloor = name
+            self.view.Tweak()
+
+
     def changeSkyboxName(self):
         sel = self.skyboxSelect.selectedItems()
         if len(sel) > 0:
             self.changeSkybox(sel[0].text(), self._lastselectedskybox)
+
+    def changeFloorName(self):
+        sel = self.floorSelect.selectedItems()
+        if len(sel) > 0:
+            self.changeFloor(sel[0].text(), self._lastselectedfloor)
 
     def getSkyBox(self):
         if self.light.skybox:
@@ -190,6 +222,11 @@ class MHSceneWindow(QWidget):
         items = self.skyboxSelect.findItems(self.light.skyboxname, Qt.MatchExactly)
         if len(items) > 0:
             self.skyboxSelect.setCurrentItem(items[0])
+
+    def getFloorName(self):
+        items = self.floorSelect.findItems(self._lastselectedfloor, Qt.MatchExactly)
+        if len(items) > 0:
+            self.floorSelect.setCurrentItem(items[0])
 
     def getValues(self):
         if self.light.blinn:
