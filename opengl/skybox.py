@@ -56,6 +56,7 @@ class OpenGLSkyBox:
                 path = jfile
             else:
                 continue
+            self.env.logLine(8, "Load: " + path)
             elem[0] = QImage(path)
             self.texture.setData(0, 0, elem[2], QOpenGLTexture.RGBA, QOpenGLTexture.UInt8, elem[0].bits())
 

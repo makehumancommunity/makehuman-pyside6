@@ -191,6 +191,17 @@ class OpenGLView(QOpenGLWidget):
             self.togglePrims("skeleton", True)
         self.Tweak()
 
+    def lowestPos(self, posed=False):
+        if self.glob.baseClass is not None:
+            return self.glob.baseClass.getLowestPos(posed)
+        else:
+            return 20
+
+    def newFloorPosition(self, posed=False):
+        floorpos = self.lowestPos(posed)
+        self.prims["floorcuboid"].newGeometry(floorpos)
+        self.prims["xzgrid"].newGeometry(floorpos, "xz")
+
     def toggleObjects(self, status):
         """
         makes objects invisible and switches skeleton to on
@@ -218,21 +229,16 @@ class OpenGLView(QOpenGLWidget):
         if name == "floor":
             name = "floorcuboid" if self.floor else "xzgrid"
         if name in self.prims:
-            self.prims[name].setVisible(status)
             if status is True:
                 if name == "floorcuboid":
-                    baseClass = self.glob.baseClass
-                    lowestPos = baseClass.getLowestPos() if self.glob.baseClass is not None else 20
-                    self.prims[name].setVisible(status)
-                    self.prims[name].newGeometry(lowestPos)
+                    self.prims[name].newGeometry(self.lowestPos())
                 elif name.endswith("grid"):
                     direction = name[:2]
-                    baseClass = self.glob.baseClass
-                    lowestPos = baseClass.getLowestPos() if self.glob.baseClass is not None else 20
-                    self.prims[name].newGeometry(lowestPos, direction)
+                    self.prims[name].newGeometry(self.lowestPos(), direction)
                 elif name == "skeleton":
                     posed = (self.glob.baseClass.bvh is not None) or (self.glob.baseClass.expression is not None)
                     self.prims[name].newGeometry(posed)
+            self.prims[name].setVisible(status)
             self.Tweak()
 
     def delMarker(self):
@@ -255,7 +261,7 @@ class OpenGLView(QOpenGLWidget):
     def createPrims(self):
         shader = self.mh_shaders.getShader("fixcolor")
         self.prims["axes"] = CoordinateSystem(self.context(), shader, "axes", 10.0)
-        lowestPos = self.glob.baseClass.getLowestPos() if self.glob.baseClass is not None else 20
+        lowestPos = self.lowestPos()
         self.prims["xygrid"] = Grid(self.context(), shader, "xygrid", 10.0, lowestPos, "xy")
         self.prims["yzgrid"] = Grid(self.context(), shader, "yzgrid", 10.0, lowestPos, "yz")
         self.prims["xzgrid"] = Grid(self.context(), shader, "xzgrid", 10.0, lowestPos, "xz")

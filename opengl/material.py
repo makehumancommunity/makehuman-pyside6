@@ -352,33 +352,33 @@ shaderConfig diffuse {self.sc_diffuse}
         for n, elem in enumerate(col):
             newcolor += elem * values[n]
         self.freeTextures()
-        self.tex_diffuse = MH_Texture(self.glob.textureRepo)
+        self.tex_diffuse = MH_Texture(self.glob)
         return self.tex_diffuse.unicolor([newcolor[0], newcolor[1], newcolor[2]])
 
     def uniColor(self, rgb):
-        self.tex_diffuse = MH_Texture(self.glob.textureRepo, self.type)
+        self.tex_diffuse = MH_Texture(self.glob, self.type)
         return self.tex_diffuse.unicolor(rgb)
 
     def loadLitSphere(self):
-        self.tex_litsphere = MH_Texture(self.glob.textureRepo)
+        self.tex_litsphere = MH_Texture(self.glob)
         return self.tex_litsphere.load(self.sp_litsphereTexture)
 
     def loadAOMap(self, white):
         if hasattr(self, 'aomapTexture'):
-            self.tex_aomap = MH_Texture(self.glob.textureRepo)
+            self.tex_aomap = MH_Texture(self.glob)
             return self.tex_aomap.load(self.aomapTexture)
 
         return white
 
     def loadNOMap(self, nocolor):
         if hasattr(self, 'normalmapTexture'):
-            self.tex_nomap = MH_Texture(self.glob.textureRepo)
+            self.tex_nomap = MH_Texture(self.glob)
             return self.tex_nomap.load(self.normalmapTexture)
 
         return nocolor
 
     def loadEMMap(self, nocolor):
-        self.tex_emmap = MH_Texture(self.glob.textureRepo)
+        self.tex_emmap = MH_Texture(self.glob)
         if hasattr(self, 'emissiveTexture'):
             return self.tex_emmap.load(self.emissiveTexture)
 
@@ -390,7 +390,7 @@ shaderConfig diffuse {self.sc_diffuse}
 
     def loadMRMap(self, white):
         if hasattr(self, 'metallicRoughnessTexture'):
-            self.tex_mrmap = MH_Texture(self.glob.textureRepo)
+            self.tex_mrmap = MH_Texture(self.glob)
             return self.tex_mrmap.load(self.metallicRoughnessTexture)
 
         return white
@@ -400,7 +400,7 @@ shaderConfig diffuse {self.sc_diffuse}
         if name is None:
             return alternative
         self.diffuseTexture = name
-        self.tex_diffuse = MH_Texture(self.glob.textureRepo)
+        self.tex_diffuse = MH_Texture(self.glob)
         texture = self.tex_diffuse.load(self.diffuseTexture, self.type)
         if texture is not None:
             self.sc_diffuse = True
@@ -408,7 +408,7 @@ shaderConfig diffuse {self.sc_diffuse}
         return alternative
 
     def loadDiffuse(self):
-        self.tex_diffuse = MH_Texture(self.glob.textureRepo)
+        self.tex_diffuse = MH_Texture(self.glob)
         if hasattr(self, 'diffuseTexture'):
             self.sc_diffuse = True
             return self.tex_diffuse.load(self.diffuseTexture)

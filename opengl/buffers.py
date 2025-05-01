@@ -157,6 +157,7 @@ class RenderedObject:
             self.shader = self.shaders.getShader("toon")
         else:
             self.shader = self.shaders.getShader("phong3l")
+            self.aomap = self.material.loadAOMap(self.parent.white)
 
     def setTexture(self, texture):
         # only used for colors
@@ -252,6 +253,13 @@ class RenderedObject:
                 functions.glActiveTexture(gl.GL_TEXTURE1)
                 self.litsphere.bind()
 
+            elif self.material.shader == "phong3l":
+                functions.glUniform1f(shader.uniforms['AOMult'], self.material.aomapIntensity)
+
+                functions.glUniform1i(shader.uniforms['AOTexture'], 1)
+                functions.glActiveTexture(gl.GL_TEXTURE1)
+                self.aomap.bind()
+
             elif self.material.shader == "pbr":
                 functions.glUniform1f(shader.uniforms['AOMult'], self.material.aomapIntensity)
 
@@ -321,6 +329,8 @@ class RenderedObject:
         functions.glActiveTexture(gl.GL_TEXTURE0)
         self.texture.bind()
 
+        functions.glUniform1f(shader.uniforms['AOMult'], 1.0)
+
         indices = self.getindex()
 
         functions.glLineWidth(1)
@@ -335,6 +345,11 @@ class RenderedObject:
         self.setTexture(white)
         functions.glActiveTexture(gl.GL_TEXTURE0)
         self.texture.bind()
+
+        functions.glUniform1i(shader.uniforms['AOTexture'], 1)
+        functions.glActiveTexture(gl.GL_TEXTURE1)
+        self.texture.bind()
+
         gl.glPolygonMode(gl.GL_FRONT_AND_BACK, gl.GL_FILL)
 
         functions.glDrawElements(gl.GL_TRIANGLES, len(indices), gl.GL_UNSIGNED_INT, indices)
@@ -460,6 +475,12 @@ class RenderedSimple:
         self.functions.glActiveTexture(gl.GL_TEXTURE0)
         self.functions.glUniform1i(t1, 0)
         self.texture.bind()
+
+        self.functions.glUniform1f(shader.uniforms['AOMult'], 2.0)
+        self.functions.glUniform1i(shader.uniforms['AOTexture'], 1)
+        self.functions.glActiveTexture(gl.GL_TEXTURE1)
+        self.texture.bind()
+
         if self.infront:
             self.functions.glDisable(gl.GL_DEPTH_TEST)
         else:
@@ -469,6 +490,7 @@ class RenderedSimple:
         self.functions.glDrawElements(gl.GL_TRIANGLES, len(self.indices), gl.GL_UNSIGNED_INT, self.indices)
         self.functions.glDisable(gl.GL_BLEND)
         self.functions.glDisable(gl.GL_DEPTH_TEST)
+        self.functions.glActiveTexture(gl.GL_TEXTURE0)
 
 
 

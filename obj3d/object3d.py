@@ -56,6 +56,9 @@ class object3d:
         self.min_index = None   # will contain vertex numbers for min values xyz
         self.max_index = None   # will contain vertex numbers for max values xyz
 
+        self.minpose_index = None   # will contain vertex numbers for min values xyz in posed mode
+        self.maxpose_index = None   # will contain vertex numbers for max values xyz in posed mode
+
         self.material = None    # will contain a material
 
 
@@ -821,18 +824,24 @@ class object3d:
         self.approxToBasemesh(asset, base)
         self.gl_coord_w =  self.gl_coord.copy()
 
-    def precalculateDimension(self):
+    def _getMinMaxValues(self, coord):
         """
         calculate numbers of vertices, which are on the outside for later use
         do that only for visible groups
         """
-        coord = np.zeros((self.n_origverts, 3), dtype=np.float32)
+        ncoord = np.zeros((self.n_origverts, 3), dtype=np.float32)
         for i in range (0, self.n_fverts):
             cnt = self.gl_icoord[i]
             if cnt < self.n_origverts:
-                coord[cnt] = self.coord[cnt]
-        self.max_index = np.argmax(coord, axis=0)
-        self.min_index  = np.argmin(coord, axis=0)
+                ncoord[cnt] = coord[cnt]
+        return np.argmin(ncoord, axis=0),  np.argmax(ncoord, axis=0)
+
+    def precalculateDimension(self):
+        self.min_index, self.max_index = self._getMinMaxValues(self.coord)
+
+    def precalculatePosedDimension(self):
+        poscoord = np.reshape(self.gl_coord, (len(self.gl_coord) // 3,3))
+        self.minpose_index, self.maxpose_index = self._getMinMaxValues(poscoord)
 
     def boundingBox(self):
         if self.min_index is None:
@@ -854,8 +863,15 @@ class object3d:
         n = [ self.getCenterWidth(),  self.getCenterHeight(), self.getCenterDepth() ]
         return (n)
 
-    def getLowestPos(self):
-        return (self.gl_coord[self.min_index[1]*3+1])
+    def getLowestPos(self, posed=False):
+        if posed and self.minpose_index is not None:
+            return self.gl_coord[self.minpose_index[1]*3+1]
+        else:
+            return self.gl_coord[self.min_index[1]*3+1]
+
+    def setNoPose(self):
+        self.minpose_index = None
+        self.maxpose_index = None
 
     def getHeightInUnits(self):
         return (self.gl_coord[self.max_index[1]*3+1]-self.gl_coord[self.min_index[1]*3+1])

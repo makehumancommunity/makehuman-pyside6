@@ -738,6 +738,7 @@ class MHMainWindow(QMainWindow):
             self.prog_window.progress.close()
             self.prog_window = None
         self.glob.openGLBlock = False
+        self.graph.view.newFloorPosition()
         self.graph.view.Tweak()
         self.setWindowTitle(self.glob.baseClass.name)
         self.graph.setSizeInfo()

@@ -16,18 +16,22 @@ in VS_OUT {
 } fs_in;
 
 uniform sampler2D Texture;
+uniform sampler2D AOTexture;
 uniform PointLight pointLights[3];
 
 uniform vec3 lightWeight;
 uniform vec4 ambientLight;
 uniform vec3 viewPos;
 uniform bool blinn;
+uniform float AOMult;
 
 void main()
 {
 	vec3 color = texture(Texture, fs_in.TexCoords).rgb;
 	float transp = texture(Texture, fs_in.TexCoords).a;
 	if (transp < 0.01) discard;
+
+        float ao = texture(AOTexture, fs_in.TexCoords).r;
 
 	// ambient
 	vec3 ambient = ambientLight[3] * color * vec3(ambientLight);
@@ -68,6 +72,6 @@ void main()
 		}
         }
 
-	FragColor = vec4(ambient + diffuse + specular, transp);
+	FragColor = vec4((ambient + diffuse + specular) * ao * AOMult, transp);
 }
 

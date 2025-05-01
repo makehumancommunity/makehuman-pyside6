@@ -183,7 +183,6 @@ class MHSceneWindow(QWidget):
 
     def changeSkybox(self, name, oldname):
         if name != oldname:
-            print (name)
             self.light.skyboxname = name
             self._lastselectedskybox = name
             s = self.light.skybox 
@@ -195,7 +194,6 @@ class MHSceneWindow(QWidget):
 
     def changeFloor(self, name, oldname):
         if name != oldname:
-            print (name)
             self.view.floorTexture(name)
             self.view.modFloorTexture()
             self._lastselectedfloor = name

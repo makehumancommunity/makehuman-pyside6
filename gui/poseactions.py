@@ -25,6 +25,7 @@ class AnimMode():
         self.bc = glob.baseClass
         self.bc.setPoseMode()
         self.bc.showPoseAndExpression()
+        self.view.newFloorPosition(posed=True)
         self.view.Tweak()
 
     def leave(self):
@@ -147,6 +148,7 @@ class AnimPlayer(QVBoxLayout):
             self.firstframe()
         elif self.posemod:
             self.bc.showPose()
+        self.view.newFloorPosition(posed=True)
         self.refreshPlayerButtons()
 
     def leave(self):

@@ -32,6 +32,8 @@ class TextureBox(QGroupBox):
         self.material = obj.material
         self.slider1 = slider1
         self.slider2 = slider2
+        self.slider1_factor = 100.0
+        self.slider2_factor = 100.0
         self.setObjectName("subwindow")
         self.label = QLabel()
         self.sweep = IconButton(0, parent.sweep, "No texture", self.emptyMap, 32)
@@ -119,24 +121,27 @@ class TextureBox(QGroupBox):
             else:
                 self.intensity2.setLabelText(self.slider2[2])
 
+    def setSlider1Factor(self, factor):
+        self.slider1_factor = factor
+
     def slider1set(self):
         if self.slider1 is not None and hasattr(self.material, self.slider1attr):
                 item = getattr(self.material, self.slider1attr)
-                self.intensity1.setSliderValue(item * 100)
+                self.intensity1.setSliderValue(item * self.slider1_factor)
 
     def slider2set(self):
         if self.slider2 is not None and hasattr(self.material, self.slider2attr):
             item = getattr(self.material, self.slider2attr)
-            self.intensity2.setSliderValue(item * 100)
+            self.intensity2.setSliderValue(item * self.slider2_factor)
 
     def slider1changed(self, value):
         if hasattr(self.material, self.slider1attr):
-            setattr(self.material, self.slider1attr, value / 100.0)
+            setattr(self.material, self.slider1attr, value / self.slider1_factor)
             self.Tweak()
 
     def slider2changed(self, value):
         if hasattr(self.material, self.slider2attr):
-            setattr(self.material, self.slider2attr, value / 100.0)
+            setattr(self.material, self.slider2attr, value / self.slider2_factor)
             self.Tweak()
 
     def Tweak(self):
@@ -167,7 +172,7 @@ class MHMaterialEditor(QWidget):
         self.factors = [
                 ["metallicFactor", "[PBR] Metal map strength: ",     "[PBR] Metallic Factor: "],
                 ["pbrMetallicRoughness", "[PBR] Roughness map strength: ", "[PBR] Roughness Factor: "],
-                ["aomapIntensity", "[PBR] AO map strength: ",        "[PBR] Ambient Occlusion: "],
+                ["aomapIntensity", "[PBR/Phong] AO map strength: ",        "[PBR/Phong] Ambient Occlusion: "],
                 ["normalmapIntensity", "Normalmap strength: ",  "--- no effect ---: "],
                 ["emissiveFactor", "Emission map strength: ",  "Emission value strength: "],
                 ["sp_AdditiveShading", "Litsphere additive shading: ",  "--- no effect ---: "]
@@ -194,6 +199,7 @@ class MHMaterialEditor(QWidget):
         self.TBoxes.append(t)
 
         t = TextureBox (self, self.object, "Ambient occlusion", "aomapTexture", self.factors[2])
+        t.setSlider1Factor(50)
         slayout.addWidget(t)
         self.TBoxes.append(t)
 

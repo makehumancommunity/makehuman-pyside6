@@ -98,8 +98,9 @@ class baseClass():
         self.restPose()
         self.precalculateAssetsInRestPose()
         self.pose_skeleton.newGeometry()
-        self.glob.openGLWindow.prepareSkeleton(True)
-        self.glob.openGLWindow.Tweak()
+        gl = self.glob.openGLWindow
+        gl.prepareSkeleton(True)
+        gl.Tweak()
         self.in_posemode = True
 
     def setStandardMode(self):
@@ -107,8 +108,10 @@ class baseClass():
         self.restPose()
         self.updateAttachedAssets()
         self.in_posemode = False
-        self.glob.openGLWindow.prepareSkeleton(False)
-        self.glob.openGLWindow.Tweak()
+        gl = self.glob.openGLWindow
+        gl.prepareSkeleton(False)
+        gl.newFloorPosition(posed=False)
+        gl.Tweak()
 
     def loadMHMFile(self, filename, verbose=None):
         """
@@ -122,6 +125,7 @@ class baseClass():
             return (False, str(err))
 
         self.attachedAssets = []
+        self.baseMesh.setNoPose()
 
         if verbose is not None:
             verbose.setLabelText("Load " + filename)
@@ -342,13 +346,23 @@ class baseClass():
         else:
             self.baseMesh.hideVertices(verts)
 
-    def getLowestPos(self):
+    def setNoPose(self):
+        self.baseMesh.setNoPose()
+        for elem in (self.attachedAssets):
+            elem.obj.setNoPose()
+
+    def recalcLowestPosePos(self):
+        self.baseMesh.precalculatePosedDimension()
+        for elem in (self.attachedAssets):
+            elem.obj.precalculatePosedDimension()
+
+    def getLowestPos(self, posed=False):
         """
         lowest position of whole character for exports and grid
         """
-        lowest = self.baseMesh.getLowestPos()
+        lowest = self.baseMesh.getLowestPos(posed)
         for elem in (self.attachedAssets):
-            m = elem.obj.getLowestPos()
+            m = elem.obj.getLowestPos(posed)
             if m < lowest:
                 lowest = m
         return(lowest)
@@ -547,6 +561,8 @@ class baseClass():
             else:
                 self.showPoseAndExpression()
                 self.glob.markAssetByFileName(path, True)
+                self.recalcLowestPosePos()
+                self.glob.openGLWindow.newFloorPosition(posed=True)
             return loaded
 
         if self.getBodyUnits() is None:
@@ -559,6 +575,8 @@ class baseClass():
         else:
             self.showPoseAndExpression()
             self.glob.markAssetByFileName(path, True)
+            self.recalcLowestPosePos()
+            self.glob.openGLWindow.newFloorPosition(posed=True)
         return loaded
 
     def delPose(self, path):
@@ -570,6 +588,8 @@ class baseClass():
         self.glob.markAssetByFileName(path, False)
         self.restPose()
         self.showPoseAndExpression()
+        self.setNoPose()
+        self.glob.openGLWindow.newFloorPosition()
         self.glob.openGLWindow.Tweak()
 
     def getFaceUnits(self):

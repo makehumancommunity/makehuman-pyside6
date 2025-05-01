@@ -87,8 +87,9 @@ class TextureRepo():
 
 
 class MH_Texture():
-    def __init__(self, repo,  textype="user"):
-        self.repo = repo
+    def __init__(self, glob, textype="user"):
+        self.glob = glob
+        self.repo = glob.textureRepo
         self.textype = textype
         self.texture = QOpenGLTexture(QOpenGLTexture.Target2D)
 
@@ -138,6 +139,7 @@ class MH_Texture():
 
         timestamp = int(os.stat(path).st_mtime)
         image = QImage(path)
+        self.glob.env.logLine(8, "Load: " + path)
         self.create(path, image)
         self.repo.add(path, self.texture, timestamp, self, textype)
         return self.texture
