@@ -219,6 +219,7 @@ class MHMainWindow(QMainWindow):
 
         help_menu = menu_bar.addMenu("&Help")
         self.addActCallBack(help_menu, "Context Help", self.context_help)
+        self.addActCallBack(help_menu, "Navigation", self.nav_help)
 
         if self.glob.baseClass is not None:
             self.createImageSelection()
@@ -1056,8 +1057,11 @@ class MHMainWindow(QMainWindow):
         self.glob.Targets.setSkinDiffuseColor()
         self.graph.view.Tweak()
 
-    def context_help(self):
-        path = os.path.join(self.env.path_sysdata, "help",
+    def context_help(self, filename=None):
+        if filename:
+            path = os.path.join(self.env.path_sysdata, "help", "help-" + filename + ".txt")
+        else:
+            path = os.path.join(self.env.path_sysdata, "help",
                 "help-" + str(self.tool_mode) + "-" + str(self.category_mode) + ".txt")
         try:
             with open(path) as f:
@@ -1065,6 +1069,9 @@ class MHMainWindow(QMainWindow):
         except IOError as e:
             text = "Error: " + str(e)
         TextBox(self, "Context Help", None, text, modal=False)
+
+    def nav_help(self):
+        self.context_help("navigation")
 
     def vers_call(self):
         text = "Numpy: " + ".".join([str(x) for x in self.env.numpy_version]) + "<br>" + \

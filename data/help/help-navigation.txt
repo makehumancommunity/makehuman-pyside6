@@ -1,0 +1,46 @@
+<h1>Navigation in Viewport</h1>
+<p>
+The character in the viewport can be displayed in orthogonal and perspective mode using different focal lengths.
+<p>
+Main navigation is done mostly with mouse and mouse-buttons. It is a so-called arc-ball navigation.
+Be aware that some positions, like top view, cannot be reached when starting from front-view. In this case use a top-view instead
+and then change the rotation.
+<p>
+<table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">
+<tr><td><b>Rotate</b></td><td>Press left mouse button and move mouse</td></tr>
+<tr><td><b>Move</b></td><td>Press right mouse button and move mouse</td></tr>
+<tr><td><b>Zoom In</b></td><td>Mouse-wheel down or function key Num +</td></tr>
+<tr><td><b>Zoom Out</b></td><td>Mouse-wheel up or function key Num -</td></tr>
+</table>
+<p>
+Keys can be used to display different views as well. Check "Settings/Preferences", tab "Input".
+
+<h3>Navigation icons:</h3>
+<p>
+<table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">
+<tr><td><img src="data/icons/top.png"></td><td>Use top view to display character.</td></tr>
+<tr><td><img src="data/icons/left.png"></td><td>Use left view to display character.</td></tr>
+<tr><td><img src="data/icons/front.png"></td><td>Use front view to display character.</td></tr>
+<tr><td><img src="data/icons/right.png"></td><td>Use right view to display character.</td></tr>
+<tr><td><img src="data/icons/back.png"></td><td>Use back view to display character.</td></tr>
+<tr><td><img src="data/icons/bottom.png"></td><td>Use bottom view to display character.</td></tr>
+<tr><td><img src="data/icons/3dcoord.png"></td><td>Toggles axes and position of light sources.</td></tr>
+<tr><td><img src="data/icons/xygrid.png"></td><td>Toggles grid to be used from the front for measurement, 10cm base.</td></tr>
+<tr><td><img src="data/icons/yzgrid.png"></td><td>Toggles grid to be used from the left or right side for measurement, 10cm base.</td></tr>
+<tr><td><img src="data/icons/xzgrid.png"></td><td>Toggles grid to be used from top or bottom view, 10cm base. This grid can be replaced by a floor, which could be used for better visibility in animation to check if feet are on the ground. (see menu "Activate")</td></tr>
+<tr><td><img src="data/icons/unhide.png"></td><td>If vertices are hidden when a character wears clothes, visibility of these vertices can be toggled.</td></tr>
+<tr><td><img src="data/icons/an_skeleton.png"></td><td>Toggles the visibility of the skeleton. The character is displayed in ghost-mode. The skeleton can be changed to a diamond representation or a line-representation (Menu: "Activate"). A red skeleton means, that no skeleton is used and weights depend on the internal standard skeleton..</td></tr>
+<tr><td><img src="data/icons/eq_proxy.png"></td><td>Toggles wireframe mode. The triangle mesh is presented.</td></tr>
+<tr><td><img src="data/icons/ghost.png"></td><td>Toggles assets (clothes etc.) into ghost-mode. Helps to analyse hidden vertices.</td></tr>
+<tr><td><img src="data/icons/persp.png"></td><td>Toggles perspective and orthogonal mode. In orthogonal mode no skybox is available.</td></tr>
+<tr><td><img src="data/icons/skybox.png"></td><td>Toggles skybox and uni-color background.</td></tr>
+<tr><td><img src="data/icons/recalc.png"></td><td>Recalculates normals and reloads textures. Reloading of textures helps, if textures are corrected with an graphical program, where no 3d view is available.</td></tr>
+<tr><td><img src="data/icons/camera.png"></td><td>Take a screenshot of the viewport. The result is saved in the grab folder.</td></tr>
+</table>
+<p>
+Icons are disabled in certain modes (e.g. no normal recalculation is available in animation).
+<p>
+
+<i>Hint: the system is not yet completed. Especially changing focal width or perspective mode gets the system out-of-sync.
+To display details e.g. for screenshots for assets: Use the 6 directions buttons, then move where you want to zoom in and use Num + and Num -</i>
+

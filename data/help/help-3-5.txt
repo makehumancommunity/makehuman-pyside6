@@ -1,6 +1,6 @@
 <h1>Create Poses</h1>
 <p>
-This context is used to create own poses. The poses are not morphs, they are created
+This context is used to create own poses and also to add corrections for animations. The poses are not morphs, they are created
 by bones. A final position of a set of bones was created and you need to decide, how much of this movement is used.
 So a "Head tilt" was created in a full left and right position and you can determine, how much
 this position should be used by dragging the slider on the right column.<p>
@@ -16,11 +16,15 @@ It is possible to load existing poses as well (only mhpose files).
 The categories are used to modify parts of the character. You need to select the category first.
 <p>
 <ul>
+<li>Root: used to change the character root.</li>
 <li>Head: head can be rotated in all directions independently.</li>
 <li>Left-arm: upper arm rotates in two directions and can be twisted, lower arm can only rotate in one direction.</li>
-<li>Right-arm: works analog to left arm.</li>
+<li>Right-arm: works in analogy to left arm.</li>
 <li>Left-hand: hands can rotate in two directions and lower arm can be twisted to rotate hand according to bone-axis as well.</li>
-<li>Right-hand: works analog to left hand.</li>
+<li>Right-hand: works in analogy to left hand.</li>
+<li>Body: upper and lower body can be rotate in all directions.</li>
+<li>Left-leg: upper leg rotates in two directions and can be twisted, lower leg can only rotate in one direction. Foot can rotate in two directions and can be twisted.</li>
+<li>Right-leg:  works in analogy to left leg.</li>
 </ul>
 <p>
 <h3>Load and save an poses</h3>
@@ -38,5 +42,6 @@ Supply tags if you want or do that later in the asset editor. Save it with the s
 <tr><td><img src="data/icons/symm2.png"></td><td>Mirror the left side to right side (view from character).</td></tr>
 <tr><td><img src="data/icons/f_load.png"></td><td>Load an existent pose.</td></tr>
 <tr><td><img src="data/icons/f_save.png"></td><td>Save your pose.</td></tr>
+<tr><td><img src="data/icons/corr_bone.png"></td><td>Push this pose to correction buffer to be used for animations.</td></tr>
 </table>
 
