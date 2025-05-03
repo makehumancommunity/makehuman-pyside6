@@ -17,7 +17,7 @@ from gui.common import ErrorBox
 class KeyPrefFilter(QObject):
     def eventFilter(self, widget, event):
         if event.type() == QEvent.ShortcutOverride:
-            key = QKeySequence(event.modifiers()|event.key()).toString()
+            key = QKeySequence(event.keyCombination()).toString()
             widget.keylabel.setText(key)
         return False
 

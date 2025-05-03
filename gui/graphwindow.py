@@ -29,8 +29,7 @@ class NavigationEvent(QObject):
             return False
 
         if event.type() == QEvent.ShortcutOverride:
-            key = event.key()
-            key = QKeySequence(event.modifiers()|event.key()).toString()
+            key = QKeySequence(event.keyCombination()).toString()
             self.win.keyToFunction(key)
 
         elif event.type() == QEvent.MouseMove:
