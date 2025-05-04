@@ -178,7 +178,7 @@ class Material:
                     if path is not None:
                         setattr (self, "sp_litsphereTexture", path)
                     else:
-                        self.env.logLine(1, "missing litsphereTexture: " + words[2])
+                        self.env.logLine(1, "missing litsphereTexture: " + words[2] + " (phong shading will be used)")
                 elif words[1] == "AdditiveShading":
                     setattr (self, "sp_" + words[1], float(words[2]))
                 else:

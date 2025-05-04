@@ -220,6 +220,7 @@ class MHMainWindow(QMainWindow):
         help_menu = menu_bar.addMenu("&Help")
         self.addActCallBack(help_menu, "Context Help", self.context_help)
         self.addActCallBack(help_menu, "Navigation", self.nav_help)
+        self.addActCallBack(help_menu, "File System", self.fsys_help)
 
         if self.glob.baseClass is not None:
             self.createImageSelection()
@@ -1072,6 +1073,9 @@ class MHMainWindow(QMainWindow):
 
     def nav_help(self):
         self.context_help("navigation")
+
+    def fsys_help(self):
+        self.context_help("filesystem")
 
     def vers_call(self):
         text = "Numpy: " + ".".join([str(x) for x in self.env.numpy_version]) + "<br>" + \

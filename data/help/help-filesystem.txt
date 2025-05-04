@@ -1,0 +1,17 @@
+<h1>Makehuman2 File System</h1>
+<p>
+Makehuman uses two locations to read or write data. The system location, which is where the program is installed and
+a user location which can be changed in preferences (a later change will demand to move the data as well).
+Both locations are checked, when files need to be loaded.
+<p>
+The data is organized in different asset categories (like clothes and hair), then a mesh sub-directory is the next layer, except for those cases,
+where the mesh does not make sense.
+<p>
+<h1>Directories:</h1>
+<p>
+<img src="data/help/filesystem.png">
+<p>
+<i>Hint: as long as there is no different mesh, the sub-directory is mostly hm08, other sub-directories for test-purposes are simply empty.
+Adding a new base mesh in user space is possible, but until now not yet tested, since also special JSON files must be placed there, which
+would be used for selection criteria etc.</i>
+
