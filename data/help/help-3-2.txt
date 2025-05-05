@@ -13,6 +13,8 @@ The animation group box presents the name and number of frames of an animation a
 <li>The "Frame number" slider could be used to select a specific frame.</li>
 <li>The "Frames per second" slider can change the speed of the animation. It could be used for debugging an animation as well.</li>
 <li>Face animation can be switched off.</li>
+<li>Poses can be corrected by overlaying them with a pose from the editor. E.g. when a hand intersects with the body,
+it is possible to rotate it in the pose editor and push this correction into the animation.</li>
 </ul>
 <p>
 <table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">

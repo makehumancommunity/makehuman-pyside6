@@ -117,6 +117,9 @@ class cBone():
     def getTransformedRestMatrix(self, orientation=0, rotAxis='y', offset=[0,0,0]):
         return mquat.changeOrientation(self.matRestGlobal, orientation, rotAxis, offset)
 
+    def getRelativeCorrection(self):
+        tmp = np.matmul(self.matPoseLocal, self.invRestGlobal)
+        return np.matmul(self.matRestGlobal, tmp)
 
     def getNormal(self):
         """

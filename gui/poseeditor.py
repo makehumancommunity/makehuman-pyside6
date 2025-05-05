@@ -188,10 +188,10 @@ class GenericPoseEdit():
         changed = self.baseClass.pose_skeleton.posebyBlends(blends, None, True)
         for bone in changed:
             elem = self.baseClass.pose_skeleton.bones[bone]
-            corrections[bone] = elem.matPoseLocal
+            corrections[bone] = elem.getRelativeCorrection()
         self.baseClass.bodycorrections = corrections
         HintBox(self.parent.central_widget, "Corrections added to be used in animation.")
-        print (self.baseClass.bodycorrections)
+        #print (self.baseClass.bodycorrections)
 
     def loadButton(self, path, convert=None):
         directory = self.env.stdUserPath(path)

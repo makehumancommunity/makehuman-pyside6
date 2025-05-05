@@ -51,12 +51,13 @@ class BVHJoint():
         self.finalPoses = np.zeros((count,3,4), dtype=np.float32)
         self.finalPoses[:,:3,:3] = np.identity(3, dtype=np.float32)
 
-    def modCorrections(self, corr, bone, count:int):
+    def modCorrections(self, corr, parent, count:int):
         self.finalPoses = np.zeros((count,3,4), dtype=np.float32)
-        print(self.name)
-        print(mquat.eulerMatrixXYZToDegrees(corr[:3,:3]))
-        # TODO: still crap
-        self.finalPoses[:,:3,:3] = np.matmul(corr[:3,:3], self.matrixPoses[:,:3,:3])
+        if parent is not None:
+            self.finalPoses[:,:3,:3] = np.matmul(self.matrixPoses[:,:3,:3], corr[:3,:3])
+        else:
+            for i in range (0, count):
+                self.finalPoses[i,:3,:4] = np.matmul(self.matrixPoses[i], corr)[:3,:4]
 
     def calculateRestMat(self):
         """
@@ -260,7 +261,7 @@ class BVH():
             for joint in self.bvhJointOrder:
                 if joint.name in corrections:
                     print ("Need to change", joint.name)
-                    joint.modCorrections(corrections[joint.name], skeleton.bones[joint.name], self.frameCount)
+                    joint.modCorrections(corrections[joint.name], joint.parent, self.frameCount)
                 else:
                     # also allow face animation again
                     joint.identFinal()

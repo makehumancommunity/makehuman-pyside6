@@ -22,6 +22,10 @@ import numpy as np
 _EPS = np.finfo(float).eps * 4.0
 
 def eulerMatrixXYZ(ri, rj, rk, i, j, k):
+    """
+    :param ri, rj, rk: values in radians
+    :param i, j, k: indices
+    """
     M = np.identity(4)
     si, sj, sk = math.sin(ri), math.sin(rj), math.sin(rk)
     ci, cj, ck = math.cos(ri), math.cos(rj), math.cos(rk)
