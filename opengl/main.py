@@ -487,8 +487,11 @@ class OpenGLView(QOpenGLWidget):
         self.update()
 
     def setCameraCenter(self):
-        baseMesh = self.glob.baseClass.baseMesh
-        self.camera.setCenter(baseMesh.getCenter(), baseMesh.getHeightInUnits())
+        if self.glob.baseClass is not None:
+            baseMesh = self.glob.baseClass.baseMesh
+            self.camera.setCenter(baseMesh.getCenter(), baseMesh.getHeightInUnits())
+        else:
+            self.camera.setCenter((0.0, 0.0, 0.0), 20)
 
     def noGLObjects(self, leavebase=False):
         """

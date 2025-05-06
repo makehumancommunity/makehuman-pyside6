@@ -168,8 +168,9 @@ class MHTreeView(QWidget):
             name = next(iter(data))
             elem = data[name]
             if "items" in elem:
-                line = elem["items"][0]
-                return (elem["group"] + "|" + line["cat"])
+                if len(elem["items"]) > 0:
+                    line = elem["items"][0]
+                    return (elem["group"] + "|" + line["cat"])
         return ("Unknown")
 
     def getLastHeadline(self):

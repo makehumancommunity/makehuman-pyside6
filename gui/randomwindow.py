@@ -50,6 +50,8 @@ class RandomForm(QVBoxLayout):
             self.gendelem.currentIndexChanged.connect(self.genderChanged)
             self.gendelem.setToolTip("If not any, it creates only male and/or female characters")
             self.addWidget(self.gendelem)
+        else:
+            self.gendelem = None
 
         if len(values.lgroup) > 0:
             self.listWidget = QListWidget()
@@ -68,6 +70,8 @@ class RandomForm(QVBoxLayout):
             self.idealelem = SimpleSlider("Minimum ideal factor: ", 0, 100, self.idealChanged)
             self.idealelem.setToolTip("This should improve the proportions. 75 means, that nicer characters are create (75-100)")
             self.addWidget(self.idealelem)
+        else:
+            self.idealelem = None
 
         self.symelem = SimpleSlider("Symmetry factor: ", 0, 100, self.symChanged)
         self.symelem.setToolTip("100 means full symmetry, low values can create bizarre geometries.")
@@ -103,8 +107,9 @@ class RandomForm(QVBoxLayout):
         self.symelem.setSliderValue(v.symfactor)
         v.tr.setSym(v.symfactor / 100)
 
-        self.idealelem.setSliderValue(v.idealfactor)
-        v.tr.setIdealMinimum(v.idealfactor / 100)
+        if self.idealelem is not None:
+            self.idealelem.setSliderValue(v.idealfactor)
+            v.tr.setIdealMinimum(v.idealfactor / 100)
 
         self.weirdoelem.setSliderValue(v.weirdofactor)
         v.tr.setWeirdoFactor(v.weirdofactor / 100)
@@ -112,8 +117,9 @@ class RandomForm(QVBoxLayout):
         self.resetelem.setChecked(v.reset)
         v.tr.setFromDefault(v.reset)
 
-        self.gendelem.setCurrentIndex(v.gender)
-        v.tr.setGender(v.gender)
+        if self.gendelem is not None:
+            self.gendelem.setCurrentIndex(v.gender)
+            v.tr.setGender(v.gender)
 
         i = 0
         for preselect in v.lgroup.values():

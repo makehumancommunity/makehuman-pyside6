@@ -248,6 +248,7 @@ class MHMainWindow(QMainWindow):
         self.createCentralWidget()
         self.setWindowTitle("default character")
 
+
     def addActCallBack(self, menu, title, callback):
         entry = menu.addAction(title)
         entry.triggered.connect(callback)
@@ -320,6 +321,14 @@ class MHMainWindow(QMainWindow):
         for elem in row:
             b = elem["button"]
             b.setChecked(b == sel)
+        if self.glob.baseClass is None:
+            for elem in row[1:]:
+                b = elem["button"]
+                b.setEnabled(False)
+        else:
+            for elem in row:
+                b = elem["button"]
+                b.setEnabled(True)
 
     def setCategoryIcons(self):
         s = self.sender()
@@ -680,10 +689,12 @@ class MHMainWindow(QMainWindow):
         self.setToolModeAndPanel(0, 0)
 
     def morph_call(self):
-        self.setToolModeAndPanel(1, 0)
+        if self.glob.baseClass is not None:
+            self.setToolModeAndPanel(1, 0)
 
     def random_call(self):
-        self.setToolModeAndPanel(1, 1)
+        if self.glob.baseClass is not None:
+            self.setToolModeAndPanel(1, 1)
 
     def equip_call(self):
         s = self.sender()
@@ -711,7 +722,8 @@ class MHMainWindow(QMainWindow):
         self.glob.showSubwindow("memory", self, MHMemWindow)
 
     def measure_call(self):
-        self.glob.showSubwindow("measure", self, MHCharMeasWindow)
+        if self.glob.baseClass is not None:
+            self.glob.showSubwindow("measure", self, MHCharMeasWindow)
 
     def info_call(self):
         self.glob.showSubwindow("about", self.glob, MHInfoWindow)
@@ -820,7 +832,7 @@ class MHMainWindow(QMainWindow):
         #self.graph.view.Tweak()
 
     def loadNewClass(self, basename, filename=None):
-        print (basename, filename)
+        self.env.logLine(1, "New base " + basename + ", file:" + str(filename))
         if filename is None:
             dirname  = self.env.existDataDir("base", basename)
         else:
@@ -849,6 +861,8 @@ class MHMainWindow(QMainWindow):
 
         self.graph.update()
         self.glob.openGLBlock = False
+        self.markSelectedButtons(self.tool_buttons, self.tool_buttons[0])
+        self.markSelectedButtons(self.category_buttons[0], self.category_buttons[0][0])
 
     def selectmesh_call(self):
         (base, filename) = self.baseSelector.getSelectedItem()

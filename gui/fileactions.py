@@ -41,6 +41,9 @@ class BaseSelect(QVBoxLayout):
         self.emptyIcon = os.path.join(self.env.path_sysdata, "icons", "empty_material.png")
         self.baseResultList = self.env.getDataDirList("base.obj", "base")
 
+        if self.parent.glob.baseClass is None:
+            self.addWidget(QLabel("<h1>You need to select<br>a basemesh first!</h1>"))
+
         self.basewidget = QListWidget()
         self.basewidget.setFixedSize(240, 200)
         self.basewidget.addItems(self.baseResultList.keys())
@@ -59,20 +62,32 @@ class BaseSelect(QVBoxLayout):
         gb.setObjectName("subwindow")
         vlayout = QVBoxLayout()
         path = os.path.join(self.env.path_sysicon, "materials.png" )
-        vlayout.addWidget(IconButton(0, path, "Set material of body (skin).", self.materialCallback))
+        self.materialbutton = IconButton(0, path, "Set material of body (skin).", self.materialCallback)
+        vlayout.addWidget(self.materialbutton)
 
         path = os.path.join(self.env.path_sysicon, "information.png" )
-        vlayout.addWidget(IconButton(0, path, "Change skin information", self.assetCallback))
+        self.infobutton = IconButton(0, path, "Change skin information", self.assetCallback)
+        vlayout.addWidget(self.infobutton)
+        self.activateButtons()
 
         gb.setLayout(vlayout)
         self.addWidget(gb)
         self.addStretch()
+
+    def activateButtons(self):
+        enabled = self.parent.glob.baseClass is not None
+        self.materialbutton.setEnabled(enabled)
+        self.infobutton.setEnabled(enabled)
 
     def getCurrentMaterial(self):
         return (self.parent.glob.baseClass.skinMaterial)
         
     def assetCallback(self):
         material = self.getCurrentMaterial()
+
+        if material is None:
+            ErrorBox(self.parent, "No materials available")
+            return
 
         # get filename and thumb file, if any
         #
