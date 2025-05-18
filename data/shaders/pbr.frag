@@ -25,11 +25,13 @@ uniform sampler2D Texture;
 uniform sampler2D AOTexture;
 uniform sampler2D MRTexture;
 uniform sampler2D EMTexture;
+uniform sampler2D NOTexture;
 
 uniform float AOMult;
 uniform float RoMult;
 uniform float MeMult;
 uniform float EmMult;
+uniform float NoMult;
 uniform bool useSky;
 
 uniform vec4 ambientLight;
@@ -39,6 +41,28 @@ uniform PointLight pointLights[3];
 
 const float PI = 3.14159265359;
 const float min_roughness = 0.04;
+
+// calculation of normals
+//
+vec3 EvalNormal()
+{
+	vec3 pos_dx = dFdx(fs_in.FragPos);
+	vec3 pos_dy = dFdy(fs_in.FragPos);
+	vec3 tex_dx = dFdx(vec3(fs_in.TexCoords, 0.0));
+	vec3 tex_dy = dFdy(vec3(fs_in.TexCoords, 0.0));
+	vec3 t = (tex_dy.t * pos_dx - tex_dx.t * pos_dy) / (tex_dx.s * tex_dy.t - tex_dy.s * tex_dx.t);
+
+	vec3 ng = cross(pos_dx, pos_dy);
+
+	t = normalize(t - ng * dot(ng, t));
+	vec3 b = normalize(cross(ng, t));
+	mat3 tbn_n = mat3(t, b, ng);
+
+	vec3 no = texture(NOTexture, fs_in.TexCoords).rgb;
+	no = normalize(tbn_n * ((2.0 * no - 1.0) * vec3(1.0, 1.0, 1.0)));
+	return no;
+
+}
 
 // Trowbridge-Reitz GGX, original is without squaring twice the roughness
 // input N = normal, H = halfway, roughness (0 = smooth)
@@ -123,6 +147,9 @@ void main()
 	// reflectance equation
 	vec3 outcolor = vec3(0.0);
 	vec3 normal = normalize(fs_in.Normal);
+	if (NoMult > 0) {
+		normal = mix(normal, EvalNormal(), NoMult * 0.1);
+	}
 	vec3 viewDir = normalize(viewPos - fs_in.FragPos);
 
 	for (int i = 0; i < 3; i++) {

@@ -146,13 +146,8 @@ class RenderedObject:
             self.aomap = self.material.loadAOMap(self.parent.white)
             self.mrmap = self.material.loadMRMap(self.parent.white)
             self.emmap = self.material.loadEMMap(self.parent.black)
+            self.nomap = self.material.loadNOMap(self.parent.normal)
             self.mefac = material.metallicFactor if hasattr(self, 'metallicRoughnessTexture') else 1.0 - material.metallicFactor
-
-        elif material.shader == "normal":
-            self.shader = self.shaders.getShader("normal")
-            self.aomap = self.material.loadAOMap(self.parent.white)
-            self.nomap = self.material.loadNOMap(self.parent.white)
-            self.mrmap = self.material.loadMRMap(self.parent.white)
         elif material.shader == "toon":
             self.shader = self.shaders.getShader("toon")
         else:
@@ -279,28 +274,21 @@ class RenderedObject:
                 functions.glActiveTexture(gl.GL_TEXTURE3)
                 self.emmap.bind()
 
+                if self.material.tex_nomap is None:
+                    functions.glUniform1f(shader.uniforms['NoMult'], 0.0)
+                else:
+                    functions.glUniform1f(shader.uniforms['NoMult'], self.material.normalmapIntensity)
+                functions.glUniform1i(shader.uniforms['NOTexture'], 4)
+                functions.glActiveTexture(gl.GL_TEXTURE4)
+                self.nomap.bind()
+
                 if light.skybox is True and self.parent.skybox is not None:
                     functions.glUniform1i(shader.uniforms['useSky'], True)
-                    functions.glUniform1i(shader.uniforms['skybox'], 4)
+                    functions.glUniform1i(shader.uniforms['skybox'], 5)
                     functions.glActiveTexture(gl.GL_TEXTURE4)
                     self.parent.skybox.getTexture().bind()
                 else:
                     functions.glUniform1i(shader.uniforms['useSky'], False)
-
-            elif self.material.shader == "normal":
-                functions.glUniform1f(shader.uniforms['AOMult'], self.material.aomapIntensity)
-
-                functions.glUniform1i(shader.uniforms['AOTexture'], 1)
-                functions.glActiveTexture(gl.GL_TEXTURE1)
-                self.aomap.bind()
-
-                functions.glUniform1i(shader.uniforms['NOTexture'], 2)
-                functions.glActiveTexture(gl.GL_TEXTURE2)
-                self.nomap.bind()
-
-                functions.glUniform1i(shader.uniforms['MRTexture'], 3)
-                functions.glActiveTexture(gl.GL_TEXTURE3)
-                self.mrmap.bind()
 
         indices = self.getindex()
         functions.glDrawElements(gl.GL_TRIANGLES, len(indices), gl.GL_UNSIGNED_INT, indices)

@@ -328,11 +328,11 @@ class OpenGLView(QOpenGLWidget):
 
     def floorTexture(self, name):
         floorpath = self.env.existDataFile("shaders", "floor", name)
-        self.floortex = self.sysmaterials[4].setDiffuse(floorpath, self.red)
+        self.floortex = self.sysmaterials[5].setDiffuse(floorpath, self.red)
         self.floortexname = name
 
     def createSysMaterials(self):
-        for name in ("black", "white", "orange", "red", "floor"):
+        for name in ("black", "white", "orange", "red", "normal", "floor"):
             m = Material(self.glob, name, "system")
             self.sysmaterials.append(m)
 
@@ -340,6 +340,7 @@ class OpenGLView(QOpenGLWidget):
         self.white = self.sysmaterials[1].uniColor([1.0, 1.0, 1.0])
         self.orange= self.sysmaterials[2].uniColor([1.0, 0.5, 0.0])
         self.red   = self.sysmaterials[3].uniColor([1.0, 0.5, 0.5])
+        self.normal= self.sysmaterials[4].uniColor([0.5, 0.5, 1.0])
         self.floorTexture(self.floortexname)
 
     def initializeGL(self):
@@ -363,7 +364,7 @@ class OpenGLView(QOpenGLWidget):
         # initialize shaders
         #
         self.mh_shaders = ShaderRepository(self.glob)
-        self.mh_shaders.loadShaders(["phong3l", "fixcolor", "xray", "litsphere", "pbr", "normal", "toon","skybox"])
+        self.mh_shaders.loadShaders(["phong3l", "fixcolor", "xray", "litsphere", "pbr", "toon","skybox"])
 
         self.light = Light(self.mh_shaders, self.glob)
         self.light.setShader()

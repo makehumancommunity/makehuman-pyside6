@@ -282,7 +282,6 @@ class Light():
         self.shaders = shaders
         self.phong = shaders.getShader("phong3l")
         self.pbr = shaders.getShader("pbr")
-        self.normal = shaders.getShader("normal")
         self.toon = shaders.getShader("toon")
         #
         # volume of scene in units
@@ -354,7 +353,7 @@ class Light():
             d["type"] = s["type"]
 
     def setShader(self):
-        for shader in [self.phong, self.pbr, self.toon, self.normal]:
+        for shader in [self.phong, self.pbr, self.toon]:
             self.shaders.bindShader(shader)
             for i, elem in enumerate(self.lights):
                 self.shaders.setShaderArrayStruct(shader, "pointLights", i, "position", elem["pos"])
