@@ -180,7 +180,7 @@ void main()
 
 	// cubemap
 	if (useSky) {
-		vec3 r = reflect(fs_in.FragPos, normalize(fs_in.Normal));
+		vec3 r = reflect(fs_in.FragPos, viewDir);
 		color.xyz += color.xyz * vec3(texture(skybox, r)) * metallic;
 	}
 

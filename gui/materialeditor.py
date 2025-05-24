@@ -189,27 +189,6 @@ class MHMaterialEditor(QWidget):
         scrollContainer = QWidget()
         slayout = QVBoxLayout()
 
-        t = TextureBox (self, self.object, "Base color", "diffuseTexture")
-        slayout.addWidget(t)
-        self.TBoxes.append(t)
-
-        t = TextureBox (self, self.object, "Normalmap", "normalmapTexture", self.factors[3])
-        slayout.addWidget(t)
-        self.TBoxes.append(t)
-
-        t = TextureBox (self, self.object, "Ambient occlusion", "aomapTexture", self.factors[2])
-        t.setSlider1Factor(50)
-        slayout.addWidget(t)
-        self.TBoxes.append(t)
-
-        t = TextureBox (self, self.object, "Metallic/Roughness", "metallicRoughnessTexture", self.factors[1], self.factors[0])
-        slayout.addWidget(t)
-        self.TBoxes.append(t)
-
-        t = TextureBox (self, self.object, "Emissive", "emissiveTexture", self.factors[4])
-        slayout.addWidget(t)
-        self.TBoxes.append(t)
-
         gb = QGroupBox("OpenGL shader-specific")
         gb.setObjectName("subwindow")
         hlayout = QHBoxLayout()
@@ -239,6 +218,28 @@ class MHMaterialEditor(QWidget):
         hlayout.addLayout(vlayout)
         gb.setLayout(hlayout)
         slayout.addWidget(gb)
+
+        t = TextureBox (self, self.object, "Base color", "diffuseTexture")
+        slayout.addWidget(t)
+        self.TBoxes.append(t)
+
+        t = TextureBox (self, self.object, "Normalmap", "normalmapTexture", self.factors[3])
+        slayout.addWidget(t)
+        self.TBoxes.append(t)
+
+        t = TextureBox (self, self.object, "Ambient occlusion", "aomapTexture", self.factors[2])
+        t.setSlider1Factor(50)
+        slayout.addWidget(t)
+        self.TBoxes.append(t)
+
+        t = TextureBox (self, self.object, "Metallic/Roughness", "metallicRoughnessTexture", self.factors[1], self.factors[0])
+        slayout.addWidget(t)
+        self.TBoxes.append(t)
+
+        t = TextureBox (self, self.object, "Emissive", "emissiveTexture", self.factors[4])
+        slayout.addWidget(t)
+        self.TBoxes.append(t)
+
 
         t = TextureBox (self, self.object, "Litsphere/Matcap", "sp_litsphereTexture", self.factors[5])
         slayout.addWidget(t)

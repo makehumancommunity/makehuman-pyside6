@@ -350,7 +350,7 @@ class boneWeights():
         #
         # create bone weights from base
 
-        print ("Calculate bone weights " + asset.name)
+        # print ("Calculate bone weights " + asset.name)
 
         # recalculate the input in case of mesh loaded in binary form for easier calculation (tested)
         # form is:

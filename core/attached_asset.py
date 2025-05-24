@@ -245,7 +245,7 @@ class attachedAsset:
         #
         self.scaleMat = np.identity(3, dtype=np.float32)
         if self.scale is None:
-            print ("No scale matrix")
+            self.env.logLine(16, "No scale matrix")
             self.scaleMat = None
             return
 
@@ -254,7 +254,8 @@ class attachedAsset:
             pos1 = mesh.getPosition(v1)
             pos2 = mesh.getPosition(v2)
             self.scaleMat[n][n] = abs(pos1[n] - pos2[n]) / div
-        print (self.scaleMat)
+        if self.env.verbose & 16:
+            print (self.scaleMat)
 
     def getScaleData(self, words):
         return ((int(words[1]), int(words[2]), float(words[3])))

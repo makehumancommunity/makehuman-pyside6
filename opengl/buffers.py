@@ -285,7 +285,7 @@ class RenderedObject:
                 if light.skybox is True and self.parent.skybox is not None:
                     functions.glUniform1i(shader.uniforms['useSky'], True)
                     functions.glUniform1i(shader.uniforms['skybox'], 5)
-                    functions.glActiveTexture(gl.GL_TEXTURE4)
+                    functions.glActiveTexture(gl.GL_TEXTURE5)
                     self.parent.skybox.getTexture().bind()
                 else:
                     functions.glUniform1i(shader.uniforms['useSky'], False)
