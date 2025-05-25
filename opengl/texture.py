@@ -139,7 +139,7 @@ class MH_Texture():
 
         timestamp = int(os.stat(path).st_mtime)
         image = QImage(path)
-        self.glob.env.logLine(8, "Load: " + path)
+        self.glob.env.logLine(8, "Load: " + path + " " + str(image.format()))
         self.create(path, image)
         self.repo.add(path, self.texture, timestamp, self, textype)
         return self.texture
