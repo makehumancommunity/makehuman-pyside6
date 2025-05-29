@@ -19,6 +19,18 @@ import numpy as np
 from obj3d.skeleton import skeleton as newSkeleton
 
 class gltfExport:
+    """Class representation of glTF export function
+    Hint: animation is exported with corrections
+
+    :param glob: handle to global object to access base object etc
+    :type glob: class: globalObjects
+    :param str exportfolder: name of the folder to export textures
+    :param bool hiddenverts: if hidden vertices should be exported
+    :param bool onground: if character should stay on ground
+    :param bool animation: if animation should be exported
+    :param float scale: the scale of the output
+    """
+
     def __init__(self, glob, exportfolder, hiddenverts=False, onground=True, animation=False, scale =0.1):
 
         # subfolder for textures
@@ -102,6 +114,12 @@ class gltfExport:
 
     def __str__(self):
         return (json.dumps(self.json, indent=3))
+
+    def debug(self, text):
+        self.env.logLine (2, "gltf-Export: " + text)
+
+    def filedebug(self, text):
+        self.env.logLine (8, "gltf-Export: " + text)
 
     def nodeName(self, filename):
         if filename is None:
@@ -284,7 +302,7 @@ class gltfExport:
         return(self.accessor_cnt)
 
     def copyImage(self, source, dest):
-        self.env.logLine (8, "Need to copy " + source + " to " + dest)
+        self.filedebug("Need to copy " + source + " to " + dest)
 
         if self.env.mkdir(dest) is False:
             return False
@@ -370,26 +388,27 @@ class gltfExport:
         roughtex = None
         if hasattr(material, "metallicRoughnessTexture"):
             roughtex = material.metallicRoughnessTexture
+            self.debug ("Metallic-Roughness " + roughtex)
 
         if material.sc_diffuse:
-            print ("Diffuse " + material.diffuseTexture)
+            self.debug ("Diffuse " + material.diffuseTexture)
             pbr = self.addDiffuseTexture(material.diffuseTexture, material.metallicFactor, material.pbrMetallicRoughness, roughtex)
         else:   
             pbr = self.pbrMaterial(material.diffuseColor, material.metallicFactor, material.pbrMetallicRoughness, roughtex)
 
         norm = None
         if material.sc_normal and hasattr(material, "normalmapTexture"):
-            print ("Normals " + material.normalmapTexture)
+            self.debug ("Normals " + material.normalmapTexture)
             norm = self.addNormalTexture(material.normalmapTexture, material.normalmapIntensity)
 
         occl = None
         if material.sc_ambientOcclusion and hasattr(material, "aomapTexture"):
-            print ("Ambient-Occlusion " + material.aomapTexture)
+            self.debug ("Ambient-Occlusion " + material.aomapTexture)
             occl = self.addOcclusionTexture(material.aomapTexture, material.aomapIntensity)
 
         emis = None
         if hasattr(material, "emissiveTexture"):
-            print ("Emissive " + material.emissiveTexture)
+            self.debug ("Emissive " + material.emissiveTexture)
             emis = self.addEmissiveTexture(material.emissiveTexture)
 
         if pbr is None:
@@ -437,7 +456,7 @@ class gltfExport:
         return (self.mesh_cnt)
 
     def addWeights(self, num, elem, obj):
-        print ("Adding weights to " +  str(self.json["nodes"][num]) )
+        self.env.logLine (2, "gltf-Export: Adding weights to " +  self.json["nodes"][num]["name"])
         meshnum = self.json["nodes"][num]["mesh"]
         if elem is not None:
             ( numverts, weights, overflow) = self.meshindices[meshnum]
@@ -593,7 +612,7 @@ class gltfExport:
         if baseweights is not None:
             self.json["nodes"][0]["skin"] = 0
             if self.scale != 1.0 or self.onground:
-                print ("get a new skeleton")
+                self.debug("Resizing, get a new skeleton")
                 skeleton = newSkeleton(self.glob, "copy")
                 skeleton.copyScaled(baseclass.skeleton, self.scale, self.lowestPos)
             else:
@@ -637,8 +656,10 @@ class gltfExport:
 
                 # TODO offset might be used different, when anim editor is completed
                 #
+                baseclass.bvh.modCorrections()
                 self.animYoffset = baseclass.skeleton.rootLowestDistance(baseclass.bvh.joints, 0, baseclass.bvh.frameCount) + self.lowestPos
                 self.addAnimations(skeleton, baseclass.bvh)
+                baseclass.bvh.identFinal()
             else:
                 print ("No animation for different skeleton allowed atm")
 

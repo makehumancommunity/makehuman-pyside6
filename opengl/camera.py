@@ -110,8 +110,7 @@ class Camera():
         self.cameraPos =  QVector3D(0, self.cameraHeight, self.cameraDist)
         self.lookAt =  self.center.__copy__()
         self.cameraDir =  QVector3D(0, 1, 0)
-        print ("Reset:")
-        print (self)
+        print ("Reset camera.")
 
     def setCenter(self, center, size):
         self.o_height = size
@@ -123,7 +122,6 @@ class Camera():
         self.cameraDist = self.cameraPos.z()
         self.updateViewMatrix()
         print ("Set Center: " + str(center) + ", Size: " + str(size))
-        print (self)
 
     def customView(self, direction):
         """

@@ -244,6 +244,9 @@ class boneWeights():
         self.bWeights = {}
         self.mesh = mesh
 
+    def debug(self, text):
+        self.env.logLine(2, "boneWeights: " +  text)
+
     def createWeightsPerBone(self, wdict):
         cnt = self.mesh.n_origverts
 
@@ -299,7 +302,7 @@ class boneWeights():
         if len(rw_i) > 0:
             # get first 20 as an example if any
             text = ', '.join([str(s) for s in rw_i][:20])
-            self.env.logLine(2, "Unweighted vertices assigned to:" + self.root + " " +  text)
+            self.debug("Unweighted vertices assigned to:" + self.root + " " +  text)
 
         if len(vs) > 0:
             self.bWeights[self.root] = (np.asarray(vs, dtype=np.uint32), np.asarray(ws, dtype=np.float32))
@@ -350,8 +353,6 @@ class boneWeights():
         #
         # create bone weights from base
 
-        # print ("Calculate bone weights " + asset.name)
-
         # recalculate the input in case of mesh loaded in binary form for easier calculation (tested)
         # form is:
         # vertex_num: baseskeleton: [(vertexnum_asset, weight), (...) ]
@@ -391,15 +392,14 @@ class boneWeights():
         # in case skeleton is default skeleton, do nothing
         #
         if customskeleton is self.default_skeleton:
-            print ("no transfer, default skeleton")
+            self.debug("No transfer of weights needed, default skeleton")
             return self.bWeights
 
         weights = {}    # new weights
         bonesref = {}   # contains all bones referenced by custom skeleton
 
-        print ("is a different skeleton")
-        print (self.default_skeleton.name)
-        print (customskeleton.name)
+        self.debug("Transfer weights from " + self.default_skeleton.name + " to " + customskeleton.name)
+
         for bone, b in customskeleton.bones.items():
 
             # first collect which bones of standard-skeleton  are referenced by this bone
@@ -458,18 +458,18 @@ class boneWeights():
                     if nbone.name in bonesref:
                         dest = bonesref[nbone.name]
                         if dest in weights:
-                            self.env.logLine(2, bone + ": parent chain reference: " + nbone.name + " should be appended to " + dest)
+                            self.debug(bone + ": parent chain reference: " + nbone.name + " should be appended to " + dest)
                             vn =  np.concatenate((self.bWeights[bone][0], weights[dest][0] ), axis=0)
                             w  =  np.concatenate((self.bWeights[bone][1], weights[dest][1] ), axis=0)
                         else:
-                            self.env.logLine(2, bone + ": parent chain reference: " + nbone.name + " should be created as " + dest)
+                            self.debug(bone + ": parent chain reference: " + nbone.name + " should be created as " + dest)
                             vn =  self.bWeights[bone][0]
                             w  =  self.bWeights[bone][1]
 
                         weights[dest] = (vn, w)
                         break
             else:
-                self.env.logLine(2, bone + ": " + bonesref[bone])
+                self.debug(bone + ": " + bonesref[bone])
 
         weights = self.sortWeights(weights)
         weights = self.deDuplicateWeights(weights)

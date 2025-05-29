@@ -15,7 +15,7 @@ class object3d:
     def __init__(self, glob, baseinfo, eqtype ):
  
         self.glob = glob
-        self.env  = glob.env     # needed for globals
+        self.env  = glob.env
         self.type = eqtype      # equipmentype
         self.openGL   = None    # openGL pointer
         self.filename = None    # original file name
@@ -74,6 +74,9 @@ class object3d:
                 str(self.n_origverts) + " vertices, " + str(self.n_faces) + " faces (" +
                 str(self.n_fuvs) + " uv-faces)\nOpenGL triangles: " +
                 str(self.prim) + "\nOpenGL DrawElements: " + str(self.n_verts)) 
+
+    def debug(self, text):
+        self.env.logLine (2, "Object3d: " + text)
 
     def load(self, path, use_obj=False):
         """
@@ -580,7 +583,7 @@ class object3d:
         
         # check if we have hidden verts
         #
-        print ("optimizing: " + self.filename)
+        self.debug ("Optimizing hidden mesh: " + self.filename)
 
         mask = self.hiddenMask()
         if mask is None:
@@ -629,7 +632,7 @@ class object3d:
 
         if bweights is not None:
 
-            print ("need to optimize weights")
+            self.debug("need to optimize weights")
             # vertex numbers of weights index array must be replaced by new numbers,
             # the needed weights will be copied
             #
@@ -820,7 +823,7 @@ class object3d:
 
 
     def precalculateApproxInRestPose(self, asset, base):
-        print ("+++ precalculate asset for restpose " + asset.name)
+        self.debug("+++ precalculate asset for restpose " + asset.name)
         self.approxToBasemesh(asset, base)
         self.gl_coord_w =  self.gl_coord.copy()
 

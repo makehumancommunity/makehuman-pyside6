@@ -124,6 +124,7 @@ class PicFlowLayout(QLayout):
         self.m_hSpace = hSpacing
         self.m_vSpace = vSpacing
         self.selmode = parent.selmode
+        self.debug = parent.debug
         self.imagescale = parent.imagescale
         self.empty = parent.emptyIcon
         self.callback = callback
@@ -257,7 +258,7 @@ class PicFlowLayout(QLayout):
 
     def updateAsset(self):
         current = self.sender()
-        print (current.asset.name + " update")
+        self.debug(current.asset.name + " update")
 
         if current.asset.status == 0 or current.asset.status == 2:
             current.asset.status = 1
@@ -620,6 +621,9 @@ class ImageSelection():
         if not os.path.isfile(self.emptyIcon):
             self.emptyIcon = os.path.join(self.env.path_sysdata, "icons", "noidea.png")
 
+    def debug(self, text):
+        self.env.logLine(2, "ImageSelection: " + text)
+
     def prepareRepo(self):
         self.asset_category = []
         for elem in self.assetrepo:
@@ -682,7 +686,7 @@ class ImageSelection():
 
         if self.type == "models":
             if self.button_add is None:
-                print ("add is none")
+                self.debug("Models. add is none")
                 self.callback(selectable, self.type, False)
 
     def scaleImages(self):
@@ -758,7 +762,7 @@ class ImageSelection():
         else:
             if asset is None:
                 return
-            print (asset.filename)
+            self.debug("noneCallback, " + asset.filename)
             asset.status = 0
             self.callback(asset, self.type, multi)
         self.refreshButtons()

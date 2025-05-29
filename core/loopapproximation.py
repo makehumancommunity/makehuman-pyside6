@@ -119,7 +119,6 @@ class LoopApproximation:
         evenIndex = [0, 0, 0]
         oddIndex = [0, 0, 0]
         ncount = 0
-        ucount = 0
         icount = 0
         ovcount = 0
 
@@ -156,11 +155,12 @@ class LoopApproximation:
                         v = 0.5 * (a + b)
                     self.edgesAttached[v1][v2][2] = ncount
                     oddIndex[i] = ncount
+
+                    # coordinate + uv
+                    #
                     self.ncoords[ncount] = v
+                    self.nuvs[ncount] =  un
                     ncount += 1
-                    # UVS
-                    self.nuvs[ucount] =  un
-                    ucount += 1
 
                 else:
                     oddIndex[i] = self.edgesAttached[v1][v2][2]
@@ -208,11 +208,9 @@ class LoopApproximation:
                     self.ncoords[ncount] = vn
                     self.evenVertsNew[verts[i]] = ncount
                     evenIndex[i] = ncount
-                    ncount += 1
-
                     # UVS
-                    self.nuvs[ucount] =  uvs[uvn]
-                    ucount += 1
+                    self.nuvs[ncount] =  uvs[uvn]
+                    ncount += 1
                 else:
                     evenIndex[i] = self.evenVertsNew[vi]
 
@@ -229,8 +227,7 @@ class LoopApproximation:
 
             # now create opengl index for these 4 new triangles
             #
-            c = icount
-            self.indices[c:c+12] = [
+            self.indices[icount:icount+12] = [
                 evenIndex[0], oddIndex[0], oddIndex[2],
                 oddIndex[0], evenIndex[1], oddIndex[1],
                 oddIndex[1], evenIndex[2], oddIndex[2],
@@ -238,7 +235,7 @@ class LoopApproximation:
             ]
             icount += 12
 
-        return ncount, ucount, icount
+        return ncount, icount
 
     def deDupFaceVerts(self):
         # 
@@ -309,7 +306,7 @@ class LoopApproximation:
 
         # foreach triangle now 4 triangles are created
         #
-        ncount, ucount, icount = self.createSubTriangles(faceverts, uvverts)
+        ncount, icount = self.createSubTriangles(faceverts, uvverts)
         m.passed("sub triangles calculated")
 
         # reduce to size including UV buffer
@@ -317,7 +314,7 @@ class LoopApproximation:
         numextra = len(self.overflow)
 
         self.ncoords = np.resize(self.ncoords, (ncount + numextra, 3))
-        self.nuvs = np.resize(self.nuvs, (ucount + numextra, 2))
+        self.nuvs = np.resize(self.nuvs, (ncount + numextra, 2))
         self.indices = np.resize(self.indices, (icount))
 
         # create overflow-table, add missing UVs  and duplicate coordinates
