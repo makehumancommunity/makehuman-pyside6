@@ -25,6 +25,7 @@ class MHMaterialSelect(QWidget):
     def __init__(self, parent, PicSelectWidget, materials, asset):
         super().__init__()
         self.parent = parent
+        self.debug = parent.debug
         self.env = parent.env
         self.glob = parent.glob
         self.materials = materials

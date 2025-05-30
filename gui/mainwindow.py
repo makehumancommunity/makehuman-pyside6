@@ -249,6 +249,9 @@ class MHMainWindow(QMainWindow):
         self.setWindowTitle("default character")
 
 
+    def debug(self, text):
+        self.env.logLine(2, "MainWindow: " + text)
+
     def addActCallBack(self, menu, title, callback):
         entry = menu.addAction(title)
         entry.triggered.connect(callback)
