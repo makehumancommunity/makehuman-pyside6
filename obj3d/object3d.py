@@ -805,17 +805,17 @@ class object3d:
             j += 1
 
         """
-        vlen = len(verts)
+        vlen = len(verts) * 3
 
         if asset.scaleMat is not None:
             (x, y, z)  = (asset.scaleMat[0,0], asset.scaleMat[1,1], asset.scaleMat[2,2])
-            self.gl_coord[:vlen*3:3]  = w[:,0]*b[verts[:,0]] + w[:,1]*b[verts[:,1]] +  w[:,2]*b[verts[:,2]] + o[:,0] * x
-            self.gl_coord[1:vlen*3:3] = w[:,0]*b[verts[:,0]+1] + w[:,1]*b[verts[:,1]+1] +  w[:,2]*b[verts[:,2]+1] + o[:,1] * y
-            self.gl_coord[2:vlen*3:3] = w[:,0]*b[verts[:,0]+2] + w[:,1]*b[verts[:,1]+2] +  w[:,2]*b[verts[:,2]+2] + o[:,2] * z
+            self.gl_coord[:vlen:3]  = w[:,0]*b[verts[:,0]] + w[:,1]*b[verts[:,1]] +  w[:,2]*b[verts[:,2]] + o[:,0] * x
+            self.gl_coord[1:vlen:3] = w[:,0]*b[verts[:,0]+1] + w[:,1]*b[verts[:,1]+1] +  w[:,2]*b[verts[:,2]+1] + o[:,1] * y
+            self.gl_coord[2:vlen:3] = w[:,0]*b[verts[:,0]+2] + w[:,1]*b[verts[:,1]+2] +  w[:,2]*b[verts[:,2]+2] + o[:,2] * z
         else:
-            self.gl_coord[:vlen*3:3]  = w[:,0]*b[verts[:,0]] + w[:,1]*b[verts[:,1]] +  w[:,2]*b[verts[:,2]] + o[:,0]
-            self.gl_coord[1:vlen*3:3] = w[:,0]*b[verts[:,0]+1] + w[:,1]*b[verts[:,1]+1] +  w[:,2]*b[verts[:,2]+1] + o[:,1]
-            self.gl_coord[2:vlen*3:3] = w[:,0]*b[verts[:,0]+2] + w[:,1]*b[verts[:,1]+2] +  w[:,2]*b[verts[:,2]+2] + o[:,2]
+            self.gl_coord[:vlen:3]  = w[:,0]*b[verts[:,0]] + w[:,1]*b[verts[:,1]] +  w[:,2]*b[verts[:,2]] + o[:,0]
+            self.gl_coord[1:vlen:3] = w[:,0]*b[verts[:,0]+1] + w[:,1]*b[verts[:,1]+1] +  w[:,2]*b[verts[:,2]+1] + o[:,1]
+            self.gl_coord[2:vlen:3] = w[:,0]*b[verts[:,0]+2] + w[:,1]*b[verts[:,1]+2] +  w[:,2]*b[verts[:,2]+2] + o[:,2]
 
         # do not forget the overflow vertices
         #
@@ -823,7 +823,7 @@ class object3d:
 
 
     def precalculateApproxInRestPose(self, asset, base):
-        self.debug("+++ precalculate asset for restpose " + asset.name)
+        self.debug("precalculate asset for restpose " + asset.name)
         self.approxToBasemesh(asset, base)
         self.gl_coord_w =  self.gl_coord.copy()
 

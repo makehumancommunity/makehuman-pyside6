@@ -243,11 +243,11 @@ class attachedAsset:
         # 
         # try to work with None as well
         #
-        self.scaleMat = np.identity(3, dtype=np.float32)
         if self.scale is None:
             self.env.logLine(16, "No scale matrix")
             self.scaleMat = None
             return
+        self.scaleMat = np.identity(3, dtype=np.float32)
 
         for n in range(3):
             (v1, v2, div) = self.scale[n]

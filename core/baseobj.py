@@ -325,16 +325,16 @@ class baseClass():
         for elem in reversed(self.attachedAssets):
             if elem.deleteVerts is not None:
                 if verts is None:
-                    print ("First: " + elem.name)
+                    self.env.logLine(2, "DelVerts, First: " + elem.name)
                     verts = elem.deleteVerts.copy()
                     elem.obj.notHidden()
                 else:
-                    print ("Join + new delete verts: " + elem.name)
+                    self.env.logLine(2, "DelVerts, new delete verts: " + elem.name)
                     elem.obj.hideApproxVertices(elem, self.baseMesh, verts)
                     verts |= elem.deleteVerts
             else:
                 if verts is not None:
-                    print ("Join no new delete verts: " + elem.name)
+                    self.env.logLine(2, "DelVerts, no new delete verts: " + elem.name)
                     elem.obj.hideApproxVertices(elem, self.baseMesh, verts)
                 else:
                     elem.obj.notHidden()
@@ -409,7 +409,7 @@ class baseClass():
         self.glob.markAssetByFileName(filename, False)
 
         if elem.deleteVerts is not None or elem.type == "proxy":
-            print ("Need to recalculate base and other meshes because vertices are visible again")
+            self.env.logLine(2, "DelAsset, need to recalculate base and other meshes because vertices are visible again")
             self.calculateDeletedVerts()
             if elem.type == "proxy":
                 self.proxy  = None

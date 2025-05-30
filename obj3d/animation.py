@@ -246,6 +246,20 @@ class BVH():
                 if joint.parent is None or self.dislocation:
                     joint.matrixPoses[frame,:3,3] = [joint.animdata[frame, 0], joint.animdata[frame, 2], joint.animdata[frame, 1]]
 
+                """
+                print ("A:", joint.animdata[frame][3:])
+                anim = self.poseToAnimdata(joint.matrixPoses[frame])
+                print ("B", anim[3:])
+                """
+
+    def poseToAnimdata(self, matrixPose):
+        """
+        calculate corrected animdata for Blender output from matrixPose (finalPose)
+        """
+        animdata = np.zeros(6, dtype=np.float32)
+        x, y, z = mquat.eulerMatrixYZXToDegrees(matrixPose[:3,:3])
+        animdata[:] = [matrixPose[0,3],matrixPose[2,3], matrixPose[1,3], z, -y, x]
+        return animdata
 
     def noFaceAnimation(self):
         bc = self.glob.baseClass
