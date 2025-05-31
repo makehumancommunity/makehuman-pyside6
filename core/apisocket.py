@@ -110,7 +110,7 @@ class apiSocket(QThread):
                 if "params" in js:
                     p = js["params"]
                     mode = p["mode"] if "mode" in p else mode
-                tr = self.glob.randomValues.tr
+                tr = self.glob.guiPresets["Randomizer"].tr
                 tr.storeAllValues()
                 if tr.do(mode):
                     tr.apply(True)

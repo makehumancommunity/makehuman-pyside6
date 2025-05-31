@@ -4,6 +4,7 @@
 
     Classes:
     * AnimMode
+    * AnimPlayerValues
     * AnimPlayer
 """
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QGridLayout, QGroupBox, QCheckBox
@@ -31,6 +32,17 @@ class AnimMode():
     def leave(self):
         self.bc.setStandardMode()
 
+class AnimPlayerValues():
+    """
+    class to keep the values, when called again
+    """
+    def __init__(self, glob):
+        self.doFaceAnim = True
+        self.doCorrections = False
+        self.rotSkybox = False
+        self.rotAngle = 0.5
+        self.speedValue = 24
+
 class AnimPlayer(QVBoxLayout):
     """
     create a form with anim-player buttons
@@ -51,9 +63,8 @@ class AnimPlayer(QVBoxLayout):
         self.mesh = self.bc.baseMesh
         self.anim = self.bc.bvh
         self.posemod = self.bc.posemodifier
-        self.speedValue = 24
-        self.rotAngle = 2
         self.looping = False
+        values = self.values = self.glob.guiPresets["Animplayer"]
         super().__init__()
 
         layout = QVBoxLayout()
@@ -87,7 +98,7 @@ class AnimPlayer(QVBoxLayout):
             vlayout.addWidget(self.frameSlider )
 
             self.speedSlider = SimpleSlider("Frames per Second: ", 1, 70, self.speedChanged, minwidth=250)
-            self.speedSlider.setSliderValue(self.speedValue)
+            self.speedSlider.setSliderValue(self.values.speedValue)
             vlayout.addWidget(self.speedSlider )
         else:
             self.frameSlider = None
@@ -95,13 +106,13 @@ class AnimPlayer(QVBoxLayout):
 
         self.faceAnim = QCheckBox("allow face animation")
         self.faceAnim.setLayoutDirection(Qt.LeftToRight)
-        self.faceAnim.setChecked(True)
+        self.faceAnim.setChecked(self.values.doFaceAnim)
         self.faceAnim.toggled.connect(self.changeAnim)
         vlayout.addWidget(self.faceAnim)
 
         self.corrAnim = QCheckBox("overlay corrections")
         self.corrAnim.setLayoutDirection(Qt.LeftToRight)
-        self.corrAnim.setChecked(False)
+        self.corrAnim.setChecked(self.values.doCorrections)
         self.corrAnim.toggled.connect(self.changeAnim)
         vlayout.addWidget(self.corrAnim)
 
@@ -119,7 +130,7 @@ class AnimPlayer(QVBoxLayout):
         vlayout.addLayout(ilayout)
 
         self.rotangSlider = SimpleSlider("Rotation in degrees per frame: ", -20, 20, self.rotangChanged, minwidth=250, factor=0.25)
-        self.rotangSlider.setSliderValue(self.rotAngle)
+        self.rotangSlider.setSliderValue(self.values.rotAngle * 4)
         vlayout.addWidget(self.rotangSlider )
 
         self.rotSkyBox = QCheckBox("also rotate skybox")
@@ -140,12 +151,19 @@ class AnimPlayer(QVBoxLayout):
     def enter(self):
         self.glob.midColumn.poseViews(True)
         self.playerButtons[4][0].setChecked(False)
-        self.rotSkyBox.setChecked(False)
+        self.rotSkyBox.setChecked(self.values.rotSkybox)
+        self.rotangSlider.setSliderValue(self.values.rotAngle * 4)
 
         self.bc.setPoseMode()
-        self.view.setRotSkyBox(False)
+        self.view.setRotSkyBox(self.values.rotSkybox)
         if self.anim:
+            self.anim.identFinal()
             self.firstframe()
+            if self.anim.frameCount > 1:
+                self.speedSlider.setSliderValue(self.values.speedValue)
+            self.faceAnim.setChecked(self.values.doFaceAnim)
+            self.corrAnim.setChecked(self.values.doCorrections)
+            self.changeAnim()
         elif self.posemod:
             self.bc.showPose()
         self.view.newFloorPosition(posed=True)
@@ -163,8 +181,10 @@ class AnimPlayer(QVBoxLayout):
         self.glob.midColumn.poseViews(False)
 
     def changeAnim(self):
+        self.values.doFaceAnim = self.faceAnim.isChecked()
+        self.values.doCorrections = self.corrAnim.isChecked()
         if self.anim:
-            feat = int(self.faceAnim.isChecked() | (int (self.corrAnim.isChecked()) << 1))
+            feat = int(self.values.doFaceAnim) |(int (self.values.doCorrections) << 1)
             if feat == 0:
                 self.anim.noFaceAnimation()
             elif feat == 1:
@@ -178,6 +198,7 @@ class AnimPlayer(QVBoxLayout):
                 self.bc.showPose()
 
     def changeRotSkyBox(self, param):
+        self.values.rotSkybox = param
         self.view.setRotSkyBox(param)
 
     def setFrame(self, value):
@@ -193,14 +214,14 @@ class AnimPlayer(QVBoxLayout):
         self.setFrame(int(value))
 
     def speedChanged(self, value):
-        self.speedValue = value
+        self.values.speedValue = value
         if self.playerButtons[4][0].isChecked():
-            self.view.setFPS(self.speedValue)
+            self.view.setFPS(self.values.speedValue)
 
     def rotangChanged(self, value):
-        self.rotAngle = value
+        self.values.rotAngle = value
         if self.rotatorbutton.isChecked():
-            self.view.setYRotAngle(self.rotAngle)
+            self.view.setYRotAngle(value)
 
     def firstframe(self):
         self.setFrame(0)
@@ -222,7 +243,7 @@ class AnimPlayer(QVBoxLayout):
         v = b.isChecked()
         if v:
             self.looping = True
-            self.view.setFPS(self.speedValue, self.resetAnimbutton)
+            self.view.setFPS(self.values.speedValue, self.resetAnimbutton)
             self.view.startTimer(self.frameFeedback)
         else:
             self.looping = False
@@ -233,7 +254,7 @@ class AnimPlayer(QVBoxLayout):
         b = self.sender()
         v = b.isChecked()
         if v:
-            self.view.setYRotAngle(self.rotAngle, self.resetAnimbutton)
+            self.view.setYRotAngle(self.values.rotAngle, self.resetAnimbutton)
             self.view.startRotate()
         else:
             self.view.stopRotate()

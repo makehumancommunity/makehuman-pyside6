@@ -386,7 +386,7 @@ class ExportLeftPanel(QVBoxLayout):
         self.anim.setLayoutDirection(Qt.LeftToRight)
         self.anim.toggled.connect(self.changeAnim)
         self.anim.setChecked(False)
-        self.anim.setToolTip('If an animation is loaded it can be appended to the export [glTF includes corrections]')
+        self.anim.setToolTip('If an animation is loaded it can be appended to the export [also includes corrections]')
         self.addWidget(self.anim)
         
         self.helperw= QCheckBox("save helper")

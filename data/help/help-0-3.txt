@@ -17,7 +17,7 @@ because either the file format demands this parameter or does not support the pa
 <li>Save hidden vertices. Vertices under clothes are usually not saved, because they might shine
 through. If you need these vertices, enable this parameter.</li>
 <li>Save animation. Some of the formats allow skeletons, skinning and animation.
-You need to load an animation before.</li>
+You need to load skeleton and an animation before. Pose corrections will be merged.</li>
 <li>Save helpers. A feature to export the clothes helper. Rarely needed.</li>
 <li>Save normals. Some formats demand or have the possibility of reading normals.</li>
 Technically they can also be calculated from the mesh itself.

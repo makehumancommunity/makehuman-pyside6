@@ -20,7 +20,7 @@ from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.randomwindow import RandomForm, RandomValues
 from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport, ExportLeftPanel, ExportRightPanel
-from gui.poseactions import AnimPlayer, AnimMode
+from gui.poseactions import AnimPlayer, AnimPlayerValues, AnimMode
 from gui.poseeditor import AnimExpressionEdit, AnimPoseEdit
 from gui.slider import ScaleComboArray
 from gui.imageselector import ImageSelection
@@ -243,7 +243,7 @@ class MHMainWindow(QMainWindow):
 
         # generate random values
         if self.glob.baseClass is not None:
-            self.glob.randomValues = RandomValues(self.glob)
+            self.setPresets()
 
         self.createCentralWidget()
         self.setWindowTitle("default character")
@@ -681,6 +681,9 @@ class MHMainWindow(QMainWindow):
             if len(buttons) > 0:
                 self.markSelectedButtons(buttons, buttons[category])
 
+    def setPresets(self):
+        self.glob.guiPresets["Randomizer"] = RandomValues(self.glob)
+        self.glob.guiPresets["Animplayer"] = AnimPlayerValues(self.glob)
 
     def deb_cam(self):
         self.graph.setDebug(self.sender().isChecked())
@@ -852,7 +855,7 @@ class MHMainWindow(QMainWindow):
         self.createImageSelection()
         self.emptyLayout(self.ToolBox)
         vis = self.drawRightPanel()
-        self.glob.randomValues = RandomValues(self.glob)
+        self.setPresets()
         self.visRightColumn.setVisible(vis)
 
         self.ToolBox.update()

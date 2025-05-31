@@ -94,6 +94,9 @@ class blendCom:
     def __str__(self):
         return (json.dumps(self.json, indent=3))
 
+    def debug(self, text):
+        self.env.logLine (2, "blender-communication: " + text)
+
     def nodeName(self, filename, prefix=False):
         if filename is None:
             name = "generic"
@@ -238,26 +241,27 @@ class blendCom:
         roughtex = None
         if hasattr(material, "metallicRoughnessTexture"):
             roughtex = material.metallicRoughnessTexture
+            self.debug ("Metallic-Roughness " + roughtex)
 
         if material.sc_diffuse:
-            print ("Diffuse " + material.diffuseTexture)
+            self.debug ("Diffuse " + material.diffuseTexture)
             pbr = self.addDiffuseTexture(material.diffuseTexture, material.metallicFactor, material.pbrMetallicRoughness, roughtex)
         else:   
             pbr = self.pbrMaterial(material.diffuseColor, material.metallicFactor, material.pbrMetallicRoughness, roughtex)
 
         norm = None
         if material.sc_normal and hasattr(material, "normalmapTexture"):
-            print ("Normals " + material.normalmapTexture)
+            self.debug ("Normals " + material.normalmapTexture)
             norm = self.addNormalTexture(material.normalmapTexture, material.normalmapIntensity)
 
         occl = None
         if material.sc_ambientOcclusion and hasattr(material, "aomapTexture"):
-            print ("Ambient-Occlusion " + material.aomapTexture)
+            self.debug ("Ambient-Occlusion " + material.aomapTexture)
             occl = self.addOcclusionTexture(material.aomapTexture, material.aomapIntensity)
 
         emis = None
         if hasattr(material, "emissiveTexture"):
-            print ("Emissive " + material.emissiveTexture)
+            self.debug ("Emissive " + material.emissiveTexture)
             emis = self.addEmissiveTexture(material.emissiveTexture)
 
         if pbr is None:
@@ -410,6 +414,11 @@ class blendCom:
         """
         cnt = len(skeleton.bones)
 
+        # corrections will be done for calculation, but here animdata must be changed
+        #
+        bvh.modCorrections()
+        corrections = self.glob.baseClass.bodycorrections
+
         animat = np.zeros((bvh.frameCount, cnt, 3,3), dtype=np.float32)
 
         # set scale before, if bones are not mentioned in bvh, scale will stay 1.0
@@ -425,6 +434,11 @@ class blendCom:
                 if joint.nChannels > 0:
                     num = self.bonenames[joint.name]
                     f = joint.animdata[frame]
+
+                    # recalculate animdata for corrections
+                    #
+                    if joint.name in corrections:
+                        f = bvh.poseToAnimdata(joint.finalPoses[frame])
 
                     # allow dislocation only on root bone
                     #
@@ -443,6 +457,10 @@ class blendCom:
         animbuf = self.addBufferView(self.ANIM_BUFFER, animat.tobytes())
         self.json["skeleton"]["ANIMMAT"] = animbuf      
         self.json["skeleton"]["nFrames"] = bvh.frameCount
+
+        # reset
+        #
+        bvh.identFinal()
 
     def addNodes(self, baseclass, fname):
         #

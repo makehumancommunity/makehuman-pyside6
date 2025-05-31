@@ -246,12 +246,6 @@ class BVH():
                 if joint.parent is None or self.dislocation:
                     joint.matrixPoses[frame,:3,3] = [joint.animdata[frame, 0], joint.animdata[frame, 2], joint.animdata[frame, 1]]
 
-                """
-                print ("A:", joint.animdata[frame][3:])
-                anim = self.poseToAnimdata(joint.matrixPoses[frame])
-                print ("B", anim[3:])
-                """
-
     def poseToAnimdata(self, matrixPose):
         """
         calculate corrected animdata for Blender output from matrixPose (finalPose)

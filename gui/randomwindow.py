@@ -38,7 +38,7 @@ class RandomForm(QVBoxLayout):
         self.view = view
         self.parent = parent
         self.glob = parent.glob
-        values = self.values = self.glob.randomValues
+        values = self.values = self.glob.guiPresets["Randomizer"]
         super().__init__()
 
         values.tr.storeAllValues()

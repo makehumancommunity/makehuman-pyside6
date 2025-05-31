@@ -33,7 +33,6 @@ class globalObjects():
         self.openGLBlock  = False
         self.midColumn    = None
         self.centralWidget= None
-        self.randomValues = None
         self.baseClass = None
 
         # if keys in config, set keys
@@ -46,6 +45,8 @@ class globalObjects():
                 "Back": "Num+8", "Bottom": "Num+7", "Zoom-In": "Num++", "Zoom-Out": "Num+-",
                 "Stop Animation": "Esc", "Toggle Perspective": "Num+0"
                 }
+
+        self.guiPresets = {"Randomizer": None, "Animplayer": None }
 
         self.textureRepo = TextureRepo(self)
         self.apiSocket = None              # will contain socket for applications
