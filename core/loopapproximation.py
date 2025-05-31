@@ -87,10 +87,11 @@ class LoopApproximation:
         the missing vertex of the neighbour triangle, set -1 for missing vertex (boundary)
         """
 
+        iplus = [1, 2, 0]
         for fIndex, face in enumerate(faceverts):
             self.adjacent_odd[fIndex] = [-1, -1, -1]
             for i in range(0,3):
-                j = (i+1) % 3               # to generate 0, 1, 2, 0
+                j = iplus[i]            # index + 1
                 if face[i] > face[j]:
                     v1, v2 = face[j], face[i]
                 else:
@@ -121,6 +122,8 @@ class LoopApproximation:
         ncount = 0
         icount = 0
         ovcount = 0
+        iplus = [1, 2, 0]
+        jplus = [2, 0, 1]
 
         for fIndex in range(0, len(faceverts)):
             verts = faceverts[fIndex]
@@ -130,8 +133,8 @@ class LoopApproximation:
             #
             a_odd = self.adjacent_odd[fIndex]
             for i in range(0,3):
-                j = (i+1) % 3               # to generate 0, 1, 2, 0
-                k = (i+2) % 3
+                j = iplus[i]    # index +1
+                k = jplus[i]    # index +2
                 v1, v2, = verts[i], verts[j]
                 a, b = coords[v1], coords[v2]
 

@@ -9,6 +9,7 @@
 """
 
 import numpy as np
+import math
 
 def importWaveFront(path, obj):
     """
@@ -150,21 +151,25 @@ def importWaveFront(path, obj):
                         uv_values[vert] = uvs[uvert]
 
                     # in case it is used but different, check if we have the combination already in overflow-buffer
+                    # sometimes meshes are not connected, but vertices are identical
                     #
                     elif vertex_uv[vert] != uvert:
+                        dx =  math.fabs(uv_values[vert][0] - uvs[uvert][0])
+                        dy =  math.fabs(uv_values[vert][1] - uvs[uvert][1])
 
-                        name = str(vert) + "_" + str(uvert)     # mathematically old makehuman uses sth like vert << 32 | uvert, would also work here
+                        if dx > 0.001 or dy > 0.001:
+                            name = str(vert) + "_" + str(uvert)     # mathematically old makehuman uses sth like vert << 32 | uvert, would also work here
 
-                        if name in overflowbuf:
-                            # print (name + " allready in overflowbuf")
-                            gi[num][inum] = overflowbuf[name]   # we can use it from buffer
-                        else:
-                            # print ("new one needed:" + name)
-                            overflowbuf[name] = n_verts         # we creat a new entry
-                            verts.append(verts[vert])           # append identical coords to the end
-                            uv_values[n_verts] = uvs[uvert]     # place uv-values there
-                            gi[num][inum] = n_verts             # change the index to new appended element
-                            n_verts += 1                        # and increment number of elements
+                            if name in overflowbuf:
+                                # print (name + " allready in overflowbuf")
+                                gi[num][inum] = overflowbuf[name]   # we can use it from buffer
+                            else:
+                                # print ("new one needed:" + name)
+                                overflowbuf[name] = n_verts         # we creat a new entry
+                                verts.append(verts[vert])           # append identical coords to the end
+                                uv_values[n_verts] = uvs[uvert]     # place uv-values there
+                                gi[num][inum] = n_verts             # change the index to new appended element
+                                n_verts += 1                        # and increment number of elements
 
             groups[g]["uv"] = True      # the information is now replaced by the bool we need
         else:
