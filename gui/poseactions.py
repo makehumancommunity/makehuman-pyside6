@@ -64,7 +64,7 @@ class AnimPlayer(QVBoxLayout):
         self.anim = self.bc.bvh
         self.posemod = self.bc.posemodifier
         self.looping = False
-        values = self.values = self.glob.guiPresets["Animplayer"]
+        self.values = self.glob.guiPresets["Animplayer"]
         super().__init__()
 
         layout = QVBoxLayout()

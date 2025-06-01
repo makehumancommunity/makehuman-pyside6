@@ -3,6 +3,7 @@
     Author: black-punkduck
 
     Classes:
+    * RendererValues
     * Renderer
 """
 
@@ -16,6 +17,17 @@ from opengl.buffers import PixelBuffer
 from core.loopapproximation import LoopApproximation
 
 import os
+
+class RendererValues():
+    """
+    class to keep the values, when called again
+    """
+    def __init__(self, glob):
+        self.doCorrections = False
+        self.transparent = False
+        self.posed = False
+        self.imwidth  = 1000
+        self.imheight = 1000
 
 class Renderer(QVBoxLayout):
     """
@@ -31,10 +43,11 @@ class Renderer(QVBoxLayout):
         self.mesh = self.bc.baseMesh
         self.posemod = self.bc.posemodifier
         self.bvh = self.bc.bvh
+        self.blockchange = False
 
         self.image = None
-        self.transparent = False
         self.subdiv = False
+        self.values = self.glob.guiPresets["Renderer"]
 
         self.prog_window = None     # progressbar
         #
@@ -57,12 +70,12 @@ class Renderer(QVBoxLayout):
 
         glayout = QGridLayout()
         glayout.addWidget(QLabel("Width"), 0, 0)
-        self.width = QLineEdit("1000")
+        self.width = QLineEdit()
         self.width.editingFinished.connect(self.acceptIntegers)
         glayout.addWidget(self.width, 0, 1)
 
         glayout.addWidget(QLabel("Height"), 1, 0)
-        self.height = QLineEdit("1000")
+        self.height = QLineEdit()
         self.height.editingFinished.connect(self.acceptIntegers)
         glayout.addWidget(self.height, 1, 1)
         self.addLayout(glayout)
@@ -73,19 +86,22 @@ class Renderer(QVBoxLayout):
         self.addWidget(self.transButton)
 
         if self.bvh or self.posemod:
-            self.posed = True
             self.posedButton = QCheckBox("character posed")
             self.posedButton.setLayoutDirection(Qt.LeftToRight)
             self.posedButton.toggled.connect(self.changePosed)
             self.addWidget(self.posedButton)
-        else:
-            self.posed = False
 
         if self.bvh:
+            self.corrAnim = QCheckBox("overlay corrections")
+            self.corrAnim.setLayoutDirection(Qt.LeftToRight)
+            self.corrAnim.toggled.connect(self.changeAnim)
+            self.addWidget(self.corrAnim)
+
             if self.bvh.frameCount > 1:
                 self.frameSlider = SimpleSlider("Frame number: ", 0, self.bvh.frameCount-1, self.frameChanged, minwidth=250)
                 self.frameSlider.setSliderValue(self.bvh.currentFrame)
-                self.addWidget(self.frameSlider )
+                self.addWidget(self.frameSlider)
+
 
         self.subdivbutton = QPushButton("Smooth (subdivided)")
         self.subdivbutton.clicked.connect(self.toggleSmooth)
@@ -102,15 +118,17 @@ class Renderer(QVBoxLayout):
         self.viewButton = IconButton(2,  os.path.join(self.env.path_sysicon, "render.png"), "show image", self.viewImage)
         self.addWidget(self.viewButton)
         self.addWidget(self.saveButton)
-        self.setButtons()
 
 
     def enter(self):
+        self.image = None
         if self.bvh or self.posemod:
-            self.bc.setPoseMode()
-            self.setFrame(0)
+            if self.values.posed:
+                self.bc.setPoseMode()
+                self.setFrame(0)
         self.glob.midColumn.renderView(True)
         self.view.newFloorPosition(posed=True)
+        self.setButtons()
 
     def setUnsubdivided(self):
         self.subdivbutton.setChecked(False)
@@ -121,7 +139,7 @@ class Renderer(QVBoxLayout):
     def leave(self):
         self.setUnsubdivided()
 
-        if (self.bvh or self.posemod) and self.posed:
+        if (self.bvh or self.posemod) and self.values.posed:
             self.setFrame(0)
             self.bc.setStandardMode()
 
@@ -153,22 +171,40 @@ class Renderer(QVBoxLayout):
         self.setFrame(int(value))
 
     def changeTransparency(self, param):
-        self.transparent = param
+        self.values.transparent = param
 
     def changePosed(self, param):
-        if self.posed:
+        if self.blockchange:
+            return
+        if self.subdiv:
+            self.unSubdivide()
+        if self.values.posed:
             self.leave()
+            self.values.posed = param
+            self.setButtons()
         else:
             self.setUnsubdivided()
+            self.values.posed = param
             self.enter()
-        self.posed = param
 
     def setButtons(self):
         self.saveButton.setEnabled(self.image is not None)
         self.viewButton.setEnabled(self.image is not None)
-        self.transButton.setChecked(self.transparent)
+        self.transButton.setChecked(self.values.transparent)
+        self.width.setText(str(self.values.imwidth))
+        self.height.setText(str(self.values.imheight))
         if self.bvh or self.posemod:
-            self.posedButton.setChecked(self.posed)
+            self.corrAnim.setEnabled(len(self.bc.bodyposes) > 0 and self.values.posed)
+
+            # avoid signal for posedButton
+            #
+            self.blockchange = True
+            self.posedButton.setChecked(self.values.posed)
+            self.blockchange = False
+
+            self.corrAnim.setChecked(self.values.doCorrections)
+            if self.bvh.frameCount > 1:
+                self.frameSlider.setEnabled(self.values.posed)
 
     def acceptIntegers(self):
         m = self.sender()
@@ -176,12 +212,28 @@ class Renderer(QVBoxLayout):
             i = int(m.text())
         except ValueError:
             m.setText("1000")
+            i = 1000
         else:
             if i < 64:
                 i = 64
             elif i > 4096:
                 i = 4096
             m.setText(str(i))
+        if m == self.width:
+            self.values.imwidth = i
+        else:
+            self.values.imheight = i
+
+    def changeAnim(self):
+        if self.subdiv:
+            self.unSubdivide()
+        self.values.doCorrections = self.corrAnim.isChecked()
+        if self.values.doCorrections:
+            self.bvh.modCorrections()
+        else:
+            self.bvh.identFinal()
+        self.bc.showPose()
+
 
     def Subdivide(self, bckproc, *args):
         """
@@ -261,7 +313,7 @@ class Renderer(QVBoxLayout):
         width  = int(self.width.text())
         height = int(self.height.text())
 
-        pix = PixelBuffer(self.glob, self.view, self.transparent)
+        pix = PixelBuffer(self.glob, self.view, self.values.transparent)
         #self.glob.openGLBlock = True
         pix.getBuffer(width, height)
         self.image = pix.bufferToImage()

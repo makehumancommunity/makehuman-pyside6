@@ -24,7 +24,7 @@ from gui.poseactions import AnimPlayer, AnimPlayerValues, AnimMode
 from gui.poseeditor import AnimExpressionEdit, AnimPoseEdit
 from gui.slider import ScaleComboArray
 from gui.imageselector import ImageSelection
-from gui.renderer import Renderer
+from gui.renderer import Renderer, RendererValues
 from gui.common import DialogBox, ErrorBox, WorkerThread, MHBusyWindow, MHGroupBox, IconButton, TextBox, MHFileRequest
 from gui.qtreeselect import MHTreeView
 from core.baseobj import baseClass
@@ -684,6 +684,7 @@ class MHMainWindow(QMainWindow):
     def setPresets(self):
         self.glob.guiPresets["Randomizer"] = RandomValues(self.glob)
         self.glob.guiPresets["Animplayer"] = AnimPlayerValues(self.glob)
+        self.glob.guiPresets["Renderer"] = RendererValues(self.glob)
 
     def deb_cam(self):
         self.graph.setDebug(self.sender().isChecked())

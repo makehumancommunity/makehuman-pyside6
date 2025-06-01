@@ -46,7 +46,7 @@ class globalObjects():
                 "Stop Animation": "Esc", "Toggle Perspective": "Num+0"
                 }
 
-        self.guiPresets = {"Randomizer": None, "Animplayer": None }
+        self.guiPresets = {"Randomizer": None, "Animplayer": None, "Renderer": None }
 
         self.textureRepo = TextureRepo(self)
         self.apiSocket = None              # will contain socket for applications
