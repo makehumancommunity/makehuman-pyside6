@@ -337,7 +337,9 @@ class ImageBox(QDialog):
         if isinstance(image, str):
             image = QImage(image)
         size = image.size()
-        scrollbars = (size.width() > 1024) or (size.height() > 768)
+        w = size.width()
+        h = size.height()
+        scrollbars = (w > 1024) or (h > 768)
 
         if winframe is False or not scrollbars:
             self.setWindowFlags(Qt.Dialog | Qt.CustomizeWindowHint | Qt.WindowTitleHint)
@@ -358,8 +360,11 @@ class ImageBox(QDialog):
             scroll.setWidgetResizable(True)
 
             layout.addWidget(scroll)
-            self.setMinimumWidth(1024)
-            self.setMinimumHeight(768)
+            offset = 50
+            w = 1024 if w > 1024-offset else w+offset
+            h = 768 if h > 768-offset else h+offset
+            self.setMinimumWidth(w)
+            self.setMinimumHeight(h)
         else:
             layout.addWidget(imglabel)
         layout.addWidget( buttonBox)

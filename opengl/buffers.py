@@ -538,6 +538,7 @@ class PixelBuffer:
             print ("Status is " + str(status))
 
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer)
+        #print (gl.glGetIntegerv(gl.GL_MAX_VIEWPORT_DIMS))
         gl.glViewport(0, 0, width, height)
         self.view.camera.resizeViewPort(width, height)
         self.view.camera.calculateProjMatrix()
@@ -567,6 +568,9 @@ class PixelBuffer:
         pixmode = gl.GL_RGBA if self.transparent else gl.GL_RGB
         imgmode = QImage.Format_RGBA8888 if self.transparent else QImage.Format_RGB888
 
+        # call it twice, still no idea why, also does not work with huge screens
+        #
+        data = gl.glReadPixels (0, 0, self.width, self.height, pixmode,  gl.GL_UNSIGNED_BYTE)
         data = gl.glReadPixels (0, 0, self.width, self.height, pixmode,  gl.GL_UNSIGNED_BYTE)
 
         image = QImage(self.width, self.height, imgmode)
