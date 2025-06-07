@@ -266,6 +266,39 @@ class skeleton:
             self.skinBasemesh()
             self.glob.baseClass.poseAttachedAssets()
 
+    def poseByReference (self, joints: dict, frame=0):
+        """
+        pose the skeleton by reference
+
+        :param joints: BVHJoint dictionary
+        :param frame: frame number
+        """
+        for elem, bone in self.bones.items():
+
+            # pose each cBone reference which is mentioned in joints, multiply pose matrices
+            # if root is referenced do not multiply other matrices
+            #
+            if len(bone.reference) > 0:
+                m1 = None
+                for ref in bone.reference:
+                    if ref in joints:
+                        m = joints[ref].finalPoses[frame]
+                        if joints[ref].parent is None:
+                            m1 = m
+                            break
+                        if m1 is None:
+                            m1 = m
+                        else:
+                            m2 = np.matmul(m[:3,:3], m1[:3,:3])
+                            m1[:3,:3] = m2
+
+                if m1 is not None:
+                   bone.calcLocalPoseMat(m1)
+            
+            bone.calcGlobalPoseMat()
+            bone.poseBone()
+
+
     def rootLowestDistance(self, joints, fromframe=0, toframe=-1):
         """
         get difference between root-bone and floor to calculate distance from ground

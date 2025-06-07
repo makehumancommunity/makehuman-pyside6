@@ -57,7 +57,7 @@ class TargetCategories:
             else:
                 opposite = filename.replace("incr", "decr")
             if opposite in cats:
-                print ("Dual target: " + filename + " / "  + opposite)
+                self.env.logLine(2, "Dual target: " + filename + " / "  + opposite)
                 name = name[:-5]
                 elem = elem[:-5]
                 user_mod[elem] = ({"user": 1, "name": name, "group": group,  "incr": fname, "decr": opposite })
@@ -77,7 +77,7 @@ class TargetCategories:
                 dualtarget = True
 
         if dualtarget is False:
-            print ("Simple target: " + filename)
+            self.env.logLine(2, "Simple target: " + filename)
             user_mod[elem] = ({"user": 1, "name": name, "group": group,  "incr": fname })
             iconname = iconname + ".png"
             if iconname in self.icon_repos:

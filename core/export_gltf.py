@@ -493,7 +493,7 @@ class gltfExport:
             num = nextnode
         return (num)
 
-    def addAnimations(self, skeleton, bvh):
+    def addAnimations(self, skeleton, bvh, orig=True):
 
         # create channels and samplers
         #
@@ -519,7 +519,14 @@ class gltfExport:
             self.bonenames[key][3] = np.zeros((nFrames, 4), dtype=np.float32)
 
         for frame in range(nFrames):
-            skeleton.pose(bvh.joints, frame, True)
+
+            # bvh.joints are original joints in case of different skeleton, so in that case it will be posed by reference
+            #
+            if orig:
+                skeleton.pose(bvh.joints, frame, True)
+            else:
+                skeleton.poseByReference(bvh.joints, frame)
+
             for bonename in self.bonenames:
                 bone = skeleton.bones[bonename]
                 #
@@ -646,11 +653,11 @@ class gltfExport:
                 self.addWeights(childnum, elem, elem.obj)
             childnum += 1
 
-        # add animation, if any, allow only baseclass atm
+        # add animation, if any
         #
         if self.animation and baseweights is not None and baseclass.bvh:
             #
-            # TODO: allow different skeletons
+            # TODO: check modCorrections for references
             #
             if baseclass.skeleton == baseclass.default_skeleton:
 
@@ -658,10 +665,11 @@ class gltfExport:
                 #
                 baseclass.bvh.modCorrections()
                 self.animYoffset = baseclass.skeleton.rootLowestDistance(baseclass.bvh.joints, 0, baseclass.bvh.frameCount) + self.lowestPos
-                self.addAnimations(skeleton, baseclass.bvh)
+                self.addAnimations(skeleton, baseclass.bvh, True)
                 baseclass.bvh.identFinal()
             else:
-                print ("No animation for different skeleton allowed atm")
+                self.debug ("Animation will be posed by references")
+                self.addAnimations(skeleton, baseclass.bvh, False)
 
         self.json["buffers"].append({"byteLength": self.bufferoffset})
         self.env.logLine(32, str(self))
