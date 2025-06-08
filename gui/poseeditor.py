@@ -92,7 +92,7 @@ class GenericPoseEdit():
         layout.addWidget(self.description)
 
         if self.bvh:
-            self.posedButton = IconButton(1,  os.path.join(self.env.path_sysicon, "an_pose.png"), "character posed", self.changePosed, checkable=True)
+            self.posedButton = IconButton(1,  os.path.join(self.env.path_sysicon, "an_pose.png"), "character posed", self.togglePosed, checkable=True)
             ilayout = QHBoxLayout()
             ilayout.addWidget(self.posedButton)
 
@@ -147,21 +147,29 @@ class GenericPoseEdit():
             self.bvh.identFinal()
         self.baseClass.showPose()
 
-    def changePosed(self, param):
+    def togglePosed(self, param):
+        self.preposed = param
         if param is False:
-            self.baseClass.setStandardMode()
+            self.baseClass.restPose()
+            blends = self.getChangedValues()
+            if len(blends) > 0:
+                self.baseClass.pose_skeleton.posebyBlends(blends, None)
         else:
             self.showCorrectedPose()
         if self.bvh.frameCount > 1:
             self.frameSlider.setEnabled(param)
-        self.preposed = param
-
+        self.view.Tweak()
 
     def frameChanged(self, value):
         self.setFrame(int(value))
 
     def fillPoses(self):
+
+        # in case poses are already filled, change callback!
+        #
         if len(self.poses) > 0 or self.units is None:
+            for elem in self.poses:
+                elem.callback = self.changedPoses
             return(self.poses)
 
         default_icon = os.path.join(self.glob.env.path_sysicon, "empty_target.png")
