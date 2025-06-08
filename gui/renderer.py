@@ -8,7 +8,7 @@
 """
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLineEdit, QGridLayout, QLabel, QMessageBox,  QCheckBox
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLineEdit, QGridLayout, QLabel, QMessageBox,  QCheckBox, QHBoxLayout
 
 from gui.common import IconButton, MHFileRequest, MHBusyWindow, WorkerThread, ImageBox
 from gui.slider import SimpleSlider
@@ -85,22 +85,25 @@ class Renderer(QVBoxLayout):
         self.transButton.toggled.connect(self.changeTransparency)
         self.addWidget(self.transButton)
 
-        if self.bvh or self.posemod:
-            self.posedButton = QCheckBox("character posed")
-            self.posedButton.setLayoutDirection(Qt.LeftToRight)
-            self.posedButton.toggled.connect(self.changePosed)
-            self.addWidget(self.posedButton)
-
         if self.bvh:
             self.corrAnim = QCheckBox("overlay corrections")
             self.corrAnim.setLayoutDirection(Qt.LeftToRight)
             self.corrAnim.toggled.connect(self.changeAnim)
             self.addWidget(self.corrAnim)
 
-            if self.bvh.frameCount > 1:
+        if self.bvh or self.posemod:
+            self.posedButton = IconButton(1,  os.path.join(self.env.path_sysicon, "an_pose.png"), "character posed", self.changePosed, checkable=True)
+            ilayout = QHBoxLayout()
+            ilayout.addWidget(self.posedButton)
+
+            if self.bvh and self.bvh.frameCount > 1:
                 self.frameSlider = SimpleSlider("Frame number: ", 0, self.bvh.frameCount-1, self.frameChanged, minwidth=250)
                 self.frameSlider.setSliderValue(self.bvh.currentFrame)
-                self.addWidget(self.frameSlider)
+                ilayout.addWidget(self.frameSlider)
+            else:
+                ilayout.addStretch()
+
+            self.addLayout(ilayout)
 
 
         self.subdivbutton = QPushButton("Smooth (subdivided)")

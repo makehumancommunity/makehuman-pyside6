@@ -10,7 +10,6 @@ the color is defined in the scene settings or on a transparent layer.</i>
 <ul>
 <li>Select the width and height of the picture.</li>
 <li>Decide if you want to render on a transparent canvas.</li>
-<li>If the character was posed with an animation, select if you want to render it in posed position.</li>
 <li>Only for animation, decide if pose corrections should be merged.</li>
 <li>If the animation is longer than one frame, select the frame you want to render by using the slider.</li>
 <li>You can smooth the character. The loop algorithm is used, since the character in MakeHuman works on a triangle base.</i>
@@ -21,6 +20,7 @@ You have to smooth again, if you change pose mode or frame number.</li>
 <h3>Icons, left side:</h3>
 <p>
 <table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">
+<tr><td><img src="data/icons/an_pose.png"></td><td>If the character was posed with an animation, select if you want to render it in posed position.</td></tr>
 <tr><td><img src="data/icons/render.png"></td><td>View the rendered image.</td></tr>
 <tr><td><img src="data/icons/f_save.png"></td><td>Save the rendered image.</td></tr>
 </table>

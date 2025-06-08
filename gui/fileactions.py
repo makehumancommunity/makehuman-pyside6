@@ -386,7 +386,7 @@ class ExportLeftPanel(QVBoxLayout):
         self.anim.setLayoutDirection(Qt.LeftToRight)
         self.anim.toggled.connect(self.changeAnim)
         self.anim.setChecked(False)
-        self.anim.setToolTip('If an animation is loaded it can be appended to the export [also includes corrections]')
+        self.anim.setToolTip('Append animation to export [also includes corrections]<br>Skeleton and animation must be selected.')
         self.addWidget(self.anim)
         
         self.helperw= QCheckBox("save helper")
@@ -462,8 +462,12 @@ class ExportLeftPanel(QVBoxLayout):
         self.norm.setChecked(expAttrib[self.export_type]["normmode"])
         self.norm.setEnabled(expAttrib[self.export_type]["normset"])
 
-        self.anim.setChecked(expAttrib[self.export_type]["animmode"])
-        self.anim.setEnabled(expAttrib[self.export_type]["animset"])
+        if self.bc.bvh and self.bc.skeleton:
+            self.anim.setChecked(expAttrib[self.export_type]["animmode"])
+            self.anim.setEnabled(expAttrib[self.export_type]["animset"])
+        else:
+            self.anim.setChecked(False)
+            self.anim.setEnabled(False)
 
         self.posed.setChecked(expAttrib[self.export_type]["posemode"])
         self.posed.setEnabled(expAttrib[self.export_type]["poseset"])

@@ -299,6 +299,8 @@ class MHMainWindow(QMainWindow):
             else:
                 if not self.glob.baseClass.addPose(selected.name, selected.filename):
                     ErrorBox(self.central_widget, self.env.last_error)
+                else:
+                    self.glob.baseClass.corrections = None
             self.graph.view.Tweak()
         elif eqtype == "expressions":
             if selected.status == 0:

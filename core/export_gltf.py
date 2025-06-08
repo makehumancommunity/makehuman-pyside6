@@ -656,20 +656,22 @@ class gltfExport:
         # add animation, if any
         #
         if self.animation and baseweights is not None and baseclass.bvh:
-            #
-            # TODO: check modCorrections for references
-            #
-            if baseclass.skeleton == baseclass.default_skeleton:
 
-                # TODO offset might be used different, when anim editor is completed
-                #
-                baseclass.bvh.modCorrections()
-                self.animYoffset = baseclass.skeleton.rootLowestDistance(baseclass.bvh.joints, 0, baseclass.bvh.frameCount) + self.lowestPos
+            # modify internal bones with corrections
+            #
+            baseclass.bvh.modCorrections()
+
+            # TODO offset might be used different, when anim editor is completed
+            #
+            self.animYoffset = baseclass.skeleton.rootLowestDistance(baseclass.bvh.joints, 0, baseclass.bvh.frameCount) + self.lowestPos
+
+            if baseclass.skeleton == baseclass.default_skeleton:
                 self.addAnimations(skeleton, baseclass.bvh, True)
-                baseclass.bvh.identFinal()
             else:
                 self.debug ("Animation will be posed by references")
                 self.addAnimations(skeleton, baseclass.bvh, False)
+
+            baseclass.bvh.identFinal()
 
         self.json["buffers"].append({"byteLength": self.bufferoffset})
         self.env.logLine(32, str(self))

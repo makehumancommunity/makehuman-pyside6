@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEd
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from gui.common import IconButton, ErrorBox, HintBox, MHFileRequest
-from gui.slider import ScaleComboItem
+from gui.slider import ScaleComboItem, SimpleSlider
 from obj3d.animation import PosePrims, MHPose, MHPoseFaceConverter
 import os
 import time
@@ -48,7 +48,9 @@ class GenericPoseEdit():
         self.env = glob.env
         self.baseClass = glob.baseClass
         self.baseClass.setPoseMode()
+        self.bvh = self.baseClass.bvh
         self.poses = poses
+        self.preposed = False
         self.thumbimage = None
 
     def addClassWidgets(self, default):
@@ -89,6 +91,22 @@ class GenericPoseEdit():
         self.description = QLineEdit()
         layout.addWidget(self.description)
 
+        if self.bvh:
+            self.posedButton = IconButton(1,  os.path.join(self.env.path_sysicon, "an_pose.png"), "character posed", self.changePosed, checkable=True)
+            ilayout = QHBoxLayout()
+            ilayout.addWidget(self.posedButton)
+
+            if self.bvh and self.bvh.frameCount > 1:
+                self.frameSlider = SimpleSlider("Frame number: ", 0, self.bvh.frameCount-1, self.frameChanged, minwidth=250)
+                self.frameSlider.setSliderValue(self.bvh.currentFrame)
+                self.frameSlider.setEnabled(self.preposed)
+                ilayout.addWidget(self.frameSlider)
+            else:
+                ilayout.addStretch()
+
+            layout.addLayout(ilayout)
+
+
         ilayout = QHBoxLayout()
         ilayout.addWidget(IconButton(1,  os.path.join(self.env.path_sysicon, "f_load.png"), "load pose", self.loadButton))
         ilayout.addWidget(IconButton(2,  os.path.join(self.env.path_sysicon, "f_save.png"), "save pose", self.saveButton))
@@ -106,6 +124,41 @@ class GenericPoseEdit():
         else:
             pixmap = QPixmap.fromImage(self.thumbimage)
         self.imglabel.setPixmap(pixmap)
+
+    def setFrame(self, value):
+        if self.bvh is None or value < 0 or value >= self.bvh.frameCount:
+            return
+
+        self.bvh.currentFrame = value
+        self.baseClass.showPose()
+
+    def showCorrectedPose(self):
+        blends = self.getChangedValues()
+        corrections = {}
+        changed = self.baseClass.pose_skeleton.posebyBlends(blends, None)
+        if len(blends) > 0:
+            for bone in changed:
+                elem = self.baseClass.pose_skeleton.bones[bone]
+                corrections[bone] = elem.getRelativeCorrection()
+            self.bvh.modCorrections(corrections)
+        else:
+            # no blends at all, reset
+            #
+            self.bvh.identFinal()
+        self.baseClass.showPose()
+
+    def changePosed(self, param):
+        if param is False:
+            self.baseClass.setStandardMode()
+        else:
+            self.showCorrectedPose()
+        if self.bvh.frameCount > 1:
+            self.frameSlider.setEnabled(param)
+        self.preposed = param
+
+
+    def frameChanged(self, value):
+        self.setFrame(int(value))
 
     def fillPoses(self):
         if len(self.poses) > 0 or self.units is None:
@@ -132,14 +185,17 @@ class GenericPoseEdit():
         return blends
 
     def changedPoses(self):
-        blends = self.getChangedValues()
 
         # change if there are blends, otherwise reset to rest pose
         #
-        if len(blends) > 0:
-            self.baseClass.pose_skeleton.posebyBlends(blends, None)
+        if self.preposed:
+            self.showCorrectedPose()
         else:
-            self.baseClass.restPose()
+            blends = self.getChangedValues()
+            if len(blends) > 0:
+                self.baseClass.pose_skeleton.posebyBlends(blends, None)
+            else:
+                self.baseClass.restPose()
         self.view.Tweak()
 
     def thumbnail(self):
@@ -149,7 +205,11 @@ class GenericPoseEdit():
     def resetButton(self):
         self.resetPoseSliders()
         self.redraw(None)
-        self.baseClass.restPose()
+        if self.preposed:
+            self.bvh.identFinal()
+            self.baseClass.showPose()
+        else:
+            self.baseClass.restPose()
         self.view.Tweak()
 
     def getValue(self, name):
@@ -191,7 +251,6 @@ class GenericPoseEdit():
             corrections[bone] = elem.getRelativeCorrection()
         self.baseClass.bodycorrections = corrections
         HintBox(self.parent.central_widget, "Corrections added to be used in animation.")
-        #print (self.baseClass.bodycorrections)
 
     def loadButton(self, path, convert=None):
         directory = self.env.stdUserPath(path)
@@ -254,7 +313,11 @@ class GenericPoseEdit():
                 self.thumbimage.save(iconpath, "PNG", -1)
 
     def leave(self):
+        self.setFrame(0)
+        if self.bvh:
+            self.bvh.identFinal()
         self.baseClass.setStandardMode()
+        self.preposed = False
 
 class AnimExpressionEdit(GenericPoseEdit):
     def __init__(self, parent, glob):
