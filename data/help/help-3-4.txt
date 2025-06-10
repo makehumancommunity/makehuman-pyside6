@@ -1,10 +1,11 @@
-<h1>Create Expressions</h1>
+<h1>Expression Editor</h1>
 <p>
-This context is used to create own expressions. The expressions are not morphs, they are created
+This context is used to create or modify own expressions. The expressions are not morphs, they are created
 by face bones. A final position of a set of bones was created and you need to decide, how much of this movement is used.
 So a "jaw drop" was created in a full open position and you can determine, how much
 this position should be used by dragging the slider on the right column.<p>
 Most sliders are one-sided sliders from 0-100 percent, some are double-sided and use -100 to 100 percent.
+These expressions can be merged with poses and animations as a correction.
 <p>
 <b>To use one of the sliders, click on a icon in the right column, the slider will expand and it is possible
 to use different ways to enter the value. There is also a small "sweep" button to reset it to default.</b>
@@ -12,7 +13,7 @@ to use different ways to enter the value. There is also a small "sweep" button t
 <i>Best to load a skin texture before changing sliders here, otherwise some of the categories are rarely visible.</i>
 <p>
 In the end the expression should be saved. It will appear in the "Expressions" module.
-It is possible to load existing expression as well.
+It is possible to load existing expression as well. Another way is to use the expressions with animation, e.g. create a smile and use it as a corrections of an animation.
 <p>
 <h2>Categories</h2>
 The categories are used to modify parts of the face. You need to select the category first.
@@ -45,5 +46,6 @@ An additional slider will appear, if the animation has more than one frame.</td>
 <tr><td><img src="data/icons/symm2.png"></td><td>Mirror the left side to right side (view from character).</td></tr>
 <tr><td><img src="data/icons/f_load.png"></td><td>Load an existent expression.</td></tr>
 <tr><td><img src="data/icons/f_save.png"></td><td>Save your expression.</td></tr>
+<tr><td><img src="data/icons/corr_bone.png"></td><td>Push this expression to correction buffer to be used for animations. Reset to default and push to corrections, when only modified poses should be shown.</td></tr>
 </table>
 

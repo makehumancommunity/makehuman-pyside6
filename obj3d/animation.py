@@ -264,7 +264,7 @@ class BVH():
 
     def modCorrections(self, corrections=None):
         if corrections is None:
-            corrections = self.glob.baseClass.bodycorrections
+            corrections = self.glob.baseClass.posecorrections
         skeleton = self.glob.baseClass.pose_skeleton
         if corrections is not None:
             for joint in self.bvhJointOrder:

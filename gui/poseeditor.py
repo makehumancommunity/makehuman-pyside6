@@ -250,14 +250,27 @@ class GenericPoseEdit():
     def pushCorrections(self):
         corrections = {}
         blends = self.getChangedValues()
+
+        # get corrections before, if not in bonemask, keep them
+        #
+        for bone, elem in self.baseClass.posecorrections.items():
+            if bone not in self.bonemask:
+                corrections[bone] = elem
+
         if len(blends) == 0:
-            ErrorBox(self.parent.central_widget, "No corrections available")
+
+            # reset these corrections
+            #
+            self.baseClass.posecorrections = corrections
+            HintBox(self.parent.central_widget, "Corrections reset")
             return
-        changed = self.baseClass.pose_skeleton.posebyBlends(blends, None, True)
+
+        changed = self.baseClass.pose_skeleton.posebyBlends(blends, self.bonemask, True)
         for bone in changed:
             elem = self.baseClass.pose_skeleton.bones[bone]
             corrections[bone] = elem.getRelativeCorrection()
-        self.baseClass.bodycorrections = corrections
+
+        self.baseClass.posecorrections = corrections
         HintBox(self.parent.central_widget, "Corrections added to be used in animation.")
 
     def loadButton(self, path, convert=None):

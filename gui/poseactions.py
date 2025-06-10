@@ -146,7 +146,7 @@ class AnimPlayer(QVBoxLayout):
         enable = (self.anim is not None and self.anim.frameCount > 1)
         for button in self.playerButtons:
             button[0].setEnabled(enable)
-        self.corrAnim.setEnabled(len(self.bc.bodyposes) > 0)
+        self.corrAnim.setEnabled(len(self.bc.bodyposes) > 0 or len(self.bc.faceposes) > 0)
 
     def enter(self):
         self.glob.midColumn.poseViews(True)

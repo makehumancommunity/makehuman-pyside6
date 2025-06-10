@@ -1,4 +1,4 @@
-<h1>Create Poses</h1>
+<h1>Pose Editor</h1>
 <p>
 This context is used to create own poses and also to add corrections for animations. The poses are not morphs, they are created
 by bones. A final position of a set of bones was created and you need to decide, how much of this movement is used.
@@ -10,7 +10,8 @@ Some sliders are one-sided sliders from 0-100 percent, most are double-sided and
 to use different ways to enter the value. There is also a small "sweep" button to reset it to default.</b>
 <p>
 In the end the poses should be saved. It will appear in the "Poses" module. These poses are not bvh files.
-It is possible to load existing poses as well (only mhpose files).
+It is possible to load existing poses as well (only mhpose files). These poses can be merged with poses and animations as a correction.
+A classical example is to correct hands which intersect with body for a walk animation.
 <p>
 <h2>Categories</h2>
 The categories are used to modify parts of the character. You need to select the category first.
@@ -44,6 +45,6 @@ if a bvh pose/animation was loaded.<br>An additional slider will appear, if the 
 <tr><td><img src="data/icons/symm2.png"></td><td>Mirror the left side to right side (view from character).</td></tr>
 <tr><td><img src="data/icons/f_load.png"></td><td>Load an existent pose.</td></tr>
 <tr><td><img src="data/icons/f_save.png"></td><td>Save your pose.</td></tr>
-<tr><td><img src="data/icons/corr_bone.png"></td><td>Push this pose to correction buffer to be used for animations.</td></tr>
+<tr><td><img src="data/icons/corr_bone.png"></td><td>Push this pose to correction buffer to be used for animations. Reset to default and push to corrections, when only modified expressions should be shown.</td></tr>
 </table>
 

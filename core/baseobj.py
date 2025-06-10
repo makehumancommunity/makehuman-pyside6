@@ -87,7 +87,7 @@ class baseClass():
         self.bodyunits  = None      # indicates that body-units are initalized
         self.faceunitsinfo  = None  # contains link to face-units dictionary
         self.bodyunitsinfo  = None  # contains link to body-units dictionary
-        self.bodycorrections = None # value of body corrections
+        self.posecorrections = {}   # value of pose corections for body and face
         self.bodyposes = []
         self.hide_verts = True      # hide vertices
         self.getFaceUnits()         # get face-units to use the bone mask

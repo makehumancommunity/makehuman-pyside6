@@ -197,7 +197,7 @@ class Renderer(QVBoxLayout):
         self.width.setText(str(self.values.imwidth))
         self.height.setText(str(self.values.imheight))
         if self.bvh or self.posemod:
-            self.corrAnim.setEnabled(len(self.bc.bodyposes) > 0 and self.values.posed)
+            self.corrAnim.setEnabled((len(self.bc.bodyposes) > 0 or len(self.bc.faceposes) > 0) and self.values.posed)
 
             # avoid signal for posedButton
             #

@@ -417,7 +417,7 @@ class blendCom:
         # corrections will be done for calculation, but here animdata must be changed
         #
         bvh.modCorrections()
-        corrections = self.glob.baseClass.bodycorrections
+        corrections = self.glob.baseClass.posecorrections
 
         animat = np.zeros((bvh.frameCount, cnt, 3,3), dtype=np.float32)
 
