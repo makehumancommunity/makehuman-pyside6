@@ -14,33 +14,44 @@ from math import pi as M_PI, atan, degrees, sqrt
 class Camera():
     """
     should always calculate view matrix and projection matrix
+    :param o_size: height of character
     """
-    def __init__(self, shaders, o_size):
+    def __init__(self, o_size):
         """
         all parameters connected with camera
         """
-        self.shaders = shaders
         self.o_height =  o_size
-        self.focalLength = 50.0                # start with a norm focal length
-        self.verticalAngle = 0.0                # vertical angle
-        self.start_dist = 50.0                  # initial camera distance
-        self.ortho_magnification =4.8
-        self.view_width = 0
-        self.view_height = 0
-        self.last_mousex = 0
-        self.last_mousey = 0
-        self.deltaAngleX = 0                    # movement left to right = 2*PI = 360 deg
-        self.deltaAngleY = 0                    # movement top to bottom = PI = 180 deg
-        self.deltaMoveX = 0                     # movement left to right for panning
-        self.deltaMoveY = 0                     # movement top to bottom for panning
-        self.view_matrix = QMatrix4x4()
-        self.proj_matrix = QMatrix4x4()
-        self.proj_view_matrix = QMatrix4x4()    # needed outside to draw
+
+        self.nearPlane = 0.1                # clipping for near plane
+        self.farPlane = 300                 # clipping for far plane
+        self.maxDist  = self.farPlane - self.farPlane / 10.0   # max distance, perspective mode
+        self.minDist  = 1.1                 # min distance, perspective mode
+        self.startDist = 50.0               # initial camera distance
+        self.maxOrthoMag = 100.0            # max magnification orthogonal mode
+        self.minOrthoMag = 1.1              # min magnification orthogonal mode
+
+        self.focalLength = 50.0             # current focal length, start with a normed focal length
+        self.verticalAngle = 0.0            # current vertical angle
+        self.ortho_magnification =4.8       # magnification to fill screen in ortho-mode
+        self.view_width = 0                 # current screen size, width
+        self.view_height = 0                # current screen size, height
+
+        self.last_mousex = 0                # last mouse position in x
+        self.last_mousey = 0                # last mouse position in y
+        self.deltaAngleX = 0                # movement left to right = 2*PI = 360 deg
+        self.deltaAngleY = 0                # movement top to bottom = PI = 180 deg
+        self.deltaMoveX = 0                 # movement left to right for panning
+        self.deltaMoveY = 0                 # movement top to bottom for panning
+
+        self.view_matrix = QMatrix4x4()         # from world space to camera or view-space
+        self.proj_matrix = QMatrix4x4()         # from camera space to clip space
+        self.proj_view_matrix = QMatrix4x4()    # precalculated product of proj_matrix and view_matrix, needed to draw objects
 
         self.cameraPos =  QVector3D()           # the position of the camera
         self.cameraDir =  QVector3D()           # direction of the camera (what is up, x is usually not changed)
         self.lookAt = QVector3D()               # the position to focus
         self.center = QVector3D()               # the center of the object to focus on
+
         self.resetCamera()
         self.updateViewMatrix()
 
@@ -106,11 +117,10 @@ class Camera():
         self.cameraPers = True
         self.cameraHeight = 0
         self.focalLength = 50.0                # start with a norm focal length
-        self.cameraDist = self.start_dist       # calculate distance by trigonometric functions later
+        self.cameraDist = self.startDist       # calculate distance by trigonometric functions later
         self.cameraPos =  QVector3D(0, self.cameraHeight, self.cameraDist)
         self.lookAt =  self.center.__copy__()
         self.cameraDir =  QVector3D(0, 1, 0)
-        print ("Reset camera.")
 
     def setCenter(self, center, size):
         self.o_height = size
@@ -127,7 +137,7 @@ class Camera():
         """
         the axis 6 views
         """
-        self.cameraDist = self.center.z() + self.start_dist
+        self.cameraDist = self.center.z() + self.startDist
         self.cameraPos =  self.center + direction * self.cameraDist
         if direction.y()== 0:
             self.cameraPos.setY(self.cameraHeight)
@@ -139,16 +149,23 @@ class Camera():
 
     def modifyDistance(self, distance):
         """
-        move one unit on vector (zoom by vector length)
+        move one unit on vector (zoom by vector length),
+        avoid zooming beyond borders
+        :param int distance: factor 1 or -1 for zoom out/in
         """
         if self.cameraPers:
             v = self.cameraPos - self.lookAt
-            l = v.length() * distance
+            l = v.length()
+            if l > self.maxDist and distance > 0 or \
+                l < self.minDist and distance < 0:
+                return
+
+            l *= distance
             self.cameraPos += ( v / l)
             self.updateViewMatrix()
         else:
-            if distance > 0 and self.ortho_magnification < 1.1 or \
-                distance < 0 and self.ortho_magnification > 100:
+            if distance > 0 and self.ortho_magnification < self.minOrthoMag or \
+                distance < 0 and self.ortho_magnification > self.maxOrthoMag:
                 return
             self.ortho_magnification -= (self.ortho_magnification / 20 ) * distance
             self.calculateOrthoMatrix()
@@ -263,7 +280,7 @@ class Camera():
         if self.cameraPers:
             va = self.calculateVerticalAngle()
             self.proj_matrix.setToIdentity()
-            self.proj_matrix.perspective(va, w / h, 0.1, 500)
+            self.proj_matrix.perspective(va, w / h, self.nearPlane, self.farPlane)
         else:
             self.calculateOrthoMatrix()
         self.proj_view_matrix = self.proj_matrix * self.view_matrix

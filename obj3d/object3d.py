@@ -236,8 +236,9 @@ class object3d:
 
         # calculate norm
         #
-        for i in range(0, len(normsum)):
-            self.gi_norm[i] = normsum[i] / np.linalg.norm(normsum[i])
+        with np.errstate(divide='ignore', invalid='ignore'):
+            for i in range(0, len(normsum)):
+                self.gi_norm[i] = normsum[i] / np.linalg.norm(normsum[i])
 
         # simply copy for the doubles in the end using overflow
         #

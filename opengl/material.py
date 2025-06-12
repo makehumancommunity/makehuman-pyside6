@@ -39,7 +39,8 @@ class Material:
         self.opacity = 1.0
         self.translucency = 0.0
         self.metallicFactor = 0.0
-        self.pbrMetallicRoughness = None
+        self.pbrMetallicRoughness = 0.0
+        self.mr_found = False
         self.emissiveFactor = 0.0
         self.transparent = False
         self.shininess = 0.5
@@ -166,6 +167,8 @@ class Material:
                 "normalmapIntensity", "displacementmapIntensity", "specularmapIntensity",
                 "transparencymapIntensity", "aomapIntensity", "pbrMetallicRoughness", "metallicFactor", "emissiveFactor" ]:
                 setattr (self, key, max(0.0, min(1.0, float(words[1]))))
+                if key == "pbrMetallicRoughness":
+                    self.mr_found = True
 
             elif key in ["sssRScale", "sssGScale", "sssBScale"]:
                 setattr (self, key, max(0.0, float(words[1])))
@@ -191,7 +194,7 @@ class Material:
                         "ambientOcclusion"]:
                     setattr (self, "sc_" + words[1], words[2].lower() in ["yes", "enabled", "true"])
 
-        if self.pbrMetallicRoughness is None:
+        if self.mr_found is False:
             self.pbrMetallicRoughness = 1.0 - sum(self.specularColor) / 3
 
         if self.name is None:

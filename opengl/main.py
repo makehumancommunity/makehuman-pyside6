@@ -370,7 +370,7 @@ class OpenGLView(QOpenGLWidget):
         self.light.setShader()
         self.createSysMaterials()
 
-        self.camera = Camera(self.mh_shaders, o_size)
+        self.camera = Camera(o_size)
         self.camera.resizeViewPort(self.width(), self.height())
 
 
