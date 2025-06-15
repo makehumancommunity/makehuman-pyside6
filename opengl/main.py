@@ -392,7 +392,7 @@ class OpenGLView(QOpenGLWidget):
         return (image.scaled(128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
     def customView(self, direction):
-        self.setCameraCenter()  # new calculation of size
+        #self.setCameraCenter()  # new calculation of size
         self.camera.customView(direction)
         self.paintGL()
         self.update()

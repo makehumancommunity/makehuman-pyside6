@@ -51,6 +51,7 @@ class Camera():
         self.cameraDir =  QVector3D()           # direction of the camera (what is up, x is usually not changed)
         self.lookAt = QVector3D()               # the position to focus
         self.center = QVector3D()               # the center of the object to focus on
+        self.lastCamChange =  QVector3D()       # last camera change
 
         self.resetCamera()
         self.updateViewMatrix()
@@ -63,7 +64,8 @@ class Camera():
         lookat = list(map(lambda x: round(x,2), x))
 
         direct = self.cameraDir.toTuple()
-        return ("Pos: " + str(pos) + "\nAim: " + str(lookat) + "\nDir: " +  str(direct) + "\nAng: " + str(round(self.verticalAngle,2)))
+        return ("Pos: " + str(pos) + "\nAim: " + str(lookat) + "\nDir: " +  str(direct) + \
+                "\nAng: " + str(round(self.verticalAngle,2)) + "\nMag: " + str(round(self.ortho_magnification,2)))
 
     def calculateVerticalAngle(self):
         height = self.o_height * 1.05
@@ -121,6 +123,7 @@ class Camera():
         self.cameraPos =  QVector3D(0, self.cameraHeight, self.cameraDist)
         self.lookAt =  self.center.__copy__()
         self.cameraDir =  QVector3D(0, 1, 0)
+        self.lastCamChange = QVector3D(0, 0, 0)
 
     def setCenter(self, center, size):
         self.o_height = size
@@ -137,14 +140,74 @@ class Camera():
         """
         the axis 6 views
         """
-        self.cameraDist = self.center.z() + self.startDist
-        self.cameraPos =  self.center + direction * self.cameraDist
-        if direction.y()== 0:
-            self.cameraPos.setY(self.cameraHeight)
-            self.cameraDir =  QVector3D(0, 1, 0)
-        else:
-            self.cameraDir =  QVector3D(0, 0, 1)
+        diry = direction.y()
+        h2 = self.o_height / 2
         self.lookAt =  self.center.__copy__()
+
+        if not self.cameraPers:
+            self.cameraDist = self.center.z() + self.startDist
+            if self.lastCamChange == direction:
+                self.cameraPos =  self.center + direction * self.cameraDist
+                h = self.cameraHeight
+                self.ortho_magnification =4.8       # reset
+            else:
+                h = self.cameraPos.y()
+                self.cameraPos =  self.center + direction * self.cameraDist
+            if diry == 0.0:
+                if h > h2:
+                    self.cameraPos.setY(h2)
+                    self.lookAt.setY(h2)
+                elif h < -h2:
+                    self.cameraPos.setY(-h2)
+                    self.lookAt.setY(-h2)
+                else:
+                    self.cameraPos.setY(h)
+                    self.lookAt.setY(h)
+                self.cameraDir =  QVector3D(0, 1, 0)
+            else:
+                self.cameraDir =  QVector3D(0, 0, 1)
+            self.lastCamChange = direction
+            self.calculateOrthoMatrix()
+            self.updateViewMatrix()
+            return
+
+        # double clicked, default views, otherwise change axis only
+        #
+        if self.lastCamChange == direction:
+            self.cameraDist = self.center.z() + self.startDist
+            h = self.cameraHeight
+            t = self.cameraDist
+        else:
+            v = self.cameraPos - self.lookAt
+            self.cameraDist = v.length()
+            h = self.cameraPos.y()
+            t = h
+
+        self.cameraPos =  self.center + direction * self.cameraDist
+
+        if diry == 0.0:
+            if h > h2:
+                self.cameraPos.setY(h2)
+                self.lookAt.setY(h2)
+            elif h < -h2:
+                self.cameraPos.setY(-h2)
+                self.lookAt.setY(-h2)
+            else:
+                self.cameraPos.setY(h)
+                self.lookAt.setY(h)
+
+            self.cameraDir =  QVector3D(0, 1, 0)
+
+        elif diry == 1.0:
+            if t < self.o_height:
+                self.cameraPos.setY(self.o_height)
+            self.cameraDir =  QVector3D(0, 0, 1)
+        else:
+            if -t > -self.o_height:
+                self.cameraPos.setY(-self.o_height)
+            self.cameraDir =  QVector3D(0, 0, 1)
+
+        self.lastCamChange = direction
         self.updateViewMatrix()
 
     def modifyDistance(self, distance):
@@ -162,6 +225,7 @@ class Camera():
 
             l *= distance
             self.cameraPos += ( v / l)
+            self.camereDist = v
             self.updateViewMatrix()
         else:
             if distance > 0 and self.ortho_magnification < self.minOrthoMag or \
@@ -214,6 +278,7 @@ class Camera():
     def panning(self, x, y):
         #
         # works kinda, but there is a better way for sure
+        # does not problems with boundaries though
         #
         diffx = (self.last_mousex - x) * self.deltaMoveX
         diffy = (self.last_mousey - y) * self.deltaMoveY

@@ -91,12 +91,12 @@ class MHGraphicWindow(QWidget):
 
     def navButtons(self, vlayout):
         self.buttons = [ 
-            [None, "Top",   "top.png",   self.top_button,   0, 1, False],
-            [None, "Left",  "left.png",  self.left_button,  1, 0, False],
-            [None, "Front", "front.png", self.front_button, 1, 1, False],
-            [None, "Right", "right.png", self.right_button, 1, 2, False],
-            [None, "Back",  "back.png",  self.back_button,  1, 3, False],
-            [None, "Bottom","bottom.png",self.bottom_button,2, 1, False],
+            [None, "Top view, 2nd. click default top view",   "top.png",   self.top_button,   0, 1, False],
+            [None, "Left view, 2nd. click default left view",  "left.png",  self.left_button,  1, 0, False],
+            [None, "Front view, 2nd. click default front view", "front.png", self.front_button, 1, 1, False],
+            [None, "Right view, 2nd. click default right view", "right.png", self.right_button, 1, 2, False],
+            [None, "Back view, 2nd. click default back view",  "back.png",  self.back_button,  1, 3, False],
+            [None, "Bottom view, 2nd. click default bottom view","bottom.png",self.bottom_button,2, 1, False],
             [None, "Axes","3dcoord.png", self.toggle_axes,  3, 0, True ],
             [None, "XY-Grid","xygrid.png", self.toggle_grid,3, 1, True ],
             [None, "YZ-Grid","yzgrid.png", self.toggle_grid,3, 2, True ],
