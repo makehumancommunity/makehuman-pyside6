@@ -779,6 +779,7 @@ class MHMainWindow(QMainWindow):
             self.glob.parallel = WorkerThread(self.parallelLoad, filename)
             self.glob.parallel.start()
             self.glob.parallel.finished.connect(self.finishLoad)
+            self.graph.view.setCameraCenter()
         self.glob.project_changed = False
 
     def loadmhm_call(self):

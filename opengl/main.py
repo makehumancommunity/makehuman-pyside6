@@ -370,7 +370,7 @@ class OpenGLView(QOpenGLWidget):
         self.light.setShader()
         self.createSysMaterials()
 
-        self.camera = Camera(o_size)
+        self.camera = Camera(self.glob, o_size, self.width(), self.height())
         self.camera.resizeViewPort(self.width(), self.height())
 
 
@@ -544,7 +544,7 @@ class OpenGLView(QOpenGLWidget):
         self.camera.calculateProjMatrix()
 
     def cleanUp(self):
-        print ("cleanup openGL")
+        self.env.logLine(1, "cleanup openGL")
         for m in self.sysmaterials:
             m.freeTextures()
         if self.skybox is not None:

@@ -14,12 +14,16 @@ from math import pi as M_PI, atan, degrees, sqrt
 class Camera():
     """
     should always calculate view matrix and projection matrix
-    :param o_size: height of character
+    :param glob: global object class
+    :param float o_size: height of character
+    :param int w: initial width of the viewport
+    :param int h: initial height of the viewport
     """
-    def __init__(self, o_size):
+    def __init__(self, glob, o_size, w, h):
         """
         all parameters connected with camera
         """
+        self.glob = glob
         self.o_height =  o_size
 
         self.nearPlane = 0.1                # clipping for near plane
@@ -32,9 +36,9 @@ class Camera():
 
         self.focalLength = 50.0             # current focal length, start with a normed focal length
         self.verticalAngle = 0.0            # current vertical angle
-        self.ortho_magnification =4.8       # magnification to fill screen in ortho-mode
-        self.view_width = 0                 # current screen size, width
-        self.view_height = 0                # current screen size, height
+        self.ortho_magnification =4.8       # magnification to fill screen in ortho-mode (will be recalculated)
+        self.view_width = w                 # current screen size, width
+        self.view_height = h                # current screen size, height
 
         self.last_mousex = 0                # last mouse position in x
         self.last_mousey = 0                # last mouse position in y
@@ -52,7 +56,6 @@ class Camera():
         self.lookAt = QVector3D()               # the position to focus
         self.center = QVector3D()               # the center of the object to focus on
         self.lastCamChange =  QVector3D()       # last camera change
-
         self.resetCamera()
         self.updateViewMatrix()
 
@@ -66,6 +69,12 @@ class Camera():
         direct = self.cameraDir.toTuple()
         return ("Pos: " + str(pos) + "\nAim: " + str(lookat) + "\nDir: " +  str(direct) + \
                 "\nAng: " + str(round(self.verticalAngle,2)) + "\nMag: " + str(round(self.ortho_magnification,2)))
+
+    def calcOrthoMagFromHeight(self):
+        # related to character size (in units)
+        #
+        self.ortho_magnification = self.view_height / (self.o_height * 9.5)
+
 
     def calculateVerticalAngle(self):
         height = self.o_height * 1.05
@@ -124,17 +133,19 @@ class Camera():
         self.lookAt =  self.center.__copy__()
         self.cameraDir =  QVector3D(0, 1, 0)
         self.lastCamChange = QVector3D(0, 0, 0)
+        self.calcOrthoMagFromHeight()
 
     def setCenter(self, center, size):
         self.o_height = size
         self.calculateVerticalAngle()
+        self.calcOrthoMagFromHeight()
         self.lookAt = QVector3D(center[0], center[1], center[2])
         self.center = self.lookAt.__copy__()
         self.setFocalLength(50)
         self.cameraHeight = center[1]
         self.cameraDist = self.cameraPos.z()
         self.updateViewMatrix()
-        print ("Set Center: " + str(center) + ", Size: " + str(size))
+        self.glob.env.logLine(1, "Set Center: " + str(center) + ", character size: " + str(size))
 
     def customView(self, direction):
         """
@@ -149,7 +160,7 @@ class Camera():
             if self.lastCamChange == direction:
                 self.cameraPos =  self.center + direction * self.cameraDist
                 h = self.cameraHeight
-                self.ortho_magnification =4.8       # reset
+                self.calcOrthoMagFromHeight()
             else:
                 h = self.cameraPos.y()
                 self.cameraPos =  self.center + direction * self.cameraDist
@@ -331,6 +342,14 @@ class Camera():
         self.updateViewMatrix()
 
     def resizeViewPort(self, w, h):
+        """
+        in case of resize:
+        recalculate magnifaction for ortho mode, rotation and panning parameter
+        :param int w: new width of the viewport
+        :param int h: new height of the viewport
+        """
+        factor = h / self.view_height
+        self.ortho_magnification *= factor
         self.view_width = w
         self.view_height = h
         self.deltaAngleX = 2 * M_PI / w # movement left to right = 2*PI = 360 deg
