@@ -186,6 +186,22 @@ class MHTreeView(QWidget):
         self.mt.preSelect(self.start)
         return self.start
 
+    def getValidCategory(self, category, headline):
+        """
+        method to replace empty category or headline either by last category or last headline
+        or the starting headline
+        :param str category: category string or None
+        :param str headline: headline string or None
+        """
+        if category is None:
+            category = self.mt.getLastCategory()
+            if category is None:
+                category = self.setStart()
+            headline =self.mt.getLastHeadline()
+        if headline is None:
+            headline =self.mt.getLastHeadline()
+        return category, headline
+
     def btnstate(self):
         state = self.b1.isChecked()
         self.mt.setAutoCollapse(state)

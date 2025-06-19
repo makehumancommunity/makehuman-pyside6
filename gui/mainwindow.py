@@ -885,35 +885,20 @@ class MHMainWindow(QMainWindow):
             self.loadNewClass(base, filename)
 
     def redrawNewCategory(self, category, text=None):
-        if category is None:
-            category = self.qTree.setStart()
-            text =self.qTree.getLastHeadline()
-        if text is None:
-            text =self.qTree.getLastHeadline()
+        self.qtreefilter, text = self.qTree.getValidCategory(category, text)
         self.emptyLayout(self.ToolBox)
-        self.qtreefilter = category
         self.drawMorphPanel(text)
         self.ToolBox.update()
 
     def redrawNewExpression(self, category, text=None):
-        if category is None:
-            category = self.qTree.setStart()
-            text =self.qTree.getLastHeadline()
-        if text is None:
-            text =self.qTree.getLastHeadline()
+        self.qtreefilter, text = self.qTree.getValidCategory(category, text)
         self.emptyLayout(self.ToolBox)
-        self.qtreefilter = category
         self.drawExpressionPanel(text)
         self.ToolBox.update()
 
     def redrawNewPose(self, category, text=None):
-        if category is None:
-            category = self.qTree.setStart()
-            text =self.qTree.getLastHeadline()
-        if text is None:
-            text =self.qTree.getLastHeadline()
+        self.qtreefilter, text = self.qTree.getValidCategory(category, text)
         self.emptyLayout(self.ToolBox)
-        self.qtreefilter = category
         self.drawPosePanel(text)
         self.ToolBox.update()
 
