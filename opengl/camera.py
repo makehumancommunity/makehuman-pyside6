@@ -71,18 +71,28 @@ class Camera():
                 "\nAng: " + str(round(self.verticalAngle,2)) + "\nMag: " + str(round(self.ortho_magnification,2)))
 
     def calcOrthoMagFromHeight(self):
-        # related to character size (in units)
-        #
-        self.ortho_magnification = self.view_height / (self.o_height * 9.5)
+        """
+        calculate size of the character according to screen height (in units)
+        """
+        return self.view_height / (self.o_height * 9.5)
 
+    def setOrthoMagFromHeight(self, factor=1.0):
+        """
+        set ortho_magnification to size of the character according to screen height (in units)
+        :param float factor: factor to multiply (used when toggling)
+        """
+        self.ortho_magnification = factor * self.calcOrthoMagFromHeight()
 
     def calculateVerticalAngle(self):
         height = self.o_height * 1.05
         self.verticalAngle = 2 * degrees(atan(height/(2*self.focalLength)))
-        return(self.verticalAngle)
+        return self.verticalAngle
+
+    def getCameraDistance(self):
+        return (self.cameraPos - self.lookAt).length()
 
     def getFocalLength(self):
-        return(self.focalLength)
+        return self.focalLength
 
     def setFocalLength(self, value):
         self.focalLength = value
@@ -122,8 +132,8 @@ class Camera():
         factor = self.o_height* self.ortho_magnification
         w_o = float(self.view_width) / factor
         h_o = float(self.view_height) / factor
-        self.proj_matrix.ortho(-w_o, w_o, -h_o, h_o, 0.1, 100)
-        
+        self.proj_matrix.ortho(-w_o, w_o, -h_o, h_o, 0.1, self.farPlane)
+
     def resetCamera(self):
         self.cameraPers = True
         self.cameraHeight = 0
@@ -133,12 +143,12 @@ class Camera():
         self.lookAt =  self.center.__copy__()
         self.cameraDir =  QVector3D(0, 1, 0)
         self.lastCamChange = QVector3D(0, 0, 0)
-        self.calcOrthoMagFromHeight()
+        self.setOrthoMagFromHeight()
 
     def setCenter(self, center, size):
         self.o_height = size
         self.calculateVerticalAngle()
-        self.calcOrthoMagFromHeight()
+        self.setOrthoMagFromHeight()
         self.lookAt = QVector3D(center[0], center[1], center[2])
         self.center = self.lookAt.__copy__()
         self.setFocalLength(50)
@@ -150,8 +160,10 @@ class Camera():
     def customView(self, direction):
         """
         the axis 6 views
+        :param direction: camera direction as matrix, y is 1 for top view, -1 for bottom, otherwise 0
         """
-        diry = direction.y()
+        diry = direction.y() # front will be 0.0
+
         h2 = self.o_height / 2
         self.lookAt =  self.center.__copy__()
 
@@ -160,7 +172,7 @@ class Camera():
             if self.lastCamChange == direction:
                 self.cameraPos =  self.center + direction * self.cameraDist
                 h = self.cameraHeight
-                self.calcOrthoMagFromHeight()
+                self.setOrthoMagFromHeight()
             else:
                 h = self.cameraPos.y()
                 self.cameraPos =  self.center + direction * self.cameraDist
@@ -189,8 +201,7 @@ class Camera():
             h = self.cameraHeight
             t = self.cameraDist
         else:
-            v = self.cameraPos - self.lookAt
-            self.cameraDist = v.length()
+            self.cameraDist = self.getCameraDistance()
             h = self.cameraPos.y()
             t = h
 
@@ -221,38 +232,63 @@ class Camera():
         self.lastCamChange = direction
         self.updateViewMatrix()
 
-    def modifyDistance(self, distance):
+    def modifyDistance(self, direction):
         """
         move one unit on vector (zoom by vector length),
         avoid zooming beyond borders
-        :param int distance: factor 1 or -1 for zoom out/in
+        :param int direction: factor 1 or -1 for zoom out/in
         """
         if self.cameraPers:
             v = self.cameraPos - self.lookAt
             l = v.length()
-            if l > self.maxDist and distance > 0 or \
-                l < self.minDist and distance < 0:
+            if l > self.maxDist and direction > 0 or \
+                l < self.minDist and direction < 0:
                 return
 
-            l *= distance
+            l *= direction
             self.cameraPos += ( v / l)
             self.camereDist = v
             self.updateViewMatrix()
         else:
-            if distance > 0 and self.ortho_magnification < self.minOrthoMag or \
-                distance < 0 and self.ortho_magnification > self.maxOrthoMag:
+            if direction > 0 and self.ortho_magnification < self.minOrthoMag or \
+                direction < 0 and self.ortho_magnification > self.maxOrthoMag:
                 return
-            self.ortho_magnification -= (self.ortho_magnification / 20 ) * distance
+            self.ortho_magnification -= (self.ortho_magnification / 20 ) * direction
             self.calculateOrthoMatrix()
             self.updateViewMatrix()
 
     def togglePerspective(self, mode):
+        """
+        toggle between perspective and ortho mode. In case change from perspective to ortho,
+        magnification is changed. Otherwise camera distance is changed according to
+        focal length and the magnification factor from ortho-mode
+        :param bool mode: True is perspective mode
+        """
+        if self.cameraPers:
+            self.camereDist = self.getCameraDistance()
+            self.setOrthoMagFromHeight(self.focalLength / self.camereDist)
+        else:
+            # calculate factor current magnification vs. standard
+            #
+            factor = self.ortho_magnification / self.calcOrthoMagFromHeight()
+
+            # create new camera position from old position using the distance multiplied by factor
+            #
+            v = self.cameraPos - self.lookAt
+            l = (v.length() / self.focalLength) * factor
+            self.cameraPos =  (v / l) + self.center
+            self.updateViewMatrix()
+
+        # now set new mode and recalculate matrix
+        #
         self.cameraPers = mode
         self.calculateProjMatrix()
 
     def setLastMousePosition(self, x, y):
         """
-        called when mouse pressed inside graphics-window
+        used when mouse pressed inside graphics-window to save last mouse position
+        :param float x: x position
+        :param float y: y position
         """
         self.last_mousex = x 
         self.last_mousey = y 
@@ -260,8 +296,10 @@ class Camera():
     def arcBallRotation(self, x, y):
         """
         mouse navigation (rotation with button pressed)
-        TODO: without use of quaternions there will be a problem with the direction
+        TODO: no arcball navigation for cos= 1.0
         (top view, bottom view)
+        :param float x: x position
+        :param float y: y position
         """
         xAngle = (self.last_mousex - x) * self.deltaAngleX
         yAngle = (self.last_mousey - y) * self.deltaAngleY
@@ -287,46 +325,58 @@ class Camera():
         self.updateViewMatrix()
 
     def panning(self, x, y):
-        #
-        # works kinda, but there is a better way for sure
-        # does not problems with boundaries though
-        #
-        diffx = (self.last_mousex - x) * self.deltaMoveX
-        diffy = (self.last_mousey - y) * self.deltaMoveY
+        """
+        a panning mode, not 100% correct
+        """
+
+        frontview = (self.cameraDir.y() != 0.0)
+        mx = (self.last_mousex - x) * self.deltaMoveX
+        my = (self.last_mousey - y) * self.deltaMoveY
         self.setLastMousePosition(x, y)
 
         direct = self.cameraPos - self.center
         xv = direct.x()
+        yv = direct.y()
         zv = direct.z()
         lenx = abs(xv)
+        leny = abs(yv)
         lenz = abs(zv)
 
-        if lenx > lenz:
-            if lenz > 10.0:
-                if zv > 10.0:
-                    diffz = diffx *  (xv/zv)
+        diffx = mx
+        if frontview:
+            diffy = my
+            if lenx > lenz:
+                if lenz > 10.0:
+                    diffz = mx * (xv/zv) if zv > 10.0 else -mx * (xv/zv)
+                    diffx = mx * (lenx/zv)
                 else:
-                    diffz = -diffx * (xv/zv)
-                diffx = diffx *  (lenx/zv)
+                    diffz = mx if xv > 0 else -mx
+                    diffx = 0
             else:
-                if xv > 0:
-                    diffz = diffx
+                if lenx > 10.0:
+                    diffz = mx * (lenz/xv)
+                    diffx = mx * (zv/xv) if xv > 10.0 else -mx * (zv/xv)
                 else:
-                    diffz = -diffx
-                diffx = 0
-
+                    if zv < 0:
+                        diffx = -mx
+                    diffz = 0
         else:
-            if lenx > 10.0:
-                diffz = diffx *  (lenz/xv)
-                if xv > 10.0:
-                    diffx = diffx *  (zv/xv)
+            diffz = my
+            if lenx > leny:
+                if leny > 10.0:
+                    diffy = mx * (xv/yv) if yv > 10.0 else -mx * (xv/yv)
+                    diffx = mx * (lenx/yv)
                 else:
-                    diffx = -diffx *  (zv/xv)
+                    diffy = mx if xv > 0 else -mx
+                    diffx = 0
             else:
-                if zv < 0:
-                    diffx = -diffx
-                diffz = 0
-
+                if lenx > 10.0:
+                    diffy = mx * (leny/xv)
+                    diffx = mx * (yv/xv) if xv > 10.0 else -mx * (yv/xv)
+                else:
+                    if yv > 0:
+                        diffx = -mx
+                    diffy = 0
 
         diffx *= 10.0
         diffy *= 10.0
@@ -343,7 +393,7 @@ class Camera():
 
     def resizeViewPort(self, w, h):
         """
-        in case of resize:
+        called in case of resize of the viewport
         recalculate magnifaction for ortho mode, rotation and panning parameter
         :param int w: new width of the viewport
         :param int h: new height of the viewport
