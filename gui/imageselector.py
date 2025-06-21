@@ -20,7 +20,8 @@ from PySide6.QtGui import QPixmap, QPainter, QPen, QColor, QFont, QStandardItemM
 
 from PySide6.QtWidgets import (
         QWidget, QLayout, QLayoutItem, QStyle, QSizePolicy, QPushButton, QAbstractButton, QRadioButton, QCheckBox,
-        QGroupBox, QVBoxLayout, QLabel, QLineEdit, QTreeView, QAbstractItemView, QScrollArea, QPlainTextEdit, QHBoxLayout
+        QGroupBox, QVBoxLayout, QLabel, QLineEdit, QTreeView, QAbstractItemView, QScrollArea, QPlainTextEdit, QHBoxLayout,
+        QComboBox
         )
 
 from gui.materialwindow import MHMaterialSelect, MHAssetWindow
@@ -595,6 +596,10 @@ class editBox(QLineEdit):
             self.removeAllFilters()
 
 class ImageSelection():
+    """
+    class ImageSelection consists of left and right panel, display filter on left side and images on right side
+    when an icon is selected, callback ist called.
+    """
     def __init__(self, parent, assetrepo, eqtype, selmode, callback, scale=2):
         self.parent = parent
         self.env = parent.glob.env
@@ -618,6 +623,7 @@ class ImageSelection():
         self.button_add = None
         self.button_delete = None
         self.button_mat = None
+        self.extra_selection = None
         if not os.path.isfile(self.emptyIcon):
             self.emptyIcon = os.path.join(self.env.path_sysdata, "icons", "noidea.png")
 
@@ -858,13 +864,18 @@ class ImageSelection():
             mw.show()
 
 
-    def leftPanel(self):
+    def leftPanel(self, extra=None):
         """
         done first
         """
         iconpath = os.path.join(self.env.stdSysPath(self.type), "icons")
         
         v1layout = QVBoxLayout()    # this is for searching
+        if extra is not None:
+            self.extra_selection = QComboBox()
+            self.extra_selection.addItems(extra)
+            v1layout.addWidget(self.extra_selection)
+
         self.infobox = InformationBox(v1layout)
 
         slayout = QHBoxLayout()  # layout for textbox + empty button
@@ -881,6 +892,9 @@ class ImageSelection():
         v1layout.addLayout(slayout)
 
         return(v1layout)
+
+    def getExtraIndex(self):
+        return self.extra_selection.currentIndex() if self.extra_selection is not None else 0
 
     def rightPanelButtons(self, bitmask):
         hlayout = QHBoxLayout()

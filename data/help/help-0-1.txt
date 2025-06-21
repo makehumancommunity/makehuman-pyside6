@@ -1,6 +1,7 @@
 <h1>Load a Character</h1>
 
-This context provides the possibility to load a character from a file.
+This context provides the possibility to load a character from a file. It is also possible to load just the targets
+(morphs) or just the head-targets. This can be used to exchange geometry.
 <p>
 <i>Characters are usually saved in the <b>models</b> folder. Inside this folder there are the folders
 for different base-meshes. So an hm08 character is saved in folder <b>models/hm08</b></i>.
@@ -24,8 +25,12 @@ with the appropriate tags set.
 <h3>Loading</h3>
 
 Select a character from the right side. Be aware it is not yet loaded, but the information is displayed on
-left side. To load it, press the checkmark on the right side.
+left side. Decide if to load the complete character, only the targets or just the head-targets.
+To load, press the checkmark on the right side.
 <p>
+<i>Hint: "head-pattern" in base.json will determine which groups are considered as head.
+For official targets it is "face|", but also certain user groups like "user|nose" are accepted.
+If "head-pattern" is missing, the program uses all targets.</i>
 <h3>Filter icons, left side:</h3>
 <p>
 <table style="background-color:#c0c0c0;color:#000000;vertical-align:middle;">

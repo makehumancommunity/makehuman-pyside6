@@ -117,7 +117,10 @@ class baseClass():
         """
         will usually load an mhm-file
         after load all filenames are absolute paths
+        :param str filename: name of the file
+        :param verbose: pointer to output messages
         """
+
         self.env.logLine(8, "Load: " + filename)
         try:
             fp = open(filename, "r", encoding="utf-8", errors='ignore')
@@ -255,6 +258,59 @@ class baseClass():
         #
         self.glob.markAssetByFileName(filename, True)
         return (True, "okay")
+
+    def loadMHMTargetsOnly(self, filename, mode):
+        """
+        :param str filename: name of the file
+        :param int mode: 1 = load only targets, 2 = load only head-targets
+        """
+
+        # head targets will be ignored if no head-groups are mentioned
+        #
+        if "head-pattern" not in self.baseInfo:
+            mode = 1
+
+        modifiers = []
+        self.env.logLine(8, "Load targets only: " + filename)
+        try:
+            fp = open(filename, "r", encoding="utf-8", errors='ignore')
+        except IOError as err:
+            return (False, str(err))
+
+        self.baseMesh.setNoPose()
+        for line in fp:
+            words = line.split()
+
+            # skip white space and comments
+            #
+            if len(words) == 0 or words[0].startswith('#'):
+                continue
+
+            key = words[0]
+            if key == "modifier":
+                modifiers.append(" ".join(words[1:]))
+        fp.close()
+
+        if mode == 1:
+            self.glob.Targets.reset()
+        else:
+            self.glob.Targets.resetHead()
+
+        self.glob.missingTargets = []
+        for elem in modifiers:
+            name, value = elem.split()
+            if mode == 1:
+                self.glob.Targets.setTargetByName(name, value)
+            else:
+                if self.glob.Targets.isHeadTarget(name):
+                    self.glob.Targets.setTargetByName(name, value)
+
+        self.applyAllTargets()
+
+        # recalculate pose-skeleton
+        #
+        if self.pose_skeleton is not None:
+            self.pose_skeleton.newGeometry()
 
     def saveMHMFile(self, filename):
         """

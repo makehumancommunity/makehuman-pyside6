@@ -440,8 +440,9 @@ class MHMainWindow(QMainWindow):
 
         if self.tool_mode == 0:
             if self.category_mode == 1:
+                extra = ["Load complete character", "Load only targets", "Load only head-targets"]
                 self.leftColumn.setTitle("Load file :: filter")
-                layout = self.charselect.leftPanel()
+                layout = self.charselect.leftPanel(extra)
                 self.LeftBox.addLayout(layout)
             elif self.category_mode == 2:
                 self.leftColumn.setTitle("Save file :: parameters")
@@ -767,8 +768,21 @@ class MHMainWindow(QMainWindow):
         self.graph.setSizeInfo()
         self.glob.parallel = None
 
-    def newCharacter(self, filename):
-        if filename is not None and self.glob.parallel is None:
+    def newCharacter(self, filename, mode=0):
+        if filename is None:
+            self.glob.project_changed = False
+            return
+
+        if mode !=  0:
+            print ("character only modified by targets")
+            self.glob.baseClass.loadMHMTargetsOnly(filename, mode)
+            self.graph.view.setCameraCenter()
+            self.graph.view.prepareSkeleton()
+            self.graph.view.newFloorPosition()
+            self.graph.view.Tweak()
+            self.graph.setSizeInfo()
+
+        elif self.glob.parallel is None:
             self.setToolModeAndPanel(0, 0)
             self.glob.openGLBlock = True
             self.graph.view.noGLObjects(leavebase=True)
@@ -780,7 +794,7 @@ class MHMainWindow(QMainWindow):
             self.glob.parallel.start()
             self.glob.parallel.finished.connect(self.finishLoad)
             self.graph.view.setCameraCenter()
-        self.glob.project_changed = False
+            self.glob.project_changed = False
 
     def loadmhm_call(self):
         if self.glob.baseClass is not None:
@@ -797,7 +811,7 @@ class MHMainWindow(QMainWindow):
         if asset.status != 1:
             return
         if self.changesLost("Load character"):
-            self.newCharacter(asset.filename)
+            self.newCharacter(asset.filename, self.charselect.getExtraIndex())
 
     def savemhm_call(self):
         if self.glob.baseClass is not None:

@@ -41,6 +41,10 @@
 			"Stomach Pregnant": {"Gender": "x < 0.5", "Age": "0.2 < x < 0.75" }
 		}
 	},
+	"head-pattern": [
+		"face|",
+		"user|cheek", "user|chin", "user|ear", "user|eye", "user|mouth", "user|nose", "user|teeth"
+	],
 	"modifier-presets": {
 		"macrodetails/Gender": 0.5,
 		"macrodetails/Age": 0.5,

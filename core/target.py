@@ -42,6 +42,7 @@ class Modelling(ScaleComboItem):
         self.glob     = glob
         self.obj      = glob.baseClass
 
+        self.group = ""     # no group
         self.incr = None    # target "incr"
         self.decr = None    # target "decr"
         self.macro = None   # macro target
@@ -647,6 +648,25 @@ class Targets:
             target.resetValue()
         if colors is True:
             self.setSkinDiffuseColor()
+
+    def isHeadPattern(self, pattern):
+        headpattern = self.baseClass.baseInfo["head-pattern"]
+        for t in headpattern:
+            if pattern.startswith(t):
+                return True
+        return False
+
+    def isHeadTarget(self, key):
+        if key in self.glob.targetRepo:
+            t = self.glob.targetRepo[key]
+            if self.isHeadPattern(t.group):
+                return True
+        return False
+
+    def resetHead(self):
+        for target in self.modelling_targets:
+            if self.isHeadPattern(target.group):
+                target.resetValue()
 
     def setTargetByName(self, key, value):
         """

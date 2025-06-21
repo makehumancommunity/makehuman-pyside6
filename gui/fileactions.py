@@ -33,6 +33,9 @@ from core.blender_communication import blendCom
 import os
 
 class BaseSelect(QVBoxLayout):
+    """
+    class to select a basemesh
+    """
     def __init__(self, parent, callback):
         super().__init__()
         self.parent = parent
