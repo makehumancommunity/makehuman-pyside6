@@ -165,10 +165,16 @@ class Material:
             #
             elif key in ["shininess", "viewPortAlpha", "opacity", "translucency", "bumpmapIntensity",
                 "normalmapIntensity", "displacementmapIntensity", "specularmapIntensity",
-                "transparencymapIntensity", "aomapIntensity", "pbrMetallicRoughness", "metallicFactor", "emissiveFactor" ]:
+                "transparencymapIntensity", "pbrMetallicRoughness", "metallicFactor", "emissiveFactor" ]:
                 setattr (self, key, max(0.0, min(1.0, float(words[1]))))
                 if key == "pbrMetallicRoughness":
                     self.mr_found = True
+
+            # aomap is used different to intensify light
+            #
+            elif key == "aomapIntensity":
+                setattr (self, key, max(0.0, min(2.0, float(words[1]))))
+                print ("Intensity", self.aomapIntensity)
 
             elif key in ["sssRScale", "sssGScale", "sssBScale"]:
                 setattr (self, key, max(0.0, float(words[1])))
@@ -253,7 +259,7 @@ class Material:
             occl = "aomapTexture " + self.textureRelName(self.aomapTexture) + \
                 "\naomapIntensity " + str(self.aomapIntensity) + "\n"
         else:
-            occl = ""
+            occl = "aomapIntensity " + str(self.aomapIntensity) + "\n"
 
         if hasattr(self, "metallicRoughnessTexture"):
             metrough = "metallicRoughnessTexture " + self.textureRelName(self.metallicRoughnessTexture) + "\n"

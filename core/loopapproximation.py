@@ -175,11 +175,10 @@ class LoopApproximation:
                         w1, w2 = w2, w1
 
                     uvn = (w1,w2)
-                    oi = oddIndex[i]
                     if uvn not in self.overflow:
                         ni = 0x80000000 + ovcount
                         ovcount += 1
-                        self.overflow[uvn] = [ oi, ni, un ]
+                        self.overflow[uvn] = [ oddIndex[i], ni, un ]
                         oddIndex[i] = ni
                     else:
                         oddIndex[i] = self.overflow[uvn][1]
@@ -218,11 +217,10 @@ class LoopApproximation:
                     evenIndex[i] = self.evenVertsNew[vi]
 
                 if uvn >= maxmesh:
-                    oi = evenIndex[i]
                     if uvn not in self.overflow:
                         ni = 0x80000000 + ovcount
                         ovcount += 1
-                        self.overflow[uvn] = [ oi, ni, un ]
+                        self.overflow[uvn] = [ evenIndex[i], ni, un ]
                         evenIndex[i] = ni
                     else:
                         evenIndex[i] = self.overflow[uvn][1]

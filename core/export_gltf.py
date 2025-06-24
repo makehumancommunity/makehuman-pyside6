@@ -404,7 +404,8 @@ class gltfExport:
         occl = None
         if material.sc_ambientOcclusion and hasattr(material, "aomapTexture"):
             self.debug ("Ambient-Occlusion " + material.aomapTexture)
-            occl = self.addOcclusionTexture(material.aomapTexture, material.aomapIntensity)
+            ao_intensity = min(material.aomapIntensity, 1.0)
+            occl = self.addOcclusionTexture(material.aomapTexture, ao_intensity)
 
         emis = None
         if hasattr(material, "emissiveTexture"):
