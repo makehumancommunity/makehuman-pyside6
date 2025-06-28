@@ -429,7 +429,7 @@ class Light():
         self.glob = glob
         self.shaderInit = glob.shaderInit
         self.shaders = shaders
-        self.phong = shaders.getShader("phong3l")
+        self.phong = shaders.getShader("phong")
         self.pbr = shaders.getShader("pbr")
         self.toon = shaders.getShader("toon")
         #

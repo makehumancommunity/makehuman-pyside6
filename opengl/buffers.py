@@ -151,7 +151,7 @@ class RenderedObject:
         elif material.shader == "toon":
             self.shader = self.shaders.getShader("toon")
         else:
-            self.shader = self.shaders.getShader("phong3l")
+            self.shader = self.shaders.getShader("phong")
             self.aomap = self.material.loadAOMap(self.parent.white)
 
     def setTexture(self, texture):
@@ -248,7 +248,7 @@ class RenderedObject:
                 functions.glActiveTexture(gl.GL_TEXTURE1)
                 self.litsphere.bind()
 
-            elif self.material.shader == "phong3l":
+            elif self.material.shader == "phong":
                 functions.glUniform1f(shader.uniforms['AOMult'], self.material.aomapIntensity)
 
                 functions.glUniform1i(shader.uniforms['AOTexture'], 1)
@@ -306,7 +306,7 @@ class RenderedObject:
         """
         creates a wireframe model
         """
-        shader = self.shaders.getShader("phong3l")
+        shader = self.shaders.getShader("phong")
         self.geomToShader(shader, proj_view_matrix, campos)
         functions = self.context.functions()
 
@@ -422,7 +422,7 @@ class RenderedSimple:
         self.indices = indices
         self.infront = infront
 
-        self.shader = shaders.getShader("phong3l")
+        self.shader = shaders.getShader("phong")
         self.mvp_matrix_location = self.shader.uniforms["uMvpMatrix" ]
         self.model_matrix_location = self.shader.uniforms["uModelMatrix"]
         self.normal_matrix_location = self.shader.uniforms["uNormalMatrix"]

@@ -191,6 +191,7 @@ class LoopApproximation:
                 vi = verts[i]
                 v1 = coords[vi]
                 uvn = uvverts[i]
+                un = uvs[uvn]
                 if self.evenVertsNew[vi] == -1:
 
                     if self.border[vi][1] != 0xffffffff:
@@ -211,12 +212,15 @@ class LoopApproximation:
                     self.evenVertsNew[verts[i]] = ncount
                     evenIndex[i] = ncount
                     # UVS
-                    self.nuvs[ncount] =  uvs[uvn]
+                    self.nuvs[ncount] =  un
                     ncount += 1
                 else:
                     evenIndex[i] = self.evenVertsNew[vi]
 
                 if uvn >= maxmesh:
+
+                    # happens when a second UV value is needed because of a seam
+                    #
                     if uvn not in self.overflow:
                         ni = 0x80000000 + ovcount
                         ovcount += 1

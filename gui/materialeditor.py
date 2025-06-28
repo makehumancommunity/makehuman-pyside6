@@ -162,7 +162,7 @@ class MHMaterialEditor(QWidget):
         self.TBoxes = []
 
         self.shadertypes = [ 
-                [None, "Phong", "phong3l", "combination of ambient, diffuse and specular reflection"],
+                [None, "Phong", "phong", "combination of ambient, diffuse and specular reflection"],
                 [None, "Litpshere", "litsphere", "IBL (image based lighting), MatCap"],
                 [None, "PBR", "pbr", "physical based rendering (openGL)"],
                 [None, "Toon", "toon", "a silhouette based shader (openGL)"]
@@ -196,7 +196,7 @@ class MHMaterialEditor(QWidget):
         # shader buttons
         #
         vlayout = QVBoxLayout()
-        #        ["Phong", "phong3l", "combination of ambient, diffuse and specular reflection", None],
+        #        ["Phong", "phong", "combination of ambient, diffuse and specular reflection", None],
         for shader in self.shadertypes:
             shader[0] = QRadioButton(shader[1])
             shader[0].setToolTip(shader[3])
@@ -314,7 +314,7 @@ class MHMaterialEditor(QWidget):
 
     def checkLitsphere(self):
         if self.material.shader == "litsphere" and not hasattr(self.material, "sp_litsphereTexture"):
-            self.material.shader = "phong3l"
+            self.material.shader = "phong"
             self.setShader()
             ErrorBox(self, "Litpshere cannot be used without a litsphere texture.")
             return False

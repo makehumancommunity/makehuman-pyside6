@@ -60,7 +60,7 @@ class Material:
         self.sc_vertexColors = False
         self.sc_spec = False
         self.sc_transparency = False
-        self.shader = "phong3l"
+        self.shader = "phong"
         self.sp_AdditiveShading = 0.0
 
         self.description = None
@@ -142,7 +142,7 @@ class Material:
             elif key == "tag":
                 self.tags.append( " ".join(words[1:]).lower() )
 
-            # shader is shadertype, old path is replaced by last term. default is phong3l
+            # shader is shadertype, old path is replaced by last term. default is phong
             #
             elif key == "shader":
                 arg = words[1]
@@ -208,10 +208,10 @@ class Material:
         if self.description is None:
             self.description = self.name + " material"
 
-        # avoid empty litsphere textures (switch back to phong3l
+        # avoid empty litsphere textures (switch back to phong)
         #
         if self.shader == "litsphere" and not hasattr(self, "sp_litsphereTexture"):
-            self.shader = "phong3l"
+            self.shader = "phong"
 
         # print(self)
         return (True)
