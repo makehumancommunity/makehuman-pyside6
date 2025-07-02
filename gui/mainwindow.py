@@ -658,14 +658,36 @@ class MHMainWindow(QMainWindow):
                     layoutToRemove = layout.itemAt(i)
                     self.emptyLayout(layoutToRemove)
 
+    def emptyAll(self):
+        self.emptyLayout(self.LeftBox)
+        self.emptyLayout(self.ToolBox)
+        self.emptyLayout(self.CategoryBox)
+        """
+        if self.LeftBox.isEmpty():
+            print ("LeftBox is empty")
+        else:
+            print ("LeftBox is NOT  empty")
+        if self.ToolBox.isEmpty():
+            print ("ToolBox is empty")
+        else:
+            print ("ToolBox is NOT  empty")
+        if self.CategoryBox is not None and self.CategoryBox.isEmpty():
+            print ("CategoryBox is empty")
+        else:
+            print ("CategoryBox is NOT  empty")
+        """
+
     def setToolModeAndPanel(self, tool, category):
         if self.tool_mode != tool or self.category_mode != category:
             if self.lastClass is not None:
                 self.lastClass.leave()
                 self.lastClass = None
+            """
             self.emptyLayout(self.LeftBox)
             self.emptyLayout(self.ToolBox)
             self.emptyLayout(self.CategoryBox)
+            """
+            self.emptyAll()
             self.tool_mode = tool
             self.category_mode = category
             self.markSelectedButtons(self.tool_buttons, self.tool_buttons[tool])

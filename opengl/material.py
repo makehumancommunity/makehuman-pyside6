@@ -174,7 +174,6 @@ class Material:
             #
             elif key == "aomapIntensity":
                 setattr (self, key, max(0.0, min(2.0, float(words[1]))))
-                print ("Intensity", self.aomapIntensity)
 
             elif key in ["sssRScale", "sssGScale", "sssBScale"]:
                 setattr (self, key, max(0.0, float(words[1])))
@@ -368,39 +367,40 @@ shaderConfig diffuse {self.sc_diffuse}
         self.tex_diffuse = MH_Texture(self.glob, self.type)
         return self.tex_diffuse.unicolor(rgb)
 
-    def loadLitSphere(self):
+    def loadLitSphere(self, modify):
         self.tex_litsphere = MH_Texture(self.glob)
-        return self.tex_litsphere.load(self.sp_litsphereTexture)
+        return self.tex_litsphere.load(self.sp_litsphereTexture, modify=modify)
 
-    def loadAOMap(self, white):
+    def loadAOMap(self, white, modify):
         if hasattr(self, 'aomapTexture'):
             self.tex_aomap = MH_Texture(self.glob)
-            return self.tex_aomap.load(self.aomapTexture)
+            return self.tex_aomap.load(self.aomapTexture,  modify=modify)
 
         return white
 
-    def loadNOMap(self, nocolor):
+    def loadNOMap(self, nocolor, modify):
         if hasattr(self, 'normalmapTexture'):
             self.tex_nomap = MH_Texture(self.glob)
-            return self.tex_nomap.load(self.normalmapTexture)
+            return self.tex_nomap.load(self.normalmapTexture, modify=modify)
 
         return nocolor
 
-    def loadEMMap(self, nocolor):
-        self.tex_emmap = MH_Texture(self.glob)
+    def loadEMMap(self, nocolor, modify):
         if hasattr(self, 'emissiveTexture'):
-            return self.tex_emmap.load(self.emissiveTexture)
+            self.tex_emmap = MH_Texture(self.glob)
+            return self.tex_emmap.load(self.emissiveTexture, modify=modify)
 
         if hasattr(self, 'emissiveColor'):
             if self.emissiveColor != [0.0, 0.0, 0.0]:
+                self.tex_emmap = MH_Texture(self.glob)
                 return self.tex_emmap.unicolor(self.emissiveColor)
         
         return nocolor
 
-    def loadMRMap(self, white):
+    def loadMRMap(self, white, modify):
         if hasattr(self, 'metallicRoughnessTexture'):
             self.tex_mrmap = MH_Texture(self.glob)
-            return self.tex_mrmap.load(self.metallicRoughnessTexture)
+            return self.tex_mrmap.load(self.metallicRoughnessTexture, modify=modify)
 
         return white
 
@@ -416,16 +416,34 @@ shaderConfig diffuse {self.sc_diffuse}
             return texture
         return alternative
 
-    def loadDiffuse(self):
+    def loadDiffuse(self, modify):
         self.tex_diffuse = MH_Texture(self.glob)
         if hasattr(self, 'diffuseTexture'):
             self.sc_diffuse = True
-            return self.tex_diffuse.load(self.diffuseTexture)
+            return self.tex_diffuse.load(self.diffuseTexture, modify=modify)
 
         self.sc_diffuse = False
         if hasattr(self, 'diffuseColor'):
             return self.tex_diffuse.unicolor(self.diffuseColor)
         return self.tex_diffuse.unicolor()
+
+    def freeTexture(self, attrib):
+        """
+        free only one texture (for material editor)
+        """
+        elem = None
+        if attrib == "normalmapTexture":
+            elem= self.tex_nomap
+        elif attrib == "diffuseTexture":
+            elem= self.tex_diffuse
+        elif attrib == "aomapTexture":
+            elem= self.tex_aomap
+        elif attrib == "metallicRoughnessTexture":
+            elem= self.tex_mrmap
+        elif attrib == "emissiveTexture":
+            elem= self.tex_emmap
+        if elem:
+            elem.delete()
 
     def freeTextures(self):
         # in case of system, cleanup is done in the end

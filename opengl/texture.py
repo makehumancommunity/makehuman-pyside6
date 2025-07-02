@@ -117,6 +117,7 @@ class MH_Texture():
         texture = self.repo.exists(name)
         if texture is not None:
             self.repo.inc(name)
+            self.texture = texture
             return texture
 
         image = QImage(QSize(1,1),QImage.Format_ARGB32)
@@ -125,13 +126,15 @@ class MH_Texture():
         self.repo.add(name, self.texture, 0, None, self.textype)
         return self.texture
 
-    def load(self, path, textype="user"):
+    def load(self, path, textype="user", modify=True):
         """
         load textures
         """
         texture = self.repo.exists(path)
         if texture is not None:
-            self.repo.inc(path)
+            if modify:
+                self.repo.inc(path)
+            self.texture = texture
             return texture
 
         if not os.path.isfile(path):

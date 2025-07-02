@@ -78,9 +78,6 @@ class PictureButton(QPushButton):
         self.setToolTip(asset.name + "\n" + asset.basename)
         self.update()
 
-    #def __del__(self):
-    #    print (self.asset.name + " deleted")
-
     def update(self):
         self.picture = QPixmap(self.icon).scaled(self.scale,self.scale, Qt.AspectRatioMode.KeepAspectRatio)
         super().update()
@@ -135,11 +132,13 @@ class PicFlowLayout(QLayout):
         self.ruleset = None
         self.setContentsMargins(margin, margin, margin, margin)
 
+    """
     def __del__(self):
         # copied for consistency, not sure this is needed or ever called
         item = self.takeAt(0)
         while item:
             item = self.takeAt(0)
+    """
 
     def addItem(self, item: QLayoutItem):
         self.itemList.append(item)

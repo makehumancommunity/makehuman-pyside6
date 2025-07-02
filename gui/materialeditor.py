@@ -22,7 +22,7 @@ class TextureBox(QGroupBox):
     texture box with max of 2 sliders
     sliders work different without texture-map
     """
-    def __init__(self, parent, obj, name, attrib, slider1=None, slider2=None):
+    def __init__(self, parent, obj, name, attrib, slider1=None, slider2=None, s1factor=100.0, s2factor=100.0):
         super().__init__(name)
         self.openGL = parent.glob.openGLWindow
         self.securityCheck = parent.checkLitsphere
@@ -32,8 +32,8 @@ class TextureBox(QGroupBox):
         self.material = obj.material
         self.slider1 = slider1
         self.slider2 = slider2
-        self.slider1_factor = 100.0
-        self.slider2_factor = 100.0
+        self.slider1_factor = s1factor
+        self.slider2_factor = s2factor
         self.setObjectName("subwindow")
         self.label = QLabel()
         self.sweep = IconButton(0, parent.sweep, "No texture", self.emptyMap, 32)
@@ -91,11 +91,15 @@ class TextureBox(QGroupBox):
         self.slider1set()
         self.slider2set()
         if redisplay:
-            self.Tweak()
+            self.Tweak(False)
 
     def emptyMap(self):
         if hasattr(self.material, self.attrib):
             delattr(self.material, self.attrib)
+
+            # substract old texture
+            #
+            self.material.freeTexture(self.attrib)
             self.securityCheck()
             self.updateMap(self.object)
 
@@ -104,6 +108,14 @@ class TextureBox(QGroupBox):
         freq = MHFileRequest("Texture (PNG/JPG)", "Images (*.png *.jpg *.jpeg)", directory)
         filename = freq.request()
         if filename is not None:
+
+            # substract old texture
+            #
+            if hasattr(self.material, self.attrib):
+                self.material.freeTexture(self.attrib)
+
+            # add new one
+            #
             setattr(self.material, self.attrib, filename)
             self.updateMap(self.object)
 
@@ -121,13 +133,10 @@ class TextureBox(QGroupBox):
             else:
                 self.intensity2.setLabelText(self.slider2[2])
 
-    def setSlider1Factor(self, factor):
-        self.slider1_factor = factor
-
     def slider1set(self):
         if self.slider1 is not None and hasattr(self.material, self.slider1attr):
-                item = getattr(self.material, self.slider1attr)
-                self.intensity1.setSliderValue(item * self.slider1_factor)
+            item = getattr(self.material, self.slider1attr)
+            self.intensity1.setSliderValue(item * self.slider1_factor)
 
     def slider2set(self):
         if self.slider2 is not None and hasattr(self.material, self.slider2attr):
@@ -144,8 +153,8 @@ class TextureBox(QGroupBox):
             setattr(self.material, self.slider2attr, value / self.slider2_factor)
             self.Tweak()
 
-    def Tweak(self):
-        self.object.openGL.setMaterial(self.material)
+    def Tweak(self, update=False):
+        self.object.openGL.setMaterial(self.material, update)
         self.openGL.Tweak()
 
 class MHMaterialEditor(QWidget):
@@ -227,8 +236,7 @@ class MHMaterialEditor(QWidget):
         slayout.addWidget(t)
         self.TBoxes.append(t)
 
-        t = TextureBox (self, self.object, "Ambient occlusion", "aomapTexture", self.factors[2])
-        t.setSlider1Factor(50)
+        t = TextureBox (self, self.object, "Ambient occlusion", "aomapTexture", self.factors[2], s1factor=50.0)
         slayout.addWidget(t)
         self.TBoxes.append(t)
 
@@ -264,7 +272,7 @@ class MHMaterialEditor(QWidget):
 
 
     def Tweak(self):
-        self.object.openGL.setMaterial(self.material)
+        self.object.openGL.setMaterial(self.material, False)
         self.glob.openGLWindow.Tweak()
 
     def setShader(self):
