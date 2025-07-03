@@ -307,12 +307,13 @@ class OpenGLView(QOpenGLWidget):
         obj.openGL = RenderedObject(self, obj, boundingbox, glbuffer, pos=QVector3D(0, 0, 0))
         self.objects.insert(cnt, obj.openGL)
 
-    def deleteObject(self,obj):
-        obj.openGL.delete()
-        if obj.type != "proxy":
-            obj.material.freeTextures()
-        self.objects.remove(obj.openGL)
-        obj.openGL = None
+    def deleteObject(self,obj, delproxymat=False):
+        if obj.openGL is not None:
+            obj.openGL.delete()
+            if obj.type != "proxy" or delproxymat is True:
+                obj.material.freeTextures()
+            self.objects.remove(obj.openGL)
+            obj.openGL = None
 
     def setYRotation(self, angle=0.0):
         self.yangle = angle
@@ -494,19 +495,15 @@ class OpenGLView(QOpenGLWidget):
         else:
             self.camera.setCenter((0.0, 0.0, 0.0), 20)
 
-    def noGLObjects(self, leavebase=False):
+    def noGLObjects(self, leavebase=False, delproxymat=False):
         """
         should be called with block
         """
         for elem in self.glob.baseClass.attachedAssets:
-            obj = elem.obj
-            if obj.openGL is not None:
-                self.deleteObject(obj)
+            self.deleteObject(elem.obj, delproxymat=delproxymat)
 
         if leavebase is False:
-            obj = self.glob.baseClass.baseMesh
-            if obj.openGL is not None:
-                self.deleteObject(obj)
+            self.deleteObject(self.glob.baseClass.baseMesh)
 
         start = 1 if leavebase else 0
         for glbuffer in self.buffers[start:]:

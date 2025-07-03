@@ -248,14 +248,12 @@ class Renderer(QVBoxLayout):
             sobj = LoopApproximation(self.glob, self.bc.baseMesh)
             self.bc.baseMesh = sobj.doCalculation()
             self.s_objects.append(self.bc.baseMesh)
-            #self.view.createObject(self.bc.baseMesh)
 
         for elem in self.glob.baseClass.attachedAssets:
             self.prog_window.setLabelText("Subdiving " + elem.obj.name)
             sobj = LoopApproximation(self.glob, elem.obj)
             elem.obj = sobj.doCalculation()
             self.s_objects.append(elem.obj)
-            #self.view.createObject(elem.obj)
 
 
     def finishSubdivide(self):
@@ -276,7 +274,7 @@ class Renderer(QVBoxLayout):
             if self.bc.proxy is None:
                 self.view.noGLObjects()
             else:
-                self.view.noGLObjects(leavebase=True)
+                self.view.noGLObjects(leavebase=True,  delproxymat=True)
             self.glob.parallel = WorkerThread(self.Subdivide)
             self.glob.parallel.start()
             self.glob.parallel.finished.connect(self.finishSubdivide)
@@ -294,7 +292,7 @@ class Renderer(QVBoxLayout):
             self.view.createObject(self.bc.baseMesh)
             n = 1
         else:
-            self.view.noGLObjects(leavebase=True)
+            self.view.noGLObjects(leavebase=True, delproxymat=True)
             n = 0
 
         for elem in self.glob.baseClass.attachedAssets:

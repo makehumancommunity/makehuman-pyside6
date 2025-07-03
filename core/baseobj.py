@@ -459,7 +459,7 @@ class baseClass():
         if elem is None:
             return
 
-        self.glob.openGLWindow.deleteObject(elem.obj)
+        self.glob.openGLWindow.deleteObject(elem.obj, delproxymat=True)
         self.glob.openGLWindow.Tweak()
         self.attachedAssets.remove(elem)
         self.glob.markAssetByFileName(filename, False)
@@ -469,16 +469,6 @@ class baseClass():
             self.calculateDeletedVerts()
             if elem.type == "proxy":
                 self.proxy  = None
-
-    def delProxy(self):
-        for elem in self.attachedAssets:
-            if elem.type == "proxy":
-                self.glob.openGLWindow.deleteObject(elem.obj)
-                self.glob.openGLWindow.Tweak()
-                self.attachedAssets.remove(elem)
-                self.glob.markAssetByFileName(elem.filename, False)
-                self.proxy  = None
-                break
 
     def addAsset(self, path, eqtype, materialpath=None, materialsource=None):
         # print ("Attach: " + path + " of " + eqtype)
