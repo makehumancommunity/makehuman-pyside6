@@ -430,12 +430,13 @@ class OpenGLView(QOpenGLWidget):
         self.update()
 
     def paintGL(self):
-        if self.glob.openGLBlock:
-            # print ("open GL is blocked")
-            return 
         c = self.light.glclearcolor
         self.glfunc.glClearColor(c.x(), c.y(), c.z(), c.w())
         self.glfunc.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+        if self.glob.openGLBlock:
+            # print ("open GL is blocked")
+            return 
+       
         proj_view_matrix = QMatrix4x4(self.camera.getProjViewMatrix().copyDataTo())
         campos = self.camera.getCameraPos()
         baseClass = self.glob.baseClass

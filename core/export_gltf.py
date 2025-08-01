@@ -156,8 +156,8 @@ class gltfExport:
 
         if self.scale != 1.0:
             ncoord = ncoord * self.scale
-        minimum = meshCoords.min(axis=0).tolist()
-        maximum = meshCoords.max(axis=0).tolist()
+        minimum = (meshCoords.min(axis=0) * self.scale).tolist()
+        maximum = (meshCoords.max(axis=0) * self.scale).tolist()
 
         data = ncoord.tobytes()
         buf = self.addBufferView(self.ARRAY_BUFFER, data)
@@ -267,12 +267,12 @@ class gltfExport:
                     weights[d][i] = weights[s][i]
 
         data = joints.tobytes()
-        buf = self.addBufferView(self.ELEMENT_ARRAY_BUFFER, data)
+        buf = self.addBufferView(self.ARRAY_BUFFER, data)
         self.json["accessors"].append({"bufferView": buf, "componentType": jtype, "count": numverts, "type": "VEC4"})
 
         self.accessor_cnt += 1
         data = weights.tobytes()
-        buf = self.addBufferView(self.ELEMENT_ARRAY_BUFFER, data)
+        buf = self.addBufferView(self.ARRAY_BUFFER, data)
         self.json["accessors"].append({"bufferView": buf, "componentType": self.FLOAT, "count": numverts, "type": "VEC4"})
         return(self.accessor_cnt)
 
@@ -492,6 +492,8 @@ class gltfExport:
             nextnode = self.addBones(child, num)
             node["children"].append(num)
             num = nextnode
+        if len(node["children"]) == 0:
+            del node["children"]
         return (num)
 
     def addAnimations(self, skeleton, bvh, orig=True):

@@ -258,14 +258,17 @@ class MHMainWindow(QMainWindow):
         return entry
 
     def createImageSelection(self):
+        self.equip.clear()
         for elem in self.equipment:
-            elem["func"] = ImageSelection(self, self.glob.cachedInfo, elem["name"], elem["mode"], self.equipCallback)
-            elem["func"].prepare()
-            elem["menu"] = self.addActCallBack(self.equip, elem["name"], self.equip_call)
+            if self.glob.hasAssetFolder(elem["name"]):
+                elem["func"] = ImageSelection(self, self.glob.cachedInfo, elem["name"], elem["mode"], self.equipCallback)
+                elem["func"].prepare()
+                elem["menu"] = self.addActCallBack(self.equip, elem["name"], self.equip_call)
 
         self.charselect = ImageSelection(self, self.glob.cachedInfo, "models", 0, self.loadByIconCallback, 3)
         self.charselect.prepare()
 
+        self.animenu.clear()
         for elem in self.animation:
             elem["func"] = ImageSelection(self, self.glob.cachedInfo, elem["name"], elem["mode"], self.animCallback)
             elem["func"].prepare()
@@ -1069,11 +1072,11 @@ class MHMainWindow(QMainWindow):
         if name == "License":
             licname = "makehuman_license.txt"
             boxname = "MakeHuman License"
-            image = os.path.join(self.env.path_sysicon, "makehuman.png")
+            image = self.env.stdLogo()
         elif name == "Credits":
             licname = "credits.txt"
             boxname = "Credits"
-            image = os.path.join(self.env.path_sysicon, "makehuman.png")
+            image = self.env.stdLogo()
         else:
             licname = name.lower() + "-license.txt"
             boxname = name + " License"
@@ -1126,13 +1129,13 @@ class MHMainWindow(QMainWindow):
         text = "Numpy: " + ".".join([str(x) for x in self.env.numpy_version]) + "<br>" + \
                 "PyOpenGL: " + self.env.GL_Info + "<br>" + \
                 "PySide6: " + ".".join([str(x) for x in self.env.QT_Info["version"]])
-        image = os.path.join(self.env.path_sysicon, "makehuman.png")
+        image = self.env.stdLogo()
         TextBox(self, "Used library versions", image, text)
 
     def glinfo_call(self):
         deb = GLDebug()
         text = deb.getTextInfo()
-        image = os.path.join(self.env.path_sysicon, "makehuman.png")
+        image = self.env.stdLogo()
         TextBox(self, "Local OpenGL Information", image, text)
 
     def quit_call(self, event=None):

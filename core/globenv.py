@@ -109,6 +109,12 @@ class globalObjects():
                 return (elem)
         return(None)
 
+    def hasAssetFolder(self, folder):
+        for elem in self.cachedInfo:
+            if elem.folder == folder:
+                return True
+        return False
+
     def rescanAssets(self, asset_type=None):
         if asset_type != "models":
             self.env.fileScanFoldersAttachObjects(asset_type)
@@ -441,7 +447,7 @@ class programInfo():
                     try:
                         value, type_ = winreg.QueryValueEx(k, 'Personal')
                     except FileNotFoundError:
-                        value, type_ = "%USERPROFILE%\Documents", winreg.REG_EXPAND_SZ
+                        value, type_ = "%USERPROFILE%\\Documents", winreg.REG_EXPAND_SZ
                     if type_ == winreg.REG_EXPAND_SZ:
                         self.path_home = self.formatPath(winreg.ExpandEnvironmentStrings(value))
                     elif type_ == winreg.REG_SZ:
@@ -579,6 +585,9 @@ class programInfo():
             else:
                 return(os.path.join(self.path_userdata, category, self.basename))
         return None
+
+    def stdLogo(self):
+        return os.path.join(self.path_sysicon, "makehuman2logo128.png")
 
     def isSourceFileNewer(self, destination, source):
         """
@@ -810,6 +819,7 @@ class programInfo():
                     mtags = "|".join(tags)
                     data.append([name, uuid, path, folder, obj_file, thumbfile, author, mtags])
             self.fileCache.insertCache(data)
+
 
     def fileScanFolderMHM(self):
         """

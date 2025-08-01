@@ -238,7 +238,13 @@ class object3d:
         #
         with np.errstate(divide='ignore', invalid='ignore'):
             for i in range(0, len(normsum)):
-                self.gi_norm[i] = normsum[i] / np.linalg.norm(normsum[i])
+                areanorm = np.linalg.norm(normsum[i])
+                if areanorm != 0.0:
+                    self.gi_norm[i] = normsum[i] / areanorm
+                else:
+                    self.gi_norm[i][0] = 1.0
+                    self.gi_norm[i][1] = 0.0
+                    self.gi_norm[i][2] = 0.0
 
         # simply copy for the doubles in the end using overflow
         #

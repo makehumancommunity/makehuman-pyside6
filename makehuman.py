@@ -53,6 +53,8 @@ def main():
         syspath = os.path.dirname(sys.executable)
     else:
         syspath = os.path.dirname(os.path.realpath(__file__))
+    
+    os.chdir(syspath)
 
     # get programInfo as environment (only for strings to be printed in JSON)
     # and globalObjects for non-printable objects

@@ -29,6 +29,7 @@ class TargetCategories:
             filename = os.path.join(subfolder, filename)
         mod = int(os.stat(fname).st_mtime)
         self.user_targets.append(filename[:-7])
+        
         if mod > latest:
             self.env.logTime(mod, "Newer modification time detected for: " + filename)
             return (True)
@@ -40,7 +41,7 @@ class TargetCategories:
         """
         name = filename.replace('-', ' ') # display name
         if folder is not None:
-            fname = os.path.join(folder, filename)
+            fname = folder + "/" + filename         # URI style
             elem = folder.capitalize() + " " + name.capitalize()
             group = "user|" + folder
             iconname = folder + "-" + filename
@@ -54,13 +55,14 @@ class TargetCategories:
         if filename.endswith("incr"):
             if folder is not None:
                 opposite = os.path.join(folder, filename.replace("incr", "decr"))
+                oppentry = folder + "/" + filename.replace("incr", "decr")          # entries are in URI style
             else:
                 opposite = filename.replace("incr", "decr")
             if opposite in cats:
                 self.env.logLine(2, "Dual target: " + filename + " / "  + opposite)
                 name = name[:-5]
                 elem = elem[:-5]
-                user_mod[elem] = ({"user": 1, "name": name, "group": group,  "incr": fname, "decr": opposite })
+                user_mod[elem] = ({"user": 1, "name": name, "group": group,  "incr": fname, "decr": oppentry })
 
                 iconname = iconname[:-5] + ".png"
                 if iconname in self.icon_repos:

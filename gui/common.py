@@ -21,6 +21,7 @@
 """
 
 import os
+import time
 from PySide6.QtWidgets import (
         QLabel, QDialogButtonBox, QVBoxLayout, QDialog, QProgressDialog, QWidget, QApplication, QMessageBox, QFrame,
         QHBoxLayout, QLineEdit, QPushButton, QComboBox, QProgressBar, QScrollArea, QFileDialog
@@ -237,6 +238,7 @@ class MHBusyWindow(QWidget):
         self.progress.setAttribute(Qt.WA_DeleteOnClose, True)
 
     def setLabelText(self, text):
+        time.sleep(0.1)     # to avoid blocking (?)
         self.progress.setLabelText(text)
 
     def setValue(self, l):

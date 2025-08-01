@@ -54,6 +54,11 @@ QTreeView {
     selection-color: white;
     selection-background-color: #d7801a;
     color: white;
+    show-decoration-selected: 1;
+}
+
+QTreeView::branch:has-children {
+    border-image: url('data/icons/expand_orange.png');
 }
 
 QTreeView::item:selected {
