@@ -109,7 +109,7 @@ if __name__ == '__main__':
             print ("Found: " + base)
             basemesh = object3d(glob, None, "base")
             (res, err) = basemesh.load(base, True)
-            if res is False:
+            if res == 0:
                 print (err)
                 exit(10)
             basemesh.exportBinary()

@@ -52,14 +52,6 @@ class Material:
         self.alphaToCoverage = False
         self.backfaceCull = False
         #
-        self.sc_normal = False
-        self.sc_ambientOcclusion = False
-        self.sc_diffuse = False
-        self.sc_bump = False
-        self.sc_displacement = False
-        self.sc_vertexColors = False
-        self.sc_spec = False
-        self.sc_transparency = False
         self.shader = "phong"
         self.sp_AdditiveShading = 0.0
 
@@ -75,7 +67,7 @@ class Material:
         if os.path.isfile(path):
             return (path)
 
-        # try to get rid of first directory of filename
+        # try to get rid of first directory of filename (notation: unicode)
         #
         if "/" in filename:
             fname = "/".join (filename.split("/")[1:])
@@ -108,7 +100,7 @@ class Material:
 
     def loadMatFile(self, path):
         """
-        mhmat file loader, TODO, still a subset
+        mhmat file loader, TODO; cleanup in the end
         """
         self.filename = path
         self.objdir = os.path.dirname(path)
@@ -192,12 +184,10 @@ class Material:
                 else:
                     setattr (self, "sp_" + words[1], words[2])
 
-            # shaderconfig will be prefixed by sc_
+            # shaderconfig no longer supported, done by testing availability of filenames
             #
             elif key == "shaderConfig":
-                if words[1] in ["diffuse", "bump", "normal", "displacement", "spec", "vertexColors", "transparency",
-                        "ambientOcclusion"]:
-                    setattr (self, "sc_" + words[1], words[2].lower() in ["yes", "enabled", "true"])
+                pass
 
         if self.mr_found is False:
             self.pbrMetallicRoughness = 1.0 - sum(self.specularColor) / 3
@@ -217,28 +207,31 @@ class Material:
 
     def textureRelName(self, path):
         """
-        path name always in UNIX syntax, needed as a base
+        path name always in URI syntax, needed as a base
         """
         path = self.env.formatPath(path)
-        if path.startswith(self.objdir):
-            relpath = path[len(self.objdir)+1:]
+        fobjdir = self.env.formatPath(self.objdir)
+
+        if path.startswith(fobjdir):
+            relpath = path[len(fobjdir)+1:]
             return(relpath)
 
-        test = self.env.stdSysPath(self.type)
+        test = self.env.formatPath(self.env.stdSysPath(self.type))
         rest = None
-        if self.objdir.startswith(test):
-            rest = self.objdir[len(test)+1:]
+        if fobjdir.startswith(test):
+            rest = fobjdir[len(test)+1:]
         
-        test = self.env.stdUserPath(self.type)
-        if self.objdir.startswith(test):
-            rest = self.objdir[len(test)+1:]
+        test = self.env.formatPath(self.env.stdUserPath(self.type))
+        if fobjdir.startswith(test):
+            rest = fobjdir[len(test)+1:]
 
+        # URI syntax
         if rest:
             asset = rest.split("/")[0]
-            relpath = os.path.join(self.type, asset, os.path.basename(path))
+            relpath = self.type + "/" + asset + "/" + os.path.basename(path)
         else:
             relpath = os.path.basename(path)
-        return(relpath)
+        return(self.env.formatPath(relpath))
 
     def saveMatFile(self, path):
         self.env.logLine(8, "Saving material " + path)
@@ -286,7 +279,7 @@ class Material:
             self.env.last_error = str(err)
             return (False)
 
-        text = f"""# Material definition for {self.name}
+        text = f"""# MakeHuman2 Material definition for {self.name}
 name {self.name}
 description {self.description}
 
@@ -313,14 +306,6 @@ receiveShadows {self.receiveShadows}
 
 {shader}{litsphere}
 
-shaderConfig ambientOcclusion {self.sc_ambientOcclusion}
-shaderConfig normal {self.sc_normal}
-shaderConfig bump {self.sc_bump}
-shaderConfig displacement {self.sc_displacement}
-shaderConfig vertexColors {self.sc_vertexColors}
-shaderConfig spec {self.sc_spec}
-shaderConfig transparency {self.sc_transparency}
-shaderConfig diffuse {self.sc_diffuse}
 """
         
         fp.write(text)
@@ -412,17 +397,14 @@ shaderConfig diffuse {self.sc_diffuse}
         self.tex_diffuse = MH_Texture(self.glob)
         texture = self.tex_diffuse.load(self.diffuseTexture, self.type)
         if texture is not None:
-            self.sc_diffuse = True
             return texture
         return alternative
 
     def loadDiffuse(self, modify):
         self.tex_diffuse = MH_Texture(self.glob)
         if hasattr(self, 'diffuseTexture'):
-            self.sc_diffuse = True
             return self.tex_diffuse.load(self.diffuseTexture, modify=modify)
 
-        self.sc_diffuse = False
         if hasattr(self, 'diffuseColor'):
             return self.tex_diffuse.unicolor(self.diffuseColor)
         return self.tex_diffuse.unicolor()

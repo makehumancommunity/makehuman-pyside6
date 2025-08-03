@@ -317,7 +317,7 @@ class gltfExport:
         if not okay:
             return (False, -1)
 
-        uri = os.path.join(self.imagefolder, os.path.basename(image))
+        uri = self.env.formatPath(os.path.join(self.imagefolder, os.path.basename(image)))
         self.json["images"].append({"uri": uri})
         return(True, self.image_cnt)
 
@@ -390,19 +390,19 @@ class gltfExport:
             roughtex = material.metallicRoughnessTexture
             self.debug ("Metallic-Roughness " + roughtex)
 
-        if material.sc_diffuse:
+        if  hasattr(material, "diffuseTexture"):
             self.debug ("Diffuse " + material.diffuseTexture)
             pbr = self.addDiffuseTexture(material.diffuseTexture, material.metallicFactor, material.pbrMetallicRoughness, roughtex)
         else:   
             pbr = self.pbrMaterial(material.diffuseColor, material.metallicFactor, material.pbrMetallicRoughness, roughtex)
 
         norm = None
-        if material.sc_normal and hasattr(material, "normalmapTexture"):
+        if hasattr(material, "normalmapTexture"):
             self.debug ("Normals " + material.normalmapTexture)
             norm = self.addNormalTexture(material.normalmapTexture, material.normalmapIntensity)
 
         occl = None
-        if material.sc_ambientOcclusion and hasattr(material, "aomapTexture"):
+        if hasattr(material, "aomapTexture"):
             self.debug ("Ambient-Occlusion " + material.aomapTexture)
             ao_intensity = min(material.aomapIntensity, 1.0)
             occl = self.addOcclusionTexture(material.aomapTexture, ao_intensity)
@@ -416,7 +416,7 @@ class gltfExport:
             return(-1)
 
         mat = {"name": self.nodeName(name), "pbrMetallicRoughness": pbr}
-        if material.sc_diffuse and material.transparent:
+        if hasattr(material, "diffuseTexture") and material.transparent:
             mat["alphaMode"] = "BLEND"
             mat["doubleSided"] =  material.backfaceCull
 

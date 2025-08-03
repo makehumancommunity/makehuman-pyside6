@@ -352,7 +352,7 @@ class Modelling(ScaleComboItem):
     def setBaryCentricDiffuse(self):
         if hasattr(self, "barycentric_diffuse"):
             base = self.obj.baseMesh
-            if base.openGL is not None and base.material.sc_diffuse is False:
+            if base.openGL is not None and not hasattr(base.material, "diffuseTexture"):
                 influence = [self.barycentric[0]["value"], self.barycentric[1]["value"], self.barycentric[2]["value"]]
                 texture =base.material.mixColors(self.barycentric_diffuse, influence)
                 base.openGL.setTexture(texture)

@@ -130,7 +130,7 @@ class BaseSelect(QVBoxLayout):
             basemesh =  baseClass.attachedAssets[0]
         matimg = []
         oldmaterial = self.getCurrentMaterial()
-        print(oldmaterial)
+        self.env.logLine(1, "Working on: " + oldmaterial)
         for elem in matfiles:
             #print (elem)
             (folder, name) = os.path.split(elem)

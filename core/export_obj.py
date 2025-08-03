@@ -108,7 +108,7 @@ class objExport:
     def addMaterial(self, num, material):
          diff = material.diffuseColor
          spec = material.diffuseColor
-         alpha = 0 if material.sc_diffuse else material.opacity
+         alpha = 0 if hasattr(material, "diffuseTexture") else material.opacity
 
          self.matlines.append("\n")
          self.matlines.append("newmtl " + material.name + "\n")
@@ -116,19 +116,21 @@ class objExport:
          self.matlines.append("Ks %.4g %.4g %.4g\n" % (spec[0], spec[1], spec[2]))
          self.matlines.append("d %.4g\n" % alpha)
 
-         if material.sc_ambientOcclusion and hasattr(material, "aomapTexture"):
+         if hasattr(material, "aomapTexture"):
              if self.addImage("map_Ka", material.aomapTexture) is False:
                 return False
 
-         if material.sc_diffuse and hasattr(material, "diffuseTexture"):
+         if hasattr(material, "diffuseTexture"):
              if self.addImage("map_Kd", material.diffuseTexture) is False:
                 return False
 
-         if material.sc_spec and hasattr(material, "specularmapTexture"):
+         # atm no specular map (part of roughness map)
+         #
+         if hasattr(material, "specularmapTexture"):
              if self.addImage("map_Ks", material.specularmapTexture) is False:
                 return False
 
-         if material.sc_normal and hasattr(material, "normalmapTexture"):
+         if hasattr(material, "normalmapTexture"):
              if self.addImage("norm", material.normalmapTexture) is False:
                 return False
 

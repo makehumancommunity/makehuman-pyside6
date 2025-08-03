@@ -322,7 +322,7 @@ class attachedAsset:
         else:
             self.standard_material = ""
 
-        importObjValues(npzfile, self.obj)
+        return importObjValues(npzfile, self.obj)
 
     def calculateBoneWeights(self):
         """
@@ -355,38 +355,64 @@ class attachedAsset:
     def load(self, filename, use_ascii=False):
         """
         load mhclo or mhbin
+        if not ASCII must be use and .mhbin is newer than .mhclo load .mhbin
         """
         if use_ascii is False and (filename.endswith(".mhclo") or filename.endswith(".proxy")):
             binfile = filename[:-5] + "mhbin"
             newer = self.env.isSourceFileNewer(binfile, filename)
+
             if not newer and os.path.isfile(binfile):
+                #
+                # load mhbin
+                #
                 self.filename = filename
                 self.obj = object3d(self.glob, None, self.type)
-                self.importBinary(binfile)
+                (res, err) = self.importBinary(binfile)
+                if res == 0:
+                    return (res, err)
                 self.obj.filename = filename
                 self.obj.initMaterial(filename)
                 if self.type == "hair":
                     self.z_depth = 255
                 self.obj.setZDepth(self.z_depth)
                 self.obj.setName(self.name)
-                return self.calculateBoneWeights()
+
+                (bwok, err2) = self.calculateBoneWeights()
+                if bwok is False:
+                    return (0, err2)
+
+                return (res, err)
             use_ascii = True
 
+        # load mhclo file
+        #
         (res, err) = self.textLoad(filename)
         if res is True:
             if self.env.verbose & 16:
                 print ("Object is:" + self.obj_file)
+
+            # create object and load obj file
+            #
             obj = object3d(self.glob, None, self.type)
             (res, err) = obj.load(self.obj_file, use_ascii)
-            if res is True:
+            if res > 0:
                 self.obj = obj
                 self.obj.setName(self.name)
                 self.obj.setZDepth(self.z_depth)
-                self.calculateBoneWeights()
-                return(self.exportBinary())
+
+                (bwok, err2) =self.calculateBoneWeights()
+                if bwok is False:
+                    return (0, err2)
+
+                # now export binary file
+                #
+                (expok, err2) = self.exportBinary()
+                if expok is False:
+                    return (0, err2)
+                return res, err
 
         self.env.logLine(1, err )
-        return (False, err)
+        return (0, err)
 
     def exportBinary(self, filename=None):
 
@@ -448,7 +474,7 @@ class attachedAsset:
         if np.any(self.deleteVerts):
             content["deleteVerts"] = self.deleteVerts
 
-        return(exportObj3dBinary(filename, self.obj, content))
+        return exportObj3dBinary(filename, self.obj, content)
 
     def mhcloToMHBin(self, path):
         return(self.load(path, True))

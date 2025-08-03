@@ -84,7 +84,7 @@ class object3d:
         """
         self.filename = path
         (success, text) = importObjFromFile(path, self, use_obj)
-        if success:
+        if success > 0:
             self.initMaterial(path)
         return (success, text)
 
@@ -127,7 +127,7 @@ class object3d:
 
     def exportBinary(self):
         filename = self.filename[:-4] + ".mhbin" if self.filename.endswith(".obj") else self.filename + ".mhbin"
-        return(exportObj3dBinary(filename, self))
+        return exportObj3dBinary(filename, self)
 
     def setName(self, name):
         if name is None:
@@ -181,7 +181,9 @@ class object3d:
     def calcNormals(self):
         """
         calculates face-normals and then vertex normals
+        returns if geometry is valid (invalid: normal vector cannot be calculated)
         """
+        validGeom = True
         self.gi_norm = np.zeros((self.n_verts, 3), dtype=np.float32)
 
         # set the face normals for each vertex to zero, set the counter to zero
@@ -236,15 +238,15 @@ class object3d:
 
         # calculate norm
         #
-        with np.errstate(divide='ignore', invalid='ignore'):
-            for i in range(0, len(normsum)):
-                areanorm = np.linalg.norm(normsum[i])
-                if areanorm != 0.0:
-                    self.gi_norm[i] = normsum[i] / areanorm
-                else:
-                    self.gi_norm[i][0] = 1.0
-                    self.gi_norm[i][1] = 0.0
-                    self.gi_norm[i][2] = 0.0
+        for i in range(0, len(normsum)):
+            areanorm = np.linalg.norm(normsum[i])
+            if areanorm != 0.0:
+                self.gi_norm[i] = normsum[i] / areanorm
+            else:
+                validGeom = False
+                self.gi_norm[i][0] = 1.0
+                self.gi_norm[i][1] = 0.0
+                self.gi_norm[i][2] = 0.0
 
         # simply copy for the doubles in the end using overflow
         #
@@ -256,6 +258,8 @@ class object3d:
         # flatten vector
         #
         self.gl_norm = self.gi_norm.flatten()
+
+        return validGeom
 
     def calcFaceBufSize(self, mask, overrideignore=False):
         """
@@ -471,9 +475,7 @@ class object3d:
             self.gl_uvcoord = np.zeros(2 * self.n_fverts, dtype=np.float32)
 
 
-        #del self.uvs           # save memory
-
-        self.calcNormals()
+        return self.calcNormals()
 
     def getPosition(self, num):
         """

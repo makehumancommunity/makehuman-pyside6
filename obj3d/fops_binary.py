@@ -94,7 +94,7 @@ def importObjValues(npzfile, obj):
     for elem in ['header', 'grpNames', 'coord', 'uvs', 'overflow', 'groupinfo', 'vertsperface', 'faceverts']:
         if elem not in npzfile:
             error =  "Malformed file, missing component " + elem
-            return (False, error)
+            return (0, error)
 
     # now get data from binary, header
     #
@@ -138,9 +138,15 @@ def importObjValues(npzfile, obj):
         group =  obj.npGrpNames[num].decode("utf-8")
         groups[group] = { "v": f, "uv": elem[2] }
 
-    obj.createGLFaces(fcnt, ucnt, prim, groups)
+    validGeom = obj.createGLFaces(fcnt, ucnt, prim, groups)
+    if validGeom:
+        res = 2
+        msg = None
+    else:
+        res = 1
+        msg = "Bad geometry, at least one normal vector of face with size 0 cannot be calculated."
 
-    return (True, None)
+    return (res, msg)
 
 def importObj3dBinary(path, obj):
     obj.env.logLine(8, "Read binary: " + path)

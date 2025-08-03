@@ -19,12 +19,14 @@ def importWaveFront(path, obj):
     v  = positions (3d)
     vt = positions (texture)
     usemtl = material (skipped)
+
+    returns: 2 okay, 1 warn, 0 error
     """
 
     try:
         f = open(path, 'r', encoding="utf-8")
     except IOError:
-        return (False, "Cannot open file " + path)
+        return (0, "Cannot open file " + path)
     else:
 
         verts  = []
@@ -195,9 +197,16 @@ def importWaveFront(path, obj):
     obj.setName(objname)
     obj.setGroupNames(groupnames)
     obj.createGLVertPos(verts, uv_values, overflowtable, n_origverts)          # TODO consider to recombine createGLVertPos and createGLFaces
-    obj.createGLFaces(fcnt, ucnt, prim, groups)
+
+    validGeom = obj.createGLFaces(fcnt, ucnt, prim, groups)
+    if validGeom:
+        res = 2
+        msg = None
+    else:
+        res = 1
+        msg = "Bad geometry, at least one normal vector of face with size 0 cannot be calculated."
 
     del verts
     del uvs
 
-    return (True, None)
+    return (res, msg)

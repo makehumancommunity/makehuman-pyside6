@@ -29,7 +29,7 @@ class MHMaterialSelect(QWidget):
         self.env = parent.env
         self.glob = parent.glob
         self.materials = materials
-        self.oldmaterial = asset.material
+        self.oldmaterial = self.env.formatPath(asset.material)
         self.asset = asset
 
         self.setWindowTitle("Material Selection")
@@ -62,13 +62,14 @@ class MHMaterialSelect(QWidget):
 
     def relMatFileName(self, path):
         """
-        create relative materialpath
+        create relative materialpath, URI based
         """
+        path = self.env.formatPath(path)
         itype = self.asset.type
         if itype == "base" or itype == "proxy":
             itype = "skins"
-        p1 = self.env.stdSysPath(itype)
-        p2 = self.env.stdUserPath(itype)
+        p1 = self.env.formatPath(self.env.stdSysPath(itype))
+        p2 = self.env.formatPath(self.env.stdUserPath(itype))
         if path.startswith(p1):
             path = path[len(p1)+1:]
         elif path.startswith(p2):
@@ -81,12 +82,12 @@ class MHMaterialSelect(QWidget):
         # except for skins
 
         if path.startswith("materials"):
-            path = os.path.join(itype, path)
+            path = itype + "/" + path
         else:
             if itype == "skins":
-                path = os.path.join("skins", path)
+                path = "skins/" +  path
             else:
-                path = os.sep.join(path.split(os.sep)[1:])
+                path = "/".join(path.split("/")[1:])
 
         return (path)
 
@@ -115,7 +116,6 @@ class MHMaterialSelect(QWidget):
 
                     obj = self.asset.obj
                     self.asset.material = matelem.filename
-                    self.asset.materialsource = matelem.filename
                     self.asset.materialsource = self.relMatFileName(matelem.filename)
 
 

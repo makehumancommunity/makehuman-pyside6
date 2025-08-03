@@ -474,9 +474,11 @@ class baseClass():
         # print ("Attach: " + path + " of " + eqtype)
         attach = attachedAsset(self.glob, eqtype)
         (res, err) = attach.load(path)
-        if res is False:
+        if res == 0:
             ErrorBox(self.glob.centralWidget, err)
             return (None)
+        if res == 1:
+            ErrorBox(self.glob.centralWidget, err)
 
         self.glob.markAssetByFileName(path, True)
         if eqtype == "proxy":
@@ -707,12 +709,16 @@ class baseClass():
 
         self.baseMesh = object3d(self.glob, self.baseInfo, "base")
         (res, err) = self.baseMesh.load(name)
-        if res is False:
+        if res == 0:
             del self.baseMesh
             self.baseMesh = None
             self.env.last_error = err
             self.env.logLine(1, err )
             return (False)
+
+        if res == 1:
+            self.env.last_error = err
+            self.env.logLine(1, err )
 
         if self.glob.Targets is not None:
             self.glob.Targets.destroyTargets()
