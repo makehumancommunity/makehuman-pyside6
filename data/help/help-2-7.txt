@@ -22,10 +22,11 @@ shown.  These are the possibilities to filter  on the left side:
 Hint: If the program shows too many items on right side, it is possible to supply a proxy
 with extra tags, these tags are then used instead of the tags provided in the proxy files.
 <p>
-<h3>Loading</h3>
+<h3>Attach an asset (proxy)</h3>
 
-Select a proxy from the right side. Be aware it is not yet loaded, only the information is
-displayed on left side. To load it, press the checkmark button on the right side.
+To attach an asset, either select it from the right column with a single click. Now the information is
+displayed on left side. To put it on the character, press the checkmark button on the right side. A double click on an unselected
+asset will attach it as well.
 <p>
 <h3>Drop Proxy</h3>
 

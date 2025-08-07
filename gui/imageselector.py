@@ -15,7 +15,7 @@
 import sys
 import typing
 import os
-from PySide6.QtCore import Qt, QPoint, QRect, QSize
+from PySide6.QtCore import Qt, QPoint, QRect, QSize, QTimer, Signal, QEvent
 from PySide6.QtGui import QPixmap, QPainter, QPen, QColor, QFont, QStandardItemModel, QStandardItem
 
 from PySide6.QtWidgets import (
@@ -58,15 +58,36 @@ class PictureButton(QPushButton):
     """
     tri-state picture button
     holds state in asset.status to be be reachable from outside
-    :param asset: asset to be shown (used for name)
+    supports double click
+    :param MHPictSelectable asset: asset to be shown (used for name)
+    :param float scale: scale of the icon
+    :param str emptyicon: name of the thumbfile when there is no thumb
+    :param bool acceptdouble: double click action available
     """
-    def __init__(self, asset: MHPictSelectable, scale, emptyicon):
+    pressed = Signal()
+    doubleclick = Signal()
+
+    def __init__(self, asset: MHPictSelectable, scale, emptyicon, acceptdouble):
 
         self.asset = asset
         self.scale = scale
+        self.acceptdouble = acceptdouble
         self.icon = None
 
         super().__init__()
+
+        if self.acceptdouble:
+            self.timer = QTimer()
+            self.timer.setSingleShot(True)
+            self.timer.setInterval(250)
+            self.timer.timeout.connect(self.timeout)
+            self.doubleclick.connect(self.doubleclick_event)
+
+        self.is_double = False
+        self.is_click = True
+
+        self.installEventFilter(self)
+
         if asset.icon is None:                 # will not be constant
             self.icon = emptyicon
             self.picture_added = False
@@ -89,7 +110,46 @@ class PictureButton(QPushButton):
     def sizeHint(self):
         return self.picture.size()
 
+    def eventFilter(self, obj, event):
+        if self.acceptdouble:
+            if event.type() == QEvent.MouseButtonPress:
+                if not self.timer.isActive():
+                    self.timer.start()
+
+                self.is_click = False
+                if event.button() == Qt.LeftButton:
+                    self.is_click = True
+
+                return True
+
+            elif event.type() == QEvent.MouseButtonDblClick:
+                self.is_double = True
+                return True
+
+            return False
+        else:
+            if event.type() == QEvent.MouseButtonPress:
+                if event.button() == Qt.LeftButton:
+                    self.pressed.emit()
+                    return True
+            return False
+
+    def doubleclick_event(self):
+        pass
+
+    def timeout(self):
+        if self.is_double:
+            self.doubleclick.emit()
+        else:
+            if self.is_click:
+                self.pressed.emit()
+
+        self.is_double = False
+
     def paintEvent(self, e):
+        if self.asset.status > 2:
+            return
+
         painter = QPainter(self)
         if self.asset.status != 0:
             painter.setOpacity(1)
@@ -114,7 +174,7 @@ class PicFlowLayout(QLayout):
     """
     parent.selmode: multiple selection, will change refresh method
     """
-    def __init__(self, parent, assets, callback, printinfo, margin: int=-1, hSpacing: int=-1, vSpacing: int=-1):
+    def __init__(self, parent, assets, callback, printinfo, margin: int=-1, hSpacing: int=-1, vSpacing: int=-1, doubleclick=False):
 
         super().__init__()
         self.itemList = list()
@@ -128,6 +188,7 @@ class PicFlowLayout(QLayout):
         self.callback = callback
         self.printinfo = printinfo
         self.assetlist = assets
+        self.doubleclick = doubleclick
         self.filter = None
         self.ruleset = None
         self.setContentsMargins(margin, margin, margin, margin)
@@ -256,7 +317,7 @@ class PicFlowLayout(QLayout):
 
         return y + lineHeight - rect.y() + bottom
 
-    def updateAsset(self):
+    def singleClickAction(self):
         current = self.sender()
         self.debug(current.asset.name + " update")
 
@@ -266,6 +327,19 @@ class PicFlowLayout(QLayout):
                 self.printinfo(current.asset)
         else:
             current.asset.status = 0
+        self.callback(current.asset)
+        self.refreshAllWidgets()
+
+    def doubleClickAction(self):
+        current = self.sender()
+        if current.asset.status != 0:
+            current.asset.status = 4
+            self.debug(current.asset.name + " attach")
+        else:
+            if self.printinfo is not None:
+                self.printinfo(current.asset)
+            current.asset.status = 3
+            self.debug(current.asset.name + " detach")
         self.callback(current.asset)
         self.refreshAllWidgets()
 
@@ -338,10 +412,14 @@ class PicFlowLayout(QLayout):
                         fdisplay = True
                 display = fdisplay & display
 
+            # create the picture buttons which are left
+            #
             if display:
-                button1 = PictureButton(asset, self.imagescale, self.empty)
-                button1.pressed.connect(self.updateAsset)
-                self.addWidget (button1)
+                button = PictureButton(asset, self.imagescale, self.empty, self.doubleclick)
+                button.pressed.connect(self.singleClickAction)
+                if self.doubleclick:
+                    button.doubleclick.connect(self.doubleClickAction)
+                self.addWidget (button)
 
 class PicSelectWidget(QWidget):
     """
@@ -350,8 +428,8 @@ class PicSelectWidget(QWidget):
     :param parent: for empty image, selection-mode
     :param callback: function to call when clicked
     """
-    def __init__(self, parent, assets, callback, printinfo):
-        self.layout = PicFlowLayout(parent, assets, callback, printinfo)
+    def __init__(self, parent, assets, callback, printinfo, doubleclick=False):
+        self.layout = PicFlowLayout(parent, assets, callback, printinfo, doubleclick=doubleclick)
         super().__init__()
 
     def __del__(self):
@@ -599,7 +677,7 @@ class ImageSelection():
     class ImageSelection consists of left and right panel, display filter on left side and images on right side
     when an icon is selected, callback ist called.
     """
-    def __init__(self, parent, assetrepo, eqtype, selmode, callback, scale=2):
+    def __init__(self, parent, assetrepo, eqtype, selmode, callback, scale=2, doubleclick=False):
         self.parent = parent
         self.env = parent.glob.env
         self.glob = parent.glob
@@ -623,6 +701,8 @@ class ImageSelection():
         self.button_delete = None
         self.button_mat = None
         self.extra_selection = None
+        self.doubleclick = doubleclick
+
         if not os.path.isfile(self.emptyIcon):
             self.emptyIcon = os.path.join(self.env.path_sysdata, "icons", "noidea.png")
 
@@ -666,8 +746,23 @@ class ImageSelection():
 
     def picButtonChanged(self, selectable):
         multi = (self.selmode == 1)
-        # yellow 
-        if selectable.status == 1:
+        # print ("picButtonChanged, Selectable status", selectable.status)
+
+        if selectable.status == 0:
+
+            # deselect
+            #
+            found = self.parent.glob.baseClass.getAttachedByFilename(selectable.filename)
+            if multi is True:
+                selectable.status = 2 if found is not None else 0
+            else:
+                if found:
+                    self.callback(selectable, self.type, multi)
+
+        elif selectable.status == 1:
+
+            # yellow, preselected
+            #
             self.materialCallback(update=True)
             self.assetCallback(selectable=selectable, update=True)
 
@@ -677,15 +772,23 @@ class ImageSelection():
             selectable.status = 1
             self.picwidget.refreshAllWidgets()
 
-        # deselect
-        #
-        elif selectable.status == 0:
-            found = self.parent.glob.baseClass.getAttachedByFilename(selectable.filename)
-            if multi is True:
-                selectable.status = 2 if found is not None else 0
-            else:
-                if found:
-                    self.callback(selectable, self.type, multi)
+        elif selectable.status == 3:
+
+            # double click, change status to 1 and add asset
+            #
+            selectable.status = 1
+            self.callback(selectable, self.type, multi)
+            self.changeStatus()
+            selectable.status = 1
+            self.picwidget.refreshAllWidgets()
+
+        elif selectable.status == 4:
+
+            # double click, change status to 0 and delete asset
+            #
+            selectable.status = 0
+            self.callback(selectable, self.type, multi)
+
 
         self.refreshButtons()
 
@@ -993,7 +1096,7 @@ class ImageSelection():
 
         widget = QWidget()
         infocallback = self.infobox.setInformation if self.infobox is not None else None
-        self.picwidget = PicSelectWidget(self, self.asset_category, self.picButtonChanged, infocallback)
+        self.picwidget = PicSelectWidget(self, self.asset_category, self.picButtonChanged, infocallback, doubleclick=self.doubleclick)
         if infocallback is not None:
             self.filterview.setPicLayout(self.picwidget.layout)
         self.picwidget.populate(None, None)

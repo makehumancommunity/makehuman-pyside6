@@ -5,7 +5,7 @@ This context provides the possibility to equip the character with clothes.
 <i>The term clothes is not 100% correct, it is possible to append other meshes as well, like bodyparts etc.
 Clothes are the only meshes, where multiple items can be used.</i>
 <p>
-The currently selected piece of cloth is marked with a yellow frame, all other used ones with a green frame.
+The currently selected piece of clothing is marked with a yellow frame, all other used ones with a green frame.
 <p>
 <h3>Filtering</h3>
 As long as tags are provided, clothes can be filtered in numerous ways. Clothes with no tags are always
@@ -22,23 +22,25 @@ item activates gender <b>Female</b> and <b>Bra</b> from <b>Top-Torso</b> <b>Laye
 from <b>Bottom</b> <b>Layer 1</b></li>
 <p>
 <li>By using a text filter, the text filter works on all tags presented in the <b>Tags</b> field after a
-piece of cloth is selected.</li>
+piece of clothing is selected.</li>
 </ul>
 <p>
 Hint: If the program shows too many items on right side, it is possible to supply all clothes
 with extra tags, these tags are then used instead of the tags provided in the clothes files.
 <p>
-<h3>Loading</h3>
+<h3>Attach an asset (piece of clothing)</h3>
 
-Select a piece of cloth from the right side. Be aware it is not yet loaded, only the information is
-displayed on left side. To load it, press the checkmark button on the right side.
+To attach an asset, either select it from the right column with a single click. Now the information is
+displayed on left side. To put it on the character, press the checkmark button on the right side. A double click on an unselected
+asset will attach it as well.
 <p>
 <h3>Drop Clothes</h3>
 
-Either only the selected piece of cloth or all currently used clothes can be dropped.
+Either only the selected piece of clothing or all currently used clothes can be dropped using the buttons on the top
+of the right column. Also a double click on an attached piece of clothing will drop the asset.
 <p>
 <h3>Change Information</h3>
-Select the piece of cloth before. The asset editor will open. You can now change the information:
+Select the piece of clothing before. The asset editor will open. You can now change the information:
 <ul>
 <li>The photo icon takes a screenshot to be used as a thumbnail. Best to switch off skybox (the globe)
 and use a one-colored background. Under "<u>S</u>ettings" change light and scene and select a
@@ -69,13 +71,13 @@ this and either use it or save it (with the same name or also as an additional m
 <h3>Icons, right side:</h3>
 <p>
 <table style="background-color:#c0c0c0;color:#000000;border:2;vertical-align:middle;">
-<tr><td><img src="data/icons/use.png"></td><td>Use the <b>selected</b> piece of cloth. Can only be used if a piece of cloth is selected.</td></tr>
+<tr><td><img src="data/icons/use.png"></td><td>Use the <b>selected</b> piece of clothing. Can only be used if a piece of clothing is selected.</td></tr>
 <tr><td><img src="data/icons/none.png"></td><td>Drop <b>all</b> clothes marked with green or yellow frames.</td></tr>
-<tr><td><img src="data/icons/delete.png"></td><td>Drop <b>selected</b> piece of cloth.</td></tr>
-<tr><td><img src="data/icons/information.png"></td><td>Change the information of the <b>selected</b> piece of cloth.</td></tr>
-<tr><td><img src="data/icons/materials.png"></td><td>Change the material of the <b>selected</b> piece of cloth.</td></tr>
+<tr><td><img src="data/icons/delete.png"></td><td>Drop <b>selected</b> piece of clothing.</td></tr>
+<tr><td><img src="data/icons/information.png"></td><td>Change the information of the <b>selected</b> piece of clothing.</td></tr>
+<tr><td><img src="data/icons/materials.png"></td><td>Change the material of the <b>selected</b> piece of clothing.</td></tr>
 <tr><td><img src="data/icons/resize.png"></td><td>Resíze the icons on right side. Size changes between 48, 64, 96 and 128 pixel.</td></tr>
-<tr><td><img src="data/icons/rescan.png"></td><td>Reload the clothes folder. This is needed if you add a piece of cloth after makehuman
+<tr><td><img src="data/icons/rescan.png"></td><td>Reload the clothes folder. This is needed if you add a piece of clothing after makehuman
 was started.</td></tr>
 </table>
 <p>

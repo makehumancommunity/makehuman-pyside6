@@ -14,16 +14,17 @@ The currently selected eyelashes are marked with a yellow frame. A green frame m
 Hint: It is possible to supply eyelashes
 with extra tags, these tags are then used instead of the tags provided in the eyelashes files.
 <p>
-<h3>Loading</h3>
+<h3>Attach an asset (eyelashes)</h3>
 
-Select eyelashes from the right side. Be aware it is not yet loaded, only the information is
-displayed on left side. To use them, press the checkmark button on the right side.
+To attach an asset, either select it from the right column with a single click. Now the information is
+displayed on left side. To put it on the character, press the checkmark button on the right side. A double click on an unselected
+asset will attach it as well.
 <p>
 <h3>Drop Eyelashes</h3>
 
 It is possible to drop the eyelashes, so the character has no eyelashes.
 You can also replace the eyelashes by selecting a new pair of eyelashes
-and press the checkmark button.
+and press the checkmark button or double-click it.
 <p>
 <h3>Change Information</h3>
 Select the eyelashes before. The asset editor will open. You can now change the information:

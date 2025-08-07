@@ -22,8 +22,9 @@ with extra tags, these tags are then used instead of the tags provided in the sk
 <p>
 <h3>Loading</h3>
 
-Select a skeleton from the right side. Be aware it is not yet loaded, only the information is
-displayed on left side. To load it, press the checkmark button on the right side.
+To load skeleton, either select it from the right column with a single click. Now the information is
+displayed on left side. To put it on the character, press the checkmark button on the right side. A double click on an unselected
+skeleton will load it as well.
 <p>
 <h3>Drop Skeleton</h3>
 

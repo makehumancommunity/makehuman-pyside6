@@ -19,8 +19,9 @@ with extra tags, these tags are then used instead of the tags provided in the ex
 <p>
 <h3>Loading</h3>
 
-Select a expression from the right side. Be aware it is not yet loaded, only the information is
-displayed on left side. To load it, press the checkmark button on the right side.
+To load an expression, either select it from the right column with a single click. Now the information is
+displayed on left side. To use it on the character, press the checkmark button on the right side. A double click on an unselected
+expression will use it as well.
 <p>
 <h3>Drop Expression</h3>
 

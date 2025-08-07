@@ -14,16 +14,17 @@ The currently selected eyebrows are marked with a yellow frame. A green frame me
 Hint: It is possible to supply eyebrows
 with extra tags, these tags are then used instead of the tags provided in the eyebrows files.
 <p>
-<h3>Loading</h3>
+<h3>Attach an asset (eyebrows)</h3>
 
-Select eyebrows from the right side. Be aware it is not yet loaded, only the information is
-displayed on left side. To use them, press the checkmark button on the right side.
+To attach an asset, either select it from the right column with a single click. Now the information is
+displayed on left side. To put it on the character, press the checkmark button on the right side. A double click on an unselected
+asset will attach it as well.
 <p>
 <h3>Drop Eyebrows</h3>
 
 It is possible to drop the eyebrows, so the character has no eyebrows.
 You can also replace the eyebrows by selecting a new pair of eyebrows
-and press the checkmark button.
+and press the checkmark button or double-click it.
 <p>
 <h3>Change Information</h3>
 Select the eyebrows before. The asset editor will open. You can now change the information:

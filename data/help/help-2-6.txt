@@ -14,16 +14,17 @@ The currently selected tongue is marked with a yellow frame. A green frame means
 Hint: It is possible to supply a tongue
 with extra tags, these tags are then used instead of the tags provided in the tongue files.
 <p>
-<h3>Loading</h3>
+<h3>Attach an asset (tongue)</h3>
 
-Select tongue from the right side. Be aware it is not yet loaded, only the information is
-displayed on left side. To use them, press the checkmark button on the right side.
+To attach an asset, either select it from the right column with a single click. Now the information is
+displayed on left side. To put it on the character, press the checkmark button on the right side. A double click on an unselected
+asset will attach it as well.
 <p>
 <h3>Drop Tongue</h3>
 
 It is possible to drop the tongue, so the character has no tongue.
 You can also replace the tongue by selecting a different tongue
-and press the checkmark button.
+and press the checkmark button or double-click it.
 <p>
 <h3>Change Information</h3>
 Select the tongue before. The asset editor will open. You can now change the information:

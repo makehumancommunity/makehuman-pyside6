@@ -24,9 +24,10 @@ with the appropriate tags set.
 <p>
 <h3>Loading</h3>
 
-Select a character from the right side. Be aware it is not yet loaded, but the information is displayed on
-left side. Decide if to load the complete character, only the targets or just the head-targets.
-To load, press the checkmark on the right side.
+To load a character, either select it from the right column with a single click. Now the information is
+displayed on left side. Decide if to load the complete character, only the targets or just the head-targets.
+To load, press the checkmark on the right side. A double click on an unselected
+character will load it as well.
 <p>
 <i>Hint: "head-pattern" in base.json will determine which groups are considered as head.
 For official targets it is "face|", but also certain user groups like "user|nose" are accepted.

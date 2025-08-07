@@ -23,10 +23,11 @@ are combined with 'or', so clicking on <b>Bob</b> and <b>Braid</b> will present 
 Hint: If the program shows too many items on right side, it is possible to supply hair
 with extra tags, these tags are then used instead of the tags provided in the hair files.
 <p>
-<h3>Loading</h3>
+<h3>Attach an asset (hair)</h3>
 
-Select hair from the right side. Be aware it is not yet loaded, only the information is
-displayed on left side. To load it, press the checkmark button on the right side.
+To attach an asset, either select it from the right column with a single click. Now the information is
+displayed on left side. To put it on the character, press the checkmark button on the right side. A double click on an unselected
+asset will attach it as well.
 <p>
 <h3>Drop Hair</h3>
 

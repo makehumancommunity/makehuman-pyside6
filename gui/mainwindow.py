@@ -261,16 +261,16 @@ class MHMainWindow(QMainWindow):
         self.equip.clear()
         for elem in self.equipment:
             if self.glob.hasAssetFolder(elem["name"]):
-                elem["func"] = ImageSelection(self, self.glob.cachedInfo, elem["name"], elem["mode"], self.equipCallback)
+                elem["func"] = ImageSelection(self, self.glob.cachedInfo, elem["name"], elem["mode"], self.equipCallback, doubleclick=True)
                 elem["func"].prepare()
                 elem["menu"] = self.addActCallBack(self.equip, elem["name"], self.equip_call)
 
-        self.charselect = ImageSelection(self, self.glob.cachedInfo, "models", 0, self.loadByIconCallback, 3)
+        self.charselect = ImageSelection(self, self.glob.cachedInfo, "models", 0, self.loadByIconCallback, 3, True)
         self.charselect.prepare()
 
         self.animenu.clear()
         for elem in self.animation:
-            elem["func"] = ImageSelection(self, self.glob.cachedInfo, elem["name"], elem["mode"], self.animCallback)
+            elem["func"] = ImageSelection(self, self.glob.cachedInfo, elem["name"], elem["mode"], self.animCallback, doubleclick=True)
             elem["func"].prepare()
             elem["menu"] = self.addActCallBack(self.animenu, elem["name"], self.anim_call)
 

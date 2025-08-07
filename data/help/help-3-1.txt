@@ -20,9 +20,11 @@ with extra tags, these tags are then used instead of the tags provided in the po
 <p>
 <h3>Loading</h3>
 
-Select a pose or animation from the right side. Be aware it is not yet loaded, only the information is
-displayed on left side. To load it, press the checkmark button on the right side. After loading, the first frame
-is showed. For viewing a complete animation, select:
+To load a pose or animation, either select it from the right column with a single click. Now the information is
+displayed on left side. To apply it to the character, press the checkmark button on the right side. A double click on an unselected
+pose will apply it as well.
+<p>
+After loading, the first frame is shown. For viewing a complete animation, select:
 <table style="background-color:#c0c0c0;color:#000000;border:2;vertical-align:middle;"><tr><td><img src="data/icons/an_movie.png"></td></tr></table>
 <p>
 <h3>Drop Pose/Animation</h3>
