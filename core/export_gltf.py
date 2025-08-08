@@ -260,6 +260,12 @@ class gltfExport:
                 joints[v][i] = n
                 weights[v][i] = w
 
+        # normalize weights (can deal with 0.0 sums)
+        #
+        sums = weights.sum(axis=1, keepdims=1)
+        sums[sums==0.0] = 1.0
+        weights = weights/sums
+
         if overflow is not None:
            for (s,d) in overflow:
                 for i in range(0,4):
