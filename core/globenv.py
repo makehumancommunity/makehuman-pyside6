@@ -34,6 +34,7 @@ class globalObjects():
         self.midColumn    = None
         self.centralWidget= None
         self.baseClass = None
+        self.closing = False
 
         # if keys in config, set keys
         #

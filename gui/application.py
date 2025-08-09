@@ -39,9 +39,7 @@ class MHApplication(QApplication):
         sformat = QSurfaceFormat()
         if self.env.noalphacover is False:
             sformat.setSamples(4)
-            QSurfaceFormat.setDefaultFormat(sformat)
-
-        QSurfaceFormat.setDefaultFormat(sformat)
+        sformat.setDefaultFormat(sformat)
 
     def setStyles(self, theme):
         if theme is None:

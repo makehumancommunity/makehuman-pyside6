@@ -62,7 +62,6 @@ class MHMainWindow(QMainWindow):
         self.CategoryBox = None
         self.baseSelector = None
 
-        self.in_close = False
         self.bckproc = None         # background process is running
 
         self.tool_mode = 0          # 0 = files, 1 = modelling, 2 = equipment, 3 = pose, 4 = render, 10 = information
@@ -260,10 +259,9 @@ class MHMainWindow(QMainWindow):
     def createImageSelection(self):
         self.equip.clear()
         for elem in self.equipment:
-            if self.glob.hasAssetFolder(elem["name"]):
-                elem["func"] = ImageSelection(self, self.glob.cachedInfo, elem["name"], elem["mode"], self.equipCallback, doubleclick=True)
-                elem["func"].prepare()
-                elem["menu"] = self.addActCallBack(self.equip, elem["name"], self.equip_call)
+            elem["func"] = ImageSelection(self, self.glob.cachedInfo, elem["name"], elem["mode"], self.equipCallback, doubleclick=True)
+            elem["func"].prepare()
+            elem["menu"] = self.addActCallBack(self.equip, elem["name"], self.equip_call)
 
         self.charselect = ImageSelection(self, self.glob.cachedInfo, "models", 0, self.loadByIconCallback, 3, True)
         self.charselect.prepare()
@@ -1143,7 +1141,7 @@ class MHMainWindow(QMainWindow):
         save session (if desired)
         also make a check, when project was changed
         """
-        if self.in_close is True:
+        if self.glob.closing is True:
             return
 
         confirmed =  self.changesLost("Exit program")
@@ -1156,8 +1154,8 @@ class MHMainWindow(QMainWindow):
         if self.graph is not None:
             self.graph.cleanUp()
 
-        if self.in_close is False:
-            self.in_close = True                # avoid double call by closeAllWindows
+        if self.glob.closing is False:
+            self.glob.closing = True                # avoid double call by closeAllWindows
             s = self.env.session["mainwinsize"]
             s["w"] = self.width()
             s["h"] = self.height()

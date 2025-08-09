@@ -9,7 +9,7 @@
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
 from PySide6.QtWidgets import QSizePolicy
 from PySide6.QtCore import QSize, Qt, QTimer
-from PySide6.QtGui import QMatrix4x4, QVector3D, QOpenGLContext
+from PySide6.QtGui import QMatrix4x4, QVector3D
 
 # try to keep only constants here
 #

@@ -429,14 +429,17 @@ class PicSelectWidget(QWidget):
     :param callback: function to call when clicked
     """
     def __init__(self, parent, assets, callback, printinfo, doubleclick=False):
+        self.parent = parent
         self.layout = PicFlowLayout(parent, assets, callback, printinfo, doubleclick=doubleclick)
         super().__init__()
 
     def __del__(self):
         """
         this is a must, otherwise the widgets will use up complete memory
+        avoid it while closing
         """
-        self.layout.removeAllWidgets()
+        if not self.parent.glob.closing:
+            self.layout.removeAllWidgets()
 
     def refreshAllWidgets(self):
         self.layout.refreshAllWidgets()

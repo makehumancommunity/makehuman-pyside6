@@ -13,7 +13,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLineEdit, QGri
 from gui.common import IconButton, MHFileRequest, MHBusyWindow, WorkerThread, ImageBox
 from gui.slider import SimpleSlider
 
-from opengl.buffers import PixelBuffer
+from opengl.offscreen import OffScreenRender
 from core.loopapproximation import LoopApproximation
 
 import os
@@ -219,8 +219,8 @@ class Renderer(QVBoxLayout):
         else:
             if i < 64:
                 i = 64
-            elif i > 4096:
-                i = 4096
+            elif i > 8192:
+                i = 8192
             m.setText(str(i))
         if m == self.width:
             self.values.imwidth = i
@@ -314,13 +314,11 @@ class Renderer(QVBoxLayout):
         width  = int(self.width.text())
         height = int(self.height.text())
 
-        pix = PixelBuffer(self.glob, self.view, self.values.transparent)
-        #self.glob.openGLBlock = True
+        pix = OffScreenRender(self.glob, self.view, self.values.transparent)
         pix.getBuffer(width, height)
         self.image = pix.bufferToImage()
         pix.releaseBuffer()
         self.setButtons()
-        #self.glob.openGLBlock = False
 
     def viewImage(self):
         ImageBox(self.parent, "Viewer", self.image)

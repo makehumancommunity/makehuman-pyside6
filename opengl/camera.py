@@ -6,7 +6,7 @@
     * Camera
     * Light
 """
-from PySide6.QtGui import QMatrix4x4, QVector3D, QVector4D, QOpenGLContext
+from PySide6.QtGui import QMatrix4x4, QVector3D, QVector4D
 import OpenGL
 from OpenGL import GL as gl
 from math import pi as M_PI, atan, degrees, sqrt
@@ -418,6 +418,7 @@ class Camera():
         else:
             self.calculateOrthoMatrix()
         self.proj_view_matrix = self.proj_matrix * self.view_matrix
+        return self.proj_view_matrix
 
 
 class Light():

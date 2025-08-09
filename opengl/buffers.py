@@ -7,16 +7,13 @@
     * RenderedObject
     * RenderedLines
     * RenderedSimple
-    * PixelBuffer
 """
 import time
 import numpy as np
-from PySide6.QtGui import QVector3D, QMatrix4x4, QImage
-from PySide6.QtCore import QByteArray
+from PySide6.QtGui import QVector3D, QMatrix4x4
 
 from PySide6.QtOpenGL import (QOpenGLBuffer, QOpenGLShader,
                               QOpenGLShaderProgram, QOpenGLTexture)
-
 # from opengl.info import openGLError
 
 # Constants from OpenGL GL_TRIANGLES, GL_FLOAT
@@ -126,6 +123,9 @@ class RenderedObject:
 
     def __str__(self):
         return("GL Object " + str(self.name))
+
+    def setContext(self, context):
+        self.context =  context
 
     def delete(self):
         self.glbuffers.Delete()
@@ -480,133 +480,3 @@ class RenderedSimple:
         self.functions.glDisable(gl.GL_DEPTH_TEST)
         self.functions.glActiveTexture(gl.GL_TEXTURE0)
 
-
-
-class PixelBuffer:
-    """
-    looks like the pixelbuffer functionality can only be reached by using classical gl-Functions
-    still not okay. 
-
-    TODO: multisample?
-    """
-    def __init__(self, glob, view, transparent=False):
-        self.glob = glob
-        self.view = view
-        self.framebuffer = None
-        self.colorbuffer = None
-        self.depthbuffer = None
-        self.width = 0
-        self.height = 0
-        self.oldheight = 0
-        self.oldwidth = 0
-        self.transparent = transparent
-
-    # https://stackoverflow.com/questions/60800538/python-opengl-how-to-render-off-screen-correctly
-    # https://learnopengl.com/Advanced-OpenGL/Framebuffers
-    def getBuffer(self, width, height):
-        self.width = width
-        self.height = height
-        self.oldheight = self.view.window_height
-        self.oldwidth = self.view.window_width
-
-        self.glob.openGLBlock = True
-
-        functions = self.view.context().functions()
-
-        # color
-        self.colorbuffer = gl.glGenRenderbuffers(1)
-        gl.glBindRenderbuffer(gl.GL_RENDERBUFFER, self.colorbuffer)
-        gl.glRenderbufferStorage(gl.GL_RENDERBUFFER, gl.GL_RGBA, width, height)
-        gl.glBindRenderbuffer(gl.GL_RENDERBUFFER, 0)
-
-        # depth
-        self.depthbuffer = gl.glGenRenderbuffers(1)
-        gl.glBindRenderbuffer(gl.GL_RENDERBUFFER, self.depthbuffer)
-        gl.glRenderbufferStorage(gl.GL_RENDERBUFFER, gl.GL_DEPTH_COMPONENT, width, height)
-        gl.glBindRenderbuffer(gl.GL_RENDERBUFFER, 0)
-
-        # frame
-        self.framebuffer = gl.glGenFramebuffers(1)
-        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer)
-        gl.glFramebufferRenderbuffer(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_RENDERBUFFER, self.colorbuffer)
-        gl.glFramebufferRenderbuffer(gl.GL_FRAMEBUFFER, gl.GL_DEPTH_ATTACHMENT, gl.GL_RENDERBUFFER, self.depthbuffer)
-
-        print ("Frame / Color /Depth = ", self.framebuffer, self.colorbuffer, self.depthbuffer)
-
-        status = gl.glCheckFramebufferStatus (gl.GL_FRAMEBUFFER)
-        if status != gl.GL_FRAMEBUFFER_COMPLETE:
-            print ("Status is " + str(status))
-
-        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.framebuffer)
-        #print (gl.glGetIntegerv(gl.GL_MAX_VIEWPORT_DIMS))
-        gl.glViewport(0, 0, width, height)
-        self.view.camera.resizeViewPort(width, height)
-        self.view.camera.calculateProjMatrix()
-        self.glob.openGLBlock = False
-
-        #gl.glPushAttrib(gl.GL_VIEWPORT_BIT)
-        gl.glEnable(gl.GL_DEPTH_TEST)
-
-        c = self.view.light.glclearcolor
-        transp = 0 if self.transparent else c.w()
-        gl.glClearColor(c.x(), c.y(), c.z(), transp)
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-
-        proj_view_matrix = self.view.camera.getProjViewMatrix()
-        campos = self.view.camera.getCameraPos()
-        baseClass = self.glob.baseClass
-        start = 1 if baseClass.proxy is True else 0
-
-        for obj in self.view.objects[start:]:
-            obj.draw(proj_view_matrix, campos, self.view.light)
-
-
-    def bufferToImage(self):
-        gl.glReadBuffer(gl.GL_COLOR_ATTACHMENT0)
-        gl.glPixelStorei(gl.GL_PACK_ALIGNMENT, 1)
-
-        pixmode = gl.GL_RGBA if self.transparent else gl.GL_RGB
-        imgmode = QImage.Format_RGBA8888 if self.transparent else QImage.Format_RGB888
-
-        # call it twice, still no idea why, also does not work with huge screens
-        #
-        data = gl.glReadPixels (0, 0, self.width, self.height, pixmode,  gl.GL_UNSIGNED_BYTE)
-        data = gl.glReadPixels (0, 0, self.width, self.height, pixmode,  gl.GL_UNSIGNED_BYTE)
-
-        image = QImage(self.width, self.height, imgmode)
-        image.fromData(data)
-
-        if self.transparent:
-            # slow but I cannot find a better method yet
-            for y in range (0, self.height):
-                for x in range(0, self.width):
-                    rgba = image.pixel(x,y)
-                    if rgba & 0xff000000:
-                        image.setPixel(x,y, rgba | 0xff000000)
-
-        image.mirrored_inplace(False, True)
-        return (image)
-
-    def releaseBuffer(self):
-
-        # use functions because then "0" is translated to default buffer
-        #
-        #gl.glPopAttrib()
-
-        functions = self.view.context().functions()
-        functions.glBindRenderbuffer(gl.GL_RENDERBUFFER, 0)
-        functions.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
-
-        if self.framebuffer is not None:
-            gl.glDeleteFramebuffers(1, np.array([self.framebuffer]))
-        if self.colorbuffer is not None:
-            gl.glDeleteRenderbuffers(1, np.array([self.colorbuffer]))
-        if self.depthbuffer is not None:
-            gl.glDeleteRenderbuffers(1, np.array([self.depthbuffer]))
-
-        #
-        # still not clear ... without glDisable I get a black screen
-        #
-        functions.glDisable(gl.GL_DEPTH_TEST)
-        self.view.resizeGL(self.oldwidth, self.oldheight)
-        print ("resize", self.oldwidth, self.oldheight)
