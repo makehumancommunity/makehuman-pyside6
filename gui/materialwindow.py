@@ -29,7 +29,7 @@ class MHMaterialSelect(QWidget):
         self.env = parent.env
         self.glob = parent.glob
         self.materials = materials
-        self.oldmaterial = self.env.formatPath(asset.material)
+        self.oldmaterial = asset.material
         self.asset = asset
 
         self.setWindowTitle("Material Selection")
