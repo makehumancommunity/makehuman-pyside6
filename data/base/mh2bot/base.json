@@ -1,4 +1,7 @@
 {
 	"visible groups": [ "mh_default" ],
+        "target-opposites": {
+	        "decr": "incr"
+        },
 	"mhm": "base.mhm"
 }

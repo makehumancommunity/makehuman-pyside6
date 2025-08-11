@@ -1,0 +1,8 @@
+{
+	"UArm Length": {
+		"name": "Upper Arms Length",
+		"group": "main|arms",
+                "decr": "armslegs/upperarms-length-decr",
+                "incr": "armslegs/upperarms-length-incr"
+	}
+}
