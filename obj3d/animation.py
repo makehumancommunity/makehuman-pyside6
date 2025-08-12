@@ -506,7 +506,7 @@ class PosePrims():
     def load(self, name):
         filename =self.env.existDataFile("base", self.env.basename, name)
         if filename is None:
-            return (False, name + "is not existent")
+            return (False, name + " is not existent")
 
         prims = self.env.readJSON(filename)
         if prims is None:

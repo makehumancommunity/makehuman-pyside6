@@ -1,6 +1,7 @@
 {
 	"Main": {"group": "main", "items": [
-		{"title": "Arms", "cat": "arms" }
+		{"title": "Arms", "cat": "arms" },
+		{"title": "Legs", "cat": "legs" }
 		]
 	}
 }

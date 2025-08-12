@@ -4,5 +4,29 @@
 		"group": "main|arms",
                 "decr": "armslegs/upperarms-length-decr",
                 "incr": "armslegs/upperarms-length-incr"
+	},
+	"UArm Diameter": {
+		"name": "Upper Arms Diameter",
+		"group": "main|arms",
+                "decr": "armslegs/upperarms-diameter-decr",
+                "incr": "armslegs/upperarms-diameter-incr"
+	},
+	"LArm Length": {
+		"name": "Lower Arms Length",
+		"group": "main|arms",
+                "decr": "armslegs/lowerarms-length-decr",
+                "incr": "armslegs/lowerarms-length-incr"
+	},
+	"ULeg Length": {
+		"name": "Upper Legs Length",
+		"group": "main|legs",
+                "decr": "armslegs/upperlegs-length-decr",
+                "incr": "armslegs/upperlegs-length-incr"
+	},
+	"LLeg Length": {
+		"name": "Lower Legs Length",
+		"group": "main|legs",
+                "decr": "armslegs/lowerlegs-length-decr",
+                "incr": "armslegs/lowerlegs-length-incr"
 	}
 }
