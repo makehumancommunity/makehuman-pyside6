@@ -12,10 +12,16 @@
                 "incr": "armslegs/upperarms-diameter-incr"
 	},
 	"LArm Length": {
-		"name": "Lower Arms Length",
+		"name": "Forearms Length",
 		"group": "main|arms",
-                "decr": "armslegs/lowerarms-length-decr",
-                "incr": "armslegs/lowerarms-length-incr"
+                "decr": "armslegs/forearms-length-decr",
+                "incr": "armslegs/forearms-length-incr"
+	},
+	"LArm Diameter": {
+		"name": "Forearms Diameter",
+		"group": "main|arms",
+                "decr": "armslegs/forearms-diameter-decr",
+                "incr": "armslegs/forearms-diameter-incr"
 	},
 	"ULeg Length": {
 		"name": "Upper Legs Length",
@@ -23,10 +29,22 @@
                 "decr": "armslegs/upperlegs-length-decr",
                 "incr": "armslegs/upperlegs-length-incr"
 	},
+	"ULeg Diameter": {
+		"name": "Upper Legs Diameter",
+		"group": "main|legs",
+                "decr": "armslegs/upperlegs-diameter-decr",
+                "incr": "armslegs/upperlegs-diameter-incr"
+	},
 	"LLeg Length": {
 		"name": "Lower Legs Length",
 		"group": "main|legs",
                 "decr": "armslegs/lowerlegs-length-decr",
                 "incr": "armslegs/lowerlegs-length-incr"
+	},
+	"LLeg Diameter": {
+		"name": "Lower Legs Diameter",
+		"group": "main|legs",
+                "decr": "armslegs/lowerlegs-diameter-decr",
+                "incr": "armslegs/lowerlegs-diameter-incr"
 	}
 }
