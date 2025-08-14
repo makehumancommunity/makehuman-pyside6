@@ -23,6 +23,24 @@
                 "decr": "armslegs/forearms-diameter-decr",
                 "incr": "armslegs/forearms-diameter-incr"
 	},
+	"UBody Height": {
+		"name": "Upper Body Height",
+		"group": "main|body",
+                "decr": "body/upperbody-height-decr",
+                "incr": "body/upperbody-height-incr"
+	},
+	"UBody Width": {
+		"name": "Upper Body Width",
+		"group": "main|body",
+                "decr": "body/upperbody-width-decr",
+                "incr": "body/upperbody-width-incr"
+	},
+	"UBody Depth": {
+		"name": "Upper Body Depth",
+		"group": "main|body",
+                "decr": "body/upperbody-depth-decr",
+                "incr": "body/upperbody-depth-incr"
+	},
 	"ULeg Length": {
 		"name": "Upper Legs Length",
 		"group": "main|legs",
