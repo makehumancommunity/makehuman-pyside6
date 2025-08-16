@@ -23,6 +23,8 @@ receiveShadows True
 
 diffuseTexture textures/mh2bot_diffuse.png
 aomapIntensity 1.0
+emissiveTexture textures/mh2bot_light.png
+emissiveFactor 1.0
 
 
 shader pbr
