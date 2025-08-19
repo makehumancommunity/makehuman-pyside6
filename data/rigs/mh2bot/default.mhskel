@@ -1,0 +1,485 @@
+{
+"name": "MakeHuman II Bot default skeleton",
+"bones": {
+	"eyebrow.L": {
+		"head": "eyebrow.L___head",
+		"parent": "head",
+		"reference": null,
+		"tail": "eyebrow.L___tail"
+	},
+	"eyebrow.R": {
+		"head": "eyebrow.R___head",
+		"parent": "head",
+		"reference": null,
+		"tail": "eyebrow.R___tail"
+	},
+	"finger1.1.L": {
+		"head": "finger1.1.L___head",
+		"parent": "hand.L",
+		"reference": null,
+		"tail": "finger1.1.L___tail"
+	},
+	"finger1.1.R": {
+		"head": "finger1.1.R___head",
+		"parent": "hand.R",
+		"reference": null,
+		"tail": "finger1.1.R___tail"
+	},
+	"finger1.2.L": {
+		"head": "finger1.2.L___head",
+		"parent": "finger1.1.L",
+		"reference": null,
+		"tail": "finger1.2.L___tail"
+	},
+	"finger1.2.R": {
+		"head": "finger1.2.R___head",
+		"parent": "finger1.1.L",
+		"reference": null,
+		"tail": "finger1.2.R___tail"
+	},
+	"finger1.3.L": {
+		"head": "finger1.3.L___head",
+		"parent": "finger1.2.L",
+		"reference": null,
+		"tail": "finger1.3.L___tail"
+	},
+	"finger1.3.R": {
+		"head": "finger1.3.R___head",
+		"parent": "finger1.2.R",
+		"reference": null,
+		"tail": "finger1.3.R___tail"
+	},
+	"finger2.1.L": {
+		"head": "finger2.1.L___head",
+		"parent": "hand.L",
+		"reference": null,
+		"tail": "finger2.1.L___tail"
+	},
+	"finger2.1.R": {
+		"head": "finger2.1.R___head",
+		"parent": "hand.R",
+		"reference": null,
+		"tail": "finger2.1.R___tail"
+	},
+	"finger2.2.L": {
+		"head": "finger2.2.L___head",
+		"parent": "finger2.1.L",
+		"reference": null,
+		"tail": "finger2.2.L___tail"
+	},
+	"finger2.2.R": {
+		"head": "finger2.2.R___head",
+		"parent": "finger2.1.R",
+		"reference": null,
+		"tail": "finger2.2.R___tail"
+	},
+	"finger2.3.L": {
+		"head": "finger2.3.L___head",
+		"parent": "finger2.2.L",
+		"reference": null,
+		"tail": "finger2.3.L___tail"
+	},
+	"finger2.3.R": {
+		"head": "finger2.3.R___head",
+		"parent": "finger2.2.R",
+		"reference": null,
+		"tail": "finger2.3.R___tail"
+	},
+	"finger3.1.L": {
+		"head": "finger3.1.L___head",
+		"parent": "hand.L",
+		"reference": null,
+		"tail": "finger3.1.L___tail"
+	},
+	"finger3.1.R": {
+		"head": "finger3.1.R___head",
+		"parent": "hand.R",
+		"reference": null,
+		"tail": "finger3.1.R___tail"
+	},
+	"finger3.2.L": {
+		"head": "finger3.2.L___head",
+		"parent": "finger3.1.L",
+		"reference": null,
+		"tail": "finger3.2.L___tail"
+	},
+	"finger3.2.R": {
+		"head": "finger3.2.R___head",
+		"parent": "finger3.1.R",
+		"reference": null,
+		"tail": "finger3.2.R___tail"
+	},
+	"finger3.3.L": {
+		"head": "finger3.3.L___head",
+		"parent": "finger3.2.L",
+		"reference": null,
+		"tail": "finger3.3.L___tail"
+	},
+	"finger3.3.R": {
+		"head": "finger3.3.R___head",
+		"parent": "finger3.2.R",
+		"reference": null,
+		"tail": "finger3.3.R___tail"
+	},
+	"foot.L": {
+		"head": "foot.L___head",
+		"parent": "lowerleg.L",
+		"reference": null,
+		"tail": "foot.L___tail"
+	},
+	"foot.R": {
+		"head": "foot.R___head",
+		"parent": "lowerleg.R",
+		"reference": null,
+		"tail": "foot.R___tail"
+	},
+	"forearm.L": {
+		"head": "forearm.L___head",
+		"parent": "upperarm.L",
+		"reference": null,
+		"tail": "forearm.L___tail"
+	},
+	"forearm.R": {
+		"head": "forearm.R___head",
+		"parent": "upperarm.R",
+		"reference": null,
+		"tail": "forearm.R___tail"
+	},
+	"hand.L": {
+		"head": "hand.L___head",
+		"parent": "forearm.L",
+		"reference": null,
+		"tail": "hand.L___tail"
+	},
+	"hand.R": {
+		"head": "hand.R___head",
+		"parent": "forearm.R",
+		"reference": null,
+		"tail": "hand.R___tail"
+	},
+	"head": {
+		"head": "head___head",
+		"parent": "neck",
+		"reference": null,
+		"tail": "head___tail"
+	},
+	"lowerbody": {
+		"head": "lowerbody___head",
+		"parent": "root",
+		"reference": null,
+		"tail": "lowerbody___tail"
+	},
+	"lowerleg.L": {
+		"head": "lowerleg.L___head",
+		"parent": "upperleg.L",
+		"reference": null,
+		"tail": "lowerleg.L___tail"
+	},
+	"lowerleg.R": {
+		"head": "lowerleg.R___head",
+		"parent": "upperleg.R",
+		"reference": null,
+		"tail": "lowerleg.R___tail"
+	},
+	"lowerlip": {
+		"head": "lowerlip___head",
+		"parent": "head",
+		"reference": null,
+		"tail": "lowerlip___tail"
+	},
+	"neck": {
+		"head": "neck___head",
+		"parent": "upperbody",
+		"reference": null,
+		"tail": "neck___tail"
+	},
+	"root": {
+		"head": "root___head",
+		"parent": null,
+		"reference": null,
+		"tail": "root___tail"
+	},
+	"shoulder.L": {
+		"head": "shoulder.L___head",
+		"parent": "upperbody",
+		"reference": null,
+		"tail": "shoulder.L___tail"
+	},
+	"shoulder.R": {
+		"head": "shoulder.R___head",
+		"parent": "upperbody",
+		"reference": null,
+		"tail": "shoulder.R___tail"
+	},
+	"toe1.1.L": {
+		"head": "toe1.1.L___head",
+		"parent": "foot.L",
+		"reference": null,
+		"tail": "toe1.1.L___tail"
+	},
+	"toe1.1.R": {
+		"head": "toe1.1.R___head",
+		"parent": "foot.R",
+		"reference": null,
+		"tail": "toe1.1.R___tail"
+	},
+	"toe1.2.L": {
+		"head": "toe1.2.L___head",
+		"parent": "toe1.1.L",
+		"reference": null,
+		"tail": "toe1.2.L___tail"
+	},
+	"toe1.2.R": {
+		"head": "toe1.2.R___head",
+		"parent": "toe1.1.R",
+		"reference": null,
+		"tail": "toe1.2.R___tail"
+	},
+	"toe1.3.L": {
+		"head": "toe1.3.L___head",
+		"parent": "toe1.2.L",
+		"reference": null,
+		"tail": "toe1.3.L___tail"
+	},
+	"toe1.3.R": {
+		"head": "toe1.3.R___head",
+		"parent": "toe1.2.R",
+		"reference": null,
+		"tail": "toe1.3.R___tail"
+	},
+	"toe2.1.L": {
+		"head": "toe2.1.L___head",
+		"parent": "foot.L",
+		"reference": null,
+		"tail": "toe2.1.L___tail"
+	},
+	"toe2.1.R": {
+		"head": "toe2.1.R___head",
+		"parent": "foot.R",
+		"reference": null,
+		"tail": "toe2.1.R___tail"
+	},
+	"toe2.2.L": {
+		"head": "toe2.2.L___head",
+		"parent": "toe2.1.L",
+		"reference": null,
+		"tail": "toe2.2.L___tail"
+	},
+	"toe2.2.R": {
+		"head": "toe2.2.R___head",
+		"parent": "toe2.1.R",
+		"reference": null,
+		"tail": "toe2.2.R___tail"
+	},
+	"toe2.3.L": {
+		"head": "toe2.3.L___head",
+		"parent": "toe2.2.L",
+		"reference": null,
+		"tail": "toe2.3.L___tail"
+	},
+	"toe2.3.R": {
+		"head": "toe2.3.R___head",
+		"parent": "toe2.2.R",
+		"reference": null,
+		"tail": "toe2.3.R___tail"
+	},
+	"toe3.1.L": {
+		"head": "toe3.1.L___head",
+		"parent": "foot.L",
+		"reference": null,
+		"tail": "toe3.1.L___tail"
+	},
+	"toe3.1.R": {
+		"head": "toe3.1.R___head",
+		"parent": "foot.R",
+		"reference": null,
+		"tail": "toe3.1.R___tail"
+	},
+	"toe3.2.L": {
+		"head": "toe3.2.L___head",
+		"parent": "toe3.1.L",
+		"reference": null,
+		"tail": "toe3.2.L___tail"
+	},
+	"toe3.2.R": {
+		"head": "toe3.2.R___head",
+		"parent": "toe3.1.R",
+		"reference": null,
+		"tail": "toe3.2.R___tail"
+	},
+	"toe3.3.L": {
+		"head": "toe3.3.L___head",
+		"parent": "toe3.2.L",
+		"reference": null,
+		"tail": "toe3.3.L___tail"
+	},
+	"toe3.3.R": {
+		"head": "toe3.3.R___head",
+		"parent": "toe3.2.R",
+		"reference": null,
+		"tail": "toe3.3.R___tail"
+	},
+	"upperarm.L": {
+		"head": "upperarm.L___head",
+		"parent": "shoulder.L",
+		"reference": null,
+		"tail": "upperarm.L___tail"
+	},
+	"upperarm.R": {
+		"head": "upperarm.R___head",
+		"parent": "shoulder.R",
+		"reference": null,
+		"tail": "upperarm.R___tail"
+	},
+	"upperbody": {
+		"head": "upperbody___head",
+		"parent": "lowerbody",
+		"reference": null,
+		"tail": "upperbody___tail"
+	},
+	"upperleg.L": {
+		"head": "upperleg.L___head",
+		"parent": "lowerbody",
+		"reference": null,
+		"tail": "upperleg.L___tail"
+	},
+	"upperleg.R": {
+		"head": "upperleg.R___head",
+		"parent": "lowerbody",
+		"reference": null,
+		"tail": "upperleg.R___tail"
+	},
+	"upperlip": {
+		"head": "upperlip___head",
+		"parent": "head",
+		"reference": null,
+		"tail": "upperlip___tail"
+	}
+},
+"joints": {
+	"eyebrow.L___head": [3108, 3110],
+	"eyebrow.L___tail": [3107, 3084],
+	"eyebrow.R___head": [6692, 6694],
+	"eyebrow.R___tail": [6668, 6691],
+	"finger1.1.L___head": [2925, 2949],
+	"finger1.1.L___tail": [3512, 3524],
+	"finger1.1.R___head": [6509, 6533],
+	"finger1.1.R___tail": [7069, 7081],
+	"finger1.2.L___head": [3512, 3524],
+	"finger1.2.L___tail": [3533, 3539],
+	"finger1.2.R___head": [7069, 7081],
+	"finger1.2.R___tail": [7090, 7096],
+	"finger1.3.L___head": [3533, 3539],
+	"finger1.3.L___tail": [3554],
+	"finger1.3.R___head": [7090, 7096],
+	"finger1.3.R___tail": [7111],
+	"finger2.1.L___head": [2925, 2949],
+	"finger2.1.L___tail": [3414, 3426],
+	"finger2.1.R___head": [6509, 6533],
+	"finger2.1.R___tail": [6971, 6983],
+	"finger2.2.L___head": [3414, 3426],
+	"finger2.2.L___tail": [3435, 3441],
+	"finger2.2.R___head": [6971, 6983],
+	"finger2.2.R___tail": [6992, 6998],
+	"finger2.3.L___head": [3435, 3441],
+	"finger2.3.L___tail": [3456],
+	"finger2.3.R___head": [6992, 6998],
+	"finger2.3.R___tail": [7013],
+	"finger3.1.L___head": [2925, 2949],
+	"finger3.1.L___tail": [3463, 3475],
+	"finger3.1.R___head": [6509, 6533],
+	"finger3.1.R___tail": [7020, 7032],
+	"finger3.2.L___head": [3463, 3475],
+	"finger3.2.L___tail": [3484, 3490],
+	"finger3.2.R___head": [7020, 7032],
+	"finger3.2.R___tail": [7041, 7047],
+	"finger3.3.L___head": [3484, 3490],
+	"finger3.3.L___tail": [3505],
+	"finger3.3.R___head": [7041, 7047],
+	"finger3.3.R___tail": [7062],
+	"foot.L___head": [1085, 1096],
+	"foot.L___tail": [3050, 3068],
+	"foot.R___head": [4707, 4718],
+	"foot.R___tail": [6634, 6652],
+	"forearm.L___head": [1789, 1807],
+	"forearm.L___tail": [1887, 1905],
+	"forearm.R___head": [5411, 5429],
+	"forearm.R___tail": [5509, 5527],
+	"hand.L___head": [1887, 1905],
+	"hand.L___tail": [2925, 2949],
+	"hand.R___head": [5509, 5527],
+	"hand.R___tail": [6509, 6533],
+	"head___head": [1988, 2000, 195, 1987],
+	"head___tail": [2210, 5801],
+	"lowerbody___head": [405, 4059],
+	"lowerbody___tail": [292, 310],
+	"lowerleg.L___head": [925, 952],
+	"lowerleg.L___tail": [1085, 1096],
+	"lowerleg.R___head": [4547, 4574],
+	"lowerleg.R___tail": [4707, 4718],
+	"lowerlip___head": [2210, 5801],
+	"lowerlip___tail": [3175, 3185],
+	"neck___head": [205, 3881],
+	"neck___tail": [1988, 2000, 195, 1987],
+	"root___head": [722],
+	"root___tail": [405, 4059],
+	"shoulder.L___head": [205, 3881],
+	"shoulder.L___tail": [1595, 1613],
+	"shoulder.R___head": [205, 3881],
+	"shoulder.R___tail": [5217, 5235],
+	"toe1.1.L___head": [3050, 3068],
+	"toe1.1.L___tail": [3659, 3671],
+	"toe1.1.R___head": [6634, 6652],
+	"toe1.1.R___tail": [7216, 7228],
+	"toe1.2.L___head": [3659, 3671],
+	"toe1.2.L___tail": [3680, 3686],
+	"toe1.2.R___head": [7216, 7228],
+	"toe1.2.R___tail": [7237, 7243],
+	"toe1.3.L___head": [3680, 3686],
+	"toe1.3.L___tail": [3701],
+	"toe1.3.R___head": [7237, 7243],
+	"toe1.3.R___tail": [7258],
+	"toe2.1.L___head": [3050, 3068],
+	"toe2.1.L___tail": [3561, 3573],
+	"toe2.1.R___head": [6634, 6652],
+	"toe2.1.R___tail": [7118, 7130],
+	"toe2.2.L___head": [3561, 3573],
+	"toe2.2.L___tail": [3582, 3588],
+	"toe2.2.R___head": [7118, 7130],
+	"toe2.2.R___tail": [7139, 7145],
+	"toe2.3.L___head": [3582, 3588],
+	"toe2.3.L___tail": [3603],
+	"toe2.3.R___head": [7139, 7145],
+	"toe2.3.R___tail": [7160],
+	"toe3.1.L___head": [3050, 3068],
+	"toe3.1.L___tail": [3610, 3622],
+	"toe3.1.R___head": [6634, 6652],
+	"toe3.1.R___tail": [7167, 7181],
+	"toe3.2.L___head": [3610, 3622],
+	"toe3.2.L___tail": [3631, 3637],
+	"toe3.2.R___head": [7167, 7181],
+	"toe3.2.R___tail": [7188, 7194],
+	"toe3.3.L___head": [3631, 3637],
+	"toe3.3.L___tail": [3652],
+	"toe3.3.R___head": [7188, 7194],
+	"toe3.3.R___tail": [7209],
+	"upperarm.L___head": [1595, 1613],
+	"upperarm.L___tail": [1789, 1807],
+	"upperarm.R___head": [5217, 5235],
+	"upperarm.R___tail": [5411, 5429],
+	"upperbody___head": [292, 310],
+	"upperbody___tail": [205, 3881],
+	"upperleg.L___head": [779, 806],
+	"upperleg.L___tail": [928, 952],
+	"upperleg.R___head": [4401, 4428],
+	"upperleg.R___tail": [4547, 4574],
+	"upperlip___head": [2210, 5801],
+	"upperlip___tail": [3152, 3153]
+},
+"copyright": "(c) punkduck & elvaerwyn",
+"description": "MakeHuman II default bot skeleton, a game skeleton",
+"license": "CC0",
+"version": 210,
+"tags": ["MakeHuman II"],
+"weights_file": "default_weights.mhw"
+}

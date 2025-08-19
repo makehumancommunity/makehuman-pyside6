@@ -1,5 +1,6 @@
 {
 	"visible groups": [ "mh_default" ],
+	"pose-skeleton": "default.mhskel",
         "target-opposites": {
 	        "decr": "incr"
         },

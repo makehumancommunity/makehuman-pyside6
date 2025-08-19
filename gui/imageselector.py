@@ -111,7 +111,11 @@ class PictureButton(QPushButton):
         return self.picture.size()
 
     def eventFilter(self, obj, event):
+        if not hasattr(event, "type"):
+            return False
+
         if self.acceptdouble:
+
             if event.type() == QEvent.MouseButtonPress:
                 if not self.timer.isActive():
                     self.timer.start()
