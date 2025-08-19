@@ -161,7 +161,11 @@ class cBone():
         # orthonormal base, perpendicular vector to normal / bone_direction needed (cross-product)
         #
         cross = np.cross(normal, bone_direction)
-        z_axis = cross / np.linalg.norm(cross)
+        nrm = np.linalg.norm(cross)
+        if nrm != 0.0:
+            z_axis = cross / nrm 
+        else:
+            z_axis = np.array([0.0, 0.0, 1.0])
 
         # one axis missing, so same with z_axis / bone_direction
         #
