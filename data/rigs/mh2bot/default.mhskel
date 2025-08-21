@@ -33,7 +33,7 @@
 	},
 	"finger1.2.R": {
 		"head": "finger1.2.R___head",
-		"parent": "finger1.1.L",
+		"parent": "finger1.1.R",
 		"reference": null,
 		"tail": "finger1.2.R___tail"
 	},
