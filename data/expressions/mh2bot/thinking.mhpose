@@ -1,0 +1,15 @@
+{
+    "author": "MakeHuman2",
+    "description": "Demo pose thinking",
+    "licence": "CC0",
+    "name": "Thinking",
+    "tags": [
+        ""
+    ],
+    "unit_poses": {
+        "LeftBrow": -1.0,
+        "LowerLip": -0.96,
+        "RightBrow": -1.0,
+        "UpperLip": -1.0
+    }
+}

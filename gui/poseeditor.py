@@ -345,7 +345,7 @@ class AnimExpressionEdit(GenericPoseEdit):
         poses = glob.baseClass.faceposes
         units = glob.baseClass.getFaceUnits()
         infos = glob.baseClass.faceunitsinfo
-        mask  = glob.baseClass.faceunits.bonemask
+        mask  = glob.baseClass.faceunits.bonemask if glob.baseClass.faceunits is not None else []
         super().__init__(parent, glob, poses, parent.redrawNewExpression, units, infos, mask)
 
     def addClassWidgets(self):
@@ -367,7 +367,7 @@ class AnimPoseEdit(GenericPoseEdit):
         poses = glob.baseClass.bodyposes
         units = glob.baseClass.getBodyUnits()
         infos = glob.baseClass.bodyunitsinfo
-        mask  = glob.baseClass.bodyunits.bonemask
+        mask  = glob.baseClass.bodyunits.bonemask if glob.baseClass.bodyunits is not None else []
         super().__init__(parent, glob, poses, parent.redrawNewPose, units, infos, mask)
 
     def fillPoses(self):

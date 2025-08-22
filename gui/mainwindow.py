@@ -511,7 +511,8 @@ class MHMainWindow(QMainWindow):
             elif self.category_mode == 4:
                 self.leftColumn.setTitle("Expressions :: editor")
                 self.lastClass = AnimExpressionEdit(self, self.glob)
-                filterparam = self.glob.baseClass.getFaceUnits().createFilterDict()
+                units = self.glob.baseClass.getFaceUnits()
+                filterparam = units.createFilterDict() if units is not None else {}
                 self.qTree = MHTreeView(filterparam, "Categories", self.redrawNewExpression, None)
                 self.qtreefilter = self.qTree.getStartPattern()
                 self.LeftBox.addWidget(self.qTree)
@@ -520,7 +521,8 @@ class MHMainWindow(QMainWindow):
             else:
                 self.leftColumn.setTitle("Pose :: editor")
                 self.lastClass = AnimPoseEdit(self, self.glob)
-                filterparam = self.glob.baseClass.getBodyUnits().createFilterDict()
+                units = self.glob.baseClass.getBodyUnits()
+                filterparam = units.createFilterDict() if units is not None else {}
                 self.qTree = MHTreeView(filterparam, "Categories", self.redrawNewPose, None)
                 self.qtreefilter = self.qTree.getStartPattern()
                 self.LeftBox.addWidget(self.qTree)

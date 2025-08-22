@@ -1,0 +1,15 @@
+{
+    "author": "MakeHuman2",
+    "description": "Demo pose undecided",
+    "licence": "CC0",
+    "name": "Undecided",
+    "tags": [
+        ""
+    ],
+    "unit_poses": {
+        "LeftBrow": -0.79,
+        "LowerLip": 1.0,
+        "RightBrow": 0.58,
+        "UpperLip": -1.0
+    }
+}
