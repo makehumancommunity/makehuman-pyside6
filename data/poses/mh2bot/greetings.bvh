@@ -1,0 +1,364 @@
+HIERARCHY
+ROOT root
+{
+ OFFSET 0.017768 1.783507 -1.776229
+ CHANNELS 6 Xposition Yposition Zposition Xrotation Yrotation Zrotation
+ JOINT lowerbody
+ {
+  OFFSET 0.000000 -1.631465 -0.004494
+  CHANNELS 3 Xrotation Yrotation Zrotation
+  JOINT upperbody
+  {
+   OFFSET 0.000000 0.000000 1.753525
+   CHANNELS 3 Xrotation Yrotation Zrotation
+   JOINT shoulder.L
+   {
+    OFFSET 0.000000 0.000000 3.259670
+    CHANNELS 3 Xrotation Yrotation Zrotation
+    JOINT upperarm.L
+    {
+     OFFSET 3.526544 0.000000 0.000000
+     CHANNELS 3 Xrotation Yrotation Zrotation
+     JOINT forearm.L
+     {
+      OFFSET 0.000000 0.000000 -1.905342
+      CHANNELS 3 Xrotation Yrotation Zrotation
+      JOINT hand.L
+      {
+       OFFSET 0.000000 0.000000 -2.171768
+       CHANNELS 3 Xrotation Yrotation Zrotation
+       JOINT finger3.1.L
+       {
+        OFFSET 0.000000 0.000000 -0.821608
+        CHANNELS 3 Xrotation Yrotation Zrotation
+        JOINT finger3.2.L
+        {
+         OFFSET 0.486683 -0.206354 -0.303690
+         CHANNELS 3 Xrotation Yrotation Zrotation
+         JOINT finger3.3.L
+         {
+          OFFSET 0.334838 0.007787 -0.198567
+          CHANNELS 3 Xrotation Yrotation Zrotation
+          End Site
+          {
+           OFFSET 0.389346 0.253075 -0.225821
+          }
+         }
+        }
+       }
+       JOINT finger1.1.L
+       {
+        OFFSET 0.000000 0.000000 -0.821608
+        CHANNELS 3 Xrotation Yrotation Zrotation
+        JOINT finger1.2.L
+        {
+         OFFSET -0.490577 -0.196470 -0.303690
+         CHANNELS 3 Xrotation Yrotation Zrotation
+         JOINT finger1.3.L
+         {
+          OFFSET -0.342625 0.011980 -0.194673
+          CHANNELS 3 Xrotation Yrotation Zrotation
+          End Site
+          {
+           OFFSET -0.373773 0.232410 -0.229714
+          }
+         }
+        }
+       }
+       JOINT finger2.1.L
+       {
+        OFFSET 0.000000 0.000000 -0.821608
+        CHANNELS 3 Xrotation Yrotation Zrotation
+        JOINT finger2.2.L
+        {
+         OFFSET 0.000000 -0.190780 -0.704717
+         CHANNELS 3 Xrotation Yrotation Zrotation
+         JOINT finger2.3.L
+         {
+          OFFSET 0.003893 0.101230 -0.323157
+          CHANNELS 3 Xrotation Yrotation Zrotation
+          End Site
+          {
+           OFFSET -0.003893 -0.019467 -0.365986
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+   JOINT shoulder.R
+   {
+    OFFSET 0.000000 0.000000 3.259670
+    CHANNELS 3 Xrotation Yrotation Zrotation
+    JOINT upperarm.R
+    {
+     OFFSET -3.520937 0.000000 0.000000
+     CHANNELS 3 Xrotation Yrotation Zrotation
+     JOINT forearm.R
+     {
+      OFFSET 0.000000 0.000000 -1.895009
+      CHANNELS 3 Xrotation Yrotation Zrotation
+      JOINT hand.R
+      {
+       OFFSET 0.000000 0.000000 -2.185655
+       CHANNELS 3 Xrotation Yrotation Zrotation
+       JOINT finger1.1.R
+       {
+        OFFSET 0.000000 0.000000 -0.860311
+        CHANNELS 3 Xrotation Yrotation Zrotation
+        JOINT finger1.2.R
+        {
+         OFFSET 0.481232 -0.206354 -0.261641
+         CHANNELS 3 Xrotation Yrotation Zrotation
+         JOINT finger1.3.R
+         {
+          OFFSET 0.336395 -0.003893 -0.186886
+          CHANNELS 3 Xrotation Yrotation Zrotation
+          End Site
+          {
+           OFFSET 0.378445 0.268649 -0.224263
+          }
+         }
+        }
+       }
+       JOINT finger3.1.R
+       {
+        OFFSET 0.000000 0.000000 -0.860311
+        CHANNELS 3 Xrotation Yrotation Zrotation
+        JOINT finger3.2.R
+        {
+         OFFSET -0.509265 -0.206354 -0.256969
+         CHANNELS 3 Xrotation Yrotation Zrotation
+         JOINT finger3.3.R
+         {
+          OFFSET -0.322379 -0.003893 -0.196231
+          CHANNELS 3 Xrotation Yrotation Zrotation
+          End Site
+          {
+           OFFSET -0.383117 0.268649 -0.224263
+          }
+         }
+        }
+       }
+       JOINT finger2.1.R
+       {
+        OFFSET 0.000000 0.000000 -0.860311
+        CHANNELS 3 Xrotation Yrotation Zrotation
+        JOINT finger2.2.R
+        {
+         OFFSET -0.009345 -0.186886 -0.672790
+         CHANNELS 3 Xrotation Yrotation Zrotation
+         JOINT finger2.3.R
+         {
+          OFFSET 0.000000 0.101230 -0.317707
+          CHANNELS 3 Xrotation Yrotation Zrotation
+          End Site
+          {
+           OFFSET 0.004672 -0.019467 -0.355084
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+   JOINT neck
+   {
+    OFFSET 0.000000 0.000000 3.259670
+    CHANNELS 3 Xrotation Yrotation Zrotation
+    JOINT head
+    {
+     OFFSET 0.000000 0.000000 1.743819
+     CHANNELS 3 Xrotation Yrotation Zrotation
+     JOINT eyebrow.L
+     {
+      OFFSET 0.180715 -1.671701 2.959368
+      CHANNELS 3 Xrotation Yrotation Zrotation
+      End Site
+      {
+       OFFSET 0.946941 0.000000 -0.043695
+      }
+     }
+     JOINT eyebrow.R
+     {
+      OFFSET -0.180277 -1.671701 2.946811
+      CHANNELS 3 Xrotation Yrotation Zrotation
+      End Site
+      {
+       OFFSET -0.928215 0.000000 -0.026275
+      }
+     }
+     JOINT lowerlip
+     {
+      OFFSET 0.000000 -0.002601 2.073333
+      CHANNELS 3 Xrotation Yrotation Zrotation
+      End Site
+      {
+       OFFSET 0.000000 -1.598006 -1.295259
+      }
+     }
+     JOINT upperlip
+     {
+      OFFSET 0.000000 -0.002601 2.073333
+      CHANNELS 3 Xrotation Yrotation Zrotation
+      End Site
+      {
+       OFFSET 0.000000 -1.757182 -0.664795
+      }
+     }
+    }
+   }
+  }
+  JOINT upperleg.L
+  {
+   OFFSET 0.978163 0.000000 -0.686246
+   CHANNELS 3 Xrotation Yrotation Zrotation
+   JOINT lowerleg.L
+   {
+    OFFSET -0.009344 0.000000 -2.179841
+    CHANNELS 3 Xrotation Yrotation Zrotation
+    JOINT foot.L
+    {
+     OFFSET 0.000000 0.000000 -3.724912
+     CHANNELS 3 Xrotation Yrotation Zrotation
+     JOINT toe1.1.L
+     {
+      OFFSET 0.000000 -1.244663 0.000000
+      CHANNELS 3 Xrotation Yrotation Zrotation
+      JOINT toe1.2.L
+      {
+       OFFSET -0.352061 -0.378278 0.121723
+       CHANNELS 3 Xrotation Yrotation Zrotation
+       JOINT toe1.3.L
+       {
+        OFFSET -0.247192 -0.295881 -0.074906
+        CHANNELS 3 Xrotation Yrotation Zrotation
+        End Site
+        {
+         OFFSET -0.277154 -0.292136 -0.293385
+        }
+       }
+      }
+     }
+     JOINT toe2.1.L
+     {
+      OFFSET 0.000000 -1.244663 0.000000
+      CHANNELS 3 Xrotation Yrotation Zrotation
+      JOINT toe2.2.L
+      {
+       OFFSET 0.007491 -0.591762 0.131086
+       CHANNELS 3 Xrotation Yrotation Zrotation
+       JOINT toe2.3.L
+       {
+        OFFSET 0.000000 -0.277154 -0.049937
+        CHANNELS 3 Xrotation Yrotation Zrotation
+        End Site
+        {
+         OFFSET -0.003745 -0.385769 -0.315232
+        }
+       }
+      }
+     }
+     JOINT toe3.1.L
+     {
+      OFFSET 0.000000 -1.244663 0.000000
+      CHANNELS 3 Xrotation Yrotation Zrotation
+      JOINT toe3.2.L
+      {
+       OFFSET 0.359551 -0.397005 0.121723
+       CHANNELS 3 Xrotation Yrotation Zrotation
+       JOINT toe3.3.L
+       {
+        OFFSET 0.220974 -0.303371 -0.074906
+        CHANNELS 3 Xrotation Yrotation Zrotation
+        End Site
+        {
+         OFFSET 0.250937 -0.318353 -0.293385
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  JOINT upperleg.R
+  {
+   OFFSET -0.957306 0.000000 -0.665170
+   CHANNELS 3 Xrotation Yrotation Zrotation
+   JOINT lowerleg.R
+   {
+    OFFSET -0.012783 0.000000 -2.192843
+    CHANNELS 3 Xrotation Yrotation Zrotation
+    JOINT foot.R
+    {
+     OFFSET 0.000000 0.006728 -3.699487
+     CHANNELS 3 Xrotation Yrotation Zrotation
+     JOINT toe1.1.R
+     {
+      OFFSET 0.000000 -1.244663 -0.020184
+      CHANNELS 3 Xrotation Yrotation Zrotation
+      JOINT toe1.2.R
+      {
+       OFFSET 0.363297 -0.382023 0.121723
+       CHANNELS 3 Xrotation Yrotation Zrotation
+       JOINT toe1.3.R
+       {
+        OFFSET 0.243446 -0.284645 -0.074906
+        CHANNELS 3 Xrotation Yrotation Zrotation
+        End Site
+        {
+         OFFSET 0.284645 -0.303372 -0.293385
+        }
+       }
+      }
+     }
+     JOINT toe2.1.R
+     {
+      OFFSET 0.000000 -1.244663 -0.020184
+      CHANNELS 3 Xrotation Yrotation Zrotation
+      JOINT toe2.2.R
+      {
+       OFFSET -0.003745 -0.591762 0.131086
+       CHANNELS 3 Xrotation Yrotation Zrotation
+       JOINT toe2.3.R
+       {
+        OFFSET 0.000000 -0.288390 -0.049937
+        CHANNELS 3 Xrotation Yrotation Zrotation
+        End Site
+        {
+         OFFSET -0.003745 -0.382023 -0.315232
+        }
+       }
+      }
+     }
+     JOINT toe3.1.R
+     {
+      OFFSET 0.000000 -1.244663 -0.020184
+      CHANNELS 3 Xrotation Yrotation Zrotation
+      JOINT toe3.2.R
+      {
+       OFFSET -0.355806 -0.404495 0.121723
+       CHANNELS 3 Xrotation Yrotation Zrotation
+       JOINT toe3.3.R
+       {
+        OFFSET -0.220974 -0.303371 -0.074906
+        CHANNELS 3 Xrotation Yrotation Zrotation
+        End Site
+        {
+         OFFSET -0.265918 -0.325844 -0.293385
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}
+MOTION
+Frames: 1
+Frame Time: 0.041667
+0.0178 1.7835 -1.7762 0 0.0515 0 0 0 0 0 -4.1741 0 -175.6232 -0.0867 -0.2605 0 -6.3049 0 0 0 -52.2231 0 0 48.7399 -1.6519 27.5061 -1.7186 0 0 0 0 0 0 1.9458 -21.0631 1.9782 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 17.4745 0 0 0.0512 4.31 59.7938 -17.4037 35.5964 -61.6971 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -4.2217 6.9654 0.5129 0.0493 -8.6908 0.4051 0.0055 -6.5815 0.1867 10.2885 0 0 0 0 0 0 6.2431 0 0 0 0 0 -10.4028 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 6.6241 0 0 0 0 0 -11.9514 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0

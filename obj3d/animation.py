@@ -283,11 +283,12 @@ class BVH():
         for joint in self.bvhJointOrder:
             m = np.round(joint.matrixPoses[num], decimals=3)
             if not np.array_equiv(m,restmatrix):
+                s = list(m[:3,:3].flatten())
                 if np.where(~m.any(axis=0))[0] == 3:
-                    s = list(m[:3,:3].flatten())
+                    print("\"" + joint.name + "\": " + str(s))
                 else:
-                    s = list(m.flatten())           # bone with location
-                print("\"" + joint.name + "\": " + str(s))
+                    d = list(m[:3,3].flatten())
+                    print("\"" + joint.name + "\": " + str(s) + " d=" + str(d))
 
     def debugJoints(self, name):
         for joint in self.bvhJointOrder:

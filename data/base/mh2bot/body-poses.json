@@ -1,0 +1,423 @@
+{
+	"Rest": {},
+	"RootTurn": {
+		"group": "root",
+		"reverse":	{
+		"root": [-1.0, 0.0, -0.017, 0.0, 1.0, 0.006, 0.017, 0.006, -1.0]
+
+		},
+		"bones":	{
+		"root": [-1.0, 0.0, 0.017, 0.0, 1.0, 0.006, -0.017, 0.006, -1.0]
+		}
+	},
+	"RootRotateHorizontal": {
+		"group": "root",
+		"reverse":	{
+		"root": [-1.0, -0.017, 0.0, 0.017, -1.0, -0.006, 0.0, -0.006, 1.0]
+		},
+		"bones":	{
+		"root": [-1.0, 0.017, 0.0, -0.017, -1.0, -0.006, 0.0, -0.006, 1.0]
+		}
+	},
+	"RootRotateVertical": {
+		"group": "root",
+		"reverse":	{
+		"root": [1.0, 0.0, 0.0, 0.0, -1.0, 0.017, 0.0, -0.017, -1.0]
+		},
+		"bones":	{
+		"root": [1.0, 0.0, 0.0, 0.0, -1.0, -0.017, 0.0, 0.017, -1.0]
+		}
+	},
+	"HeadRotDepth": {
+		"group": "head",
+		"reverse":	{
+		"head": [1.0, 0.0, 0.0, 0.0, 0.985, -0.174, 0.0, 0.174, 0.985]
+		},
+		"bones":	{
+		"head": [1.0, 0.0, 0.0, 0.0, 0.985, 0.174, 0.0, -0.174, 0.985]
+		}
+	},
+	"HeadTilt": {
+		"group": "head",
+		"reverse":	{
+		"head": [0.985, -0.174, 0.0, 0.174, 0.985, 0.0, 0.0, 0.0, 1.0]
+		},
+		"bones":	{
+		"head": [0.985, 0.174, 0.0, -0.174, 0.985, 0.0, 0.0, 0.0, 1.0]
+		}
+	},
+	"HeadTurn": {
+		"group": "head",
+		"reverse":	{
+		"head": [0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0]
+		},
+		"bones":	{
+		"head": [0.0, 0.0, 1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 0.0]
+		}
+	},
+	"LeftUpperArmRotHorizontal": {
+		"group": "left-arm",
+		"rsym": "RightUpperArmRotHorizontal",
+		"reverse":	{
+		"upperarm.L": [0.94, 0.342, 0.0, -0.342, 0.94, 0.0, 0.0, 0.0, 1.0]
+		},
+		"bones":	{
+		"upperarm.L": [-1.0, -0.017, 0.0, 0.017, -1.0, 0.0, 0.0, 0.0, 1.0]
+		}
+	},
+	"LeftUpperArmRotDepth": {
+		"group": "left-arm",
+		"rsym": "RightUpperArmRotDepth",
+		"reverse":	{
+		"shoulder.L": [1.0, 0.0, 0.0, 0.0, -1.0, -0.017, 0.0, 0.017, -1.0]
+		},
+		"bones":	{
+		"shoulder.L": [1.0, 0.0, 0.0, 0.0, -1.0, 0.017, 0.0, -0.017, -1.0]
+		}
+	},
+	"LeftUpperArmTwist": {
+		"group": "left-arm",
+		"rsym": "RightUpperArmTwist",
+		"reverse":	{
+		"upperarm.L": [0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0]
+		},
+		"bones":	{
+		"upperarm.L": [0.0, 0.0, 1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 0.0]
+		}
+	},
+	"LeftLowerArmRotDepth": {
+		"group": "left-arm",
+		"rsym": "RightLowerArmRotDepth",
+		"bones":	{
+		"forearm.L": [1.0, 0.0, 0.0, 0.0, -0.757, 0.653, 0.0, -0.653, -0.757]
+		}
+	},
+	"RightUpperArmRotHorizontal": {
+		"group": "right-arm",
+		"lsym": "LeftUpperArmRotHorizontal",
+		"reverse":	{
+		"upperarm.R": [0.94, -0.342, 0.0, 0.342, 0.94, 0.0, 0.0, 0.0, 1.0]
+		},
+		"bones":	{
+		"upperarm.R": [-1.0, 0.017, 0.0, -0.017, -1.0, 0.0, 0.0, 0.0, 1.0]
+		}
+	},
+	"RightUpperArmRotDepth": {
+		"group": "right-arm",
+		"lsym": "LeftUpperArmRotDepth",
+		"reverse":	{
+		"shoulder.R": [1.0, 0.0, 0.0, 0.0, -1.0, -0.017, 0.0, 0.017, -1.0]
+		},
+		"bones":	{
+		"shoulder.R": [1.0, 0.0, 0.0, 0.0, -1.0, 0.017, 0.0, -0.017, -1.0]
+		}
+	},
+	"RightUpperArmTwist": {
+		"group": "right-arm",
+		"lsym": "LeftUpperArmTwist",
+		"reverse":	{
+		"upperarm.R": [0.0, 0.0, 1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 0.0]
+		},
+		"bones":	{
+		"upperarm.R": [0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0]
+		}
+	},
+	"RightLowerArmRotDepth": {
+		"group": "right-arm",
+		"lsym": "LeftLowerArmRotDepth",
+		"bones":	{
+		"forearm.R": [1.0, 0.0, 0.0, 0.0, -0.757, 0.653, 0.0, -0.653, -0.757]
+		}
+	},
+	"LeftHandRotDepth": {
+		"group": "left-hand",
+		"rsym": "RightHandRotDepth",
+		"reverse":	{
+		"hand.L": [1.0, 0.0, 0.0, 0.0, -0.342, 0.94, 0.0, -0.94, -0.342]
+		},
+		"bones":	{
+		"hand.L": [1.0, 0.0, 0.0, 0.0, -0.342, -0.94, 0.0, 0.94, -0.342]
+		}
+	},
+	"LeftHandRotHorizontal": {
+		"group": "left-hand",
+		"rsym": "RightHandRotHorizontal",
+		"reverse":	{
+		"hand.L": [0.0, 1.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+		},
+		"bones":	{
+		"hand.L": [0.0, -1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+		}
+	},
+	"LeftHandTwist": {
+		"group": "left-hand",
+		"rsym": "RightHandTwist",
+		"reverse":	{
+		"hand.L": [0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0]
+		},
+		"bones":	{
+		"hand.L": [0.0, 0.0, 1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 0.0]
+		}
+	},
+	"LeftHandFingerSpread":{
+		"group": "left-hand",
+		"rsym": "RightHandFingerSpread",
+		"bones":	{
+		"finger1.1.L": [0.766, -0.643, -0.017, 0.643, 0.766, 0.014, 0.004, -0.021, 1.0],
+		"finger3.1.L": [0.788, 0.616, 0.001, -0.616, 0.788, 0.001, 0.0, -0.001, 1.0]
+		}
+	},
+	"LeftHandFinger1": {
+		"group": "left-hand",
+		"rsym": "RightHandFinger1",
+		"bones":	{
+		"finger1.1.L": [0.955, -0.028, -0.295, -0.028, 0.983, -0.183, 0.295, 0.183, 0.938],
+		"finger1.2.L": [0.538, -0.263, -0.801, -0.263, 0.851, -0.455, 0.801, 0.455, 0.389],
+		"finger1.3.L": [0.822, -0.109, -0.559, -0.109, 0.933, -0.343, 0.559, 0.343, 0.755]
+		}
+	},
+	"LeftHandFinger2": {
+		"group": "left-hand",
+		"rsym": "RightHandFinger2",
+		"bones":	{
+		"finger2.1.L": [1.0, 0.0, 0.0, 0.0, 0.962, -0.275, 0.0, 0.275, 0.962],
+		"finger2.2.L": [1.0, 0.01, 0.012, 0.01, 0.192, -0.981, -0.012, 0.981, 0.192],
+		"finger2.3.L": [1.0, -0.007, -0.01, -0.007, 0.299, -0.954, 0.01, 0.954, 0.299]
+		}
+	},
+	"LeftHandFinger3": {
+		"group": "left-hand",
+		"rsym": "RightHandFinger3",
+		"bones":	{
+		"finger3.1.L": [0.946, 0.034, 0.322, 0.034, 0.979, -0.201, -0.322, 0.201, 0.925],
+		"finger3.2.L": [0.677, 0.191, 0.71, 0.191, 0.886, -0.421, -0.71, 0.421, 0.564],
+		"finger3.3.L": [0.706, 0.17, 0.687, 0.17, 0.901, -0.399, -0.687, 0.399, 0.607]
+		}
+	},
+	"RightHandRotDepth": {
+		"group": "right-hand",
+		"lsym": "LeftHandRotDepth",
+		"reverse":	{
+		"hand.R": [1.0, 0.0, 0.0, 0.0, -0.342, 0.94, 0.0, -0.94, -0.342]
+		},
+		"bones":	{
+		"hand.R": [1.0, 0.0, 0.0, 0.0, -0.342, -0.94, 0.0, 0.94, -0.342]
+		}
+	},
+	"RightHandRotHorizontal": {
+		"group": "right-hand",
+		"lsym": "LeftHandRotHorizontal",
+		"reverse":	{
+		"hand.R": [0.0, -1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+		},
+		"bones":	{
+		"hand.R": [0.0, 1.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+		}
+	},
+	"RightHandTwist": {
+		"group": "right-hand",
+		"lsym": "LeftHandTwist",
+		"reverse":	{
+		"hand.R": [0.0, 0.0, 1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 0.0]
+		},
+		"bones":	{
+		"hand.R": [0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0]
+		}
+	},
+	"RightHandFingerSpread":{
+		"group": "right-hand",
+		"lsym": "LeftHandFingerSpread",
+		"bones":	{
+		"finger1.1.R": [0.766, 0.643, 0.0, -0.643, 0.766, 0.0, 0.0, 0.0, 1.0],
+		"finger3.1.R": [0.788, -0.616, 0.0, 0.616, 0.788, 0.0, 0.0, 0.0, 1.0]
+		}
+	},
+	"RightHandFinger1": {
+		"group": "right-hand",
+		"lsym": "LeftHandFinger1",
+		"bones":	{
+		"finger1.1.R": [0.952, 0.026, 0.305, 0.026, 0.986, -0.166, -0.305, 0.166, 0.938],
+		"finger1.2.R": [0.533, 0.26, 0.805, 0.26, 0.856, -0.447, -0.805, 0.447, 0.389],
+		"finger1.3.R": [0.819, 0.107, 0.564, 0.107, 0.936, -0.334, -0.564, 0.334, 0.755]
+		}
+	},
+	"RightHandFinger2": {
+		"group": "right-hand",
+		"lsym": "LeftHandFinger2",
+		"bones":	{
+		"finger2.1.R": [1.0, -0.001, -0.004, -0.001, 0.962, -0.275, 0.004, 0.275, 0.962],
+		"finger2.2.R": [1.0, 0.0, 0.0, 0.0, 0.192, -0.981, 0.0, 0.981, 0.192],
+		"finger2.3.R": [1.0, 0.009, 0.013, 0.009, 0.299, -0.954, -0.013, 0.954, 0.299]
+		}
+	},
+	"RightHandFinger3": {
+		"group": "right-hand",
+		"lsym": "LeftHandFinger3",
+		"bones":	{
+		"finger3.1.R": [0.94, -0.03, -0.339, -0.03, 0.985, -0.171, 0.339, 0.171, 0.925],
+		"finger3.2.R": [0.682, -0.194, -0.706, -0.194, 0.882, -0.429, 0.706, 0.429, 0.564],
+		"finger3.3.R": [0.708, -0.171, -0.686, -0.171, 0.9, -0.401, 0.686, 0.401, 0.607]
+		}
+	},
+	"BodyBendHorizontal": {
+		"group": "body",
+		"reverse":	{
+		"upperbody": [0.94, -0.342, 0.0, 0.342, 0.94, 0.0, 0.0, 0.0, 1.0]
+		},
+		"bones":	{
+		"upperbody": [0.94, 0.342, 0.0, -0.342, 0.94, 0.0, 0.0, 0.0, 1.0]
+		}
+	},
+	"BodyBendDepth": {
+		"group": "body",
+		"reverse":	{
+		"upperbody": [1.0, 0.0, 0.0, 0.0, 0.94, -0.342, 0.0, 0.342, 0.94]
+		},
+		"bones":	{
+		"upperbody": [1.0, 0.0, 0.0, 0.0, 0.94, 0.342, 0.0, -0.342, 0.94]
+		}
+	},
+	"BodyTurn": {
+		"group": "body",
+		"reverse":	{
+		"upperbody": [0.766, 0.0, -0.643, 0.0, 1.0, 0.0, 0.643, 0.0, 0.766]
+		},
+		"bones":	{
+		"upperbody": [0.766, 0.0, 0.643, 0.0, 1.0, 0.0, -0.643, 0.0, 0.766]
+		}
+	},
+	"LeftUpperLegRotDepth": {
+		"group": "left-leg",
+		"rsym": "RightUpperLegRotDepth",
+		"reverse":	{
+		"upperleg.L": [1.0, -0.009, 0.0, 0.0, 0.0, 1.0, -0.009, -1.0, 0.0]
+		},
+		"bones":	{
+		"upperleg.L": [1.0, 0.0, -0.009, -0.009, 0.0, -1.0, 0.0, 1.0, 0.0]
+		}
+	},
+	"LeftUpperLegRotHorizontal": {
+		"group": "left-leg",
+		"rsym": "RightUpperLegRotHorizontal",
+		"reverse":	{
+		"upperleg.L": [0.94, 0.342, 0.0, -0.342, 0.94, 0.001, 0.0, -0.001, 1.0]
+		},
+		"bones":	{
+		"upperleg.L": [0.0, -1.0, 0.004, 1.0, 0.0, -0.004, 0.004, 0.004, 1.0]
+		}
+	},
+	"LeftUpperLegTwist": {
+		"group": "left-leg",
+		"rsym": "RightUpperLegTwist",
+		"reverse":	{
+		"upperleg.L": [0.866, 0.001, -0.5, 0.001, 1.0, 0.002, 0.5, -0.002, 0.866]
+		},
+		"bones":	{
+		"upperleg.L": [0.643, 0.002, 0.766, 0.002, 1.0, -0.003, -0.766, 0.003, 0.643]
+		}
+	},
+	"LeftLowerLegRotDepth": {
+		"group": "left-leg",
+		"rsym": "RightLowerLegRotDepth",
+		"bones":	{
+		"lowerleg.L": [1.0, 0.0, 0.0, 0.0, -0.707, -0.707, 0.0, 0.707, -0.707]
+		}
+	},
+	"LeftFootTwist": {
+		"group": "left-leg",
+		"rsym": "RightFootTwist",
+		"reverse":	{
+		"lowerleg.L": [0.94, 0.0, -0.342, 0.0, 1.0, 0.0, 0.342, 0.0, 0.94]
+		},
+		"bones":	{
+		"lowerleg.L": [0.643, 0.0, 0.766, 0.0, 1.0, 0.0, -0.766, 0.0, 0.643]
+		}
+	},
+	"LeftFootRotDepth": {
+		"rsym": "RightFootRotDepth",
+		"group": "left-leg",
+		"reverse":	{
+		"foot.L": [1.0, 0.0, 0.0, 0.0, 0.94, 0.342, 0.0, -0.342, 0.94]
+		},
+		"bones":	{
+		"foot.L": [1.0, 0.0, 0.0, 0.0, 0.94, -0.342, 0.0, 0.342, 0.94]
+		}
+	},
+	"LeftFootRotHorizontal": {
+		"rsym": "RightFootRotHorizontal",
+		"group": "left-leg",
+		"reverse":	{
+		"foot.L": [0.94, -0.342, 0.0, 0.342, 0.94, 0.0, 0.0, 0.0, 1.0]
+		},
+		"bones":	{
+		"foot.L": [0.94, 0.342, 0.0, -0.342, 0.94, 0.0, 0.0, 0.0, 1.0]
+		}
+	},
+	"RightUpperLegRotDepth": {
+		"group": "right-leg",
+		"lsym": "LeftUpperLegRotDepth",
+		"reverse":	{
+		"upperleg.R": [1.0, -0.012, 0.0, 0.0, 0.0, 1.0, -0.012, -1.0, 0.0]
+		},
+		"bones":	{
+		"upperleg.R": [1.0, 0.0, -0.012, -0.012, 0.0, -1.0, 0.0, 1.0, 0.0]
+		}
+	},
+	"RightUpperLegRotHorizontal": {
+		"group": "right-leg",
+		"lsym": "LeftUpperLegRotHorizontal",
+		"reverse":	{
+		"upperleg.R": [0.94, -0.342, 0.0, 0.342, 0.94, -0.002, 0.0, 0.002, 1.0]
+		},
+		"bones":	{
+		"upperleg.R": [0.0, 1.0, 0.006, -1.0, 0.0, 0.006, 0.006, -0.006, 1.0]
+		}
+	},
+	"RightUpperLegTwist": {
+		"group": "right-leg",
+		"lsym": "LeftUpperLegTwist",
+		"reverse":	{
+		"upperleg.R": [0.866, 0.001, 0.5, 0.001, 1.0, -0.003, -0.5, 0.003, 0.866]
+		},
+		"bones":	{
+		"upperleg.R": [0.643, 0.002, -0.766, 0.002, 1.0, 0.004, 0.766, -0.004, 0.643]
+		}
+	},
+	"RightLowerLegRotDepth": {
+		"group": "right-leg",
+		"lsym": "LeftLowerLegRotDepth",
+		"bones":	{
+		"lowerleg.R": [1.0, 0.0, 0.0, 0.0, -0.707, -0.707, 0.0, 0.707, -0.707]
+		}
+	},
+	"RightFootTwist": {
+		"group": "right-leg",
+		"lsym": "LeftFootTwist",
+		"reverse":	{
+		"lowerleg.R": [0.94, -0.001, 0.342, 0.001, 1.0, 0.0, -0.342, 0.0, 0.94]
+		},
+		"bones":	{
+		"lowerleg.R": [0.643, 0.001, -0.766, -0.001, 1.0, 0.001, 0.766, 0.001, 0.643]
+		}
+	},
+	"RightFootRotDepth": {
+		"group": "right-leg",
+		"lsym": "LeftFootRotDepth",
+		"reverse":	{
+		"foot.R": [1.0, 0.0, 0.0, 0.0, 0.94, 0.342, 0.0, -0.342, 0.94]
+		},
+		"bones":	{
+		"foot.R": [1.0, 0.0, 0.0, 0.0, 0.94, -0.342, 0.0, 0.342, 0.94]
+		}
+	},
+	"RightFootRotHorizontal": {
+		"lsym": "LeftFootRotHorizontal",
+		"group": "right-leg",
+		"reverse":	{
+		"foot.R": [0.94, 0.342, 0.002, -0.342, 0.94, 0.0, -0.002, 0.0, 1.0]
+		},
+		"bones":	{
+		"foot.R": [0.94, -0.342, -0.003, 0.342, 0.94, -0.001, 0.003, 0.0, 1.0]
+		}
+	}
+}
