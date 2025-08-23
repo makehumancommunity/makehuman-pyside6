@@ -50,6 +50,7 @@ class OffScreenRender:
 
         self.view.camera.resizeViewPort(width, height)
         proj_view_matrix = self.view.camera.calculateProjMatrix()
+        ogl.initializeOpenGLFunctions()
 
         ogl.glViewport(0, 0, width, height)
         ogl.glEnable(gl.GL_DEPTH_TEST)

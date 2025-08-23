@@ -10,6 +10,9 @@
         	"pointed": "triangle",
         	"square": "round"
 	},
+	"equipment": [
+		"clothes", "hair", "eyes", "eyebrows", "eyelashes", "teeth", "tongue", "proxy"
+	],
 	"pose-skeleton": "default.mhskel",
 	"mhm": "base.mhm",
 	"measure": {

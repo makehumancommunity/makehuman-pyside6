@@ -102,30 +102,30 @@ class MHMainWindow(QMainWindow):
         ]
         self.category_buttons = [
             [ 
-                { "button": None, "icon": "f_newbase.png", "tip": "select basemesh", "func": self.callCategory},
-                { "button": None, "icon": "f_load.png", "tip": "load character", "func": self.callCategory},
-                { "button": None, "icon": "f_save.png", "tip": "save character", "func": self.callCategory},
-                { "button": None, "icon": "f_export.png", "tip": "export character", "func": self.callCategory},
-                { "button": None, "icon": "f_download.png", "tip": "download assets", "func": self.callCategory}
+                { "button": None, "h": False, "icon": "f_newbase.png", "tip": "select basemesh", "func": self.callCategory},
+                { "button": None, "h": False, "icon": "f_load.png", "tip": "load character", "func": self.callCategory},
+                { "button": None, "h": False, "icon": "f_save.png", "tip": "save character", "func": self.callCategory},
+                { "button": None, "h": False, "icon": "f_export.png", "tip": "export character", "func": self.callCategory},
+                { "button": None, "h": False, "icon": "f_download.png", "tip": "download assets", "func": self.callCategory}
             ], [ 
-                { "button": None, "icon": "measurement.png", "tip": "modelling by category", "func": self.callCategory},
-                { "button": None, "icon": "randomhuman.png", "tip": "randomize", "func": self.callCategory}
+                { "button": None, "h": False, "icon": "measurement.png", "tip": "modelling by category", "func": self.callCategory},
+                { "button": None, "h": False, "icon": "randomhuman.png", "tip": "randomize", "func": self.callCategory}
             ], [
-                { "button": None, "icon": "eq_clothes.png", "tip": "Clothes", "func": self.callCategory },
-                { "button": None, "icon": "eq_hair.png", "tip": "Hair", "func": self.callCategory },
-                { "button": None, "icon": "eq_eyes.png", "tip": "Eyes", "func": self.callCategory },
-                { "button": None, "icon": "eq_eyebrows.png", "tip": "Eyebrows", "func": self.callCategory },
-                { "button": None, "icon": "eq_eyelashes.png", "tip": "Eyelashes", "func": self.callCategory },
-                { "button": None, "icon": "eq_teeth.png", "tip": "Teeth", "func": self.callCategory },
-                { "button": None, "icon": "eq_tongue.png", "tip": "Tongue", "func": self.callCategory },
-                { "button": None, "icon": "eq_proxy.png", "tip": "Topology, Proxies", "func": self.callCategory }
+                { "button": None, "h": False, "ref": "clothes", "icon": "eq_clothes.png", "tip": "Clothes", "func": self.callCategory },
+                { "button": None, "h": False, "ref": "hair", "icon": "eq_hair.png", "tip": "Hair", "func": self.callCategory },
+                { "button": None, "h": False, "ref": "eyes", "icon": "eq_eyes.png", "tip": "Eyes", "func": self.callCategory },
+                { "button": None, "h": False, "ref": "eyebrows", "icon": "eq_eyebrows.png", "tip": "Eyebrows", "func": self.callCategory },
+                { "button": None, "h": False, "ref": "eyelashes", "icon": "eq_eyelashes.png", "tip": "Eyelashes", "func": self.callCategory },
+                { "button": None, "h": False, "ref": "teeth", "icon": "eq_teeth.png", "tip": "Teeth", "func": self.callCategory },
+                { "button": None, "h": False, "ref": "tongue", "icon": "eq_tongue.png", "tip": "Tongue", "func": self.callCategory },
+                { "button": None, "h": False, "ref": "proxy", "icon": "eq_proxy.png", "tip": "Topology, Proxies", "func": self.callCategory }
             ], [
-                { "button": None, "icon": "an_skeleton.png", "tip": "Skeleton", "func": self.callCategory},
-                { "button": None, "icon": "an_pose.png", "tip": "Load pose or animation", "func": self.callCategory},
-                { "button": None, "icon": "an_movie.png", "tip": "Play animation", "func": self.callCategory},
-                { "button": None, "icon": "an_expression.png", "tip": "Expressions", "func": self.callCategory},
-                { "button": None, "icon": "an_expressedit.png", "tip": "Expression editor", "func": self.callCategory},
-                { "button": None, "icon": "an_modpose.png", "tip": "Pose editor", "func": self.callCategory}
+                { "button": None, "h": False, "icon": "an_skeleton.png", "tip": "Skeleton", "func": self.callCategory},
+                { "button": None, "h": False, "icon": "an_pose.png", "tip": "Load pose or animation", "func": self.callCategory},
+                { "button": None, "h": False, "icon": "an_movie.png", "tip": "Play animation", "func": self.callCategory},
+                { "button": None, "h": False, "icon": "an_expression.png", "tip": "Expressions", "func": self.callCategory},
+                { "button": None, "h": False, "icon": "an_expressedit.png", "tip": "Expression editor", "func": self.callCategory},
+                { "button": None, "h": False, "icon": "an_modpose.png", "tip": "Pose editor", "func": self.callCategory}
             ], [
             ]
         ]
@@ -237,7 +237,8 @@ class MHMainWindow(QMainWindow):
         for m, tool in enumerate(self.category_buttons):
             offset = (m + 1) * 100
             for n, b in enumerate(tool):
-                b["button"] = IconButton(offset+n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"], checkable=True)
+                if b["h"] is False:
+                    b["button"] = IconButton(offset+n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"], checkable=True)
         self.markSelectedButtons(self.category_buttons[0], self.category_buttons[0][0])
 
         # generate random values
@@ -257,11 +258,18 @@ class MHMainWindow(QMainWindow):
         return entry
 
     def createImageSelection(self):
+        binfo = self.glob.baseClass.baseInfo
+
         self.equip.clear()
+        eqrow = self.category_buttons[2]
+        equipment = binfo["equipment"] if "equipment" in binfo else ["clothes"]
+        for elem in eqrow:
+            elem["h"] = not ("ref" in elem and elem["ref"] in equipment)
         for elem in self.equipment:
-            elem["func"] = ImageSelection(self, self.glob.cachedInfo, elem["name"], elem["mode"], self.equipCallback, doubleclick=True)
-            elem["func"].prepare()
-            elem["menu"] = self.addActCallBack(self.equip, elem["name"], self.equip_call)
+            if elem["name"] in equipment:
+                elem["func"] = ImageSelection(self, self.glob.cachedInfo, elem["name"], elem["mode"], self.equipCallback, doubleclick=True)
+                elem["func"].prepare()
+                elem["menu"] = self.addActCallBack(self.equip, elem["name"], self.equip_call)
 
         self.charselect = ImageSelection(self, self.glob.cachedInfo, "models", 0, self.loadByIconCallback, 3, True)
         self.charselect.prepare()
@@ -317,7 +325,8 @@ class MHMainWindow(QMainWindow):
         row=QHBoxLayout()
         row.setSpacing(2)
         for n, b in enumerate(subtool):
-            row.addWidget(b["button"])
+            if "h" not in b or b["h"] is False:
+                row.addWidget(b["button"])
         row.addStretch()
 
         return(row)
@@ -326,15 +335,18 @@ class MHMainWindow(QMainWindow):
         sel = button["button"]
         for elem in row:
             b = elem["button"]
-            b.setChecked(b == sel)
+            if b is not None:
+                b.setChecked(b == sel)
         if self.glob.baseClass is None:
             for elem in row[1:]:
                 b = elem["button"]
-                b.setEnabled(False)
+                if b is not None:
+                    b.setEnabled(False)
         else:
             for elem in row:
                 b = elem["button"]
-                b.setEnabled(True)
+                if b is not None:
+                    b.setEnabled(True)
 
     def setCategoryIcons(self):
         s = self.sender()

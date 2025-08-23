@@ -1,6 +1,7 @@
 {
 	"visible groups": [ "mh_default" ],
 	"pose-skeleton": "default.mhskel",
+	"equipment": [ "clothes" ],
         "target-opposites": {
 	        "decr": "incr"
         },
