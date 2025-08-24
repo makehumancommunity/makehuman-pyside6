@@ -26,12 +26,13 @@ class gltfExport:
     :type glob: class: globalObjects
     :param str exportfolder: name of the folder to export textures
     :param bool hiddenverts: if hidden vertices should be exported
+    :param bool includetextures: will embed the textures into the binary part
     :param bool onground: if character should stay on ground
     :param bool animation: if animation should be exported
     :param float scale: the scale of the output
     """
 
-    def __init__(self, glob, exportfolder, hiddenverts=False, onground=True, animation=False, scale =0.1):
+    def __init__(self, glob, exportfolder, includetextures=False, hiddenverts=False, onground=True, animation=False, scale =0.1):
 
         # subfolder for textures
         #
@@ -39,6 +40,7 @@ class gltfExport:
         self.exportfolder = exportfolder
         self.glob = glob
         self.env = glob.env
+        self.includetextures = includetextures
         self.hiddenverts = hiddenverts
         self.onground = onground
         self.animation = animation
@@ -130,9 +132,12 @@ class gltfExport:
 
     def addBufferView(self, target, data):
         #
-        # buffer + we create one big binary buffer 
+        # buffer + we create one big binary buffer, we will keep all buffers 4 byte aligned
+        # (byteLength must contain original length, but offset must be corrected)
 
         length = len(data)
+        b = length & 3
+        pad = 4-b if b > 0 else 0
 
         self.bufferview_cnt += 1
         if target is not None:
@@ -141,6 +146,8 @@ class gltfExport:
             self.json["bufferViews"].append({"buffer": 0, "byteOffset": self.bufferoffset, "byteLength": length })
         self.buffers.append(data)
         self.bufferoffset += length
+        self.bufferoffset += pad
+
         return(self.bufferview_cnt)
 
     def addPosAccessor(self, coord):
@@ -318,13 +325,30 @@ class gltfExport:
 
     def addImage(self, image):
         self.image_cnt += 1
-        destination = os.path.join(self.exportfolder, self.imagefolder)
-        okay = self.copyImage(image, destination)
-        if not okay:
-            return (False, -1)
+        if self.includetextures:
+            mtype = self.IMAGEJPEG
+            if image.endswith(".png"):
+                mtype = self.IMAGEPNG
+            elif not (image.endswith(".jpeg") or image.endswith(".jpg")):
+                self.env.last_error = "Bad image format, only jpeg, jpg or png is allowed to determine mimeType"
+                return (False, -1)
 
-        uri = self.env.formatPath(os.path.join(self.imagefolder, os.path.basename(image)))
-        self.json["images"].append({"uri": uri})
+            try:
+                with open(image, mode="rb") as binfile:
+                    data = binfile.read()
+            except Exception as error:
+                self.env.last_error = "problems while reading image " + image
+                return (False, -1)
+            buf = self.addBufferView(None, data)
+            self.json["images"].append({"bufferView": buf, "mimeType": mtype})
+        else:
+            destination = os.path.join(self.exportfolder, self.imagefolder)
+            okay = self.copyImage(image, destination)
+            if not okay:
+                return (False, -1)
+
+            uri = self.env.formatPath(os.path.join(self.imagefolder, os.path.basename(image)))
+            self.json["images"].append({"uri": uri})
         return(True, self.image_cnt)
 
     def addMRTexture(self, roughtex):
@@ -718,7 +742,7 @@ class gltfExport:
 
         # now the binary buffer. try to work with pointers here
         # the number of maximum used data is in bufferoffset
-        # padding is not needed, we only use uint and float
+        # padding is needed in case of textures
 
         lenbin = self.bufferoffset
 
@@ -739,6 +763,9 @@ class gltfExport:
                 f.write(bytes(self.BIN, "utf-8"))
                 for elem in self.buffers:
                     f.write(bytes(elem))
+                    b = len(elem) & 3
+                    if b !=  0:
+                        f.write(bytes(4-b))
 
         except IOError as error: 
             self.env.last_error = str(error)

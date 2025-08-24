@@ -331,6 +331,7 @@ class ExportLeftPanel(QVBoxLayout):
         self.bc  = parent.glob.baseClass
         self.animmode = None        # will keep animation mode
         self.binmode = True
+        self.imgmode = False
         self.onground = True
         self.helper = False
         self.normals = False
@@ -364,6 +365,13 @@ class ExportLeftPanel(QVBoxLayout):
         self.binsave.setChecked(True)
         self.binsave.setToolTip('Some exports offer binary and ASCII modes, binary mode is usually faster and smaller')
         self.addWidget(self.binsave)
+
+        self.binimg= QCheckBox("pack textures into file")
+        self.binimg.setLayoutDirection(Qt.LeftToRight)
+        self.binimg.toggled.connect(self.changeImg)
+        self.binimg.setChecked(False)
+        self.binimg.setToolTip('Some exports offer to embed textures into the binary file, otherwise they will be exported as extra files')
+        self.addWidget(self.binimg)
 
         self.ground= QCheckBox("feet on ground")
         self.ground.setLayoutDirection(Qt.LeftToRight)
@@ -428,23 +436,23 @@ class ExportLeftPanel(QVBoxLayout):
     def setExportType(self, etype):
         common = "MakeHuman works with unit decimeter. "
         expAttrib = { ".stl":  {"tip": common + "STL files are unit less. When working with printers 1 unit equals 1 millimeter (preset scale 1:10)",
-                "num": 3, "binset": True, "binmode": "both", "hiddenset": True, "hiddenmode": False,
+                "num": 3, "binset": True, "binmode": "both", "imgset": False, "imgmode": False, "hiddenset": True, "hiddenmode": False,
                 "animset": False, "animmode": False, "poseset": True, "posemode": False,
                 "helpset": False, "helpmode": False, "normset": False, "normmode": False},
             ".glb": { "tip": common + "GLB/GLTF units are usually meters",
-                "num": 0, "binset": False, "binmode": True, "hiddenset": True, "hiddenmode": False,
+                "num": 0, "binset": False, "binmode": True, "imgset": True, "imgmode": "both", "hiddenset": True, "hiddenmode": False,
                 "animset": True, "animmode": False, "poseset": False, "posemode": False,
                 "helpset": False, "helpmode": False, "normset": False, "normmode": True},
             ".mh2b": { "tip": common + "Blender units are usually meters",
-                "num": 0, "binset": False, "binmode": True, "hiddenset": True, "hiddenmode": False,
+                "num": 0, "binset": False, "binmode": True, "imgset": False, "imgmode": False, "hiddenset": True, "hiddenmode": False,
                 "animset": True, "animmode": False, "poseset": False, "posemode": False,
                 "helpset": False, "helpmode": False, "normset": False, "normmode": False},
             ".obj": { "tip": common + "Wavefront units are usually meters",
-                "num": 0, "binset": False, "binmode": False, "hiddenset": True, "hiddenmode": False,
+                "num": 0, "binset": False, "binmode": False, "imgset": False, "imgmode": False, "hiddenset": True, "hiddenmode": False,
                 "animset": False, "animmode": False, "poseset": False, "posemode": False,
                 "helpset": True, "helpmode": False, "normset": True, "normmode": False},
             ".bvh": { "tip": common + "BVH units are usually the same as the internal scale",
-                "num": 0, "binset": False, "binmode": False,  "hiddenset": False, "hiddenmode": False,
+                "num": 0, "binset": False, "binmode": False,  "imgset": False, "imgmode": False, "hiddenset": False, "hiddenmode": False,
                 "animset": False, "animmode": True, "poseset": False, "posemode": False,
                 "helpset": False, "helpmode": False, "normset": False, "normmode": False}
             }
@@ -456,6 +464,10 @@ class ExportLeftPanel(QVBoxLayout):
         if expAttrib[self.export_type]["binmode"] != "both":
             self.binsave.setChecked(expAttrib[self.export_type]["binmode"])
         self.binsave.setEnabled(expAttrib[self.export_type]["binset"])
+
+        if expAttrib[self.export_type]["imgmode"] != "both":
+            self.binimg.setChecked(expAttrib[self.export_type]["imgmode"])
+        self.binimg.setEnabled(expAttrib[self.export_type]["imgset"])
         #
         self.hverts.setChecked(expAttrib[self.export_type]["hiddenmode"])
         self.hverts.setEnabled(expAttrib[self.export_type]["hiddenset"])
@@ -481,6 +493,9 @@ class ExportLeftPanel(QVBoxLayout):
 
     def changeBinary(self, param):
         self.binmode = param
+
+    def changeImg(self, param):
+        self.imgmode = param
 
     def changeHVerts(self, param):
         self.savehiddenverts = param
@@ -524,7 +539,7 @@ class ExportLeftPanel(QVBoxLayout):
         scale = self.scale_items[current][0]
 
         if self.export_type == ".glb":
-            gltf = gltfExport(self.glob, folder, self.savehiddenverts, self.onground,  self.animation, scale)
+            gltf = gltfExport(self.glob, folder, self.imgmode, self.savehiddenverts, self.onground,  self.animation, scale)
             success = gltf.binSave(self.bc, path)
 
         elif self.export_type == ".stl":

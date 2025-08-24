@@ -12,6 +12,7 @@ because either the file format demands this parameter or does not support the pa
 <ul>
 <li>Enter a filename. A suffix according to file format will always be appended.</li>
 <li>Binary mode, if a file format supports a binary mode, it can be selected here. Binary files are usually shorter.</li>
+<li>Pack textures into file, if a file format supports embedded textures, it can be selected here. The files are usually larger, but no additional files are needed.</li>
 <li>Feet on the ground. The root of the character is near pelvis. This option allows to pose a character on the ground.</li>
 <li>Character posed. Load and set a pose in animation before. This pose will be used.</li>
 <li>Save hidden vertices. Vertices under clothes are usually not saved, because they might shine
