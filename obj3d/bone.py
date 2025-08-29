@@ -112,6 +112,10 @@ class cBone():
         restmat = self.getTransformedRestMatrix(orientation, rotAxis, offset)
         bindinv = np.transpose(restmat)
         bindmat = np.linalg.inv(bindinv)
+
+        # correction of last column to make gltf validator happy
+        #
+        bindmat[:,-1] = [0.0, 0.0, 0.0, 1.0]
         return bindmat,bindinv
 
     def getTransformedRestMatrix(self, orientation=0, rotAxis='y', offset=[0,0,0]):

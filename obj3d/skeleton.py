@@ -268,7 +268,9 @@ class skeleton:
 
     def poseByReference (self, joints: dict, frame=0):
         """
-        pose the skeleton by reference
+        pose the skeleton by reference of another skeleton
+        either bone is found with the same name in default skeleton 
+        or one bone references one or more other bones of default skeleton
 
         :param joints: BVHJoint dictionary
         :param frame: frame number
@@ -294,6 +296,11 @@ class skeleton:
 
                 if m1 is not None:
                    bone.calcLocalPoseMat(m1)
+            else:
+                # in case of no reference, try it directly (skeletons like default-notoes)
+                #
+                if elem in joints:
+                    bone.calcLocalPoseMat(joints[elem].finalPoses[frame])
             
             bone.calcGlobalPoseMat()
             bone.poseBone()
