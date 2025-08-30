@@ -444,12 +444,19 @@ class OpenGLView(QOpenGLWidget):
         showskel = self.objects_invisible is True and "skeleton" in self.prims
 
         if baseClass is not None:
+            poseskel =  self.glob.baseClass.pose_skeleton
+            if poseskel is None:
+                offset = QVector3D(0, 0, 0)
+            else:
+                offset = poseskel.offset if poseskel.use_offset else QVector3D(0, 0, 0)
+
             if baseClass.proxy is True:
                 body = self.objects[1]
                 asset_start = 2
             else:
                 body = self.objects[0]
                 asset_start = 1
+            body.setPosition(offset)
             if self.wireframe:
                 body.drawWireframe(proj_view_matrix, campos, self.black, self.white)
             else:
@@ -458,6 +465,7 @@ class OpenGLView(QOpenGLWidget):
             # either with xray or normal shader draw assets
             #
             for obj in self.objects[asset_start:]:
+                obj.setPosition(offset)
                 if self.wireframe:
                     obj.drawWireframe(proj_view_matrix, campos, self.black, self.white)
                 else:

@@ -183,17 +183,22 @@ class AnimPlayer(QVBoxLayout):
     def changeAnim(self):
         self.values.doFaceAnim = self.faceAnim.isChecked()
         self.values.doCorrections = self.corrAnim.isChecked()
+        poseskel = self.bc.pose_skeleton
         if self.anim:
             feat = int(self.values.doFaceAnim) |(int (self.values.doCorrections) << 1)
             if feat == 0:
                 self.anim.noFaceAnimation()
+                poseskel.useOffset(False)
             elif feat == 1:
                 self.anim.identFinal()
+                poseskel.useOffset(False)
             elif feat == 2:
                 self.anim.modCorrections()
                 self.anim.noFaceAnimation()
+                poseskel.useOffset(True)
             else:
                 self.anim.modCorrections()
+                poseskel.useOffset(True)
             if not self.looping:
                 self.bc.showPose()
 

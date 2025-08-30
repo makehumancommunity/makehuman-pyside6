@@ -269,7 +269,7 @@ class BVH():
         if corrections is not None:
             for joint in self.bvhJointOrder:
                 if joint.name in corrections:
-                    #print ("Need to change", joint.name)
+                    # print ("Need to change", joint.name)
                     joint.modCorrections(corrections[joint.name], joint.parent, self.frameCount)
                 else:
                     # also allow face animation again
@@ -521,6 +521,9 @@ class PosePrims():
                 g = val["group"]
                 if g not in self.groups:
                     self.groups.append(g)
+
+            if "position" in val:
+                continue
 
             if "bones" in val:
                 g = val["bones"]

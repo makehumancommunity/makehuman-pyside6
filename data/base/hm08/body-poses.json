@@ -1,5 +1,26 @@
 {
 	"Rest": {},
+	"Horizontal Position": {
+		"group": "root",
+		"position": {
+			"direction": "x",
+			"boundaries": [-10.0, 10.0]
+		}
+	},
+	"Depth Position": {
+		"group": "root",
+		"position": {
+			"direction": "z",
+			"boundaries": [-10.0, 10.0]
+		}
+	},
+	"Vertical Position": {
+		"group": "root",
+		"position": {
+			"direction": "y",
+			"boundaries": [-10.0, 10.0]
+		}
+	},
 	"RootTurn": {
 		"group": "root",
 		"reverse":	{

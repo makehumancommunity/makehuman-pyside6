@@ -108,6 +108,8 @@ class baseClass():
         self.restPose()
         self.updateAttachedAssets()
         self.in_posemode = False
+        if self.pose_skeleton is not None:
+            self.pose_skeleton.useOffset(False)
         gl = self.glob.openGLWindow
         gl.prepareSkeleton(False)
         gl.newFloorPosition(posed=False)

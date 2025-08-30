@@ -7,6 +7,7 @@
 """
 
 import numpy as np
+from PySide6.QtGui import QVector3D
 from obj3d.bone import cBone, boneWeights
 import core.math as mquat
 
@@ -23,7 +24,9 @@ class skeleton:
         self.planes = {}
         self.bones = {}      # list of cBones
         self.bWeights = None
-        self.root = None     # our skeleton accepts one root bone, not more
+        self.root = None     # our skeleton accepts one root bone, not more, name of the root
+        self.offset = QVector3D(0, 0, 0) # offset is used for pose skeleton to move root bone
+        self.use_offset = False
         self.mesh = self.glob.baseClass.baseMesh
         self.filename = None
 
@@ -142,6 +145,14 @@ class skeleton:
             return False
         self.filename = path
         return True
+
+    def setOffset(self, position):
+        self.offset.setX(position[0])
+        self.offset.setY(position[1])
+        self.offset.setZ(position[2])
+
+    def useOffset(self, b):
+        self.use_offset = b
 
     def copyScaled(self, source, scale, offset):
         """
@@ -347,7 +358,7 @@ class skeleton:
         # in case the bone is posed by more than one posemat, multiply quaternion matrices
         #
         found = {}
-        for bone in self.bones:
+        for bone, elem in self.bones.items():
             modbone = False
             for blend in blends:
                 posemat = blend[0]
@@ -362,13 +373,12 @@ class skeleton:
                     modbone = True
 
             if modbone is True:
-                # print ("changed " + bone)
                 mat = mquat.quaternionToRotMatrix(q1)
-                self.bones[bone].calcLocalPoseMat(mat)
+                elem.calcLocalPoseMat(mat)
                 changed.append(bone)
 
-            self.bones[bone].calcGlobalPoseMat()
-            self.bones[bone].poseBone()
+            elem.calcGlobalPoseMat()
+            elem.poseBone()
 
         if mask is not None:
             for bone in mask:
@@ -380,6 +390,6 @@ class skeleton:
         if not bones_only:
             self.skinBasemesh()
             self.glob.baseClass.poseAttachedAssets()
-        
+
         return changed
 

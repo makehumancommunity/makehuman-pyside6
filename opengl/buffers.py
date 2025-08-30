@@ -94,7 +94,7 @@ class RenderedObject:
     def __init__(self, parent, obj, boundingbox, glbuffers, pos):
         self.parent = parent
         self.glob = parent.glob
-        self.context = parent.context()
+        self.functions = parent.context().functions()
         self.shaders = parent.mh_shaders
 
         self.env = self.glob.env
@@ -124,8 +124,8 @@ class RenderedObject:
     def __str__(self):
         return("GL Object " + str(self.name))
 
-    def setContext(self, context):
-        self.context =  context
+    def setFunctions(self, functions):
+        self.functions = functions
 
     def delete(self):
         self.glbuffers.Delete()
@@ -197,17 +197,44 @@ class RenderedObject:
         if self.viewpos_location != -1:
             shader.setUniformValue(self.viewpos_location, campos)
 
+    def glReset(self):
+        functions = self.functions
+        functions.glDisable(gl.GL_CULL_FACE)
+        functions.glDisable(gl.GL_SAMPLE_ALPHA_TO_COVERAGE)
+        functions.glDisable(gl.GL_BLEND)
+        functions.glDisable(gl.GL_MULTISAMPLE)
+        functions.glDisable(gl.GL_DEPTH_TEST)
+        functions.glActiveTexture(gl.GL_TEXTURE0)
+
+    def drawObject(self):
+        indices = self.getindex()
+        self.functions.glDrawElements(gl.GL_TRIANGLES, len(indices), gl.GL_UNSIGNED_INT, indices)
 
     def draw(self, proj_view_matrix, campos, light, xrayed = False):
         """
-        :param proj_view_matrix: matrix
+        :param QMatrix4x4 proj_view_matrix: view-matrix
+        :param QVector3D campos: camera position
+        :param camera.Light light: pointer to light to reference skybox and other parameters
+        :param bool xrayed: if xrayed mode is used
         """
-        shader = self.shaders.getShader("xray") if xrayed else self.shader
-        self.geomToShader(shader, proj_view_matrix, campos)
-        functions = self.context.functions()
-
-
+        functions = self.functions
         functions.glEnable(gl.GL_DEPTH_TEST)
+
+        # do xrayed first, since it is a special form
+        #
+        if xrayed:
+            shader = self.shaders.getShader("xray")
+            self.geomToShader(shader, proj_view_matrix, campos)
+            functions.glEnable(gl.GL_BLEND)
+            functions.glEnable(gl.GL_CULL_FACE)
+            functions.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+            self.drawObject()
+            self.glReset()
+            return
+
+        shader = self.shader
+        self.geomToShader(shader, proj_view_matrix, campos)
+
         if self.material.pbrMetallicRoughness is not None:
             lightWeight = QVector3D(1.0 - self.material.pbrMetallicRoughness, light.lightWeight.y(), 0)
         else:
@@ -219,8 +246,8 @@ class RenderedObject:
 
         alphaCover = self.material.alphaToCoverage and not self.env.noalphacover
 
-        if self.material.transparent or xrayed:
-            if alphaCover and not xrayed:
+        if self.material.transparent:
+            if alphaCover:
                 functions.glEnable(gl.GL_MULTISAMPLE)
                 functions.glEnable(gl.GL_SAMPLE_ALPHA_TO_COVERAGE)
                 functions.glDisable(gl.GL_BLEND)
@@ -231,84 +258,79 @@ class RenderedObject:
         else:
             functions.glBlendFunc(gl.GL_ONE, gl.GL_ZERO)
 
-        if self.material.backfaceCull or xrayed:
+        if self.material.backfaceCull:
             functions.glEnable(gl.GL_CULL_FACE)
         else:
             functions.glDisable(gl.GL_CULL_FACE)
 
-        if not xrayed:
-            functions.glUniform1i(shader.uniforms['Texture'], 0)
-            functions.glActiveTexture(gl.GL_TEXTURE0)
-            self.texture.bind()
-
-            if self.material.shader == "litsphere":
-                functions.glUniform1f(shader.uniforms['AdditiveShading'], self.material.sp_AdditiveShading)
-
-                functions.glUniform1i(shader.uniforms['litsphereTexture'], 1)
-                functions.glActiveTexture(gl.GL_TEXTURE1)
-                self.litsphere.bind()
-
-            elif self.material.shader == "phong":
-                functions.glUniform1f(shader.uniforms['AOMult'], self.material.aomapIntensity)
-
-                functions.glUniform1i(shader.uniforms['AOTexture'], 1)
-                functions.glActiveTexture(gl.GL_TEXTURE1)
-                self.aomap.bind()
-
-            elif self.material.shader == "pbr":
-                functions.glUniform1f(shader.uniforms['AOMult'], self.material.aomapIntensity)
-
-                functions.glUniform1i(shader.uniforms['AOTexture'], 1)
-                functions.glActiveTexture(gl.GL_TEXTURE1)
-                self.aomap.bind()
-
-                functions.glUniform1f(shader.uniforms['MeMult'], self.mefac)
-                functions.glUniform1f(shader.uniforms['RoMult'], self.material.pbrMetallicRoughness)
-
-                functions.glUniform1i(shader.uniforms['MRTexture'], 2)
-                functions.glActiveTexture(gl.GL_TEXTURE2)
-                self.mrmap.bind()
-
-                functions.glUniform1f(shader.uniforms['EmMult'], self.material.emissiveFactor)
-                functions.glUniform1i(shader.uniforms['EMTexture'], 3)
-                functions.glActiveTexture(gl.GL_TEXTURE3)
-                self.emmap.bind()
-
-                if self.material.tex_nomap is None:
-                    functions.glUniform1f(shader.uniforms['NoMult'], 0.0)
-                else:
-                    functions.glUniform1f(shader.uniforms['NoMult'], self.material.normalmapIntensity)
-                functions.glUniform1i(shader.uniforms['NOTexture'], 4)
-                functions.glActiveTexture(gl.GL_TEXTURE4)
-                self.nomap.bind()
-
-                if light.skybox is True and self.parent.skybox is not None:
-                    functions.glUniform1i(shader.uniforms['useSky'], True)
-                    functions.glUniform1i(shader.uniforms['skybox'], 5)
-                    functions.glActiveTexture(gl.GL_TEXTURE5)
-                    self.parent.skybox.getTexture().bind()
-                else:
-                    functions.glUniform1i(shader.uniforms['useSky'], False)
-
-        indices = self.getindex()
-        functions.glDrawElements(gl.GL_TRIANGLES, len(indices), gl.GL_UNSIGNED_INT, indices)
-        #
-        # TODO: this is done always to reset, also setting of gl.GL_TEXTURE0
-        #
-        functions.glDisable(gl.GL_CULL_FACE)
-        functions.glDisable(gl.GL_SAMPLE_ALPHA_TO_COVERAGE)
-        functions.glDisable(gl.GL_BLEND)
-        functions.glDisable(gl.GL_MULTISAMPLE)
-        functions.glDisable(gl.GL_DEPTH_TEST)
+        functions.glUniform1i(shader.uniforms['Texture'], 0)
         functions.glActiveTexture(gl.GL_TEXTURE0)
+        self.texture.bind()
+
+        if self.material.shader == "litsphere":
+            functions.glUniform1f(shader.uniforms['AdditiveShading'], self.material.sp_AdditiveShading)
+
+            functions.glUniform1i(shader.uniforms['litsphereTexture'], 1)
+            functions.glActiveTexture(gl.GL_TEXTURE1)
+            self.litsphere.bind()
+
+        elif self.material.shader == "phong":
+            functions.glUniform1f(shader.uniforms['AOMult'], self.material.aomapIntensity)
+
+            functions.glUniform1i(shader.uniforms['AOTexture'], 1)
+            functions.glActiveTexture(gl.GL_TEXTURE1)
+            self.aomap.bind()
+
+        elif self.material.shader == "pbr":
+            functions.glUniform1f(shader.uniforms['AOMult'], self.material.aomapIntensity)
+
+            functions.glUniform1i(shader.uniforms['AOTexture'], 1)
+            functions.glActiveTexture(gl.GL_TEXTURE1)
+            self.aomap.bind()
+
+            functions.glUniform1f(shader.uniforms['MeMult'], self.mefac)
+            functions.glUniform1f(shader.uniforms['RoMult'], self.material.pbrMetallicRoughness)
+
+            functions.glUniform1i(shader.uniforms['MRTexture'], 2)
+            functions.glActiveTexture(gl.GL_TEXTURE2)
+            self.mrmap.bind()
+
+            functions.glUniform1f(shader.uniforms['EmMult'], self.material.emissiveFactor)
+            functions.glUniform1i(shader.uniforms['EMTexture'], 3)
+            functions.glActiveTexture(gl.GL_TEXTURE3)
+            self.emmap.bind()
+
+            if self.material.tex_nomap is None:
+                functions.glUniform1f(shader.uniforms['NoMult'], 0.0)
+            else:
+                functions.glUniform1f(shader.uniforms['NoMult'], self.material.normalmapIntensity)
+            functions.glUniform1i(shader.uniforms['NOTexture'], 4)
+            functions.glActiveTexture(gl.GL_TEXTURE4)
+            self.nomap.bind()
+
+            if light.skybox is True and self.parent.skybox is not None:
+                functions.glUniform1i(shader.uniforms['useSky'], True)
+                functions.glUniform1i(shader.uniforms['skybox'], 5)
+                functions.glActiveTexture(gl.GL_TEXTURE5)
+                self.parent.skybox.getTexture().bind()
+            else:
+                functions.glUniform1i(shader.uniforms['useSky'], False)
+
+        self.drawObject()
+        self.glReset()
 
     def drawWireframe(self, proj_view_matrix, campos, black, white):
         """
         creates a wireframe model
+
+        :param QMatrix4x4 proj_view_matrix: view-matrix
+        :param QVector3D campos: camera position
+        :param black: black 1x1 pixel texture
+        :param white: white 1x1 pixel texture
         """
         shader = self.shaders.getShader("phong")
         self.geomToShader(shader, proj_view_matrix, campos)
-        functions = self.context.functions()
+        functions = self.functions
 
         oldtexture = self.texture
         self.setTexture(black)

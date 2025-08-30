@@ -34,31 +34,36 @@ class OffScreenRender:
         if self.glob.env.noalphacover is False:
             bufformat.setSamples(4)
             sformat.setSamples(4)
+        sformat.setSwapBehavior(QSurfaceFormat.SwapBehavior.SingleBuffer)
+
+        bufformat.setAttachment(QOpenGLFramebufferObject.Attachment.CombinedDepthStencil)
+
+        self.context = QOpenGLContext()
+        self.context.setFormat(sformat)
 
         self.surface = QOffscreenSurface()
         self.surface.setFormat(sformat)
-
-        self.context = QOpenGLContext()
-        self.context.create()
+        self.surface.create()
 
         self.framebuffer = QOpenGLFramebufferObject(width, height, bufformat)
-        self.framebuffer.setAttachment(QOpenGLFramebufferObject.Attachment.Depth)
+        #self.framebuffer.setAttachment(QOpenGLFramebufferObject.Attachment.Depth)
         self.framebuffer.addColorAttachment(width, height)
         self.framebuffer.bind()
         self.context.makeCurrent(self.surface)
         ogl = self.context.functions()
+        oldf = self.view.context().functions()
 
         self.view.camera.resizeViewPort(width, height)
         proj_view_matrix = self.view.camera.calculateProjMatrix()
         ogl.initializeOpenGLFunctions()
 
         ogl.glViewport(0, 0, width, height)
-        ogl.glEnable(gl.GL_DEPTH_TEST)
 
         c = self.view.light.glclearcolor
-        transp = 0 if self.transparent else c.w()
-        print (transp)
-        ogl.glClearColor(c.x(), c.y(), c.z(), transp)
+        if self.transparent:
+            ogl.glClearColor(0.0, 0.0, 0.0, 0.0)
+        else:
+            ogl.glClearColor(c.x(), c.y(), c.z(), 1.0)
         ogl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
 
         campos = self.view.camera.getCameraPos()
@@ -67,11 +72,10 @@ class OffScreenRender:
 
         self.glob.openGLBlock = True
         for obj in self.view.objects[start:]:
-            obj.setContext(self.context)
+            obj.setFunctions(self.context.functions())
             obj.draw(proj_view_matrix, campos, self.view.light)
-            obj.setContext(self.view.context())
+            obj.setFunctions(oldf)
         self.glob.openGLBlock = False
-        ogl.glDisable(gl.GL_DEPTH_TEST)
 
     def bufferToImage(self):
         # check for self.framebuffer.hasOpenGLFramebufferBlit()
