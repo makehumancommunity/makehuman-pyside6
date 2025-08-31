@@ -76,6 +76,11 @@ class OpenGLView(QOpenGLWidget):
                 self.togglePrims("xzgrid", True)
             self.Tweak()
 
+    def hasFloor(self):
+        if self.glob.baseClass is not None:
+            return self.prims["xzgrid"].isVisible() or self.prims["floorcuboid"].isVisible()
+        return False
+
     def delSkeleton(self):
         if "skeleton" in self.prims:
             self.prims["skeleton"].delete()
@@ -198,7 +203,10 @@ class OpenGLView(QOpenGLWidget):
             return 20
 
     def newFloorPosition(self, posed=False):
-        floorpos = self.lowestPos(posed)
+        if self.glob.baseClass.floorCalcMethod == 0:
+            floorpos = self.lowestPos(posed)
+        else:
+            floorpos = 0.0
         self.prims["floorcuboid"].newGeometry(floorpos)
         self.prims["xzgrid"].newGeometry(floorpos, "xz")
 

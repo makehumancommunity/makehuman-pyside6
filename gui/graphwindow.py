@@ -8,7 +8,7 @@
 """
 from PySide6.QtWidgets import (
         QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel,
-        QSlider, QCheckBox, QMessageBox, QGridLayout
+        QSlider, QCheckBox, QMessageBox, QGridLayout, QComboBox
 )
 from PySide6.QtCore import QSize, Qt, QObject, QEvent
 from PySide6.QtGui import QVector3D, QColor, QIcon, QKeySequence
@@ -121,10 +121,14 @@ class MHGraphicWindow(QWidget):
             r[0] = IconButton(i, os.path.join(self.env.path_sysicon, r[2]), r[1], r[3], checkable=r[6])
             glayout.addWidget(r[0], r[4], r[5])
 
+        self.floorCombo = QComboBox()
+        self.floorCombo.addItems(["by lowest vertex", "origin"])
+        self.floorCombo.currentIndexChanged.connect(self.floorIndexChanged)
 
         # now prepare hidden vertices
         #
         self.renderView(False)
+        self.animViews(False)
         if self.glob.baseClass is not None and self.glob.baseClass.hide_verts is False:
             self.buttons[10][0].setChecked(True)
 
@@ -135,8 +139,24 @@ class MHGraphicWindow(QWidget):
 
         vlayout.addLayout(glayout)
 
+        hbox = QHBoxLayout()
+        hbox.addWidget(QLabel("Floor calculation:"))
+        self.newFloor = IconButton(100, os.path.join(self.env.path_sysicon, "f_download.png"), "floor reset", self.floorReset, fsize=16)
+        hbox.addWidget(self.newFloor)
+        vlayout.addLayout(hbox)
+        vlayout.addWidget(self.floorCombo)
+
         self.focusSlider = SimpleSlider("Focal Length: ", 15, 200, self.focusChanged)
         vlayout.addWidget(self.focusSlider )
+
+    def animViews(self, param):
+        if param:
+            self.floorCombo.setEnabled(True)
+            self.floorCombo.setToolTip('change mode of floor calculation')
+        else:
+            self.floorCombo.setCurrentIndex(0)
+            self.floorCombo.setEnabled(False)
+            self.floorCombo.setToolTip('in non-pose mode always by lowest vertex')
 
     def poseViews(self, param):
         nbutton = self.buttons[16][0]
@@ -157,6 +177,13 @@ class MHGraphicWindow(QWidget):
             hbutton.setToolTip(self.texthidden)
         self.poseViews(param)
 
+    def floorReset(self):
+        if self.glob.baseClass is None:
+            return
+        if self.view.hasFloor():
+            self.view.togglePrims("floor", False)
+            self.view.togglePrims("floor", True)
+
     def screenShot(self, param):
         icon = self.view.grabFramebuffer()
         name = self.env.dateFileName("grab-", ".png")
@@ -176,6 +203,16 @@ class MHGraphicWindow(QWidget):
         if cam is not None:
             focalLength = cam.getFocalLength()
             self.focusSlider.setSliderValue(focalLength)
+
+    def floorIndexChanged(self, index):
+        if self.glob.baseClass is None:
+            return
+        self.newFloor.setEnabled(index == 0)
+        self.glob.baseClass.floorCalcMethod = index
+        self.view.newFloorPosition()
+        if self.view.hasFloor():
+            self.view.togglePrims("floor", False)
+            self.view.togglePrims("floor", True)
 
     def focusChanged(self, value):
         self.view.modifyFov(value)

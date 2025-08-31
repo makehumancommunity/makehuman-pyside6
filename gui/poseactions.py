@@ -150,6 +150,7 @@ class AnimPlayer(QVBoxLayout):
 
     def enter(self):
         self.glob.midColumn.poseViews(True)
+        self.glob.midColumn.animViews(True)
         self.playerButtons[4][0].setChecked(False)
         self.rotSkyBox.setChecked(self.values.rotSkybox)
         self.rotangSlider.setSliderValue(self.values.rotAngle * 4)
@@ -179,6 +180,7 @@ class AnimPlayer(QVBoxLayout):
         self.looping = False
         self.bc.setStandardMode()
         self.glob.midColumn.poseViews(False)
+        self.glob.midColumn.animViews(False)
 
     def changeAnim(self):
         self.values.doFaceAnim = self.faceAnim.isChecked()

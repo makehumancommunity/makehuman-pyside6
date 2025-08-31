@@ -62,6 +62,7 @@ class baseClass():
         self.name = name                # will hold the character name
         self.pose_skeleton = None
         self.default_skeleton = None
+        self.floorCalcMethod = 0
         self.reset()
         memInfo()
 

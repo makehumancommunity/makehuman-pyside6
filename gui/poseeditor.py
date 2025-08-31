@@ -170,12 +170,14 @@ class GenericPoseEdit():
     def togglePosed(self, param):
         self.preposed = param
         if param is False:
+            self.glob.midColumn.animViews(False)
             self.baseClass.restPose()
             blends, position = self.getChangedValues()
             if position is not None:
                 self.poseskel.setOffset(position)
             self.poseskel.posebyBlends(blends, None)
         else:
+            self.glob.midColumn.animViews(True)
             self.showCorrectedPose()
         if self.bvh.frameCount > 1:
             self.frameSlider.setEnabled(param)
@@ -373,6 +375,7 @@ class GenericPoseEdit():
             self.bvh.identFinal()
         self.baseClass.setStandardMode()
         self.preposed = False
+        self.glob.midColumn.animViews(False)
 
 class AnimExpressionEdit(GenericPoseEdit):
     def __init__(self, parent, glob):

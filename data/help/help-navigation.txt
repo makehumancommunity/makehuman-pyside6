@@ -2,6 +2,11 @@
 <p>
 The character in the viewport can be displayed in orthogonal and perspective mode using different focal lengths.
 <p>
+If a floor is activated and an animation is loaded, the floor can be either displayed at the origin or that the characters lowest vertex is directly
+placed on the floor. Sometimes one needs parts under the origin, like for swimming, when part of the character is under the surface.
+So a correction can be done in the pose-editor setting the floor
+to origin and moving the character in vertical direction. In all other modes the floor is calculated using the lowest vertex.
+<p>
 Main navigation is done mostly with mouse and mouse-buttons. It is a so-called arc-ball navigation.
 Be aware that some positions, like top view, cannot be reached when starting from front-view. In this case use a top-view instead
 and then change the rotation.
