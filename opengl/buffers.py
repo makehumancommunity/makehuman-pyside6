@@ -91,6 +91,16 @@ class OpenGlBuffers():
             self.tex_coord_buffer.destroy()
 
 class RenderedObject:
+    """
+    class to render an object like body or clothes
+    also used to draw the lamps
+
+    :param parent: parent object of type class  OpenGLView (from QOpenGLWidget)
+    :param obj: the object to render
+    :param boundingbox: boundingbox to be assigned
+    :param glbuffers: OpenGlBuffers for this object
+    :param pos: position of the object as QVector3D
+    """
     def __init__(self, parent, obj, boundingbox, glbuffers, pos):
         self.parent = parent
         self.glob = parent.glob
@@ -109,7 +119,6 @@ class RenderedObject:
         self.name = obj.filename
         self.boundingbox = boundingbox
         self.getindex = obj.getOpenGLIndex
-        self.position = QVector3D(0, 0, 0)
         self.scale = QVector3D(1, 1, 1)
         self.y_rotation = 0.0
         self.mvp_matrix = QMatrix4x4()
@@ -432,7 +441,18 @@ class RenderedLines:
         self.functions.glDisable(gl.GL_DEPTH_TEST)
 
 class RenderedSimple:
-    def __init__(self, functions, shaders, indices, name, glbuffers, infront=False):
+    """
+    class to render a simple object like floor or a bone
+
+    :param functions: openGL funtions pointer
+    :param shaders: openGL shader array
+    :param indices: the indices for the opengl object used in glDrawElements
+    :param str name: name of the object
+    :param glbuffers: OpenGlBuffers for this object
+    :param bool infront: if the object should be drawn in front of all others
+    :param bool transparent: if transparency of object is allowed
+    """
+    def __init__(self, functions, shaders, indices, name, glbuffers, infront=False, transparent=False):
         self.functions = functions
         self.name = name
         self.scale = QVector3D(1, 1, 1)
@@ -443,6 +463,7 @@ class RenderedSimple:
         self.glbuffers = glbuffers
         self.indices = indices
         self.infront = infront
+        self.transparent = transparent
 
         self.shader = shaders.getShader("phong")
         self.mvp_matrix_location = self.shader.uniforms["uMvpMatrix" ]
@@ -461,7 +482,7 @@ class RenderedSimple:
     def delete(self):
         self.glbuffers.Delete()
 
-    def draw(self, proj_view_matrix, white):
+    def draw(self, proj_view_matrix, texture):
         shader = self.shader
         shader.bind()
 
@@ -480,7 +501,7 @@ class RenderedSimple:
         shader.setUniformValue(self.mvp_matrix_location, self.mvp_matrix)
         shader.setUniformValue(self.model_matrix_location, self.model_matrix)
         shader.setUniformValue(self.normal_matrix_location, self.normal_matrix)
-        self.texture = white
+        self.texture = texture
         t1 = shader.uniforms['Texture']
         self.functions.glActiveTexture(gl.GL_TEXTURE0)
         self.functions.glUniform1i(t1, 0)
@@ -495,8 +516,13 @@ class RenderedSimple:
             self.functions.glDisable(gl.GL_DEPTH_TEST)
         else:
             self.functions.glEnable(gl.GL_DEPTH_TEST)
+
+        if self.transparent:
+            self.functions.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+        else:
+            self.functions.glBlendFunc(gl.GL_ONE, gl.GL_ZERO)
         self.functions.glEnable(gl.GL_BLEND)
-        self.functions.glBlendFunc(gl.GL_ONE, gl.GL_ZERO)
+
         self.functions.glDrawElements(gl.GL_TRIANGLES, len(self.indices), gl.GL_UNSIGNED_INT, self.indices)
         self.functions.glDisable(gl.GL_BLEND)
         self.functions.glDisable(gl.GL_DEPTH_TEST)

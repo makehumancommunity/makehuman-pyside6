@@ -156,7 +156,7 @@ class SimpleObject():
     create geometry for gdrawelements
     array of positions, array of faces, array of normals
     """
-    def __init__(self, context, shaders, name, coords, norm, indices, uv=None, infront=False):
+    def __init__(self, context, shaders, name, coords, norm, indices, uv=None, infront=False, transparent=False):
         self.name = name
         self.simple = None
         self.glfunc =  context.functions()
@@ -167,16 +167,17 @@ class SimpleObject():
         else:
             self.uv = uv
         self.infront = infront
+        self.transparent = transparent
         self.glbuffer = OpenGlBuffers()
         self.glbuffer.VertexBuffer(coords)
         self.glbuffer.NormalBuffer(norm)
         self.glbuffer.TexCoordBuffer(self.uv)
 
     def create(self):
-        self.simple = RenderedSimple(self.glfunc, self.shaders, self.icoord, self.name, self.glbuffer, self.infront)
+        self.simple = RenderedSimple(self.glfunc, self.shaders, self.icoord, self.name, self.glbuffer, infront=self.infront, transparent=self.transparent)
 
-    def draw(self, proj_view_matrix, white):
-        self.simple.draw(proj_view_matrix, white)
+    def draw(self, proj_view_matrix, texture):
+        self.simple.draw(proj_view_matrix, texture)
 
     def setScale(self, s):
         self.simple.setScale(s)
@@ -199,7 +200,7 @@ class SimpleObject():
         t = icoord.reshape(m//3, 3)
         j = 0
         for i in t:
-            fn = np.cross(coord[i][0]-coord[i][1], coord[i][1]-coord[i][2])
+            fn = np.cross(coord[i][0]-coord[i][1], coord[i][2]-coord[i][1])
             norm[j] = norm[j+1] = norm[j+2] = fn
             j+=3
         return norm.flatten()
@@ -241,7 +242,7 @@ class Cuboid(SimpleObject):
         self.coord = self.flatShade(self.icoord, self.coord)
         self.norm = self.calcNorm(self.icoord, self.coord)
         self.coord = self.coord.flatten()
-        super().__init__(self.context, self.shaders, self.name, self.coord, self.norm, self.icoord, uv=self.uv, infront=False)
+        super().__init__(self.context, self.shaders, self.name, self.coord, self.norm, self.icoord, uv=self.uv, infront=False, transparent=True)
         self.create()
 
     def isVisible(self):
