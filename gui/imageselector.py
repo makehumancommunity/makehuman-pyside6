@@ -344,7 +344,12 @@ class PicFlowLayout(QLayout):
                 self.printinfo(current.asset)
             current.asset.status = 3
             self.debug(current.asset.name + " detach")
+
+        # change cursor since that can take time
+        #
+        current.setCursor(Qt.WaitCursor)
         self.callback(current.asset)
+        current.unsetCursor()
         self.refreshAllWidgets()
 
     def redisplayWidgets(self, ruleset=None, filtfunc=None):

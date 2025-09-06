@@ -179,6 +179,9 @@ class SimpleObject():
     def draw(self, proj_view_matrix, texture):
         self.simple.draw(proj_view_matrix, texture)
 
+    def Tweak(self):
+        self.glbuffer.Tweak()
+
     def setScale(self, s):
         self.simple.setScale(s)
 
@@ -215,14 +218,29 @@ class Cuboid(SimpleObject):
         self.context = context
         self.shaders = shaders
         self.name = name
-        self.size = size
+        self.size = size.copy()
         self.position = position
+        self.icoord = None
         self.visible = False
+        self.created = False
 
-    def build(self):
+    def calcPositions(self):
         (x, y, z) = self.size
         (ox, oy, oz) = self.position
-        self.icoord = np.asarray(
+        self.coord = np.asarray(
+            [[-x+ox, -y+oy, -z+oz], [x+ox, -y+oy, -z+oz], [x+ox, y+oy, -z+oz], [-x+ox, y+oy, -z+oz],
+            [-x+ox, -y+oy, z+oz], [x+ox, -y+oy, z+oz], [x+ox, y+oy, z+oz], [-x+ox, y+oy, z+oz]],
+            dtype=np.float32)
+
+        # we need to keep the original values
+        #
+        self.icoord = self.scoord.copy()
+        self.coord = self.flatShade(self.icoord, self.coord)
+        self.norm = self.calcNorm(self.icoord, self.coord)
+        self.coord = self.coord.flatten()
+
+    def build(self):
+        self.scoord = np.asarray(
             [0, 2, 1,  0, 3, 2,  4, 6, 5,  4, 7, 6,
              4, 0, 1,  4, 1, 5,  7, 3, 2,  7, 2, 6,
              3, 0, 4,  3, 4, 7,  6, 2, 1,  6, 1, 5],
@@ -235,15 +253,10 @@ class Cuboid(SimpleObject):
              1, 0.1, 1, 0, 0, 0, 1, 0.1, 0, 0, 0, 0.1,
              0.1, 1, 0.1, 0, 0, 0, 0.1, 1, 0, 0, 0, 1],
             dtype=np.float32)
-        self.coord = np.asarray(
-            [[-x+ox, -y+oy, -z+oz], [x+ox, -y+oy, -z+oz], [x+ox, y+oy, -z+oz], [-x+ox, y+oy, -z+oz],
-            [-x+ox, -y+oy, z+oz], [x+ox, -y+oy, z+oz], [x+ox, y+oy, z+oz], [-x+ox, y+oy, z+oz]],
-            dtype=np.float32)
-        self.coord = self.flatShade(self.icoord, self.coord)
-        self.norm = self.calcNorm(self.icoord, self.coord)
-        self.coord = self.coord.flatten()
+        self.calcPositions()
         super().__init__(self.context, self.shaders, self.name, self.coord, self.norm, self.icoord, uv=self.uv, infront=False, transparent=True)
         self.create()
+        self.created = True
 
     def isVisible(self):
         return self.visible
@@ -258,11 +271,21 @@ class Cuboid(SimpleObject):
 
     def newGeometry(self, oy):
         self.position[1] = oy - self.size[1]
+        if self.created:
+            self.delete()
         self.build()
 
     def draw(self, proj_view_matrix):
         if self.visible:
             self.simple.draw(proj_view_matrix, self.texture)
+
+    def newSize(self, size):
+        oheight = self.position[1] + self.size[1]
+        if self.created:
+            self.delete()
+        self.size[:] = size[:]
+        self.position[1] = oheight - self.size[1]
+        self.build()
 
 class Diamond(SimpleObject):
     def __init__(self, context, shaders, name):

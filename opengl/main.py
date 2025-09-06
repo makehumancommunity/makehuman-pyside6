@@ -57,6 +57,7 @@ class OpenGLView(QOpenGLWidget):
         self.diamondskel = False
         self.floor = False
         self.floortexname = "default.png"
+        self.floorsize = [10.0, 0.2, 10.0]
         self.marker = None
 
     def setDiamondSkeleton(self, v):
@@ -74,6 +75,15 @@ class OpenGLView(QOpenGLWidget):
             elif not v and self.prims["floorcuboid"].isVisible():
                 self.togglePrims("floorcuboid", False)
                 self.togglePrims("xzgrid", True)
+            self.Tweak()
+
+    def setFloorSize(self, sq=0.0, d=0.0):
+        if self.glob.baseClass is not None:
+            if sq != 0.0:
+                self.floorsize[0] = self.floorsize[2] = sq
+            if d != 0.0:
+                self.floorsize[1] = d 
+            self.prims["floorcuboid"].newSize(self.floorsize)
             self.Tweak()
 
     def hasFloor(self):
@@ -273,7 +283,7 @@ class OpenGLView(QOpenGLWidget):
         self.prims["xygrid"] = Grid(self.context(), shader, "xygrid", 10.0, lowestPos, "xy")
         self.prims["yzgrid"] = Grid(self.context(), shader, "yzgrid", 10.0, lowestPos, "yz")
         self.prims["xzgrid"] = Grid(self.context(), shader, "xzgrid", 10.0, lowestPos, "xz")
-        self.prims["floorcuboid"] = Cuboid(self.context(), self.mh_shaders, "floorcuboid", [10.0, 0.2, 10.0], [0.0, -8.0, 0.0], self.floortex)
+        self.prims["floorcuboid"] = Cuboid(self.context(), self.mh_shaders, "floorcuboid", self.floorsize, [0.0, -8.0, 0.0], self.floortex)
 
         # visualization of lamps (if obj is not found, no lamps are presented)
         #

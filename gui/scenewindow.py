@@ -8,7 +8,7 @@
 
 from PySide6.QtWidgets import (
         QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTabWidget, QPushButton, QRadioButton, QGroupBox, QCheckBox, QSizePolicy,
-        QColorDialog, QListWidget, QAbstractItemView
+        QColorDialog, QListWidget, QAbstractItemView, QGridLayout
         )
 
 from PySide6.QtCore import Qt
@@ -20,6 +20,8 @@ import numpy as np
 class MHSceneWindow(QWidget):
     """
     Message window to display scene setup
+
+    :param parent: parent object of type class OpenGLView (from QOpenGLWidget)
     """
     def __init__(self, parent):
         super().__init__()
@@ -36,8 +38,9 @@ class MHSceneWindow(QWidget):
         self._lastusedskybox = self.light.skyboxname
         self._lastselectedskybox = self.light.skyboxname
         self._lastselectedfloor = self.view.floortexname
+        self._lastfloorsize = self.view.floorsize.copy()
 
-        # will keep the widgets
+        # will keep the light widgets
         #
         self.lightsetup = [
                 [None, None, None, None, None, None],
@@ -45,9 +48,15 @@ class MHSceneWindow(QWidget):
                 [None, None, None, None, None, None]
         ]
 
+        # main layout, gridlayout + buttons
+        #
         layout = QVBoxLayout()
 
-        l2layout = QHBoxLayout()
+        # Gridlayout, 1st row of 3 columns: Ambient/Phong, Background, Floor
+        # light-sources as row 2-x
+        #
+        glayout = QGridLayout()
+
         l = QGroupBox("Ambient Light")
         l.setObjectName("subwindow")
 
@@ -57,25 +66,32 @@ class MHSceneWindow(QWidget):
 
         self.ambColor = ColorButton("Color: ", self.ambColorChanged, horizontal=True)
         vlayout.addWidget(self.ambColor)
-
-        # list of jpg and png for floor pattern
-        #
-        vlayout.addWidget(QLabel("Floor texture:"))
-        self.floorlist = self.env.getDataFileList("png", "shaders", "floor")
-        self.floorlist.update(self.env.getDataFileList("jpg", "shaders", "floor"))
-        self.floorSelect = QListWidget()
-        self.floorSelect.addItems(self.floorlist.keys())
-        self.floorSelect.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.getFloorName()
-        vlayout.addWidget(self.floorSelect)
-
-        b = QPushButton("Select")
-        b.clicked.connect(self.changeFloorName)
-        vlayout.addWidget(b)
-
         l.setLayout(vlayout)
-        l2layout.addWidget(l)
 
+        glayout.addWidget(l, 0, 0, 1, 1)
+
+        # 2nd row phong specific parameter
+        #
+        l = QGroupBox("Phong specific")
+        l.setObjectName("subwindow")
+
+        vlayout = QVBoxLayout()
+        self.specFocus = SimpleSlider("Specular light, Focus: ", 1, 64, self.specFocChanged)
+        vlayout.addWidget(self.specFocus )
+
+        vlayout.addStretch()
+        self.phong = QRadioButton("Phong")
+        self.blinn = QRadioButton("Blinn")
+        self.phong.toggled.connect(self.setMethod)
+        self.blinn.toggled.connect(self.setMethod)
+        vlayout.addWidget(self.phong)
+        vlayout.addWidget(self.blinn)
+        l.setLayout(vlayout)
+
+        glayout.addWidget(l, 1, 0, 1, 1)
+
+        # 2nd column, background
+        #
         l = QGroupBox("Background")
         l.setObjectName("subwindow")
         vlayout = QVBoxLayout()
@@ -101,31 +117,40 @@ class MHSceneWindow(QWidget):
         vlayout.addWidget(b)
 
         l.setLayout(vlayout)
-        l2layout.addWidget(l)
-        layout.addLayout(l2layout)
+        glayout.addWidget(l, 0, 1, 2, 1)
 
-        l = QGroupBox("Phong specific")
+
+        # 3d column, list of jpg and png for floor pattern
+        #
+        l = QGroupBox("Floor")
         l.setObjectName("subwindow")
 
         vlayout = QVBoxLayout()
-        self.specFocus = SimpleSlider("Specular light, Focus: ", 1, 64, self.specFocChanged)
-        vlayout.addWidget(self.specFocus )
+        vlayout.addWidget(QLabel("Floor geometry:"))
 
-        # shader type
-        #
-        vlayout.addStretch()
-        self.phong = QRadioButton("Phong")
-        self.blinn = QRadioButton("Blinn")
-        self.phong.toggled.connect(self.setMethod)
-        self.blinn.toggled.connect(self.setMethod)
-        vlayout.addWidget(self.phong)
-        vlayout.addWidget(self.blinn)
+        self.floorSize = SimpleSlider("Floor Size: ", 5, 50, self.floorSizeChanged)
+        vlayout.addWidget(self.floorSize )
+
+        self.floorThickness = SimpleSlider("Floor Thickness: ", 1, 50, self.floorThicknessChanged)
+        vlayout.addWidget(self.floorThickness )
+
+        vlayout.addWidget(QLabel("Floor texture:"))
+        self.floorlist = self.env.getDataFileList("png", "shaders", "floor")
+        self.floorlist.update(self.env.getDataFileList("jpg", "shaders", "floor"))
+        self.floorSelect = QListWidget()
+        self.floorSelect.addItems(self.floorlist.keys())
+        self.floorSelect.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.getFloorName()
+        vlayout.addWidget(self.floorSelect)
+
+        b = QPushButton("Select")
+        b.clicked.connect(self.changeFloorName)
+        vlayout.addWidget(b)
 
         l.setLayout(vlayout)
-        l2layout.addWidget(l)
+        glayout.addWidget(l, 0, 2, 2, 1)
 
-
-        # -- lights
+        # lights in grid layout from row 2 to x, all columns
         #
         for l, widget in enumerate(self.lightsetup):
             lg = QGroupBox("Light Source " + str(l))
@@ -153,7 +178,9 @@ class MHSceneWindow(QWidget):
             hlayout.addWidget(widget[3])
 
             lg.setLayout(hlayout)
-            layout.addWidget(lg)
+            glayout.addWidget(lg, 2+l, 0, 1, 3)
+
+        layout.addLayout(glayout)
 
         hlayout = QHBoxLayout()
         button1 = QPushButton("Cancel")
@@ -199,6 +226,11 @@ class MHSceneWindow(QWidget):
             self._lastselectedfloor = name
             self.view.Tweak()
 
+    def floorSizeChanged(self, value):
+        self.view.setFloorSize(value)
+
+    def floorThicknessChanged(self, value):
+        self.view.setFloorSize(0.0,  value / 10)
 
     def changeSkyboxName(self):
         sel = self.skyboxSelect.selectedItems()
@@ -234,6 +266,8 @@ class MHSceneWindow(QWidget):
 
         self.getSkyBox()
         self.getSkyBoxName()
+        self.floorSize.setSliderValue(self.view.floorsize[0])
+        self.floorThickness.setSliderValue(self.view.floorsize[1] * 10.0)
 
         self.ambLuminance.setSliderValue(self.light.ambientLight.w() * 100)
         self.specFocus.setSliderValue(self.light.lightWeight.y())
@@ -320,6 +354,7 @@ class MHSceneWindow(QWidget):
     def reset_call(self):
         self.light.fromGlobal(False)
         self.changeSkybox(self._lastusedskybox, self._lastselectedskybox)
+        self.view.setFloorSize(self._lastfloorsize[0], self._lastfloorsize[1])
         self.getValues()
         self.view.Tweak()
 

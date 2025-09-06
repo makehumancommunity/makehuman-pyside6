@@ -18,7 +18,7 @@
 		"group": "root",
 		"position": {
 			"direction": "y",
-			"boundaries": [-10.0, 10.0]
+			"boundaries": [-20.0, 20.0]
 		}
 	},
 	"RootTurn": {
