@@ -29,6 +29,7 @@ class MHSceneWindow(QWidget):
         self.env = parent.env
         self.glob = parent.glob
         self.view = self.glob.openGLWindow 
+        self.scene = self.view.scene
         self.light = self.view.light
         y1 = self.light.min_coords[1]
         y2 = self.light.max_coords[1]
@@ -37,8 +38,8 @@ class MHSceneWindow(QWidget):
 
         self._lastusedskybox = self.light.skyboxname
         self._lastselectedskybox = self.light.skyboxname
-        self._lastselectedfloor = self.view.floortexname
-        self._lastfloorsize = self.view.floorsize.copy()
+        self._lastselectedfloor = self.scene.floortexname
+        self._lastfloorsize = self.scene.floorsize.copy()
 
         # will keep the light widgets
         #
@@ -221,16 +222,15 @@ class MHSceneWindow(QWidget):
 
     def changeFloor(self, name, oldname):
         if name != oldname:
-            self.view.floorTexture(name)
-            self.view.modFloorTexture()
+            self.scene.modFloorTexture(name)
             self._lastselectedfloor = name
             self.view.Tweak()
 
     def floorSizeChanged(self, value):
-        self.view.setFloorSize(value)
+        self.scene.setFloorSize(value)
 
     def floorThicknessChanged(self, value):
-        self.view.setFloorSize(0.0,  value / 10)
+        self.scene.setFloorSize(0.0,  value / 10)
 
     def changeSkyboxName(self):
         sel = self.skyboxSelect.selectedItems()
@@ -266,8 +266,8 @@ class MHSceneWindow(QWidget):
 
         self.getSkyBox()
         self.getSkyBoxName()
-        self.floorSize.setSliderValue(self.view.floorsize[0])
-        self.floorThickness.setSliderValue(self.view.floorsize[1] * 10.0)
+        self.floorSize.setSliderValue(self.scene.floorsize[0])
+        self.floorThickness.setSliderValue(self.scene.floorsize[1] * 10.0)
 
         self.ambLuminance.setSliderValue(self.light.ambientLight.w() * 100)
         self.specFocus.setSliderValue(self.light.lightWeight.y())
@@ -354,7 +354,7 @@ class MHSceneWindow(QWidget):
     def reset_call(self):
         self.light.fromGlobal(False)
         self.changeSkybox(self._lastusedskybox, self._lastselectedskybox)
-        self.view.setFloorSize(self._lastfloorsize[0], self._lastfloorsize[1])
+        self.scene.setFloorSize(self._lastfloorsize[0], self._lastfloorsize[1])
         self.getValues()
         self.view.Tweak()
 

@@ -180,9 +180,9 @@ class MHGraphicWindow(QWidget):
     def floorReset(self):
         if self.glob.baseClass is None:
             return
-        if self.view.hasFloor():
-            self.view.togglePrims("floor", False)
-            self.view.togglePrims("floor", True)
+        if self.view.scene.hasFloor():
+            self.view.scene.togglePrims("floor", False)
+            self.view.scene.togglePrims("floor", True)
 
     def screenShot(self, param):
         icon = self.view.grabFramebuffer()
@@ -209,10 +209,10 @@ class MHGraphicWindow(QWidget):
             return
         self.newFloor.setEnabled(index == 0)
         self.glob.baseClass.floorCalcMethod = index
-        self.view.newFloorPosition()
-        if self.view.hasFloor():
-            self.view.togglePrims("floor", False)
-            self.view.togglePrims("floor", True)
+        self.view.scene.newFloorPosition()
+        if self.view.scene.hasFloor():
+            self.view.scene.togglePrims("floor", False)
+            self.view.scene.togglePrims("floor", True)
 
     def focusChanged(self, value):
         self.view.modifyFov(value)
@@ -325,13 +325,13 @@ class MHGraphicWindow(QWidget):
         b = self.sender()
         v = b.isChecked()
         b.setChecked(v)
-        self.view.togglePrims(pat[b._funcid - 7], v)
+        self.view.scene.togglePrims(pat[b._funcid - 7], v)
 
     def toggle_axes(self):
         b = self.sender()
         v = b.isChecked()
         b.setChecked(v)
-        self.view.togglePrims("axes", v)
+        self.view.scene.togglePrims("axes", v)
 
     def toggle_skybox(self):
         b = self.sender()

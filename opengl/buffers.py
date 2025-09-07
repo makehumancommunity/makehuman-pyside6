@@ -152,16 +152,16 @@ class RenderedObject:
             self.litsphere = self.material.loadLitSphere(modify)
         elif material.shader == "pbr":
             self.shader = self.shaders.getShader("pbr")
-            self.aomap = self.material.loadAOMap(self.parent.white, modify)
-            self.mrmap = self.material.loadMRMap(self.parent.white, modify)
-            self.emmap = self.material.loadEMMap(self.parent.black, modify)
-            self.nomap = self.material.loadNOMap(self.parent.normal, modify)
+            self.aomap = self.material.loadAOMap(self.parent.scene.white, modify)
+            self.mrmap = self.material.loadMRMap(self.parent.scene.white, modify)
+            self.emmap = self.material.loadEMMap(self.parent.scene.black, modify)
+            self.nomap = self.material.loadNOMap(self.parent.scene.normal, modify)
             self.mefac = material.metallicFactor if hasattr(self, 'metallicRoughnessTexture') else 1.0 - material.metallicFactor
         elif material.shader == "toon":
             self.shader = self.shaders.getShader("toon")
         else:
             self.shader = self.shaders.getShader("phong")
-            self.aomap = self.material.loadAOMap(self.parent.white, modify)
+            self.aomap = self.material.loadAOMap(self.parent.scene.white, modify)
 
     def setTexture(self, texture):
         # only used for colors

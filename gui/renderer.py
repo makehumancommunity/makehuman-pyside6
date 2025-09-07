@@ -130,7 +130,7 @@ class Renderer(QVBoxLayout):
                 self.bc.setPoseMode()
                 self.setFrame(0)
         self.glob.midColumn.renderView(True)
-        self.view.newFloorPosition(posed=True)
+        self.view.scene.newFloorPosition(posed=True)
         self.setButtons()
 
     def setUnsubdivided(self):

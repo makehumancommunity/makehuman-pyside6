@@ -435,7 +435,6 @@ class MHMainWindow(QMainWindow):
         self.central_widget.setLayout(hLayout)
         self.setCentralWidget(self.central_widget)
 
-
     def drawLeftPanel(self):
         """
         draw left panel
@@ -791,21 +790,23 @@ class MHMainWindow(QMainWindow):
         # self.prog_window.setLabelText(elem.folder + ": create binary " + os.path.split(elem.path)[1])
 
     def finishLoad(self):
-        self.graph.view.setCameraCenter()
-        self.graph.view.addAssets()
-        self.graph.view.newSkin(self.glob.baseClass.baseMesh)
-        self.graph.view.prepareSkeleton()
+        gl = self.graph.view
+        gl.setCameraCenter()
+        gl.addAssets()
+        gl.newSkin(self.glob.baseClass.baseMesh)
+        gl.scene.prepareSkeleton()
         if self.prog_window is not None:
             self.prog_window.progress.close()
             self.prog_window = None
         self.glob.openGLBlock = False
-        self.graph.view.newFloorPosition()
-        self.graph.view.Tweak()
+        gl.scene.newFloorPosition()
+        gl.Tweak()
         self.setWindowTitle(self.glob.baseClass.name)
         self.graph.setSizeInfo()
         self.glob.parallel = None
 
     def newCharacter(self, filename, mode=0):
+        gl = self.graph.view
         if filename is None:
             self.glob.project_changed = False
             return
@@ -813,16 +814,16 @@ class MHMainWindow(QMainWindow):
         if mode !=  0:
             print ("character only modified by targets")
             self.glob.baseClass.loadMHMTargetsOnly(filename, mode)
-            self.graph.view.setCameraCenter()
-            self.graph.view.prepareSkeleton()
-            self.graph.view.newFloorPosition()
-            self.graph.view.Tweak()
+            gl.setCameraCenter()
+            gl.scene.prepareSkeleton()
+            gl.scene.newFloorPosition()
+            gl.Tweak()
             self.graph.setSizeInfo()
 
         elif self.glob.parallel is None:
             self.setToolModeAndPanel(0, 0)
             self.glob.openGLBlock = True
-            self.graph.view.noGLObjects(leavebase=True)
+            gl.noGLObjects(leavebase=True)
             self.glob.textureRepo.cleanup()
             self.glob.baseClass.reset()
             self.prog_window = MHBusyWindow("Load character", "start")
@@ -830,7 +831,7 @@ class MHMainWindow(QMainWindow):
             self.glob.parallel = WorkerThread(self.parallelLoad, filename)
             self.glob.parallel.start()
             self.glob.parallel.finished.connect(self.finishLoad)
-            self.graph.view.setCameraCenter()
+            gl.setCameraCenter()
             self.glob.project_changed = False
 
     def loadmhm_call(self):
@@ -1098,10 +1099,10 @@ class MHMainWindow(QMainWindow):
         TextBox(self, boxname, image, text)
 
     def dimskel_call(self):
-        self.graph.view.setDiamondSkeleton(self.sender().isChecked())
+        self.graph.view.scene.setDiamondSkeleton(self.sender().isChecked())
 
     def floor_call(self):
-        self.graph.view.setFloor(self.sender().isChecked())
+        self.graph.view.scene.setFloor(self.sender().isChecked())
 
     def socket_call(self):
         if self.sender().isChecked() and self.glob.apiSocket is None:

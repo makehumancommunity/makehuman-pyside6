@@ -100,7 +100,7 @@ class baseClass():
         self.precalculateAssetsInRestPose()
         self.pose_skeleton.newGeometry()
         gl = self.glob.openGLWindow
-        gl.prepareSkeleton(True)
+        gl.scene.prepareSkeleton(True)
         gl.Tweak()
         self.in_posemode = True
 
@@ -112,8 +112,8 @@ class baseClass():
         if self.pose_skeleton is not None:
             self.pose_skeleton.useOffset(False)
         gl = self.glob.openGLWindow
-        gl.prepareSkeleton(False)
-        gl.newFloorPosition(posed=False)
+        gl.scene.prepareSkeleton(False)
+        gl.scene.newFloorPosition(posed=False)
         gl.Tweak()
 
     def loadMHMFile(self, filename, verbose=None):
@@ -539,7 +539,7 @@ class baseClass():
         """
         if self.skeleton is not None:
             self.glob.markAssetByFileName(self.skeleton.filename, False)
-            self.glob.openGLWindow.delSkeleton()
+            self.glob.openGLWindow.scene.delSkeleton()
 
         # reuse pose-skeleton in case of identical selection
         if self.pose_skelpath == path:
@@ -551,13 +551,13 @@ class baseClass():
                 self.glob.markAssetByFileName(path, True)
             else:
                 self.skeleton = None
-        self.glob.openGLWindow.prepareSkeleton()
+        self.glob.openGLWindow.scene.prepareSkeleton()
         self.glob.midColumn.setSizeInfo()
 
     def delSkeleton(self, path):
         self.skeleton = None
         self.glob.markAssetByFileName(path, False)
-        self.glob.openGLWindow.prepareSkeleton()
+        self.glob.openGLWindow.scene.prepareSkeleton()
         self.glob.openGLWindow.Tweak()
         self.glob.midColumn.setSizeInfo()
 
@@ -613,7 +613,7 @@ class baseClass():
                 self.showPoseAndExpression()
                 self.glob.markAssetByFileName(path, True)
                 self.recalcLowestPosePos()
-                self.glob.openGLWindow.newFloorPosition(posed=True)
+                self.glob.openGLWindow.scene.newFloorPosition(posed=True)
             return loaded
 
         if self.getBodyUnits() is None:
@@ -627,7 +627,7 @@ class baseClass():
             self.showPoseAndExpression()
             self.glob.markAssetByFileName(path, True)
             self.recalcLowestPosePos()
-            self.glob.openGLWindow.newFloorPosition(posed=True)
+            self.glob.openGLWindow.scene.newFloorPosition(posed=True)
         return loaded
 
     def delPose(self, path):
@@ -640,7 +640,7 @@ class baseClass():
         self.restPose()
         self.showPoseAndExpression()
         self.setNoPose()
-        self.glob.openGLWindow.newFloorPosition()
+        self.glob.openGLWindow.scene.newFloorPosition()
         self.glob.openGLWindow.Tweak()
 
     def getFaceUnits(self):

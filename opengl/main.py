@@ -18,11 +18,11 @@ import os
 from OpenGL import GL as gl
 from opengl.info import GLDebug
 from opengl.shaders import ShaderRepository
-from opengl.material import Material
 from opengl.buffers import OpenGlBuffers, RenderedObject
 from opengl.camera import Camera, Light
 from opengl.skybox import OpenGLSkyBox
-from opengl.prims import CoordinateSystem, Grid, BoneList, VisLights, DiamondSkeleton, VisMarker, Cuboid
+from opengl.prims import VisMarker
+from opengl.scene import Scene
 
 class OpenGLView(QOpenGLWidget):
     def __init__(self, glob):
@@ -32,13 +32,11 @@ class OpenGLView(QOpenGLWidget):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
         self.setMinimumSize(QSize(300, 560))
         self.setMaximumSize(QSize(2000, 2000))
-        self.sysmaterials = []
         self.buffers = []
         self.objects = []
         self.objects_invisible = False
         self.xrayed = False
         self.wireframe = False
-        self.prims = {}
         self.camera  = None
         self.skybox = None
         self.framefeedback = None
@@ -53,48 +51,8 @@ class OpenGLView(QOpenGLWidget):
         self.rotSkyBox = False
         self.blocked = False
         self.glfunc = None
-        self.visLights = None
-        self.diamondskel = False
-        self.floor = False
-        self.floortexname = "default.png"
-        self.floorsize = [10.0, 0.2, 10.0]
         self.marker = None
-
-    def setDiamondSkeleton(self, v):
-        self.diamondskel = v
-        if self.glob.baseClass is not None:
-            self.prepareSkeleton(self.glob.baseClass.in_posemode)
-            self.Tweak()
-
-    def setFloor(self, v):
-        self.floor = v
-        if self.glob.baseClass is not None:
-            if v and self.prims["xzgrid"].isVisible():
-                self.togglePrims("xzgrid", False)
-                self.togglePrims("floorcuboid", True)
-            elif not v and self.prims["floorcuboid"].isVisible():
-                self.togglePrims("floorcuboid", False)
-                self.togglePrims("xzgrid", True)
-            self.Tweak()
-
-    def setFloorSize(self, sq=0.0, d=0.0):
-        if self.glob.baseClass is not None:
-            if sq != 0.0:
-                self.floorsize[0] = self.floorsize[2] = sq
-            if d != 0.0:
-                self.floorsize[1] = d 
-            self.prims["floorcuboid"].newSize(self.floorsize)
-            self.Tweak()
-
-    def hasFloor(self):
-        if self.glob.baseClass is not None:
-            return self.prims["xzgrid"].isVisible() or self.prims["floorcuboid"].isVisible()
-        return False
-
-    def delSkeleton(self):
-        if "skeleton" in self.prims:
-            self.prims["skeleton"].delete()
-            del self.prims["skeleton"]
+        self.scene = None
 
     def setFPS(self, value, callback=None):
         self.fps = value
@@ -166,67 +124,14 @@ class OpenGLView(QOpenGLWidget):
         self.blocked = True
         self.stopRotate()
 
-    def prepareSkeleton(self, pose=False):
-        """
-        prepare graphical presentation of skeleton
-        """
-
-        # delete old one
-        #
-        self.delSkeleton()
-
-        bc = self.glob.baseClass
-
-        # really no skeleton
-        #
-        if bc is None or (bc.skeleton is None and bc.default_skeleton is None):
-            return
-
-        # pose mode: orange, normal mode white, internal=no skeleton red
-        if pose:
-            skeleton = bc.pose_skeleton
-            col = [1.0, 0.5, 0.0]
-            coltex= self.orange
-        else:
-            skeleton = bc.skeleton 
-            col = [1.0, 1.0, 1.0]
-            coltex= self.white
-
-        if skeleton is None:
-            skeleton = bc.default_skeleton
-            col = [1.0, 0.5, 0.5]
-            coltex= self.red
-
-        shader = self.mh_shaders.getShader("fixcolor")
-        if self.diamondskel:
-            self.prims["skeleton"] = DiamondSkeleton(self.context(), self.mh_shaders, "diamondskel", skeleton, coltex)
-        else:
-            self.prims["skeleton"] = BoneList(self.context(), shader, "skeleton", skeleton, col)
-        if self.objects_invisible is True:
-            self.togglePrims("skeleton", True)
-        self.Tweak()
-
-    def lowestPos(self, posed=False):
-        if self.glob.baseClass is not None:
-            return self.glob.baseClass.getLowestPos(posed)
-        else:
-            return 20
-
-    def newFloorPosition(self, posed=False):
-        if self.glob.baseClass.floorCalcMethod == 0:
-            floorpos = self.lowestPos(posed)
-        else:
-            floorpos = 0.0
-        self.prims["floorcuboid"].newGeometry(floorpos)
-        self.prims["xzgrid"].newGeometry(floorpos, "xz")
-
     def toggleObjects(self, status):
         """
         makes objects invisible and switches skeleton to on
         """
         self.objects_invisible = status
+        self.scene.setObjectsInvisible(status)
         if self.glob.baseClass and (self.glob.baseClass.skeleton or self.glob.baseClass.pose_skeleton):
-            self.togglePrims("skeleton", self.objects_invisible)
+            self.scene.togglePrims("skeleton", self.objects_invisible)
             self.Tweak()
 
     def toggleTranspAssets(self, status):
@@ -242,22 +147,6 @@ class OpenGLView(QOpenGLWidget):
     def toggleSkybox(self, status):
         self.light.skybox = status
         self.Tweak()
-
-    def togglePrims(self, name, status):
-        if name == "floor":
-            name = "floorcuboid" if self.floor else "xzgrid"
-        if name in self.prims:
-            if status is True:
-                if name == "floorcuboid":
-                    self.prims[name].newGeometry(self.lowestPos())
-                elif name.endswith("grid"):
-                    direction = name[:2]
-                    self.prims[name].newGeometry(self.lowestPos(), direction)
-                elif name == "skeleton":
-                    posed = (self.glob.baseClass.bvh is not None) or (self.glob.baseClass.expression is not None)
-                    self.prims[name].newGeometry(posed)
-            self.prims[name].setVisible(status)
-            self.Tweak()
 
     def delMarker(self):
         if self.marker is not None:
@@ -275,25 +164,6 @@ class OpenGLView(QOpenGLWidget):
     def modMarker(self, coords):
         if self.marker is not None:
             self.marker.newGeometry(coords)
-
-    def createPrims(self):
-        shader = self.mh_shaders.getShader("fixcolor")
-        self.prims["axes"] = CoordinateSystem(self.context(), shader, "axes", 10.0)
-        lowestPos = self.lowestPos()
-        self.prims["xygrid"] = Grid(self.context(), shader, "xygrid", 10.0, lowestPos, "xy")
-        self.prims["yzgrid"] = Grid(self.context(), shader, "yzgrid", 10.0, lowestPos, "yz")
-        self.prims["xzgrid"] = Grid(self.context(), shader, "xzgrid", 10.0, lowestPos, "xz")
-        self.prims["floorcuboid"] = Cuboid(self.context(), self.mh_shaders, "floorcuboid", self.floorsize, [0.0, -8.0, 0.0], self.floortex)
-
-        # visualization of lamps (if obj is not found, no lamps are presented)
-        #
-        self.visLights = VisLights(self, self.light)
-        success =self.visLights.setup()
-        if not success:
-            self.visLights = None
-
-    def modFloorTexture(self):
-        self.prims["floorcuboid"].setTexture(self.floortex)
 
     def compareBoundingBoxes(self, box1, box2):
         n = 0
@@ -337,30 +207,13 @@ class OpenGLView(QOpenGLWidget):
         self.yangle = angle
         for obj in self.objects:
             obj.setYRotation(angle)
-        if "skeleton" in self.prims:
-            self.prims["skeleton"].setYRotation(angle)
+        self.scene.setYRotation(angle)
+
         if self.skybox is not None and self.rotSkyBox is True:
             self.skybox.setYRotation(angle)
 
     def newSkin(self, obj):
         self.objects[0].setMaterial(obj.material)
-
-    def floorTexture(self, name):
-        floorpath = self.env.existDataFile("shaders", "floor", name)
-        self.floortex = self.sysmaterials[5].setDiffuse(floorpath, self.red)
-        self.floortexname = name
-
-    def createSysMaterials(self):
-        for name in ("black", "white", "orange", "red", "normal", "floor"):
-            m = Material(self.glob, name, "system")
-            self.sysmaterials.append(m)
-
-        self.black = self.sysmaterials[0].uniColor([0.0, 0.0, 0.0])
-        self.white = self.sysmaterials[1].uniColor([1.0, 1.0, 1.0])
-        self.orange= self.sysmaterials[2].uniColor([1.0, 0.5, 0.0])
-        self.red   = self.sysmaterials[3].uniColor([1.0, 0.5, 0.5])
-        self.normal= self.sysmaterials[4].uniColor([0.5, 0.5, 1.0])
-        self.floorTexture(self.floortexname)
 
     def initializeGL(self):
         """
@@ -387,7 +240,7 @@ class OpenGLView(QOpenGLWidget):
 
         self.light = Light(self.mh_shaders, self.glob)
         self.light.setShader()
-        self.createSysMaterials()
+        self.scene = Scene(self.glob, self, self.mh_shaders, self.Tweak)
 
         self.camera = Camera(self.glob, o_size, self.width(), self.height())
         self.camera.resizeViewPort(self.width(), self.height())
@@ -395,7 +248,8 @@ class OpenGLView(QOpenGLWidget):
 
         if baseClass is not None:
             self.newMesh()
-            self.prepareSkeleton()
+            self.scene.prepareSkeleton()
+        self.scene.createPrims(self.light)
 
         # create environment
         #
@@ -403,7 +257,6 @@ class OpenGLView(QOpenGLWidget):
         self.skybox = OpenGLSkyBox(self.glob, shader, self.glfunc)
         if self.skybox.create(self.light.skyboxname) is False:
             self.skybox = None
-        self.createPrims()
 
 
     def createThumbnail(self):
@@ -459,7 +312,7 @@ class OpenGLView(QOpenGLWidget):
         campos = self.camera.getCameraPos()
         baseClass = self.glob.baseClass
 
-        showskel = self.objects_invisible is True and "skeleton" in self.prims
+        showskel = self.objects_invisible is True and self.scene.hasSkeleton()
 
         if baseClass is not None:
             poseskel =  self.glob.baseClass.pose_skeleton
@@ -476,7 +329,7 @@ class OpenGLView(QOpenGLWidget):
                 asset_start = 1
             body.setPosition(offset)
             if self.wireframe:
-                body.drawWireframe(proj_view_matrix, campos, self.black, self.white)
+                body.drawWireframe(proj_view_matrix, campos, self.scene.black, self.scene.white)
             else:
                 body.draw(proj_view_matrix, campos, self.light, showskel)
 
@@ -485,26 +338,16 @@ class OpenGLView(QOpenGLWidget):
             for obj in self.objects[asset_start:]:
                 obj.setPosition(offset)
                 if self.wireframe:
-                    obj.drawWireframe(proj_view_matrix, campos, self.black, self.white)
+                    obj.drawWireframe(proj_view_matrix, campos, self.scene.black, self.scene.white)
                 else:
                     obj.draw(proj_view_matrix, campos, self.light, showskel | self.xrayed)
-
-        if self.visLights is not None and self.prims["axes"].isVisible():
-            self.visLights.draw(proj_view_matrix, campos)
 
         if self.light.skybox and self.skybox and self.camera.cameraPers:
             self.skybox.draw(proj_view_matrix)
 
-        for name in self.prims:
-            if name == "skeleton":
-                if showskel:
-                    if self.diamondskel:
-                        self.prims[name].draw(proj_view_matrix, baseClass.in_posemode)
-                    else:
-                        self.prims[name].newGeometry(baseClass.in_posemode)
-                        self.prims[name].draw(proj_view_matrix)
-            else:
-                self.prims[name].draw(proj_view_matrix)
+        # draw all other objects which are in scene
+        #
+        self.scene.draw(proj_view_matrix, campos, showskel)
 
         if self.marker is not None:
             self.marker.draw(proj_view_matrix)
@@ -550,12 +393,12 @@ class OpenGLView(QOpenGLWidget):
         create of complete new mesh with assets
         """
         self.noGLObjects()
-        self.delSkeleton()
+        self.scene.delSkeleton()
 
         if self.glob.baseClass is not None:
             self.createObject(self.glob.baseClass.baseMesh)
             self.addAssets()
-            self.prepareSkeleton(False)
+            self.scene.prepareSkeleton(False)
             self.setCameraCenter()
             self.paintGL()
             self.update()
@@ -569,8 +412,7 @@ class OpenGLView(QOpenGLWidget):
 
     def cleanUp(self):
         self.env.logLine(1, "cleanup openGL")
-        for m in self.sysmaterials:
-            m.freeTextures()
+        self.scene.cleanUp()
         if self.skybox is not None:
             self.skybox.delete()
             self.skybox = None
