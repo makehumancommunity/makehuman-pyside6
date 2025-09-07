@@ -51,14 +51,14 @@ class PoseItem(ScaleComboItem):
         pass
 
 class GenericPoseEdit():
-    def __init__(self, parent, glob, poses, redraw, units, infos, mask, offset):
+    def __init__(self, parent, glob, poses, redraw, units, infos, mask, offset_used):
         self.glob = glob
         self.parent = parent
         self.redraw = redraw
         self.units = units
         self.infos = infos
         self.bonemask = mask
-        self.offset = offset
+        self.offset_used = offset_used
         self.view = glob.openGLWindow
         self.env = glob.env
         self.baseClass = glob.baseClass
@@ -69,6 +69,10 @@ class GenericPoseEdit():
         self.thumbimage = None
         self.poseskel = self.baseClass.pose_skeleton
         self.poseskel.useOffset(True)
+        self.position = [0.0, 0.0, 0.0]
+
+    def resetPosition(self):
+        self.position = [0.0, 0.0, 0.0]
 
     def addClassWidgets(self, default):
         layout = QVBoxLayout()
@@ -150,9 +154,9 @@ class GenericPoseEdit():
         self.baseClass.showPose()
 
     def showCorrectedPose(self):
-        blends, position = self.getChangedValues()
-        if position is not None:
-            self.poseskel.setOffset(position)
+        blends, pos = self.getChangedValues()
+        if pos is not None:
+            self.poseskel.setOffset(self.position)
 
         corrections = {}
         changed = self.poseskel.posebyBlends(blends, None)
@@ -208,7 +212,7 @@ class GenericPoseEdit():
 
     def getChangedValues(self):
         blends = []
-        position = [0.0, 0.0, 0.0]
+        self.resetPosition()
         for elem in self.poses:
             if elem.mat is not None:
                 if elem.value < 0.0:
@@ -221,8 +225,8 @@ class GenericPoseEdit():
                     v = -(elem.min * elem.value / 100.0)
                 elif elem.value > 0.0:
                     v = elem.max * elem.value / 100.0
-                position[elem.direct] = v
-        return blends, position if self.offset else None
+                self.position[elem.direct] = v
+        return blends, self.position if self.offset_used else None
 
     def changedPoses(self):
         # change if there are blends, otherwise reset to rest pose
@@ -230,9 +234,9 @@ class GenericPoseEdit():
         if self.preposed:
             self.showCorrectedPose()
         else:
-            blends, position = self.getChangedValues()
-            if position is not None:
-                self.poseskel.setOffset(position)
+            blends, pos = self.getChangedValues()
+            if pos is not None:
+                self.poseskel.setOffset(self.position)
             self.poseskel.restPose(bones_only=True)
             self.poseskel.posebyBlends(blends, None)
 
@@ -245,7 +249,7 @@ class GenericPoseEdit():
     def resetButton(self):
         self.resetPoseSliders()
         self.redraw(None)
-        if self.offset:
+        if self.offset_used:
             self.poseskel.setOffset([0.0, 0,0, 0.0])
         if self.preposed:
             self.bvh.identFinal()
@@ -283,7 +287,7 @@ class GenericPoseEdit():
 
     def pushCorrections(self):
         corrections = {}
-        blends, position = self.getChangedValues()
+        blends, pos = self.getChangedValues()
 
         # get corrections before, if not in bonemask, keep them
         #
@@ -291,23 +295,27 @@ class GenericPoseEdit():
             if bone not in self.bonemask:
                 corrections[bone] = elem
 
+        if pos is not None:
+            self.baseClass.positioncorrection[:] = self.position[:]
+            poscorr = ", Position: " + str(self.position)
+        else:
+            poscorr = ""
+
         if len(blends) == 0:
 
             # reset these corrections
             #
             self.baseClass.posecorrections = corrections
-            HintBox(self.parent.central_widget, "Corrections reset")
+            HintBox(self.parent.central_widget, "Corrections reset" + poscorr)
             return
 
-        if position is not None:
-            self.poseskel.setOffset(position)
         changed = self.poseskel.posebyBlends(blends, self.bonemask, True)
         for bone in changed:
             elem = self.poseskel.bones[bone]
             corrections[bone] = elem.getRelativeCorrection()
 
         self.baseClass.posecorrections = corrections
-        HintBox(self.parent.central_widget, "Corrections added to be used in animation.")
+        HintBox(self.parent.central_widget, "Corrections added to be used in animation" + poscorr)
 
     def loadButton(self, path, convert=None):
         directory = self.env.stdUserPath(path)
@@ -370,6 +378,9 @@ class GenericPoseEdit():
                 self.thumbimage.save(iconpath, "PNG", -1)
 
     def leave(self):
+        self.resetPosition()
+        self.poseskel.setOffset(self.position)
+        self.poseskel.useOffset(False)
         self.setFrame(0)
         if self.bvh:
             self.bvh.identFinal()

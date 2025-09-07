@@ -262,10 +262,14 @@ class BVH():
                 if joint.name in bc.faceunits.bonemask:
                     joint.resetFinal(self.frameCount)
 
-    def modCorrections(self, corrections=None):
+    def modCorrections(self, corrections=None, positioncorrection=None):
         if corrections is None:
             corrections = self.glob.baseClass.posecorrections
+        if positioncorrection is None:
+            positioncorrection = self.glob.baseClass.positioncorrection
+
         skeleton = self.glob.baseClass.pose_skeleton
+        skeleton.setOffset(positioncorrection)
         if corrections is not None:
             for joint in self.bvhJointOrder:
                 if joint.name in corrections:
