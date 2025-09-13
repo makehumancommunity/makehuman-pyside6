@@ -247,7 +247,7 @@ class AssetPack():
                 shutil.rmtree(self.unzipdir)
 
 
-    def copyAssets(self, source, dest, mesh):
+    def copyAssets(self, source, dest, mesh, replace=True):
         l = len(source)
         for root, dirs, files in os.walk(source, topdown=True):
             for name in files:
@@ -265,14 +265,33 @@ class AssetPack():
                     restdirs = os.sep.join(dirs[1:])
                     destfolder = os.path.join(folder, restdirs)
                     sourcefolder = os.path.join(source, root)
-                    print(destfolder)
-                    print (sourcefolder)
-                    os.makedirs(destfolder, exist_ok = True)
+                    if not os.path.isdir(destfolder):
+                        print("create " + destfolder)
+                        os.makedirs(destfolder, exist_ok = True)
                     sourcename = os.path.join(sourcefolder, name)
                     destname = os.path.join(destfolder, name)
-                    print (sourcename)
-                    print (destname)
-                    shutil.copyfile(sourcename, destname)
+                    if replace is False and os.path.isfile(destname):
+                        print (destname + " is already existent")
+                    else:
+                        print ("copy " + sourcename + " => " + destname)
+                        shutil.copyfile(sourcename, destname)
+                elif category in ["shader_floor", "shader_litspheres", "shader_skybox"]:
+                    subcat = root.split("_")
+                    folder = os.path.join(dest, "shaders", subcat[1])
+                    restdirs = os.sep.join(dirs[1:])
+                    destfolder = os.path.join(folder, restdirs)
+                    sourcefolder = os.path.join(source, root)
+                    if not os.path.isdir(destfolder):
+                        print("create " + destfolder)
+                        os.makedirs(destfolder, exist_ok = True)
+                    sourcename = os.path.join(sourcefolder, name)
+                    destname = os.path.join(destfolder, name)
+                    if replace is False and os.path.isfile(destname):
+                        print (destname + " is already existent")
+                    else:
+                        print ("copy " + sourcename + " => " + destname)
+                        shutil.copyfile(sourcename, destname)
+
 
 class TargetASCII():
     """

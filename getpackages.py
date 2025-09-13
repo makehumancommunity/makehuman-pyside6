@@ -1,4 +1,18 @@
 #!/usr/bin/python3
+"""
+getpackages.py fetches asset-packs from makehuman fileserver
+
+all names will be found in data/makehuman2_version.json
+
+which are:
+    url_fileserver
+    url_systemassets
+    url_systemassets2
+    standardmesh
+
+The destination where to put these files will be taken from either system path or user path_home.
+"""
+
 import os
 import json
 import argparse
@@ -13,7 +27,8 @@ if __name__ == '__main__':
         with open(release_info, 'r') as f:
             release = json.load(f)
 
-    (server, path, mesh)  = (release["url_fileserver"], release["url_systemassets"], release["standardmesh"])
+    (server, path1, path2, mesh)  = (release["url_fileserver"], release["url_systemassets"],
+            release["url_systemassets2"], release["standardmesh"])
 
     # get user data path (if available)
     #
@@ -29,6 +44,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Load packages from asset server " + server)
     parser.add_argument("-s", action="store_true", help="store in system space")
+    parser.add_argument("-n", action="store_true", help="do not overwrite existent assets")
     if userspace is not None:
         parser.add_argument("-u", action="store_true", help="store in user space instead of system space")
 
@@ -59,24 +75,27 @@ if __name__ == '__main__':
                 space = systemspace
                 okay = True
 
-    source = "http://" + server + "/" + path
-    print ("Download from: " + source)
-    print ("for mesh     : " + mesh)
-    print ("to folder    : " + space)
-    okay = False
-    while not okay:
-        line = input('Enter a to abort, d to download: ')
-        if line == "a":
-            exit (0)
-        if line == "d":
-            okay = True
+    for path in (path1, path2):
+        source = "http://" + server + "/" + path
+        print ("Download from: " + source)
+        print ("for mesh     : " + mesh)
+        print ("to folder    : " + space)
+        okay = False
+        while not okay:
+            line = input('Enter a to abort, d to download: ')
+            if line == "a":
+                exit (0)
+            if line == "d":
+                okay = True
 
-    assets = AssetPack()
-    tempdir =assets.tempDir()
-    filename = os.path.split(path)[1]
-    (success, message) = assets.getAssetPack(source, tempdir, filename, unzip=True)
-    if not success:
-        print (message)
-        exit (20)
-    assets.copyAssets(tempdir, space, mesh)
-    assets.cleanupUnzip()
+        assets = AssetPack()
+        tempdir =assets.tempDir()
+        filename = os.path.split(path)[1]
+        (success, message) = assets.getAssetPack(source, tempdir, filename, unzip=True)
+        if not success:
+            print (message)
+            exit (20)
+        assets.copyAssets(tempdir, space, mesh, replace=not args.n)
+        assets.cleanupUnzip()
+
+    exit(0)
