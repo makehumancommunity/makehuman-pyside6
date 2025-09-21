@@ -333,11 +333,12 @@ class ImageBox(QDialog):
     """
     for e.g. presentation of a downloaded render
     """
-    def __init__(self, parent, title, image, winframe=True):
+    def __init__(self, parent, title, image, winframe=True, color=None):
         super(ImageBox, self).__init__(parent)
         self.setWindowTitle(title)
         if isinstance(image, str):
             image = QImage(image)
+
         size = image.size()
         w = size.width()
         h = size.height()
@@ -354,6 +355,9 @@ class ImageBox(QDialog):
 
         layout = QVBoxLayout()
         imglabel = QLabel()
+        if color is not None:
+            col = hex((int(color.x() * 256) <<16) +  (int(color.y() * 256) <<8) + int(color.z() *256))[2:]
+            imglabel.setStyleSheet("background-color: #" + col + ";")
         imglabel.setPixmap(QPixmap.fromImage(image))
 
         if scrollbars:

@@ -28,15 +28,18 @@ class OffScreenRender:
         self.height = height
         self.oldheight = self.view.window_height
         self.oldwidth = self.view.window_width
+        oldf = self.view.context().functions()
 
-        bufformat = QOpenGLFramebufferObjectFormat()
+        self.bufformat = QOpenGLFramebufferObjectFormat()
+
+        # use same format for buffer
+        #
         sformat = QSurfaceFormat()
-        if self.glob.env.noalphacover is False:
-            bufformat.setSamples(4)
-            sformat.setSamples(4)
-        sformat.setSwapBehavior(QSurfaceFormat.SwapBehavior.SingleBuffer)
+        sformat.setDefaultFormat(self.glob.app.getFormat())
 
-        bufformat.setAttachment(QOpenGLFramebufferObject.Attachment.CombinedDepthStencil)
+        if self.glob.env.noalphacover is False:
+            self.bufformat.setSamples(4)
+        self.bufformat.setAttachment(QOpenGLFramebufferObject.Attachment.CombinedDepthStencil)
 
         self.context = QOpenGLContext()
         self.context.setFormat(sformat)
@@ -45,13 +48,13 @@ class OffScreenRender:
         self.surface.setFormat(sformat)
         self.surface.create()
 
-        self.framebuffer = QOpenGLFramebufferObject(width, height, bufformat)
+        self.framebuffer = QOpenGLFramebufferObject(width, height, self.bufformat)
+
         #self.framebuffer.setAttachment(QOpenGLFramebufferObject.Attachment.Depth)
         self.framebuffer.addColorAttachment(width, height)
         self.framebuffer.bind()
         self.context.makeCurrent(self.surface)
         ogl = self.context.functions()
-        oldf = self.view.context().functions()
 
         self.view.camera.resizeViewPort(width, height)
         proj_view_matrix = self.view.camera.calculateProjMatrix()

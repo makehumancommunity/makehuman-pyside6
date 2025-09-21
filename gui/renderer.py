@@ -321,7 +321,7 @@ class Renderer(QVBoxLayout):
         self.setButtons()
 
     def viewImage(self):
-        ImageBox(self.parent, "Viewer", self.image)
+        ImageBox(self.parent, "Viewer", self.image, color=self.view.light.glclearcolor)
 
     def saveImage(self):
         directory = self.env.stdUserPath()

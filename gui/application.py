@@ -36,10 +36,13 @@ class MHApplication(QApplication):
 
         # Alphacover (if available), is used to use more than one alpha-layer
         #
-        sformat = QSurfaceFormat()
+        self.sformat = QSurfaceFormat()
         if self.env.noalphacover is False:
-            sformat.setSamples(4)
-        sformat.setDefaultFormat(sformat)
+            self.sformat.setSamples(4)
+        self.sformat.setDefaultFormat(self.sformat)
+
+    def getFormat(self):
+        return self.sformat
 
     def setStyles(self, theme):
         if theme is None:
