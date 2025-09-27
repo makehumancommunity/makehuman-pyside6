@@ -174,10 +174,22 @@ class baseClass():
         #
         self.glob.noAssetsUsed()
         for elem in loaded.attached:
+            found = False
             for mapping in self.glob.cachedInfo:
                 if elem.name == mapping.name and elem.uuid == mapping.uuid:
                     elem.path = mapping.path
                     mapping.used = True
+                    found = True
+
+            # try without uuid
+            #
+            if found is False:
+                for mapping in self.glob.cachedInfo:
+                    if elem.name == mapping.name:
+                        elem.path = mapping.path
+                        mapping.used = True
+                        self.env.logLine(8, elem.name  + " fallback used, uuid does not match")
+
             for mat in loaded.materials:
                 if mat[0] == elem.name and mat[1] == elem.uuid:
                     elem.relmaterial = mat[2]
@@ -223,6 +235,8 @@ class baseClass():
                 if verbose is not None:
                     verbose.setLabelText("Attach " + elem.path)
                 self.addAsset(elem.path, elem.type, elem.material, elem.relmaterial)
+            else:
+                self.env.logLine(8, "Cannot attach " + elem.name)
 
         # reset all targets and mesh, reset missing targets
         #
