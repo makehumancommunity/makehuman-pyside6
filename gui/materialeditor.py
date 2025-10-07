@@ -11,18 +11,27 @@ from PySide6.QtWidgets import (
         QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QGroupBox, QCheckBox, QSizePolicy, QScrollArea, 
         QLineEdit, QMessageBox, QRadioButton
         )
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QPixmap, QColor
 from obj3d.object3d import object3d
 from gui.common import MHTagEdit, IconButton, MHFileRequest,  ErrorBox
-from gui.slider import SimpleSlider
-
+from gui.slider import SimpleSlider, ColorButton
 
 class TextureBox(QGroupBox):
     """
-    texture box with max of 2 sliders
-    sliders work different without texture-map
+    texture box with max of 2 sliders and an alternative color
+    sliders work different without texture-map, alternative color only visual when no texture
+
+    :param parent: Material-Editor
+    :param obj: object
+    :param str name: Name of the Box like "Base Color"
+    :param str attrib: Name of the textureMap
+    :param slider1: list of slider texts for slider 1
+    :param slider2: list of slider texts for slider 2
+    :param float s1factor: factor for slider 1 (usually 100)
+    :param float s2factor: factor for slider 2 (usually 100)
+    :param str altcolor: Name of the alternative color if no texture (like diffuseColor)
     """
-    def __init__(self, parent, obj, name, attrib, slider1=None, slider2=None, s1factor=100.0, s2factor=100.0):
+    def __init__(self, parent, obj, name, attrib, slider1=None, slider2=None, s1factor=100.0, s2factor=100.0, altcolor=None):
         super().__init__(name)
         self.openGL = parent.glob.openGLWindow
         self.securityCheck = parent.checkLitsphere
@@ -30,6 +39,7 @@ class TextureBox(QGroupBox):
         self.object = obj
         self.attrib = attrib
         self.material = obj.material
+        self.altcolor = altcolor
         self.slider1 = slider1
         self.slider2 = slider2
         self.slider1_factor = s1factor
@@ -65,6 +75,12 @@ class TextureBox(QGroupBox):
         else:
             self.intensity2 = None
 
+        if self.altcolor:
+            self.colorbutton = ColorButton("Color: ", self.altColorChanged)
+            self.setAltColor()
+            vlayout.addWidget(self.colorbutton)
+            self.colorbutton.setVisible(not hasattr(self.material, self.attrib))
+
         hlayout.addLayout(vlayout)
         self.setLayout(hlayout)
 
@@ -73,12 +89,30 @@ class TextureBox(QGroupBox):
             return ("... " + path[len(path)-35:])
         return(path)
 
+    def setAltColor(self):
+        if hasattr(self.material, self.altcolor):
+            color = getattr(self.material, self.altcolor)
+        else:
+            color = [1.0, 1.0, 1.0]
+        self.colorbutton.setColorValue(QColor.fromRgbF(*color)) # list to positional args
+
+
+    def altColorChanged(self, color):
+        if hasattr(self.material, self.altcolor):
+            newcol = list(color.getRgbF())[:3]
+            setattr(self.material, self.altcolor, newcol)
+            self.Tweak(False)
+
     def updateMap(self, obj, redisplay=True):
         """
         needs to accept new object
         """
         self.object = obj
         self.material = obj.material
+        if self.altcolor:
+            self.colorbutton.setVisible(not hasattr(self.material, self.attrib))
+            self.setAltColor()
+
         if hasattr(self.material, self.attrib):
             item = getattr(self.material, self.attrib)
             self.map.newIcon(item)
@@ -86,6 +120,7 @@ class TextureBox(QGroupBox):
         else:
             self.map.newIcon(self.emptyIcon)
             self.label.setText("None")
+
         self.slider1text()
         self.slider2text()
         self.slider1set()
@@ -160,6 +195,8 @@ class TextureBox(QGroupBox):
 class MHMaterialEditor(QWidget):
     """
     MaterialEditor
+    :param parent: parent Window to get environment from
+    :param obj: the object what the material is made for
     """
     def __init__(self, parent, obj):
         super().__init__()
@@ -228,7 +265,7 @@ class MHMaterialEditor(QWidget):
         gb.setLayout(hlayout)
         slayout.addWidget(gb)
 
-        t = TextureBox (self, self.object, "Base color", "diffuseTexture")
+        t = TextureBox (self, self.object, "Base color", "diffuseTexture", altcolor="diffuseColor")
         slayout.addWidget(t)
         self.TBoxes.append(t)
 

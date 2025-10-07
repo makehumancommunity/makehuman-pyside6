@@ -8,7 +8,7 @@
 
 from PySide6.QtWidgets import (
         QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTabWidget, QPushButton, QRadioButton, QGroupBox, QCheckBox, QSizePolicy,
-        QColorDialog, QListWidget, QAbstractItemView, QGridLayout
+        QListWidget, QAbstractItemView, QGridLayout
         )
 
 from PySide6.QtCore import Qt

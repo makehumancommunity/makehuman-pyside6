@@ -36,14 +36,11 @@ class Material:
         self.diffuseColor = [1.0, 1.0, 1.0 ]
         self.specularColor = [0.5, 0.5, 0.5 ]
         self.emissiveColor = [0.0, 0.0, 0.0 ]
-        self.opacity = 1.0
-        self.translucency = 0.0
         self.metallicFactor = 0.0
         self.pbrMetallicRoughness = 0.0
         self.mr_found = False
         self.emissiveFactor = 0.0
         self.transparent = False
-        self.shininess = 0.5
         #
         self.shadeless = False
         self.depthless = False
@@ -123,7 +120,7 @@ class Material:
             # * if commands make no sense, they will be skipped ... 
             # * check textures and set an absolut path
 
-            if key in ["diffuseTexture", "normalmapTexture", "displacementmapTexture", "specularmapTexture", "transparencymapTexture",
+            if key in ["diffuseTexture", "normalmapTexture", "specularmapTexture", "transparencymapTexture",
                     "aomapTexture", "metallicRoughnessTexture", "emissiveTexture"]:
                 abspath = self.isExistent(words[1])
                 if abspath is not None:
@@ -144,8 +141,7 @@ class Material:
 
             # simple bools:
             #
-            elif key in [ "shadeless", "transparent", "alphaToCoverage", "backfaceCull",
-                    "depthless", "castShadows", "receiveShadows", "autoBlendSkin", "sssEnabled" ]:
+            elif key in [ "transparent", "alphaToCoverage", "backfaceCull", "autoBlendSkin", "sssEnabled" ]:
                 setattr (self, key, words[1].lower() in ["yes", "enabled", "true"])
 
             # colors
@@ -155,8 +151,7 @@ class Material:
 
             # intensities (all kind of floats)
             #
-            elif key in ["shininess", "viewPortAlpha", "opacity", "translucency", "bumpmapIntensity",
-                "normalmapIntensity", "displacementmapIntensity", "specularmapIntensity",
+            elif key in ["normalmapIntensity", "specularmapIntensity",
                 "transparencymapIntensity", "pbrMetallicRoughness", "metallicFactor", "emissiveFactor" ]:
                 setattr (self, key, max(0.0, min(1.0, float(words[1]))))
                 if key == "pbrMetallicRoughness":
@@ -286,21 +281,13 @@ description {self.description}
 ambientColor {self.ambientColor[0]} {self.ambientColor[1]} {self.ambientColor[2]}
 diffuseColor {self.diffuseColor[0]} {self.diffuseColor[1]} {self.diffuseColor[2]}
 specularColor {self.specularColor[0]} {self.specularColor[1]} {self.specularColor[2]}
-shininess {self.shininess}
 emissiveColor {self.emissiveColor[0]} {self.emissiveColor[1]} {self.emissiveColor[2]}
-opacity {self.opacity}
-translucency {self.translucency}
 metallicFactor {self.metallicFactor}
 pbrMetallicRoughness {self.pbrMetallicRoughness}
 
-shadeless {self.shadeless}
 transparent {self.transparent}
 alphaToCoverage {self.alphaToCoverage}
 backfaceCull {self.backfaceCull}
-depthless {self.depthless}
-
-castShadows {self.castShadows}
-receiveShadows {self.receiveShadows}
 
 {diffuse}{normal}{occl}{metrough}{emissive}
 
