@@ -102,12 +102,18 @@ class RenderedObject:
     :param pos: position of the object as QVector3D
     """
     def __init__(self, parent, obj, boundingbox, glbuffers, pos):
+
         self.parent = parent
         self.glob = parent.glob
+        self.env = self.glob.env
+        self.object = obj
+        self.boundingbox = boundingbox
+        self.glbuffers = glbuffers
+        self.position = pos
+
         self.functions = parent.context().functions()
         self.shaders = parent.mh_shaders
 
-        self.env = self.glob.env
         self.texture = None
         self.litsphere = None
         self.aomap = None
@@ -115,20 +121,19 @@ class RenderedObject:
         self.mrmap = None
         self.emmap = None
         self.mefac = 0.0
-        self.z_depth = obj.z_depth
+
+        self.z_depth = obj.z_depth  # used for comparision
         self.name = obj.filename
-        self.boundingbox = boundingbox
         self.getindex = obj.getOpenGLIndex
+
         self.scale = QVector3D(1, 1, 1)
         self.y_rotation = 0.0
         self.mvp_matrix = QMatrix4x4()
         self.model_matrix = QMatrix4x4()
         self.normal_matrix = QMatrix4x4()
-        self.glbuffers = glbuffers
 
         self.setMaterial(obj.material)
 
-        self.position = pos
 
     def __str__(self):
         return("GL Object " + str(self.name))
@@ -145,23 +150,23 @@ class RenderedObject:
         all shaders use a diffuse texture
         """
         self.material = material
-        self.texture = self.material.loadDiffuse(modify)
+        self.texture = self.material.loadDiffuse(modify, self.object)
 
         if material.shader == "litsphere":
             self.shader = self.shaders.getShader("litsphere")
             self.litsphere = self.material.loadLitSphere(modify)
         elif material.shader == "pbr":
             self.shader = self.shaders.getShader("pbr")
-            self.aomap = self.material.loadAOMap(self.parent.scene.white, modify)
+            self.aomap = self.material.loadAOMap(self.parent.scene.white, modify, self.object)
             self.mrmap = self.material.loadMRMap(self.parent.scene.white, modify)
-            self.emmap = self.material.loadEMMap(self.parent.scene.black, modify)
+            self.emmap = self.material.loadEMMap(self.parent.scene.black, modify, self.object)
             self.nomap = self.material.loadNOMap(self.parent.scene.normal, modify)
             self.mefac = material.metallicFactor if hasattr(self, 'metallicRoughnessTexture') else 1.0 - material.metallicFactor
         elif material.shader == "toon":
             self.shader = self.shaders.getShader("toon")
         else:
             self.shader = self.shaders.getShader("phong")
-            self.aomap = self.material.loadAOMap(self.parent.scene.white, modify)
+            self.aomap = self.material.loadAOMap(self.parent.scene.white, modify, self.object)
 
     def setTexture(self, texture):
         # only used for colors

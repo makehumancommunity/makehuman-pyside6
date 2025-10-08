@@ -111,12 +111,13 @@ class MH_Texture():
     def delete(self):
         self.repo.delete(self.texture)
 
-    def unicolor(self, rgb = [0.5, 0.5, 0.5]):
+    def unicolor(self, rgb = [0.5, 0.5, 0.5], old=None):
         color = QColor.fromRgbF(rgb[0], rgb[1], rgb[2])
         name = "Generated color [" + hex(color.rgb()) + "]"
         texture = self.repo.exists(name)
         if texture is not None:
-            self.repo.inc(name)
+            if old is None or rgb != old:
+                self.repo.inc(name)
             self.texture = texture
             return texture
 

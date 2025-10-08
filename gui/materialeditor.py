@@ -273,7 +273,7 @@ class MHMaterialEditor(QWidget):
         slayout.addWidget(t)
         self.TBoxes.append(t)
 
-        t = TextureBox (self, self.object, "Ambient occlusion", "aomapTexture", self.factors[2], s1factor=50.0)
+        t = TextureBox (self, self.object, "Ambient occlusion", "aomapTexture", self.factors[2], s1factor=50.0, altcolor="ambientColor")
         slayout.addWidget(t)
         self.TBoxes.append(t)
 
@@ -281,7 +281,7 @@ class MHMaterialEditor(QWidget):
         slayout.addWidget(t)
         self.TBoxes.append(t)
 
-        t = TextureBox (self, self.object, "Emissive", "emissiveTexture", self.factors[4])
+        t = TextureBox (self, self.object, "Emissive", "emissiveTexture", self.factors[4], altcolor="emissiveColor")
         slayout.addWidget(t)
         self.TBoxes.append(t)
 

@@ -32,7 +32,7 @@ class Material:
         self.tex_nomap = None
         self.tex_mrmap = None
         self.tex_emmap = None
-        self.ambientColor = [0.5, 0.5, 0.5 ]
+        self.ambientColor = [1.0, 1.0, 1.0 ]
         self.diffuseColor = [1.0, 1.0, 1.0 ]
         self.specularColor = [0.5, 0.5, 0.5 ]
         self.emissiveColor = [0.0, 0.0, 0.0 ]
@@ -42,10 +42,6 @@ class Material:
         self.emissiveFactor = 0.0
         self.transparent = False
         #
-        self.shadeless = False
-        self.depthless = False
-        self.castShadows = True
-        self.receiveShadows = True
         self.alphaToCoverage = False
         self.backfaceCull = False
         #
@@ -120,8 +116,7 @@ class Material:
             # * if commands make no sense, they will be skipped ... 
             # * check textures and set an absolut path
 
-            if key in ["diffuseTexture", "normalmapTexture", "specularmapTexture", "transparencymapTexture",
-                    "aomapTexture", "metallicRoughnessTexture", "emissiveTexture"]:
+            if key in ["diffuseTexture", "normalmapTexture", "aomapTexture", "metallicRoughnessTexture", "emissiveTexture"]:
                 abspath = self.isExistent(words[1])
                 if abspath is not None:
                     setattr (self, key, abspath)
@@ -141,18 +136,17 @@ class Material:
 
             # simple bools:
             #
-            elif key in [ "transparent", "alphaToCoverage", "backfaceCull", "autoBlendSkin", "sssEnabled" ]:
+            elif key in [ "transparent", "alphaToCoverage", "backfaceCull" ]:
                 setattr (self, key, words[1].lower() in ["yes", "enabled", "true"])
 
             # colors
             #
-            elif key in ["ambientColor", "diffuseColor", "emissiveColor", "viewPortColor", "specularColor" ]:
+            elif key in ["ambientColor", "diffuseColor", "emissiveColor", "specularColor" ]:
                 setattr (self, key, [float(w) for w in words[1:4]])
 
             # intensities (all kind of floats)
             #
-            elif key in ["normalmapIntensity", "specularmapIntensity",
-                "transparencymapIntensity", "pbrMetallicRoughness", "metallicFactor", "emissiveFactor" ]:
+            elif key in ["normalmapIntensity", "transparencymapIntensity", "pbrMetallicRoughness", "metallicFactor", "emissiveFactor" ]:
                 setattr (self, key, max(0.0, min(1.0, float(words[1]))))
                 if key == "pbrMetallicRoughness":
                     self.mr_found = True
@@ -161,9 +155,6 @@ class Material:
             #
             elif key == "aomapIntensity":
                 setattr (self, key, max(0.0, min(2.0, float(words[1]))))
-
-            elif key in ["sssRScale", "sssGScale", "sssBScale"]:
-                setattr (self, key, max(0.0, float(words[1])))
 
             # shaderparam will be prefixed by sp_, search for litsphere
             #
@@ -343,11 +334,16 @@ backfaceCull {self.backfaceCull}
         self.tex_litsphere = MH_Texture(self.glob)
         return self.tex_litsphere.load(self.sp_litsphereTexture, modify=modify)
 
-    def loadAOMap(self, white, modify):
+    def loadAOMap(self, white, modify, obj):
         if hasattr(self, 'aomapTexture'):
             self.tex_aomap = MH_Texture(self.glob)
             return self.tex_aomap.load(self.aomapTexture,  modify=modify)
 
+        if hasattr(self, 'ambientColor'):
+            oldmaterial = obj.material
+            old = oldmaterial.ambientColor if hasattr(oldmaterial, 'ambientColor') else None
+            self.tex_aomap = MH_Texture(self.glob)
+            return self.tex_aomap.unicolor(self.ambientColor, old)
         return white
 
     def loadNOMap(self, nocolor, modify):
@@ -357,15 +353,17 @@ backfaceCull {self.backfaceCull}
 
         return nocolor
 
-    def loadEMMap(self, nocolor, modify):
+    def loadEMMap(self, nocolor, modify, obj):
         if hasattr(self, 'emissiveTexture'):
             self.tex_emmap = MH_Texture(self.glob)
             return self.tex_emmap.load(self.emissiveTexture, modify=modify)
 
         if hasattr(self, 'emissiveColor'):
             if self.emissiveColor != [0.0, 0.0, 0.0]:
+                oldmaterial = obj.material
+                old = oldmaterial.emissiveColor if hasattr(oldmaterial, 'diffuseColor') else None
                 self.tex_emmap = MH_Texture(self.glob)
-                return self.tex_emmap.unicolor(self.emissiveColor)
+                return self.tex_emmap.unicolor(self.emissiveColor, old)
         
         return nocolor
 
@@ -387,13 +385,17 @@ backfaceCull {self.backfaceCull}
             return texture
         return alternative
 
-    def loadDiffuse(self, modify):
+    def loadDiffuse(self, modify, obj):
         self.tex_diffuse = MH_Texture(self.glob)
+
         if hasattr(self, 'diffuseTexture'):
             return self.tex_diffuse.load(self.diffuseTexture, modify=modify)
 
         if hasattr(self, 'diffuseColor'):
-            return self.tex_diffuse.unicolor(self.diffuseColor)
+            oldmaterial = obj.material
+            old = oldmaterial.diffuseColor if hasattr(oldmaterial, 'diffuseColor') else None
+
+            return self.tex_diffuse.unicolor(self.diffuseColor, old)
         return self.tex_diffuse.unicolor()
 
     def freeTexture(self, attrib):

@@ -1,25 +1,17 @@
 # MakeHuman2 Material definition for cyclehorn material
 name cyclehorn material
-description cyclehorn material material
+description cyclehorn material
 
-ambientColor 0.5 0.5 0.5
+ambientColor 1.0 1.0 1.0
 diffuseColor 0.5828 0.5828 0.5828
 specularColor 0.634 0.634 0.634
-shininess 0.634
 emissiveColor 0.0 0.0 0.0
-opacity 1.0
-translucency 0.0
 metallicFactor 0.95
 pbrMetallicRoughness 0.21
 
-shadeless False
 transparent False
 alphaToCoverage True
 backfaceCull False
-depthless False
-
-castShadows True
-receiveShadows True
 
 diffuseTexture cyclehorn.png
 aomapIntensity 0.72
