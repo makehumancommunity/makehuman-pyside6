@@ -116,8 +116,8 @@ class MH_Texture():
         name = "Generated color [" + hex(color.rgb()) + "]"
         texture = self.repo.exists(name)
         if texture is not None:
-            if old is None or rgb != old:
-                self.repo.inc(name)
+            #if old is None or rgb != old:
+            self.repo.inc(name)
             self.texture = texture
             return texture
 

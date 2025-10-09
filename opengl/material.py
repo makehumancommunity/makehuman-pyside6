@@ -146,7 +146,7 @@ class Material:
 
             # intensities (all kind of floats)
             #
-            elif key in ["normalmapIntensity", "transparencymapIntensity", "pbrMetallicRoughness", "metallicFactor", "emissiveFactor" ]:
+            elif key in ["normalmapIntensity", "pbrMetallicRoughness", "metallicFactor", "emissiveFactor" ]:
                 setattr (self, key, max(0.0, min(1.0, float(words[1]))))
                 if key == "pbrMetallicRoughness":
                     self.mr_found = True
