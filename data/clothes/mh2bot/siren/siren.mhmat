@@ -4,10 +4,9 @@ description siren material
 
 ambientColor 1.0 1.0 1.0
 diffuseColor 0.027 0.027 0.027
-specularColor 0.5206 0.5206 0.5206
 emissiveColor 0.0 0.0 0.0
 metallicFactor 1.0
-pbrMetallicRoughness 0.24
+roughnessFactor 0.24
 
 transparent True
 alphaToCoverage True

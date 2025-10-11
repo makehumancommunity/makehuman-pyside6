@@ -37,7 +37,7 @@ class Material:
         self.specularColor = [0.5, 0.5, 0.5 ]
         self.emissiveColor = [0.0, 0.0, 0.0 ]
         self.metallicFactor = 0.0
-        self.pbrMetallicRoughness = 0.0
+        self.roughnessFactor = 0.0
         self.mr_found = False
         self.emissiveFactor = 0.0
         self.transparent = False
@@ -146,9 +146,9 @@ class Material:
 
             # intensities (all kind of floats)
             #
-            elif key in ["normalmapIntensity", "pbrMetallicRoughness", "metallicFactor", "emissiveFactor" ]:
+            elif key in ["normalmapIntensity", "roughnessFactor", "metallicFactor", "emissiveFactor" ]:
                 setattr (self, key, max(0.0, min(1.0, float(words[1]))))
-                if key == "pbrMetallicRoughness":
+                if key == "roughnessFactor":
                     self.mr_found = True
 
             # aomap is used different to intensify light
@@ -176,7 +176,7 @@ class Material:
                 pass
 
         if self.mr_found is False:
-            self.pbrMetallicRoughness = 1.0 - sum(self.specularColor) / 3
+            self.roughnessFactor = 1.0 - sum(self.specularColor) / 3
 
         if self.name is None:
             self.name = os.path.basename(path)
@@ -274,7 +274,7 @@ diffuseColor {self.diffuseColor[0]} {self.diffuseColor[1]} {self.diffuseColor[2]
 specularColor {self.specularColor[0]} {self.specularColor[1]} {self.specularColor[2]}
 emissiveColor {self.emissiveColor[0]} {self.emissiveColor[1]} {self.emissiveColor[2]}
 metallicFactor {self.metallicFactor}
-pbrMetallicRoughness {self.pbrMetallicRoughness}
+roughnessFactor {self.roughnessFactor}
 
 transparent {self.transparent}
 alphaToCoverage {self.alphaToCoverage}

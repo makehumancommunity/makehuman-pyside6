@@ -4,10 +4,9 @@ description jetpack material
 
 ambientColor 1.0 1.0 1.0
 diffuseColor 0.8001 0.0868 0.0088
-specularColor 0.5997 0.5997 0.5997
 emissiveColor 0.0 0.0 0.0
 metallicFactor 0.53
-pbrMetallicRoughness 0.37
+roughnessFactor 0.37
 
 transparent True
 alphaToCoverage True

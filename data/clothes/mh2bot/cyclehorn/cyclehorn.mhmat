@@ -4,10 +4,9 @@ description cyclehorn material
 
 ambientColor 1.0 1.0 1.0
 diffuseColor 0.5828 0.5828 0.5828
-specularColor 0.634 0.634 0.634
 emissiveColor 0.0 0.0 0.0
 metallicFactor 0.95
-pbrMetallicRoughness 0.21
+roughnessFactor 0.21
 
 transparent False
 alphaToCoverage True

@@ -216,7 +216,7 @@ class MHMaterialEditor(QWidget):
 
         self.factors = [
                 ["metallicFactor", "[PBR] Metal map strength: ",     "[PBR] Metallic Factor: "],
-                ["pbrMetallicRoughness", "[PBR] Roughness map strength: ", "[PBR] Roughness Factor: "],
+                ["roughnessFactor", "[PBR] Roughness map strength: ", "[PBR] Roughness Factor: "],
                 ["aomapIntensity", "[PBR/Phong] AO map strength: ",        "[PBR/Phong] Ambient Occlusion: "],
                 ["normalmapIntensity", "Normalmap strength: ",  "--- no effect ---: "],
                 ["emissiveFactor", "Emission map strength: ",  "Emission value strength: "],

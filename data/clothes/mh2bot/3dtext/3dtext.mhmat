@@ -4,10 +4,9 @@ description 3dtext material
 
 ambientColor 1.0 1.0 1.0
 diffuseColor 0.2179 0.2179 0.2179
-specularColor 0.5447 0.5447 0.5447
 emissiveColor 0.0 0.0 0.0
 metallicFactor 1.0
-pbrMetallicRoughness 0.3
+roughnessFactor 0.3
 
 transparent False
 alphaToCoverage True

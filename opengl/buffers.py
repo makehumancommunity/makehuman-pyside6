@@ -249,8 +249,8 @@ class RenderedObject:
         shader = self.shader
         self.geomToShader(shader, proj_view_matrix, campos)
 
-        if self.material.pbrMetallicRoughness is not None:
-            lightWeight = QVector3D(1.0 - self.material.pbrMetallicRoughness, light.lightWeight.y(), 0)
+        if self.material.roughnessFactor is not None:
+            lightWeight = QVector3D(1.0 - self.material.roughnessFactor, light.lightWeight.y(), 0)
         else:
             lightWeight = QVector3D(0.5, light.lightWeight.y(), 0)
         shader.setUniformValue("lightWeight", lightWeight)
@@ -303,7 +303,7 @@ class RenderedObject:
             self.aomap.bind()
 
             functions.glUniform1f(shader.uniforms['MeMult'], self.mefac)
-            functions.glUniform1f(shader.uniforms['RoMult'], self.material.pbrMetallicRoughness)
+            functions.glUniform1f(shader.uniforms['RoMult'], self.material.roughnessFactor)
 
             functions.glUniform1i(shader.uniforms['MRTexture'], 2)
             functions.glActiveTexture(gl.GL_TEXTURE2)

@@ -422,9 +422,9 @@ class gltfExport:
 
         if  hasattr(material, "diffuseTexture"):
             self.debug ("Diffuse " + material.diffuseTexture)
-            pbr = self.addDiffuseTexture(material.diffuseTexture, material.metallicFactor, material.pbrMetallicRoughness, roughtex)
+            pbr = self.addDiffuseTexture(material.diffuseTexture, material.metallicFactor, material.roughnessFactor, roughtex)
         else:   
-            pbr = self.pbrMaterial(material.diffuseColor, material.metallicFactor, material.pbrMetallicRoughness, roughtex)
+            pbr = self.pbrMaterial(material.diffuseColor, material.metallicFactor, material.roughnessFactor, roughtex)
 
         norm = None
         if hasattr(material, "normalmapTexture"):
