@@ -96,7 +96,7 @@ class MH2B_OT_Material:
         # Add the Output node, and link to principled
         #
         node_output = self.nodes.new(type='ShaderNodeOutputMaterial')
-        node_output.location = 600,0
+        node_output.location = 600, -200
 
 
         locy = 300
@@ -170,8 +170,15 @@ class MH2B_OT_Material:
             node_principled.inputs["Emission Strength"].default_value = em
 
         if aotexture is not None:
-            # add ambient occlusion texture
+
+            # add ambient occlusion texture, we need a second output node,
+            # normal one must be set to cycles
             #
+            node_output_eevee = self.nodes.new(type='ShaderNodeOutputMaterial')
+            node_output_eevee.location = 600, 0
+            node_output_eevee.target = "EEVEE"
+            node_output.target = "CYCLES"
+
             img = aotexture["source"]
             path = jdata["images"][img]["uri"]
             node_aotex = self.addTextureNode(path, -600, locy, True, "OCCLUSION")
@@ -193,7 +200,8 @@ class MH2B_OT_Material:
             links.new(node_amboc.outputs["Color"], node_mixcshader.inputs[0])
 
             links.new(node_principled.outputs["BSDF"], node_mixcshader.inputs[2])
-            links.new(node_mixcshader.outputs[0], node_output.inputs["Surface"])
+            links.new(node_mixcshader.outputs[0], node_output_eevee.inputs["Surface"])
+            links.new(node_principled.outputs["BSDF"], node_output.inputs["Surface"])
 
             output = self.glTFOutput(-100, -450)
             links.new(node_sepcol.outputs[0], output.inputs[0])

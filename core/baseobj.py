@@ -32,7 +32,7 @@ class MakeHumanModel():
         self.tags = []
 
     def __str__(self):
-        return(dumper(self))
+        return dumper(self)
 
 class loadEquipment():
     """
@@ -45,6 +45,9 @@ class loadEquipment():
         self.path =  path
         self.material =  materialpath
         self.relmaterial =  relmaterial
+
+    def __str__(self):
+        return dumper(self)
 
 class baseClass():
     """
@@ -202,7 +205,7 @@ class baseClass():
         for elem in loaded.attached:
             # print (self.env.basename, elem.type, elem.name, elem.relmaterial)
             if elem.relmaterial is not None:
-                matfilename = self.env.existFileInBaseFolder(self.env.basename, elem.type, elem.name, elem.relmaterial)
+                matfilename = self.env.existFileInBaseFolder(self.env.basename, elem.type, elem.path, elem.relmaterial)
                 if matfilename is not None:
                     elem.material = matfilename
                 else:

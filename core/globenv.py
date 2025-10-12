@@ -642,6 +642,15 @@ class programInfo():
                         filebase[fname] = directory
         return(filebase)
 
+    def getParentDirName(self, name):
+        """
+        return parent directory needed for all assets
+        """
+        parts = name.replace('\\', '/').split('/')
+        if len(parts) > 2:
+            return parts[-2]
+        return ""
+
     def existDataFile(self, *names):
         """
         check in both datapaths, if a file exists, first personal one is used
@@ -656,11 +665,12 @@ class programInfo():
         self.last_error = "/".join([name for name in names]) + " not found"
         return None
 
-    def existFileInBaseFolder(self, base, subfolder, objname, filename):
+    def existFileInBaseFolder(self, base, subfolder, objpath, filename):
         """
         special check for assets
         """
-        abspath = self.existDataFile(subfolder, base, objname.lower(), filename)
+        parentobj = self.getParentDirName(objpath)
+        abspath = self.existDataFile(subfolder, base, parentobj, filename)
         if abspath is None:
             if "/" in filename:
                 filename = "/".join (filename.split("/")[1:])
