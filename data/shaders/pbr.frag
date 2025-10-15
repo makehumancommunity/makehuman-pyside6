@@ -183,7 +183,7 @@ void main()
 
 	// cubemap, create some reflection in case of metal
 	if (useSky) {
-		vec3 r = reflect(fs_in.FragPos, viewDir);
+		vec3 r = reflect(-fs_in.FragPos, viewDir);
 		ambient = ambient * color * (1.0 - metallic* glossiness) ;
 		outcolor.rgb = mix(outcolor.rgb, vec3(texture(skybox, r).bgr), metallic* glossiness);
 		color = ambient + outcolor;

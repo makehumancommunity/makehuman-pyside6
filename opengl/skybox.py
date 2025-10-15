@@ -58,6 +58,10 @@ class OpenGLSkyBox:
                 continue
             self.env.logLine(8, "Load: " + path)
             elem[0] = QImage(path)
+            if elem[1].endswith("y"):
+                elem[0].mirror(False, True)
+            else:
+                elem[0].mirror(True, False)
             self.texture.setData(0, 0, elem[2], QOpenGLTexture.RGBA, QOpenGLTexture.UInt8, elem[0].bits())
 
         self.texture.setMinMagFilters(QOpenGLTexture.Linear, QOpenGLTexture.Linear)
