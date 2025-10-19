@@ -176,6 +176,12 @@ class skeleton:
 
         self.calcRestMat()
 
+        # use the rotations from original skeleton
+        #
+        for bone in source.bones:
+            s = source.bones[bone]
+            d = self.bones[bone]
+            d.matRestGlobal[:3,:3] = s.matRestGlobal[:3,:3]
 
     def getNormal(self, plane_name):
         """
