@@ -45,15 +45,12 @@ class OffScreenRender:
         self.context.setFormat(sformat)
 
         self.surface = QOffscreenSurface()
-        self.surface.setFormat(sformat)
+        self.surface.setFormat(self.view.format())
         self.surface.create()
+        self.context.makeCurrent(self.surface)
 
         self.framebuffer = QOpenGLFramebufferObject(width, height, self.bufformat)
-
-        #self.framebuffer.setAttachment(QOpenGLFramebufferObject.Attachment.Depth)
-        self.framebuffer.addColorAttachment(width, height)
         self.framebuffer.bind()
-        self.context.makeCurrent(self.surface)
         ogl = self.context.functions()
 
         self.view.camera.resizeViewPort(width, height)
@@ -83,9 +80,14 @@ class OffScreenRender:
     def bufferToImage(self):
         # check for self.framebuffer.hasOpenGLFramebufferBlit()
         if self.glob.env.noalphacover is False:
-            targetbuffer = QOpenGLFramebufferObject(self.width, self.height)
-            self.framebuffer.blitFramebuffer(targetbuffer, self.framebuffer)
-            img =  targetbuffer.toImage()
+            #targetbuffer = QOpenGLFramebufferObject(self.width, self.height)
+            #self.framebuffer.blitFramebuffer(targetbuffer, self.framebuffer)
+            #img = targetbuffer.toImage()
+            img =  self.framebuffer.toImage()
+
+            # to avoid artifacts, we need to copy the image once
+            #
+            img = QImage(img.constBits(), img.width(), img.height(), QImage.Format_ARGB32)
         else:
             img =  self.framebuffer.toImage()
 
