@@ -675,6 +675,11 @@ class editBox(QLineEdit):
         self.setFixedWidth(190)
 
     def addConnect(self, changeFilter, removeAllFilters):
+        """
+        connect functions to change the filter
+        :param changeFilter: function to get a new filter
+        :param removeAllFilters: function to remove all filters
+        """
         self.changeFilter = changeFilter
         self.removeAllFilters = removeAllFilters
         self.returnPressed.connect(changeFilter)

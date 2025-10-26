@@ -8,6 +8,7 @@
     bvh exporter
 
     in export we use order XYZ always
+    blender: y-forward, z-up
     atm only rotation is used for all bones except root
 
     Options:
@@ -27,31 +28,40 @@ class bvhExport:
         self.onground = onground
         self.scale = scale
         self.lowestPos = 0.0
-
+        self.z_up = False
         self.bvh = BVH(glob, "export")
         self.skeldef = []
         self.motion = []
+        self.bvhorder = []
     
     def calcJoints(self, bones):
         for name, bone in bones.items():
             if bone.parent is None:
                 joint = self.bvh.addJoint(name, None)
                 joint.offset = bone.headPos
+                joint.calculateRestMat()
                 joint.channels = ["Xposition", "Yposition", "Zposition", "Xrotation", "Yrotation", "Zrotation"]
             else:
                 joint = self.bvh.addJoint(name, self.bvh.joints[bone.parent.name])
                 joint.offset = bone.headPos - bone.parent.headPos
+                joint.calculateRestMat()
                 joint.channels = ["Xrotation", "Yrotation", "Zrotation"]
             if len(bone.children) == 0:
                 joint = self.bvh.addJoint("", self.bvh.joints[name])
                 joint.offset = bone.tailPos - bone.headPos
+                joint.calculateRestMat()
                 joint.channels = None
 
+    def calcOffset(self, param):
+        if self.z_up:
+            return np.array([param[0], -param[2], param[1]], dtype=np.float32)
+        else:
+            return param
 
     def writeJoint(self, joint, l):
         name = joint.name
         l1 = l+1
-        offset = joint.offset * self.scale
+        offset = self.calcOffset(joint.offset) * self.scale
         if name == "":
             self.skeldef.append("\t" * l1 + "End Site\n" + "\t" * l1 + "{\n")
             self.skeldef.append("\t" * (l1+1) + "OFFSET %f %f %f\n" % (offset[0], offset[1], offset[2]) + "\t" * l1 + "}\n")
@@ -63,6 +73,7 @@ class bvhExport:
             self.skeldef.append("ROOT " + name + "\n{\n")
         else:
             self.skeldef.append("\t" * l + "JOINT " + name + "\n" + "\t" * l + "{\n")
+        self.bvhorder.append(joint)
 
         self.skeldef.append("\t" * l1 + "OFFSET %f %f %f\n" % (offset[0], offset[1], offset[2]))
         self.skeldef.append("\t" * l1 + 'CHANNELS %s %s\n' % (len(joint.channels), " ".join(joint.channels)))
@@ -84,11 +95,10 @@ class bvhExport:
         # collect all new joints and save index in dict
         #
         cnt = 0
-        for joint in destbvh.bvhJointOrder:
-            if joint.channels is not None:
-                jointtable.append([joint, None])
-                jointmap[joint.name] = cnt
-                cnt += 1
+        for joint in self.bvhorder:
+            jointtable.append([joint, None])
+            jointmap[joint.name] = cnt
+            cnt += 1
 
         # now assign internal animation (replace None in jointtable)
         #
@@ -113,7 +123,8 @@ class bvhExport:
                 else:
                     # write short output in case a bone is not changed
                     #
-                    f = sourcejoint.animdata[frame]
+                    f = sourcejoint.animdata[frame].copy()
+
                     if channels == 3:
                         for c in [3, 4, 5]:
                             if f[c] == 0.0:
@@ -121,7 +132,7 @@ class bvhExport:
                             else:
                                 line += ("%f " % f[c])
                     else:
-                        pos = f.copy() * self.scale
+                        pos = f * self.scale
                         if cnt == 0 and self.onground:
                             line += ("%f %f %f " % (pos[0], pos[1] - self.lowestPos, pos[2]))
                         else:
@@ -152,10 +163,12 @@ class bvhExport:
         if self.onground:
             self.lowestPos = baseclass.getLowestPos() * self.scale
 
+        self.z_up = baseclass.bvh.z_up
         bones = baseclass.skeleton.bones
         self.calcJoints(bones)
 
         header ="HIERARCHY\n"
+        self.bvhorder = []
         self.writeJoint(self.bvh.bvhJointOrder[0], 0)
 
         frameheader = "MOTION\nFrames: %s\nFrame Time: %f\n" % (baseclass.bvh.frameCount, baseclass.bvh.frameTime)

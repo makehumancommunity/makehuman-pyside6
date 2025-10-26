@@ -583,7 +583,7 @@ class ExportRightPanel(QVBoxLayout):
                 { "button": None, "icon": "stl_sym.png", "tip": "export as STL (Stereolithography)", "func": self.exportstl},
                 { "button": None, "icon": "blend_sym.png", "tip": "export as MH2B (Blender)", "func": self.exportmh2b},
                 { "button": None, "icon": "wavefront_sym.png", "tip": "export as OBJ (Wavefront)", "func": self.exportobj},
-                { "button": None, "icon": "bvh_sym.png", "tip": "export animation/pose as BVH (BioVision Hierarchy)", "func": self.exportbvh}
+                { "button": None, "icon": "bvh_sym.png", "tip": "export animation/pose as BVH (BioVision Hierarchy)\nOrientation: Y forward, Z up", "func": self.exportbvh}
         ]
         for n, b in enumerate(self.exportimages):
             b["button"] = IconButton(n, os.path.join(self.env.path_sysicon, b["icon"]), b["tip"], b["func"], 130, checkable=True)
