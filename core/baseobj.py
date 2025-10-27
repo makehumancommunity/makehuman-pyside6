@@ -203,8 +203,10 @@ class baseClass():
         # set absolute path for material
         #
         for elem in loaded.attached:
-            # print (self.env.basename, elem.type, elem.name, elem.relmaterial)
-            if elem.relmaterial is not None:
+            # print (self.env.basename, elem.type, elem.name, elem.relmaterial, elem.path)
+            if elem.path is None:
+                self.env.logLine(8, elem.name  + " no path avialable")
+            elif elem.relmaterial is not None:
                 matfilename = self.env.existFileInBaseFolder(self.env.basename, elem.type, elem.path, elem.relmaterial)
                 if matfilename is not None:
                     elem.material = matfilename

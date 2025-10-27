@@ -531,7 +531,7 @@ class programInfo():
         for folder in [self.path_home, self.path_error, self.path_userdata]:
             if self.mkdir(folder) is False:
                 return False
-            self.logLine(2, folder + " created")
+            self.logLine(2, folder + " created or already available")
 
         userdata = self.path_userdata
 

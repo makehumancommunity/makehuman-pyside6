@@ -134,7 +134,7 @@ class bvhExport:
                     else:
                         pos = f * self.scale
                         if cnt == 0 and self.onground:
-                            line += ("%f %f %f " % (pos[0], pos[1] - self.lowestPos, pos[2]))
+                            line += ("%f %f %f " % (pos[0], pos[1], pos[2] - self.lowestPos))
                         else:
                             line += ("%f %f %f " % (pos[0], pos[1], pos[2]))
 
