@@ -27,7 +27,7 @@ class bvhExport:
         self.env = glob.env
         self.onground = onground
         self.scale = scale
-        self.lowestPos = 0.0
+        self.animYoffset = 0.0
         self.z_up = False
         self.bvh = BVH(glob, "export")
         self.skeldef = []
@@ -134,7 +134,7 @@ class bvhExport:
                     else:
                         pos = f * self.scale
                         if cnt == 0 and self.onground:
-                            line += ("%f %f %f " % (pos[0], pos[1], pos[2] - self.lowestPos))
+                            line += ("%f %f %f " % (pos[0], pos[1], pos[2] + self.animYoffset))
                         else:
                             line += ("%f %f %f " % (pos[0], pos[1], pos[2]))
 
@@ -161,7 +161,7 @@ class bvhExport:
             return False
 
         if self.onground:
-            self.lowestPos = baseclass.getLowestPos() * self.scale
+            self.animYoffset = baseclass.skeleton.rootLowestDistance(baseclass.bvh.joints, 0, baseclass.bvh.frameCount) * self.scale
 
         self.z_up = baseclass.bvh.z_up
         bones = baseclass.skeleton.bones
