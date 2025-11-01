@@ -21,6 +21,15 @@ import numpy as np
 from obj3d.animation import BVH
 
 class bvhExport:
+    """Class representation of BVH export function
+    Hint: animation is exported with corrections
+
+    :param glob: handle to global object to access base object etc
+    :type glob: :class: globalObjects
+    :param bool onground: if character should stay on ground
+    :param float scale: the scale of the output
+    """
+
     def __init__(self, glob, onground=False, scale =1.0):
 
         self.glob = glob
@@ -33,7 +42,10 @@ class bvhExport:
         self.skeldef = []
         self.motion = []
         self.bvhorder = []
-    
+
+    def debug(self, text):
+        self.env.logLine (2, "bvh-Export: " + text)
+
     def calcJoints(self, bones):
         for name, bone in bones.items():
             if bone.parent is None:
@@ -59,6 +71,13 @@ class bvhExport:
             return param
 
     def writeJoint(self, joint, l):
+        """
+        write a line with one joint in the bvh header
+
+        :param joint: joint to add
+        :type joint: :class: BVHJoint
+        :param int l: ident level
+        """
         name = joint.name
         l1 = l+1
         offset = self.calcOffset(joint.offset) * self.scale
@@ -82,15 +101,28 @@ class bvhExport:
             self.writeJoint(b, l1)
         self.skeldef.append("\t" * l + "}\n")
 
-    def writeMotion(self, destbvh, sourcebvh):
+    def writeMotion(self, skeleton, destbvh, sourcebvh, orig=True):
+        """
+        create the animation
+        - create a mapping from source to dest, works with less bones (no toes) and different skeletons
+
+        :param skeleton: skeleton to get the bones from
+        :param destbvh:  destination bvh
+        :param sourcebvh: source bvh
+        :param bool orig: True is original skeleton
+        """
         #
-        # TODO:
         # create a mapping from source to dest 
         # atm just to deal with different order amd channel number
-        # and less bones (no renaming still)
+        # and less bones, also accepts renaming
         #
         jointtable = []
         jointmap = {}
+        refmap = {}
+        notfound = {}
+
+        sourcebvh.modCorrections()
+        corrections = self.glob.baseClass.posecorrections
 
         # collect all new joints and save index in dict
         #
@@ -100,6 +132,12 @@ class bvhExport:
             jointmap[joint.name] = cnt
             cnt += 1
 
+        # create a reference map for different skeletons
+        #
+        if orig is False:
+            for bone in skeleton.bones.values():
+                refmap[bone.reference[0]] = bone.name
+
         # now assign internal animation (replace None in jointtable)
         #
         for joint in sourcebvh.bvhJointOrder:
@@ -107,23 +145,38 @@ class bvhExport:
                 if joint.name in jointmap:
                     jointtable[jointmap[joint.name]][1] = joint
                 else:
-                    print (joint.name, " not found")
+                    if orig is False:
+                        if joint.name in refmap:
+                            ref = refmap[joint.name]
+                            if ref in jointmap:
+                                jointtable[jointmap[ref]][1] = joint
+
+                    else:
+                        self.debug(joint.name + " not found")
 
         for frame in range(0, sourcebvh.frameCount):
 
             line = ""
 
             for cnt, (destjoint, sourcejoint)  in enumerate(jointtable):
-                # get animdata from source
+
+                # get animdata from source, if sourcejoint is not found, write error only once
                 #
                 channels = len(destjoint.channels)
                 if sourcejoint is None:
-                    print ("No source joint for ", destjoint.name)
+                    if destjoint.name not in notfound:
+                        self.debug ("No source joint for " + destjoint.name)
+                        notfound[destjoint.name] = True
                     line += ("0 " * channels)
                 else:
                     # write short output in case a bone is not changed
                     #
                     f = sourcejoint.animdata[frame].copy()
+
+                    # recalculate animdata for corrections
+                    #
+                    if sourcejoint.name in corrections:
+                        f = sourcebvh.poseToAnimdata(sourcejoint.finalPoses[frame])
 
                     if channels == 3:
                         for c in [3, 4, 5]:
@@ -172,7 +225,12 @@ class bvhExport:
         self.writeJoint(self.bvh.bvhJointOrder[0], 0)
 
         frameheader = "MOTION\nFrames: %s\nFrame Time: %f\n" % (baseclass.bvh.frameCount, baseclass.bvh.frameTime)
-        self.writeMotion(self.bvh, baseclass.bvh)
+
+        if baseclass.skeleton == baseclass.default_skeleton:
+            self.writeMotion(baseclass.skeleton, self.bvh, baseclass.bvh, True)
+        else:
+            self.debug ("Animation will be posed by references")
+            self.writeMotion(baseclass.skeleton, self.bvh, baseclass.bvh, False)
 
         try:
             with open(filename, 'w', encoding="utf-8") as f:
