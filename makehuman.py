@@ -44,7 +44,7 @@ def main():
             4 memory management
             8 file access
             16 enable numpy runtime error messages
-            32 JSON for e.g glTF'''))
+            32 JSON for e.g glTF or to get lines for face or body poses when loading bvh file'''))
 
     args = parser.parse_args()
 

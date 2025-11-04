@@ -43,6 +43,7 @@ Currently syntax is like this:
                         4 memory management
                         8 file access
                         16 enable numpy runtime error messages
+                        32 JSON for e.g glTF or to get lines for face or body poses when loading bvh file
 
 Hint: there are still prints which do not follow the verbose rules for debugging.
 

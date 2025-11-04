@@ -350,7 +350,8 @@ class BVH():
                 words = fp.readline().split()
                 data = [float(word) for word in words]
                 self.calcLocRotMat(i, data)
-                #self.debugChanged(i)
+                if self.env.verbose & 32:
+                    self.debugChanged(i)
 
         # make a copy of the pointers
         self.identFinal()

@@ -1,7 +1,7 @@
 <h1>Load a Character</h1>
 
 This context provides the possibility to load a character from a file. It is also possible to load just the targets
-(morphs) or just the head-targets. This can be used to exchange geometry.
+(morphs) or just the head-targets. This can be used to exchange geometry or the form of the head only.
 <p>
 <i>Characters are usually saved in the <b>models</b> folder. Inside this folder there are the folders
 for different base-meshes. So an hm08 character is saved in folder <b>models/hm08</b></i>.

@@ -28,6 +28,7 @@ class RendererValues():
         self.posed = False
         self.imwidth  = 1000
         self.imheight = 1000
+        self.angle = 0
 
 class Renderer(QVBoxLayout):
     """
@@ -105,6 +106,9 @@ class Renderer(QVBoxLayout):
 
             self.addLayout(ilayout)
 
+        self.angSlider = SimpleSlider("Rotation: ", -180, 180, self.rotChanged, minwidth=250)
+        self.angSlider.setSliderValue(self.values.angle)
+        self.addWidget(self.angSlider)
 
         self.subdivbutton = QPushButton("Smooth (subdivided)")
         self.subdivbutton.clicked.connect(self.toggleSmooth)
@@ -133,6 +137,11 @@ class Renderer(QVBoxLayout):
         self.view.scene.newFloorPosition(posed=True)
         self.setButtons()
 
+    def rotChanged(self, value):
+        self.values.angle = value
+        self.view.setYRotation(float(value))
+        self.view.Tweak()
+
     def setUnsubdivided(self):
         self.subdivbutton.setChecked(False)
         if self.subdiv:
@@ -146,6 +155,7 @@ class Renderer(QVBoxLayout):
             self.setFrame(0)
             self.bc.setStandardMode()
 
+        self.view.setYRotation(0.0)
         self.view.Tweak()
         self.glob.midColumn.renderView(False)
 
@@ -263,6 +273,7 @@ class Renderer(QVBoxLayout):
             for obj in self.s_objects:
                 self.view.createObject(obj)
             self.glob.openGLBlock = False
+            self.view.setYRotation(float(self.values.angle))
             self.view.Tweak()
             self.glob.parallel = None
 
@@ -300,6 +311,7 @@ class Renderer(QVBoxLayout):
             self.view.createObject(elem.obj)
             n +=1
         self.glob.openGLBlock = False
+        self.view.setYRotation(float(self.values.angle))
         self.view.Tweak()
 
     def toggleSmooth(self):

@@ -4,7 +4,7 @@ This context provides a possibility to render the character. This module allows 
 no possibility to use e.g. Blender. Be aware, this will never be as perfect as in a ray-trace system, but it might be a help
 for those using the character as an image to be inserted in a normal paint program.
 <p>
-<i>An existing cube-map as a background is not used, the character will always be rendered on a single-colored background,
+<i>An existing skybox or cube-map as a background is not used, the character will always be rendered on a single-colored background,
 the color is defined in the scene settings or on a transparent layer.</i>
 <p>
 <ul>
@@ -12,6 +12,7 @@ the color is defined in the scene settings or on a transparent layer.</i>
 <li>Decide if you want to render on a transparent canvas.</li>
 <li>Only for animation, decide if pose corrections should be merged.</li>
 <li>If the animation is longer than one frame, select the frame you want to render by using the slider.</li>
+<li>The character can be rotated in front of the skybox (since that is not used in the render itself it would only be used for screen shots).</li>
 <li>You can smooth the character. The loop algorithm is used, since the character in MakeHuman works on a triangle base.</i>
 You have to smooth again, if you change pose mode or frame number.</li>
 <li>When the render is finished, save it to a file by pushing the save-button.</li>
