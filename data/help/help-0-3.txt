@@ -5,7 +5,9 @@ This context provides the possibility to export a character using different form
 <i>Characters are usually exported to the <b>exports</b> folder. Inside this folder there are the folders
 for different base-meshes. So an hm08 character is exported to folder <b>exports/hm08</b></i>.
 <p>
-It is possible to overwrite existing files.
+A different export folder can be selected.
+<p>
+In case that the file already exists, the program will ask for a confirmation to overwrite the file.
 <h3>Form</h3>
 Add or select parameters in the form to be used for export. Some of the parameters are not selectable
 because either the file format demands this parameter or does not support the parameter.

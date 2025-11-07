@@ -352,6 +352,18 @@ class ExportLeftPanel(QVBoxLayout):
         for elem in self.scale_items:
             scaletexts.append(str(elem[0]) + "   " + elem[1])
 
+        # folders
+        #
+        ilayout = QHBoxLayout()
+        self.folderbutton = IconButton(0, os.path.join(self.glob.env.path_sysicon, "files.png"), "Select export folder.",
+                self.selectfolder, 16)
+        ilayout.addWidget(self.folderbutton)
+        ilayout.addWidget(QLabel("Export folder:"))
+        self.addLayout(ilayout)
+
+        self.foldername = QLabel("")
+        self.addWidget(self.foldername)
+
         # filename
         #
         self.addWidget(QLabel("\nFilename:"))
@@ -461,6 +473,7 @@ class ExportLeftPanel(QVBoxLayout):
         #
         self.export_type = etype
         self.newfilename()
+        self.newfoldername()
         if expAttrib[self.export_type]["binmode"] != "both":
             self.binsave.setChecked(expAttrib[self.export_type]["binmode"])
         self.binsave.setEnabled(expAttrib[self.export_type]["binset"])
@@ -520,6 +533,21 @@ class ExportLeftPanel(QVBoxLayout):
     def changeAnim(self, param):
         self.animation = param
 
+    def selectfolder(self):
+        folder = self.foldername.text()
+        freq = MHFileRequest("Select export folder", None, folder, save=".")
+        name = freq.request()
+        if name is not None:
+            self.foldername.setText(name)
+
+    def newfoldername(self):
+        """
+        not empty, but can be changed
+        """
+        folder = self.foldername.text()
+        if folder is None or folder == "":
+            self.foldername.setText(self.glob.env.stdUserPath("exports"))
+
     def newfilename(self):
         """
         not empty, always ends with export type
@@ -533,8 +561,17 @@ class ExportLeftPanel(QVBoxLayout):
         """
         path calculation, save file, save icon
         """
-        folder = self.glob.env.stdUserPath("exports")
+        folder = self.foldername.text()
         path = os.path.join(folder, self.filename.text())
+        
+        # warn user if file exists
+        #
+        if os.path.isfile(path):
+            dbox = DialogBox("Replace " + path + "?", QDialogButtonBox.Ok)
+            confirmed = dbox.exec()
+            if confirmed != 1:
+                return
+
         current = self.scalebox.currentIndex()
         scale = self.scale_items[current][0]
 

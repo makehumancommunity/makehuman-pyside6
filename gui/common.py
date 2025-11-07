@@ -263,7 +263,7 @@ class MHFileRequest(QFileDialog):
             self.setWindowTitle(str(ftext))
             self.setFileMode(QFileDialog.Directory)
             self.setOption(QFileDialog.ShowDirsOnly)
-            self.setAcceptMode(QFileDialog.AcceptSave)
+            self.setAcceptMode(QFileDialog.AcceptOpen)
             self.save = None
         else:
             self.setWindowTitle("Save " + str(ftext) + " file")
