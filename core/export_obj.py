@@ -12,9 +12,9 @@ import os
 import numpy as np
 
 class objExport:
-    def __init__(self, glob, exportfolder, hiddenverts=False, onground=True, helper=False, normals=False, scale =0.1):
+    def __init__(self, glob, exportfolder, imagefolder="textures", hiddenverts=False, onground=True, helper=False, normals=False, scale =0.1):
 
-        self.imagefolder = "textures"
+        self.imagefolder = imagefolder
         self.exportfolder = exportfolder
         self.glob = glob
         self.env = glob.env
@@ -46,11 +46,12 @@ class objExport:
         dest = os.path.join(dest, os.path.basename(source))
         return (self.env.copyfile(source, dest))
 
-    def addImage(self, typeid, image):
+    def addImage(self, typeid, image, copy=True):
         destination = os.path.join(self.exportfolder, self.imagefolder)
-        okay = self.copyImage(image, destination)
-        if not okay:
-            return False
+        if copy:
+            okay = self.copyImage(image, destination)
+            if not okay:
+                return False
 
         name = os.path.join(self.imagefolder, os.path.basename(image))
         self.matlines.append(typeid + " " + name + "\n")
@@ -106,35 +107,50 @@ class objExport:
         self.startuv   += self.obj[num]["lenUV"]
 
     def addMaterial(self, num, material):
-         diff = material.diffuseColor
-         spec = material.diffuseColor
-         alpha = 0 if hasattr(material, "diffuseTexture") else material.opacity
+        """
+        since OBJ is very old, materials are not always supported, we try to do our best
+        """
+        diff = material.diffuseColor
+        spec = material.diffuseColor
+        emis = material.emissiveColor
+        alpha = 1
 
-         self.matlines.append("\n")
-         self.matlines.append("newmtl " + material.name + "\n")
-         self.matlines.append("Kd %.4g %.4g %.4g\n" % (diff[0], diff[1], diff[2]))
-         self.matlines.append("Ks %.4g %.4g %.4g\n" % (spec[0], spec[1], spec[2]))
-         self.matlines.append("d %.4g\n" % alpha)
+        self.matlines.append("\n")
+        self.matlines.append("newmtl " + material.name + "\n")
+        self.matlines.append("Kd %.4g %.4g %.4g\n" % (diff[0], diff[1], diff[2]))
+        self.matlines.append("Ks %.4g %.4g %.4g\n" % (spec[0], spec[1], spec[2]))
+        self.matlines.append("Ke %.4g %.4g %.4g\n" % (emis[0], emis[1], emis[2]))
+        self.matlines.append("d %.4g\n" % alpha)
+        self.matlines.append("Pr %.4g\n" % material.roughnessFactor)
+        self.matlines.append("Pm %.4g\n" % material.metallicFactor)
 
-         if hasattr(material, "aomapTexture"):
-             if self.addImage("map_Ka", material.aomapTexture) is False:
+        if hasattr(material, "aomapTexture"):
+            if self.addImage("map_Ka", material.aomapTexture) is False:
                 return False
 
-         if hasattr(material, "diffuseTexture"):
-             if self.addImage("map_Kd", material.diffuseTexture) is False:
+        if hasattr(material, "diffuseTexture"):
+            if self.addImage("map_Kd", material.diffuseTexture) is False:
                 return False
 
-         # atm no specular map (part of roughness map)
-         #
-         if hasattr(material, "specularmapTexture"):
-             if self.addImage("map_Ks", material.specularmapTexture) is False:
+        # metallic roughness are two channels
+        #
+        if hasattr(material, "metallicRoughnessTexture"):
+            if self.addImage("map_Pr -imfchan g", material.metallicRoughnessTexture) is False:
+                return False
+            self.addImage("map_Pm -imfchan b", material.metallicRoughnessTexture, copy=False)
+
+        if hasattr(material, "emissiveTexture"):
+            if self.addImage("map_Ke", material.specularmapTexture) is False:
                 return False
 
-         if hasattr(material, "normalmapTexture"):
-             if self.addImage("norm", material.normalmapTexture) is False:
+        # some software can use Bump map textures as normal maps (e.g. 3Ds MAX)
+        # load as Bump use as normal map
+
+        if hasattr(material, "normalmapTexture"):
+            if self.addImage("map_Bump", material.normalmapTexture) is False:
                 return False
 
-         return True
+        return True
 
     def ascSave(self, baseclass, filename):
 

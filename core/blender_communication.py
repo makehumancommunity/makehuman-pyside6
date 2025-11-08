@@ -25,11 +25,11 @@ import numpy as np
 from obj3d.skeleton import skeleton as newSkeleton
 
 class blendCom:
-    def __init__(self, glob, exportfolder, hiddenverts=False, onground=True, animation=False, scale =0.1):
+    def __init__(self, glob, exportfolder, imagefolder="textures", hiddenverts=False, onground=True, animation=False, scale =0.1):
 
         # subfolder for textures
         #
-        self.imagefolder = "textures"
+        self.imagefolder = imagefolder
         self.exportfolder = exportfolder
         self.glob = glob
         self.env = glob.env

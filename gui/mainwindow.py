@@ -19,7 +19,8 @@ from gui.measurewindow import MHCharMeasWindow
 from gui.scenewindow import  MHSceneWindow
 from gui.graphwindow import  MHGraphicWindow, NavigationEvent
 from gui.randomwindow import RandomForm, RandomValues
-from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport, ExportLeftPanel, ExportRightPanel
+from gui.fileactions import BaseSelect, SaveMHMForm, DownLoadImport
+from gui.exporter import ExportLeftPanel, ExportRightPanel
 from gui.poseactions import AnimPlayer, AnimPlayerValues, AnimMode
 from gui.poseeditor import AnimExpressionEdit, AnimPoseEdit
 from gui.slider import ScaleComboArray

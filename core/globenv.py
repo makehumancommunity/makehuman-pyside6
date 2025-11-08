@@ -292,6 +292,15 @@ class programInfo():
             return None
         return self.pathToUnicode(os.path.normpath(path).replace("\\", "/"))
 
+    def normalizeName(self, path: str) -> str:
+        """
+        change a name to lower case, only allow a-z 0-9 - + _ =
+        used to create filenames compatible for Windows and Linux
+        """
+        path = path.lower()
+        return re.sub('[^a-z0-9_+=-]', "_", path)
+
+
     def mkdir(self,folder):
         if not os.path.isdir(folder):
             if os.path.isfile(folder):

@@ -90,7 +90,7 @@ class apiSocket(QThread):
                     hidden = p["hidden"] if "hidden" in p else hidden
                     anim = p["anim"] if "anim" in p else anim
 
-                self.blcom = blendCom(self.glob, None, hidden, onground, anim, scale)
+                self.blcom = blendCom(self.glob, None, None, hidden, onground, anim, scale)
                 if baseclass.in_posemode:
                     print ("I am in pose mode")
                     baseclass.baseMesh.resetFromCopy()

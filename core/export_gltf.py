@@ -32,11 +32,11 @@ class gltfExport:
     :param float scale: the scale of the output
     """
 
-    def __init__(self, glob, exportfolder, includetextures=False, hiddenverts=False, onground=True, animation=False, scale =0.1):
+    def __init__(self, glob, exportfolder, imagefolder="textures", includetextures=False, hiddenverts=False, onground=True, animation=False, scale =0.1):
 
         # subfolder for textures
         #
-        self.imagefolder = "textures"
+        self.imagefolder = imagefolder
         self.exportfolder = exportfolder
         self.glob = glob
         self.env = glob.env
