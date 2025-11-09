@@ -719,6 +719,7 @@ class baseClass():
 
         okay = self.glob.generateBaseSubDirs(self.env.basename)
         if not okay:
+            self.env.logLine(1, self.env.last_error )
             return (False)
 
         self.baseInfo = self.env.readJSON(filename)

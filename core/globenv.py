@@ -147,7 +147,7 @@ class globalObjects():
             self.textSlot[num-1] = target
 
     def generateBaseSubDirs(self, basename):
-        for name in self.env.basefolders + ["exports", "skins", "models", "target", "dbcache", "downloads"]:
+        for name in self.env.basefolders + ["exports", "skins", "models", "target", "contarget", "dbcache", "downloads"]:
             folder = os.path.join(self.env.path_userdata, name, basename)
             if self.env.mkdir(folder) is False:
                 return (False)
@@ -328,8 +328,6 @@ class programInfo():
         JSON reader, will return JSON object or None
         in case of error, self.last_error will be set
         """
-        self.logLine(8, "Load '" + path + "'")
-
         try:
             f = open(path, 'r', encoding='utf-8')
         except:
@@ -337,6 +335,7 @@ class programInfo():
             return None
         with f:
             try:
+                self.logLine(8, "Load '" + path + "'")
                 json_object = json.load(f)
             except json.JSONDecodeError as e:
                 self.last_error = "JSON format error in " + path + " > " + str(e)
@@ -546,7 +545,7 @@ class programInfo():
 
         # subfolder inside userdata, so usually base folder + special ones
         #
-        for name in self.basefolders + ["themes", "exports","skins", "models", "target", "dbcache", "downloads", "shaders", "grab"]:
+        for name in self.basefolders + ["themes", "exports","skins", "models", "target", "contarget", "dbcache", "downloads", "shaders", "grab"]:
             folder = os.path.join(userdata, name)
             if self.mkdir(folder) is False:
                 return (False)

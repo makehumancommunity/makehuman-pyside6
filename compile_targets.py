@@ -21,12 +21,13 @@ if __name__ == '__main__':
     if os.path.isfile(conffile):
         with open(conffile, 'r') as f:
             conf = json.load(f)
-            userspace = os.path.join(conf["path_home"], "data", "target", mesh)
-    systemspace = os.path.join(os.path.dirname(os.path.abspath(__file__)),"data", "target", mesh)
+            userhome = os.path.join(conf["path_home"], "data")
+    systemhome = os.path.join(os.path.dirname(os.path.abspath(__file__)),"data", "target")
 
     parser = argparse.ArgumentParser(description="Compile targets to binary form (usually works interactive)")
+    parser.add_argument("base", type=str, nargs='?', help="if mentioned, targets of a different base mesh will be compiled, otherwise " + mesh)
     parser.add_argument("-s", action="store_true", help="compile system space targets")
-    if userspace is not None:
+    if userhome is not None:
         parser.add_argument("-u", action="store_true", help="compile user space instead of system space")
 
     parser.add_argument("-n", action="store_true", help="compile non interactive")
@@ -42,27 +43,42 @@ if __name__ == '__main__':
     if args.s:
         space = systemspace
 
+    if args.base:
+        test = os.path.join(conf["path_home"], "data", "base", args.base)
+        if not os.path.isdir(test):
+            print (args.base + " demands a directory called " + test)
+            print ("Directory does not exist, Aborted.")
+            exit (20)
+        mesh = args.base
+
+    userspace = os.path.join(userhome, "target", mesh)
+    userspace_con = os.path.join(userhome, "contarget", mesh)
+
+    systemspace = os.path.join(systemhome, mesh)
+    print (userspace, systemspace)
     # no decision, ask user
     #
     if space is None:
         print("[1] User   space: " + userspace)
-        print("[2] System space: " + systemspace)
+        print("              + : " + userspace_con)
+        print("\n[2] System space: " + systemspace)
 
         okay = False
         while not okay:
-            line = input('Enter 1, 2 or a to abort: ')
+            line = input('\nEnter 1, 2 or a to abort: ')
             if line == "a":
                 exit (0)
             if line == "1":
-                space = userspace
+                space = [userspace, userspace_con]
                 okay = True
             if line == "2":
-                space = systemspace
+                space = [systemspace]
                 okay = True
 
-    dest = os.path.join(space, "compressedtargets.npz")
-    print ("Compile targets in: " + space)
-    print ("Destination file is: " + dest)
+    for elem in space:
+        print ("Compile targets in: " + elem)
+        dest = os.path.join(elem, "compressedtargets.npz")
+        print ("Destination file is: " + dest)
     if args.n is False:
         okay = False
         while not okay:
@@ -72,6 +88,8 @@ if __name__ == '__main__':
             if line == "c":
                 okay = True
 
-    at = TargetASCII()
-    at.compressAllTargets(space, dest, 1)
+    for elem in space:
+        at = TargetASCII()
+        dest = os.path.join(elem, "compressedtargets.npz")
+        at.compressAllTargets(elem, dest, 1)
 

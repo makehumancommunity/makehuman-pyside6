@@ -490,11 +490,12 @@ class InformationBox(QWidget):
 
 class FilterTree(QTreeView):
 
-    def  __init__(self, assets, searchByFilterText, iconpath):
+    def  __init__(self, assets, searchByFilterText, s_iconpath, u_iconpath):
         self.assets = assets
         self.searchByFilterText = searchByFilterText
         self.flowLayout = None
-        self.iconpath = iconpath
+        self.s_iconpath = s_iconpath
+        self.u_iconpath = u_iconpath
         self.shortcut = []
         self.shortcutbutton = []
         self.blockfilter = False
@@ -594,7 +595,11 @@ class FilterTree(QTreeView):
         row=QHBoxLayout()
         cnt = 0
         for funcid, elem in enumerate(self.shortcut):
-            button = IconButton(funcid, os.path.join(self.iconpath, elem[0]), elem[2], self.shortCutPressed, checkable=True)
+            if elem[0].startswith("u:"):
+                path = os.path.join(self.u_iconpath, elem[0][2:])
+            else:
+                path = os.path.join(self.s_iconpath, elem[0])
+            button = IconButton(funcid, path, elem[2], self.shortCutPressed, checkable=True)
             row.addWidget(button)
             self.shortcutbutton.append(button)
             cnt += 1
@@ -734,14 +739,17 @@ class ImageSelection():
                 self.asset_category.append(MHPictSelectable(elem.name, elem.thumbfile, elem.path,  elem.author, elem.tag))
 
     def prepare(self):
-        #
-        # load filter from file according to base mesh
-        # then create an asset-category repo for this folder and convert it by taglogic
-        #
-        path = self.env.stdSysPath(self.type, "selection_filter.json")
+        """
+        load filter from file according to base mesh and type, the filter in user folder can replace system folder
+        then create an asset-category repo for this folder and convert it by taglogic
+        """
+        path = self.env.stdUserPath(self.type, "selection_filter.json")
         self.filterjson = self.env.readJSON(path)
         if self.filterjson is None:
-            self.filterjson =  {}
+            path = self.env.stdSysPath(self.type, "selection_filter.json")
+            self.filterjson = self.env.readJSON(path)
+            if self.filterjson is None:
+                self.filterjson =  {}
 
         self.taglogic = tagLogic(self.filterjson)
         self.taglogic.create()
@@ -986,9 +994,13 @@ class ImageSelection():
 
     def leftPanel(self, extra=None):
         """
-        done first
+        leftPanel is always called before rightPanel
         """
-        iconpath = os.path.join(self.env.stdSysPath(self.type), "icons")
+        # system icons are found in e.g. clothes/icons
+        # user icons in clothes/<mesh>/icons
+
+        s_iconpath = os.path.join(self.env.path_sysdata, self.type, "icons")
+        u_iconpath = os.path.join(self.env.stdUserPath(self.type), "icons")
         
         v1layout = QVBoxLayout()    # this is for searching
         if extra is not None:
@@ -1000,7 +1012,7 @@ class ImageSelection():
 
         slayout = QHBoxLayout()  # layout for textbox + empty button
         filteredit = editBox(slayout, os.path.join(self.env.path_sysicon, "sweep.png" ))
-        self.filterview = FilterTree(self.asset_category, filteredit, iconpath)
+        self.filterview = FilterTree(self.asset_category, filteredit, s_iconpath, u_iconpath)
         self.filterview.addTree(self.filterjson)
         self.filterview.selectionModel().selectionChanged.connect(self.filterview.filterChanged)
         shortcuts = self.filterview.addShortCuts()

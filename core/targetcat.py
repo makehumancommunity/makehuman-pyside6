@@ -226,11 +226,17 @@ class TargetCategories:
 
         # read the system target category first
         #
-        filename = os.path.join(self.env.stdSysPath("target"), "target_cat.json")
+        categories = self.env.readJSON(os.path.join(self.env.stdUserPath("contarget"), "target_cat.json"))
+        if categories is None:
+            categories = self.env.readJSON(os.path.join(self.env.stdSysPath("target"), "target_cat.json"))
+            self.env.logLine(1, "Using target_cat.json from system path")
+        else:
+            self.env.logLine(1, "Using target_cat.json from user contarget path")
+
 
         # make it globally available and add user categories
         #
-        self.glob.targetCategories = self.env.readJSON(filename)
+        self.glob.targetCategories = categories
         self.newUserCategories()
 
     def newUserCategories(self):

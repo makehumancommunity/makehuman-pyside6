@@ -487,6 +487,7 @@ class Targets:
         glob.Targets = self
         self.collection = None
         self.macrodef = None
+        self.target_sysindex = -1
         self.categories = None
         self.baseClass = glob.baseClass
         self.symmetry = False
@@ -496,6 +497,9 @@ class Targets:
             "targets": None
             }, {
             "targetpath": self.env.stdUserPath("target"),
+            "targets": None
+            }, {
+            "targetpath": self.env.stdUserPath("contarget"),
             "targets": None
         }]
         self.default_icon = os.path.join(self.env.path_sysicon, "empty_target.png")
@@ -526,10 +530,26 @@ class Targets:
 
 
     def loadModellingJSON(self):
-        targetpath = self.env.stdSysPath("target")
+        """
+        load macro.json (if available) will be loaded first from contarget in user section, then from system path
+        load modelling.json from contarget in user section, then from system path
+        load additional flexible modelling.json from userpath
+        """
+        s_targetpath = self.env.stdSysPath("target")
+        u_targetpath = self.env.stdUserPath("contarget")
 
-        filename = os.path.join(targetpath, "macro.json")
-        self.macrodef = self.env.readJSON(filename)
+        self.macrodef = self.env.readJSON(os.path.join(u_targetpath, "macro.json"))
+        if self.macrodef is None:
+            self.macrodef = self.env.readJSON(os.path.join(s_targetpath, "macro.json"))
+            if self.macrodef is None:
+                self.env.logLine(1, "No macros available")
+            else:
+                self.env.logLine(1, "Using system macros from " + s_targetpath)
+                self.target_sysindex = 0
+        else:
+            self.env.logLine(1, "Using user macros from " + u_targetpath)
+            self.target_sysindex = 2
+
         if self.macrodef is not None:
             l = self.macrodef["targetlink"] = {}
             if "macrodef" in self.macrodef:
@@ -546,24 +566,36 @@ class Targets:
                         mtype["targets"] = None  # no longer needed
             self.glob.targetMacros = self.macrodef
 
-        filename = os.path.join(targetpath, "modelling.json")
-        targetjson = self.env.readJSON(filename)
+        # system and user modelling JSON files
+        #
+        targetjson = self.env.readJSON(os.path.join(u_targetpath, "modelling.json"))
+        if targetjson is None:
+            targetjson = self.env.readJSON(os.path.join(s_targetpath, "modelling.json"))
+            self.env.logLine(1, "Using constant modelling.json from " + u_targetpath)
+        else:
+            if targetjson is None:
+                self.env.logLine(1, "No constant modelling.json file")
+            else:
+                self.env.logLine(1, "Using constant modelling.json from " + s_targetpath)
 
         targetpath = self.env.stdUserPath("target")
-        filename = os.path.join(targetpath, "modelling.json")
-        userjson = self.env.readJSON(filename)
+        userjson = self.env.readJSON(os.path.join(targetpath, "modelling.json"))
 
         if targetjson is None:
             return (userjson)
 
         if userjson is not None:
+            self.env.logLine(1, "Append user modelling.json")
             for elem in userjson:
                 targetjson[elem] = userjson[elem]
 
         return (targetjson)
 
     def createTarget(self, name, t):
-        mode = 1 if "user" in t else 0
+        """
+        create a target either from system/user-contarget path or user path
+        """
+        mode = 1 if "user" in t else self.target_sysindex
         targetpath = self.target_env[mode]["targetpath"]
         bintargets = self.target_env[mode]["targets"]
         iconpath = os.path.join(targetpath, "icons")
@@ -583,6 +615,10 @@ class Targets:
 
 
     def loadTargets(self):
+        """
+        loads target categories
+        loads macros and modelling json files
+        """
         self.collection = self.env.basename
 
         self.categories= TargetCategories(self.glob)
@@ -593,22 +629,25 @@ class Targets:
             self.env.logLine(1, self.env.last_error )
             return
        
-        # load binary targets
+        # load binary targets according to sysindex
         #
-        for x in self.target_env:
+        ind = self.target_sysindex
+
+        for i in (ind, 1):
+            x = self.target_env[i]
             bintargets = os.path.join(x["targetpath"], "compressedtargets.npz")
             if os.path.exists(bintargets):
                 self.env.logLine(8, "Load binary targets: " + bintargets)
                 x["targets"] = np.load(bintargets)
 
-        # load macrotargets (atm only system path)
+        # load macrotargets, use folder, where the macro-defition was found
         #
-        if  self.macrodef is not None:
+        if self.macrodef is not None:
             for link in self.macrodef["targetlink"]:
                 name = self.macrodef["targetlink"][link]
                 if name is not None and name not in self.glob.macroRepo:
                     mt = Morphtarget(self.env, name)
-                    mt.loadTargetData(self.target_env[0]["targetpath"], self.target_env[0]["targets"])
+                    mt.loadTargetData(self.target_env[ind]["targetpath"], self.target_env[ind]["targets"])
                     self.glob.macroRepo[name] = mt
 
         # load targets mentioned in modelling.json
@@ -619,6 +658,7 @@ class Targets:
     def saveBinaryTargets(self, bckproc, *args):
         """
         save targets as compressed binary (running as background command)
+        also works for contargets
         :parm bck_proc: unused pointer to background process
         :param args: [0][0] 1 = system, 2 = user (3 is both)
         """
@@ -631,12 +671,19 @@ class Targets:
         if sys_user & 1:
             sourcefolder = self.env.stdSysPath("target")
             destfile = self.env.stdSysPath("target", "compressedtargets.npz")
+            self.env.logLine (8, "Compress system targets in " + sourcefolder + " to "+  destfile)
             ta.compressAllTargets(sourcefolder, destfile)
 
         if sys_user & 2:
             sourcefolder = self.env.stdUserPath("target")
             destfile = self.env.stdUserPath("target", "compressedtargets.npz")
+            self.env.logLine (8, "Compress user targets in " + sourcefolder + " to "+  destfile)
             ta.compressAllTargets(sourcefolder, destfile)
+            if self.target_sysindex == 2:
+                sourcefolder = self.env.stdUserPath("contarget")
+                destfile = self.env.stdUserPath("contarget", "compressedtargets.npz")
+                self.env.logLine (8, "Compress user constant targets in " + sourcefolder + " to "+  destfile)
+                ta.compressAllTargets(sourcefolder, destfile)
 
     def setSkinDiffuseColor(self):
         for target in self.modelling_targets:

@@ -351,7 +351,11 @@ class TargetASCII():
 
     def compressAllTargets(self, sourcefolder, destfile, verbose=0):
         content = self.loadAllTargets(sourcefolder, verbose)
-        if verbose > 0:
-            print ("save compressed: " + destfile)
-        self.saveCompressed(destfile, content)
+        if len(content) > 0:
+            if verbose > 0:
+                print ("save compressed: " + destfile)
+            self.saveCompressed(destfile, content)
+        else:
+            if verbose > 0:
+                print ("No content for: " + destfile)
 
