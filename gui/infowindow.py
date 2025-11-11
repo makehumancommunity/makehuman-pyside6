@@ -14,6 +14,7 @@ import os
 class MHInfoWindow(QWidget):
     """
     splash-window, borderless (mouseclick)
+    resize splash image to 95% of the smallest dimension of screen (usually height) if bigger than 95 percent
     """
     def __init__(self, glob):
         super().__init__()
@@ -21,10 +22,17 @@ class MHInfoWindow(QWidget):
         env = glob.env
         rel = env.release_info
         version = ".".join(str(l) for l in env.release_info["version"])
-        text = " ".join([rel["name"], version, "     Authors:", rel["author"]])
+        text = " ".join([rel["name"], "    Version:", version, "     Authors:", rel["author"]])
         title = QLabel(text)
 
+        sw, sh = self.glob.app.getScreensize()
+        sw = int(sw * 0.95)
+        sh = int(sh * 0.95)
         pixmap = QPixmap(os.path.join(env.path_sysicon,"splash.png"))
+        pw, ph =  pixmap.size().toTuple()
+        if  pw > sw or ph > sh:
+            s = sh if sh < sw else sw
+            pixmap = pixmap.scaled(s, s, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         lbl = QLabel(self)
         lbl.setPixmap(pixmap)
         layout =QVBoxLayout(self)

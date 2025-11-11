@@ -27,8 +27,8 @@ if __name__ == '__main__':
         with open(release_info, 'r') as f:
             release = json.load(f)
 
-    (server, path1, path2, mesh)  = (release["url_fileserver"], release["url_systemassets"],
-            release["url_systemassets2"], release["standardmesh"])
+    (server, mirror, path1, path2, mesh)  = (release["url_fileserver"], release["url_mirrorserver"],
+            release["url_systemassets"], release["url_systemassets2"], release["standardmesh"])
 
     # get user data path (if available)
     #
@@ -42,7 +42,7 @@ if __name__ == '__main__':
             userspace = os.path.join(conf["path_home"], "data")
     systemspace = os.path.join(os.path.dirname(os.path.abspath(__file__)),"data")
 
-    parser = argparse.ArgumentParser(description="Load packages from asset server " + server)
+    parser = argparse.ArgumentParser(description="Load packages from asset server " + server + " or mirror " + mirror)
     parser.add_argument("-s", action="store_true", help="store in system space")
     parser.add_argument("-n", action="store_true", help="do not overwrite existent assets")
     if userspace is not None:
@@ -76,7 +76,8 @@ if __name__ == '__main__':
                 okay = True
 
     for path in (path1, path2):
-        source = "http://" + server + "/" + path
+        source  = "http://" + server + "/" + path
+        sourcem = "http://" + mirror + "/" + path
         print ("Download from: " + source)
         print ("for mesh     : " + mesh)
         print ("to folder    : " + space)
@@ -94,7 +95,12 @@ if __name__ == '__main__':
         (success, message) = assets.getAssetPack(source, tempdir, filename, unzip=True)
         if not success:
             print (message)
-            exit (20)
+            print ("Download from mirror (this takes forever, sorry):")
+            print (sourcem)
+            (success, message) = assets.getAssetPack(sourcem, tempdir, filename, unzip=True)
+            if not success:
+                print ("Giving up, mirror does not get data")
+                exit (20)
         assets.copyAssets(tempdir, space, mesh, replace=not args.n)
         assets.cleanupUnzip()
 

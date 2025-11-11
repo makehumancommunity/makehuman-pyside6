@@ -1,5 +1,10 @@
-# makehuman-pyside6
-*The program is still under development and is far from being ready for use. I nevertheless decided to change the repository to public mode after a year* 
+# MakeHuman II
+
+<p align="center">
+    <img src="docu/images/screeny1.jpg" alt="screenshot 1">
+</p>
+
+*slowly the program becomes more stable and complete, but there is still a way to go to get the status of an alpha release* 
 
 So be careful, we will not restore your box, if new makehuman does not do what it should do. Best to use a virtual environment still, especially on Linux with a python already installed.
 
@@ -67,11 +72,11 @@ After setting the paths in preferences also the extra CLI tools are able to work
 These tools have options and can run without interaction (except getpackages.py) for later use in installation procedures,
 but we recommend to start them without any options. In that case you have the chance to abort the command.
 
-* Call **python3 getpackages.py** to get the assets for the hm08 base. (we recommend user space)
+* Call **python3 getpackages.py** to get the assets for the hm08 base. (we recommend user space). The program uses makehuman server to get the assets, it also tries the mirror server, but that takes time.
 * Call **python3 compile_targets.py** to compile system targets first.
 * Call **python3 compile_meshes.py** to compile meshes on both system + user folder (mhclo + obj will be compiled to mhbin). In system folder the base mesh itself is compiled.
 
-You can also compile the meshes from  makehuman GUI, also the download can be done from there. Since system space is usually protected (esp. on Linux), a special option "-A" has to be used. Then you need to have the correct user permissions as well.
+You can also compile the meshes from  makehuman GUI, also the download can be done from there (it does not try the mirror server though). Since system space is usually protected (esp. on Linux), a special option "-A" has to be used. Then you need to have the correct user permissions as well.
 
 Be aware that in future times a packet might already contain the standard assets, so that this installation will be simpler.
 

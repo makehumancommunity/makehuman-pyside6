@@ -55,8 +55,11 @@ class MHApplication(QApplication):
             self.env.last_error("cannot read " + theme)
             return (False)
 
+    def getScreensize(self):
+         return QScreen.availableGeometry(self.primaryScreen()).size().toTuple()
+
     def getCenter(self):
-        return(QScreen.availableGeometry(self.primaryScreen()).center())
+        return QScreen.availableGeometry(self.primaryScreen()).center()
 
     def topLeftCentered(self, widget):
         screen_center =  self.getCenter()
