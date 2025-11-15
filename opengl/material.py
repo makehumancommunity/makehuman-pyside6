@@ -322,7 +322,7 @@ backfaceCull {self.backfaceCull}
         newcolor = numpy.array([0.0, 0.0, 0.0])
         for n, elem in enumerate(col):
             newcolor += elem * values[n]
-        self.freeTextures()
+        self.freeTexture("diffuseTexture")
         self.tex_diffuse = MH_Texture(self.glob)
         return self.tex_diffuse.unicolor([newcolor[0], newcolor[1], newcolor[2]])
 
