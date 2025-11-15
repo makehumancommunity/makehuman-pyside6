@@ -144,9 +144,11 @@ You can also compile the meshes from  makehuman GUI, also the download can be do
 When environment is already installed, you only need to do:
 
 ```
-cd <path to newname>
+cd <path_to_your_makehuman2_folder>
 source venv/bin/activate
 python3 makehuman.py
+
+# for developers: for not accidentally uploading the venv folder, you might put the venv folder somewhere else :)
 ```
 
 ### Windows:
