@@ -4,27 +4,159 @@
     <img src="docu/images/screeny1.jpg" alt="screenshot 1">
 </p>
 
-*slowly the program becomes more stable and complete, but there is still a way to go to get the status of an alpha release* 
 
-So be careful, we will not restore your box, if new makehuman does not do what it should do. Best to use a virtual environment still, especially on Linux with a python already installed.
+*Slowly the program becomes more stable and complete, but it is still under development and not yet officially released. If you need the official version, please work with MakeHuman version 1*
 
-MAC is not yet support and it could happen, that it will not be done (if we need to leave openGL in future, Vulkan will be used, not proprietary stuff like Metal).
+## Introduction
 
+MakeHuman 2 should be successor of the standalone version MakeHuman 1, which has been running for more than 10 years. There will be additional features like working with additional base meshes, animation and PBR shading. For exports glTF standard will be supported. Some old standards will be no longer supported.
+
+If you already want to test or work with this version, you should install it in parallel to old version.
+
+Only Windows and Linux will be supported. The current stardard will be OpenGL still.
+
+## Get the code
+
+There are 2 methods to get the code, either with the git tools or simply download the zip file and unpack it where you want your code.
+
+Cloning the repository with git on a cli works like this:
+
+```
+git clone https://github.com/makehumancommunity/makehuman2.git
+```
+
+Alternatively download the ZIP-File from github. In both cases there will be a directory called makehuman2 on your system.
+
+If you want to update, either overwrite the folder with a new unzip or do
+
+```
+git pull
+```
+
+## Installation
+
+You need to setup python and get some libraries.
+
+For Linux you should install a virtual environment. The reason is, that Linux already has a python and libraries installed and in development stage it might be dangerous to overwrite the system environment.
+
+### Linux only: build a virtual environment
+
+Change to the newly created directory
+
+```
+cd makehuman2
+```
+
+Create a virtual environment (must be done once)
+
+```
+python3 -m venv venv
+```
+
+Activate the virtual environment (must be done always)
+
+```
+source venv/bin/activate
+```
+Your prompt should change to indicate the activated environment. 
+
+### Windows only
+
+Use the CLI and change to newly created directory, then type python3. If it is not available Windows normally offers to install that version. It should be from python.org (Python Software Foundation)
+
+### Dependencies
+
+For Windows and for Linux you now need to load the dependencies. 
+**Caution Linux Users: Don't do this without activated environment. You might mess up your system!**
+
+In the folder created there is a file requirements.txt. So by typing 
+
+```
+pip install -r requirements.txt
+```
+
+these dependencies will be installed.
+
+```
 The settings in requirements.txt are considered as minimal versions. Newer versions should(!) work.
 
 * PyOpenGL (for the openGL part)
 * PySide6 (for the gui)
 * numpy (for faster calculation)
 * psutil (for memory debugging, might not be in final version)
+```
 
-When installing these with e.g. pip install, other libraries like shiboken6 will be added.
+## First start and setup
+
+You must start makehuman2 one time to specify your workspace folders. Although possible, do not mix program code and assets. This avoids downloading the assets again and again. The start is done with:
+
+
+```
+python3 makehuman.py
+```
+
+A window should open. Change the default folders inside Settings/Preferences where the assets should be installed.
+
+Makehuman can work with two asset folders, one is called system folder, which is the place, where makehuman itself is installed and one is the user folder.
+
+As an example: change MakeHuman user home to e.g. d:\shared\mhuser and logfile to d:\shared\mhuser\log (Windows syntax, Linux accordingly)
+
+We do not recommend redirecting output of the logfile in this early stage. Since most people work with an hm08 mesh, select this as a your current base mesh.
+
+When you exit Makehuman2 the preferences will be written to a configuration file which is used for all applications. It will even stay, when you re-install makehuman2.
+
+## Additional assets
+
+To work with makehuman you need to get the assets otherwise it would be pretty boring, this is done by:
+
+```
+python3 getpackages.py 
+```
+
+Choose "user space".
+
+The program now does a download from MakeHuman fileserver (assets which are shared with MPFB2 and own assets like cubemaps and poses, floors and animations).
+This might take some time.
+
+
+## Optimizations
+
+makehuman 2 can either work with ASCII or compiled targets. Compiled targets are much faster to load.
+Also the meshes should be compiled (mhclo + obj will be compiled to mhbin) to work faster. Therefore you should use the following commands:
+
+
+```
+python3 compile_targets.py    # to compile system targets first.
+python3 compile_meshes.py     # to compile meshes on both system + user folder. In system folder the base mesh itself is compiled.
+```
+
+**compile_targets** should be used to compile system targets first. 
+**compile_meshes** should be used to compile meshes on both system + user folder. In system folder the base mesh itself is compiled.
+
+You can also compile the meshes from  makehuman GUI, also the download can be done from there. Since system space is usually protected (esp. on Linux), a special option "-A" has to be used. Then you need to have the correct user permissions as well.
+
+*New meshes (mostly clothes) in user folder will be compiled, when the mesh is used first time. New targets in user folder should be compiled via GUI from time to time.*
+
+## Usual start
+
+### Linux
+
+When environment is already installed, you only need to do:
+
+```
+cd <path to newname>
+source venv/bin/activate
+python3 makehuman.py
+```
+
+### Windows:
+
+It is possible to start MakeHuman2 the common way. An icon is supplied in the data/icons folder: makehuman2logo.ico. Make sure a suffix .py starts your python3 interpreter (mostly visual studio might be opened). Of course only do that, if you do not need visual studio ..
+
+
+## Internals:
 
 This installation will change for sure, since it is all under development.
-
-Atm. makehuman.py can only be started on CLI. You also need to 'cd' to the folder.
-Call is with the interpreter in front:
-
-        python3 makehuman.py
 
 Currently syntax is like this:
 
@@ -50,41 +182,34 @@ Currently syntax is like this:
                         16 enable numpy runtime error messages
                         32 JSON for e.g glTF or to get lines for face or body poses when loading bvh file
 
-Hint: there are still prints which do not follow the verbose rules for debugging.
+*Hint: there is still output which do not follow the verbose rules for debugging.*
 
-Since makehuman comes with nearly no assets to save space on github, assets must be added.
-
-Makehuman can work with two asset folders, one is called system folder, which is the place, where makehuman itself is installed and one is the user folder.
-
-At the moment it is important that you first start makehuman to set your workspace (user folder) so that you can also download the assets in your
-own environment, instead of mixing it with the program code, so that you do not download these assets again and again. This can be done in preferences.
-
-So go to preferences, change MakeHuman user home to e.g. d:\shared\mhuser and logfile to d:\shared\mhuser\log (Windows syntax, Linux accordingly) and press save.
-
-We do not recommend redirecting output in the development phase.
+## Configuration file
 
 
-After setting the paths in preferences also the extra CLI tools are able to work with the user folder.
-* compile_meshes.py
-* compile_targets.py
-* getpackages.py
-
-These tools have options and can run without interaction (except getpackages.py) for later use in installation procedures,
-but we recommend to start them without any options. In that case you have the chance to abort the command.
-
-* Call **python3 getpackages.py** to get the assets for the hm08 base. (we recommend user space). The program uses makehuman server to get the assets, it also tries the mirror server, but that takes time.
-* Call **python3 compile_targets.py** to compile system targets first.
-* Call **python3 compile_meshes.py** to compile meshes on both system + user folder (mhclo + obj will be compiled to mhbin). In system folder the base mesh itself is compiled.
-
-You can also compile the meshes from  makehuman GUI, also the download can be done from there (it does not try the mirror server though). Since system space is usually protected (esp. on Linux), a special option "-A" has to be used. Then you need to have the correct user permissions as well.
-
-Be aware that in future times a packet might already contain the standard assets, so that this installation will be simpler.
-
-Hint: The configuration file containing the path of the user folder can be changed also with an editor just in case. It will keep in place, even when you delete the software.
+The configuration file containing the path of the user folder can be changed also with an editor just in case.
+It will keep in place, even when you delete the software.
 
 To find this file simply display the version, it is presented in the last line:
 
 	python3 makehuman -V
 
+Do not wonder about the path for Windows, this is a special python sandbox to hold your %APPDATA%. Linux is more or less standard inside the .config folder.
 
+##  Blender plugin
 
+At the moment the blender plugin io_makehuman is already included in the software. It is in the folder extern / blender_addons.
+
+zip this folder with either
+
+zip -r io_makehuman.zip io_makehuman
+
+on Linux or do that with a tool on Windows (when unzipped, the io_makehuman path must be created).
+
+In Blender simply download the zip as a file. With key "n" it should appear on the side bar. The plugin can either load exported .mh2b files or use a socket for communication. The format is the same. The mh2b format is a combination of JSON and binary structure.
+
+Best to Use this format for Blender because e.g. glTF will always convert everything to triangles.
+
+## Further information
+
+Further information you will find on the MakeHuman Community pages soon. Be aware that each screen has a context help.
