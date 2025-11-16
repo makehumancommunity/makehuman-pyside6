@@ -642,6 +642,15 @@ class object3d:
         if bweights is not None:
 
             self.debug("need to optimize weights")
+
+            # create an overflow dictionary
+            overflow = {}
+            if self.overflow is not None:
+                for s,d  in self.overflow:
+                    if s not in overflow:
+                        overflow[s] = []
+                    overflow[s].append(d)
+
             # vertex numbers of weights index array must be replaced by new numbers,
             # the needed weights will be copied
             #
@@ -656,6 +665,14 @@ class object3d:
                         narr.append(d)
                         warr.append(bweights[elem][1][i])
                         m += 1
+                    else:
+                        if n in overflow:
+                            for alts in overflow[n]:
+                                d = mapping[alts]
+                                if d != -1:
+                                    narr.append(d)
+                                    warr.append(bweights[elem][1][i])
+                                    m += 1
 
                 if m > 0:
                     nweights[elem] = (np.array(narr, dtype=np.uint32), np.array(warr, dtype=np.float32))

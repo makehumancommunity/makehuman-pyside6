@@ -274,7 +274,7 @@ class gltfExport:
         weights = weights/sums
 
         if overflow is not None:
-           for (s,d) in overflow:
+            for (s,d) in overflow:
                 for i in range(0,4):
                     joints[d][i] = joints[s][i]
                     weights[d][i] = weights[s][i]
