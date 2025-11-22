@@ -217,18 +217,20 @@ class OpenGLView(QOpenGLWidget):
 
     def initializeGL(self):
         """
-        automatically called by PySide6, terminates complete program if shader version < minversion (330)
+        automatically called by PySide6, terminates complete program if shader version < minversion (330) if not OSX
         """
+        self.glob.openGLBlock = False
         self.glfunc = self.context().functions()
 
-        deb = GLDebug()
-        if deb.checkVersion() is False:
-            self.env.logLine(1, "Shader version is not sufficient, minimum version is " + str(deb.minVersion() + ". Available languages are:") )
-            lang = deb.getShadingLanguages()
-            for l in lang:
-                if l != "":
-                    self.env.logLine(1, l)
-            exit(20)
+        if self.env.osindex != 2:
+            deb = GLDebug()
+            if deb.checkVersion() is False:
+                self.env.logLine(1, "Shader version is not sufficient, minimum version is " + str(deb.minVersion() + ". Available languages are:") )
+                lang = deb.getShadingLanguages()
+                for l in lang:
+                    if l != "":
+                        self.env.logLine(1, l)
+                exit(20)
 
         baseClass = self.glob.baseClass
         o_size = baseClass.baseMesh.getHeightInUnits() if baseClass is not None else 20
@@ -301,12 +303,13 @@ class OpenGLView(QOpenGLWidget):
         self.update()
 
     def paintGL(self):
-        c = self.light.glclearcolor
-        self.glfunc.glClearColor(c.x(), c.y(), c.z(), c.w())
-        self.glfunc.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
         if self.glob.openGLBlock:
             # print ("open GL is blocked")
             return 
+
+        c = self.light.glclearcolor
+        self.glfunc.glClearColor(c.x(), c.y(), c.z(), c.w())
+        self.glfunc.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
        
         proj_view_matrix = QMatrix4x4(self.camera.getProjViewMatrix().copyDataTo())
         campos = self.camera.getCameraPos()

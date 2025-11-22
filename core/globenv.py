@@ -30,7 +30,7 @@ class globalObjects():
         self.shaderInit = None
         self.subwindows = {}
         self.openGLWindow = None
-        self.openGLBlock  = False
+        self.openGLBlock  = True
         self.midColumn    = None
         self.centralWidget= None
         self.baseClass = None

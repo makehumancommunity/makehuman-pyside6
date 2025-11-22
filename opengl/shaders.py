@@ -63,6 +63,12 @@ class ShaderRepository():
         self._shaders = []          # list of shaders
         self._shadernames = {}      # shaders by name reference to _shaders
 
+        if self.env.osindex == 2:
+            self.prefix = "v12_"    # in case of OSX limit the shaders to OpenGL version 1.2
+            self.env.logLine(1, "Working with shader prefix: " + self.prefix)
+        else:
+            self.prefix = ""
+
     def getShader(self, name):
         """
         return shader by name
@@ -72,7 +78,7 @@ class ShaderRepository():
         return  self._shaders[shadernum]
 
     def loadShader(self, filename):
-        path = os.path.join (self.env.path_sysdata, "shaders", filename)
+        path = os.path.join (self.env.path_sysdata, "shaders", self.prefix+filename)
         if path in self._shadernames:
             return self._shadernames[path]
 
