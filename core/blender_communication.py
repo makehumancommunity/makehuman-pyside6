@@ -496,7 +496,7 @@ class blendCom:
             if self.scale != 1.0:
                 #print ("get a new skeleton")
                 skeleton = newSkeleton(self.glob, "copy")
-                skeleton.copyScaled(baseclass.skeleton, self.scale, 0.0)
+                skeleton.copyScaled(baseclass.skeleton, self.scale, 0.0, True)
             else:
                 skeleton = baseclass.skeleton
 

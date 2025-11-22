@@ -652,9 +652,9 @@ class gltfExport:
         if baseweights is not None:
             self.json["nodes"][0]["skin"] = 0
             if self.scale != 1.0 or self.onground:
-                self.debug("Resizing, get a new skeleton")
+                self.debug("Resizing or repositining, get a new skeleton")
                 skeleton = newSkeleton(self.glob, "copy")
-                skeleton.copyScaled(baseclass.skeleton, self.scale, self.lowestPos)
+                skeleton.copyScaled(baseclass.skeleton, self.scale, self.lowestPos, False)
             else:
                 skeleton = baseclass.skeleton
 

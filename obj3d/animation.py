@@ -280,6 +280,12 @@ class BVH():
                     joint.identFinal()
 
     def debugChanged(self, num):
+        """
+        print a frame (pose) for debugging
+        in case of location vector is 0, only rotation is printed
+
+        :param num: frame number
+        """
         np.set_printoptions(precision=3, suppress=True)
         restmatrix= np.zeros((3,4), dtype=np.float32)
         restmatrix[:3,:3] = np.identity(3, dtype=np.float32)
@@ -288,7 +294,8 @@ class BVH():
             m = np.round(joint.matrixPoses[num], decimals=3)
             if not np.array_equiv(m,restmatrix):
                 s = list(m[:3,:3].flatten())
-                if np.where(~m.any(axis=0))[0] == 3:
+                zeros = np.where(~m.any(axis=0))[0]
+                if zeros.size == 3:
                     print("\"" + joint.name + "\": " + str(s))
                 else:
                     d = list(m[:3,3].flatten())
@@ -314,7 +321,7 @@ class BVH():
         self.filename = filename
         self.env.logLine(8, "Load bvh " + filename)
         with open(filename, "r", encoding='utf-8') as fp:
-            # starts with HIERARCHIE 
+            # starts with HIERARCHY 
             # ROOT
             if self.keyParam('HIERARCHY', fp) is None:
                 return False
